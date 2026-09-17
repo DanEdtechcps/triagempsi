@@ -1,0 +1,415 @@
+[
+  {
+    "date": "2026-08-13",
+    "title": "Painel mobile-first: leitura rápida no celular",
+    "detail": "Navegação do painel reorganizada para o celular: barra inferior fixa (Triagens, Contatos, Evolução, Resumo) com gaveta lateral agrupada para os demais módulos. A lista de triagens vira cartões de leitura rápida com faixa lateral de gravidade, tempo relativo, badges limitadas e ações compactas (revisar, selecionar, PDFs) — a tabela densa e a rolagem horizontal ficam só no desktop. Busca e atalhos de risco ficam fixos no topo; filtros avançados e visualizações salvas abrem em gaveta inferior. Paginação vira botão 'Carregar mais' e as métricas de preenchimento ficam recolhíveis abaixo da lista. No celular a visão padrão passa a ser cartões.",
+    "area": "Painel",
+    "status": "aprovada",
+    "version": "1.23.0",
+    "impact": "Médico consegue revisar a fila inteira pelo celular: menos toques, sem barra de rolagem horizontal e prioridade visual imediata para casos de risco.",
+    "approved_at": "2026-08-13T07:18:19.769Z"
+  },
+  {
+    "date": "2026-08-13",
+    "title": "Gestão de assinaturas e visão comercial",
+    "detail": "Catálogo de planos (Consultório R$890, Clínica R$2.400, Instituição sob medida), assinatura por consultório com trial/ativa/inadimplente/suspensa/cancelada, enforcement do limite de profissionais no cadastro de equipe, sincronização automática do acesso do consultório com a situação da assinatura e painel Comercial com MRR, trials, inadimplentes, vencimentos e edição de plano/valor/vencimento.",
+    "area": "Admin",
+    "status": "pendente",
+    "version": "1.22.0",
+    "impact": "Operação SaaS passa a ter gestão comercial real: limites de plano aplicados no backend, visão de receita recorrente e controle de ciclo de vida por consultório, sem depender ainda de gateway de pagamento.",
+    "links": [
+      {
+        "label": "Visão comercial",
+        "url": "/comercial"
+      }
+    ]
+  },
+  {
+    "date": "2026-08-13",
+    "title": "Entrada rápida do paciente direto no botão Portal do paciente",
+    "detail": "Nova rota /entrar: tela dedicada de login do paciente (e-mail + senha com autofoco, 'esqueci minha senha' e atalho para o primeiro acesso), sem qualquer passagem pelo painel da equipe. Roteamento por papel preservado: papel clínico é encaminhado ao /painel, paciente ao /portal — também ao detectar sessão existente. /portal deslogado passa a redirecionar para /entrar (superfície única de login; formulário inline removido). CTAs atualizados: 'Portal do paciente' e 'Sou paciente' da landing, header da página da clínica (que só tinha entrada de profissional), links do /primeiro-acesso, 'Voltar ao acesso' do reset de senha e 'Crie seu acesso' ao fim da triagem (agora aponta para /primeiro-acesso).",
+    "area": "Portal do Paciente",
+    "status": "pendente",
+    "version": "1.21.0",
+    "impact": "Paciente chega aos próprios resumos em 2 cliques a partir de qualquer porta de entrada (landing, página da clínica ou fim da triagem) sem nunca cruzar com telas da equipe — e a página da clínica ganha pela primeira vez uma entrada própria para pacientes.",
+    "links": [
+      {
+        "label": "Entrada rápida",
+        "url": "/entrar"
+      },
+      {
+        "label": "Portal",
+        "url": "/portal"
+      },
+      {
+        "label": "Página da clínica",
+        "url": "/padrao"
+      }
+    ]
+  },
+  {
+    "date": "2026-08-13",
+    "title": "Portal do paciente independente de papel de equipe",
+    "detail": "RLS de leitura do próprio paciente em assessments/scale_results vinculada ao e-mail verificado da sessão; getMyPortalAssessments passa a consultar com a identidade do próprio paciente (sem cliente privilegiado); verificação de equipe fica consultiva e falha aberta no portal, primeiro acesso e login; guarda do painel ganha estado de erro com nova tentativa (falha fechada).",
+    "area": "Portal do Paciente",
+    "status": "pendente",
+    "version": "1.20.0",
+    "impact": "Paciente acessa seus resumos sem qualquer papel de médico/clínica: as consultas rodam sob a própria identidade com RLS e falhas na verificação de papel não bloqueiam mais a navegação do paciente.",
+    "links": [
+      {
+        "label": "Portal",
+        "url": "/portal"
+      },
+      {
+        "label": "Primeiro acesso",
+        "url": "/primeiro-acesso"
+      }
+    ]
+  },
+  {
+    "date": "2026-08-13",
+    "title": "Guardas de acesso: fronteira paciente × profissional",
+    "detail": "Guarda GuardAreaProfissional aplicada no PainelShell (protege as 18 páginas do painel de uma vez): paciente logado vê tela clara de 'Área exclusiva da equipe clínica' com atalho para o Portal. /auth roteia por papel após o login (equipe → /painel, paciente → /portal) e também ao detectar sessão existente. /primeiro-acesso reconhece profissional logado e o encaminha ao painel. Hook useStaffRole e helper checkIsStaff em src/lib/staff.ts consultam user_roles (RLS: cada usuário lê só a própria role).",
+    "area": "Segurança",
+    "status": "pendente",
+    "version": "1.19.0",
+    "impact": "Pacientes nunca veem telas do painel e profissionais não caem em telas de paciente: menos confusão de acesso, menos suporte e fronteira clara entre os dois mundos.",
+    "links": [
+      {
+        "label": "Portal",
+        "url": "/portal"
+      },
+      {
+        "label": "Primeiro acesso",
+        "url": "/primeiro-acesso"
+      }
+    ]
+  },
+  {
+    "date": "2026-08-13",
+    "title": "Página de primeiro acesso do paciente",
+    "detail": "Nova rota /primeiro-acesso com passo a passo em 4 etapas (responder triagem, criar acesso com o mesmo e-mail, confirmar e-mail, entrar no portal), formulário com botão único de criação de conta, medidor de força de senha e tela de sucesso com orientações sobre o e-mail de confirmação. Login do portal simplificado e ligado à nova página",
+    "area": "Portal do Paciente",
+    "status": "pendente",
+    "version": "1.18.2",
+    "impact": "Paciente novo entende o fluxo completo antes de criar a conta e recebe confirmação por e-mail com orientação clara — menos suporte e menos contas com e-mail errado",
+    "links": [
+      {
+        "label": "Primeiro acesso",
+        "url": "/primeiro-acesso"
+      }
+    ]
+  },
+  {
+    "date": "2026-08-13",
+    "title": "Portal do paciente: orientação clara quando não há avaliações no e-mail",
+    "detail": "Estado vazio do /portal reformulado: explica que o vínculo é feito pelo e-mail, lista passos práticos (conferir e-mail usado na triagem, checar spam, entrar com outro e-mail, responder a triagem) e CTAs diretos",
+    "area": "Portal do Paciente",
+    "status": "pendente",
+    "version": "1.18.1",
+    "impact": "Reduz confusão e abandono: o paciente entende por que não vê resultados e sabe exatamente o que fazer",
+    "links": [
+      {
+        "label": "Portal",
+        "url": "/portal"
+      }
+    ]
+  },
+  {
+    "date": "2026-08-13",
+    "title": "Guia clínico com evidências e referências das escalas",
+    "detail": "Página /referencias no painel com a base científica das 24 escalas ativas: ponto de corte, sensibilidade/especificidade, referência original e validação brasileira de cada instrumento; 8 fluxos exemplificados por especialidade; limitações e governança (LGPD); propostas para dados de pesquisa (diagnóstico final no parecer, campos sociodemográficos, métricas do respondente, CAAE, dataset anonimizado). Documentos Guia_Clinico_Pre_Triagem.pdf e .docx gerados e revisados. Teste automatizado garante que nenhuma escala fique sem evidência cadastrada.",
+    "area": "Clínico",
+    "status": "pendente",
+    "version": "1.18.0",
+    "impact": "Equipe médica passa a ter as bases e justificativas de cada encaminhamento da triagem, com material pronto para discussão clínica e futuras publicações",
+    "links": [
+      {
+        "label": "Guia de evidências",
+        "url": "/referencias"
+      }
+    ]
+  },
+  {
+    "date": "2026-08-13",
+    "title": "ASSIST-Lite (OMS) com ramificação por substância",
+    "detail": "Substitui o ASSIST simplificado pela versão ASSIST-Lite da OMS: 20 perguntas Sim/Não em 7 classes (tabaco, álcool, cannabis, estimulantes, sedativos, opioides, outras). Pergunta-porta 'Não' pula o bloco da substância (itens gravados como 0). Escore e faixa por substância (álcool: baixo 0-1, moderado 2, alto ≥3; demais: 0, 1-2, ≥3; outras: 1 já é alto) com conduta OMS (reforço positivo / intervenção breve FRAMES / avaliação especializada). Escalonamento por subescore: álcool ≥2 → AUDIT, tabaco ≥1 → FTND, alto risco → PHQ-2. Painel, PDF e e-mail exibem o quadro por substância e marcam itens pulados como 'não se aplica'. Definição antiga preservada para o histórico. 78 testes passando (8 novos de ramificação).",
+    "area": "Triagem",
+    "status": "pendente",
+    "version": "1.17.0",
+    "impact": "Rastreio de substâncias fiel ao instrumento da OMS: triagem mais curta para não-usuários e conduta específica por substância para a equipe.",
+    "links": [
+      {
+        "label": "Triagem",
+        "url": "/padrao/triagem"
+      }
+    ]
+  },
+  {
+    "date": "2026-08-13",
+    "title": "Porta de entrada dividida: paciente × profissional",
+    "detail": "Nova primeira dobra da landing com dois painéis lado a lado (empilhados no mobile): paciente (Começar pré-avaliação e Portal do paciente) e profissional/clínica (Entrar no painel e Ver a plataforma). Hover/foco expande o painel suavemente e revela benefícios, brilho segue o cursor, divisor 'ou', indicador de rolagem animado, rolagem suave global com respeito a prefers-reduced-motion, margem de âncora sob o header fixo e link 'Sou paciente' na navegação.",
+    "area": "Landing",
+    "status": "pendente",
+    "version": "1.16.0",
+    "impact": "Visitante entende em 3 segundos qual caminho seguir; paciente e profissional chegam ao destino em 1 clique, sem fricção.",
+    "links": [
+      {
+        "label": "Landing",
+        "url": "/"
+      },
+      {
+        "label": "Portal do paciente",
+        "url": "/portal"
+      },
+      {
+        "label": "Triagem padrão",
+        "url": "/padrao/triagem"
+      }
+    ]
+  },
+  {
+    "date": "2026-08-12",
+    "title": "Portal do Paciente com login próprio",
+    "detail": "Nova rota pública /portal onde o paciente cria acesso com e-mail + senha (o mesmo e-mail informado na triagem) e vê apenas o resumo básico: nome das escalas, faixa e orientação amigável por faixa — sem escores brutos, sem respostas item a item, sem sinalizações de risco. Segurança: vínculo exige e-mail confirmado; o servidor filtra por e-mail verificado e projeta só colunas seguras (RLS das tabelas continua bloqueando acesso direto de pacientes); cada acesso gera log de auditoria 'portal_patient_view' (LGPD). Tela final da triagem ganhou convite ao portal; /reset-password agora redireciona equipe→/painel e paciente→/portal; cartão fixo de emergência CVV 188 sempre visível no portal; membro da equipe que entrar em /portal é orientado a ir ao painel.",
+    "area": "Paciente",
+    "status": "pendente",
+    "version": "1.15.0",
+    "impact": "Paciente passa a ter onde rever seus resumos básicos depois da triagem, sem expor dados clínicos sensíveis nem gerar trabalho para a equipe.",
+    "links": [
+      {
+        "label": "Portal do Paciente",
+        "url": "/portal"
+      }
+    ]
+  },
+  {
+    "date": "2026-08-12",
+    "title": "Escolha do médico na triagem",
+    "detail": "O paciente agora escolhe (opcionalmente) com qual profissional quer consultar logo no início da pré-avaliação. A escolha fica destacada no painel (badge → nome do médico), com filtro 'Profissional escolhido' na lista e campo no detalhe da triagem. Toda a equipe do consultório continua vendo todas as triagens — a escolha é informativa, não restritiva. No admin (aba Equipe médica), nova seção 'Lista pública de médicos' permite cadastrar/editar nome público e especialidade, ocultar da lista e adicionar novos médicos sem mexer no código. Perfis iniciais criados: Dr. Marcel Villalumen e Dr. José Saraiva Jr.",
+    "area": "Triagem",
+    "status": "pendente",
+    "version": "1.14.0",
+    "impact": "Paciente direciona sua pré-avaliação ao médico de preferência; equipe filtra a fila por profissional; admin gerencia a lista pública sem código.",
+    "links": [
+      {
+        "label": "Triagem",
+        "url": "/padrao/triagem"
+      },
+      {
+        "label": "Admin",
+        "url": "/admin"
+      }
+    ]
+  },
+  {
+    "date": "2026-08-12",
+    "title": "Endurecimento de acesso público a consultórios e ao storage",
+    "detail": "A tabela de consultórios passa a expor ao público apenas as colunas de identidade visual e contato público usadas nas páginas da clínica; datas de auditoria e qualquer coluna futura ficam bloqueadas por padrão. O bucket privado de imagens da landing ganhou regras explícitas de acesso: somente o administrador geral pode ler, enviar, alterar ou remover arquivos, e o acesso anônimo direto permanece negado.",
+    "area": "Segurança",
+    "status": "pendente",
+    "version": "1.13.1",
+    "impact": "Reduz a superfície de exposição pública do banco e formaliza o controle de acesso aos arquivos, sem mudar nenhuma tela do produto."
+  },
+  {
+    "date": "2026-08-08",
+    "title": "Plano de marketing e monetização",
+    "detail": "Documento estratégico completo: diagnóstico e posicionamento, precificação dos três cenários (consultório, rede, ocupacional NR-01), custo do projeto e unit economics, campanhas de 90 dias com R$ 5.000/mês, ROI, KPIs e governança, riscos e plano de 12 meses. Entregue em PDF e DOCX.",
+    "area": "Negócio",
+    "status": "pendente",
+    "version": "1.13.0",
+    "impact": "Dá ao time comercial tabela de preços, verba, metas e ROI defensáveis para começar a vender"
+  },
+  {
+    "date": "2026-08-08",
+    "title": "Acompanhamento longitudinal, FHIR, adaptativo e NR-01",
+    "detail": "Seis boas práticas de mercado incorporadas: (1) curva longitudinal das escalas por paciente em /evolucao, com reaplicação e comparação entre aplicações; (2) índice de mudança confiável (RCI) e diferença mínima importante por escala, separando melhora real de erro de medida; (3) exportação HL7 FHIR R4 (Patient, QuestionnaireResponse item a item e Observation) no detalhe da triagem; (4) administração adaptativa por limites, encerrando escalas longas quando a faixa já está determinada e nenhum item de risco ficou pendente; (5) métrica de ganho da fila priorizada por risco no painel, em posições e dias de espera evitados; (6) rastreio de riscos psicossociais COPSOQ-BR (16 itens, domínios PRIMA-EF) com relatório agregado por empresa em /ocupacional, anonimato mínimo de 5 respondentes e exportação CSV.",
+    "area": "Motor clínico",
+    "status": "aprovada",
+    "version": "1.12.0",
+    "impact": "A triagem deixa de ser evento único e passa a sustentar acompanhamento, interoperabilidade enterprise e o nicho de saúde ocupacional (NR-01), com menos itens respondidos por paciente.",
+    "links": [
+      {
+        "label": "Evolução",
+        "url": "/evolucao"
+      },
+      {
+        "label": "NR-01",
+        "url": "/ocupacional"
+      }
+    ],
+    "approved_at": "2026-08-08T19:25:19.317Z"
+  },
+  {
+    "date": "2026-08-08",
+    "title": "Ampliação do motor: bipolaridade, tabaco, perinatal e mais",
+    "detail": "Sete novos instrumentos validados no motor — MDQ (espectro bipolar), Fagerström/FTND (dependência de nicotina), EPDS (gestantes e puérperas), SCOFF (transtornos alimentares), ISI (insônia), AQ-10 (traços autísticos) e AD-8 (mudança cognitiva, respondido por familiar). Novas portas de entrada na triagem e regras de escalonamento: PHQ-9 moderado/grave abre MDQ, ASSIST com tabaco relevante abre Fagerström, EPDS com item de autoagressão ou ≥13 aciona a via de risco, AD-8 positivo abre GDS-15.",
+    "area": "Triagem clínica",
+    "status": "pendente",
+    "version": "1.11.0",
+    "impact": "O motor passa a cobrir 28 instrumentos e atender gestantes, tabagistas, transtornos alimentares, sono, neurodesenvolvimento e queixa cognitiva — cobertura suficiente para consultórios de perfis diferentes na mesma plataforma."
+  },
+  {
+    "date": "2026-08-08",
+    "title": "Variações visuais da landing",
+    "detail": "Seletor flutuante 'Design' na landing com quatro modelos: Noir (padrão), Claro editorial, Escuro sereno e Ousadíssima (neon ácido/magenta). A escolha fica salva no navegador.",
+    "area": "Landing",
+    "status": "pendente",
+    "version": "1.10.0",
+    "impact": "Permite comparar e escolher a identidade visual da página de vendas sem mexer no código."
+  },
+  {
+    "date": "2026-08-08",
+    "title": "Versionamento da miniatura de compartilhamento",
+    "detail": "URL da imagem Open Graph agora carrega um número de versão (?v=N), incrementado a cada upload ou pelo botão 'Forçar atualização do preview' no admin, para furar o cache do WhatsApp e do LinkedIn.",
+    "area": "Landing",
+    "status": "pendente",
+    "version": "1.9.2",
+    "impact": "Preview de link atualiza sem depender do cache dos crawlers"
+  },
+  {
+    "date": "2026-08-08",
+    "title": "Validação de metatags da landing",
+    "detail": "Nova página /meta-landing no painel: tabela das tags OG e Twitter geradas, HTML copiável, prévia do card de link e checagem de tamanho de título/descrição e imagem.",
+    "area": "Painel",
+    "status": "pendente",
+    "version": "1.9.1",
+    "impact": "Dá para conferir como o link da landing vai aparecer antes de republicar.",
+    "links": [
+      {
+        "label": "Abrir metatags",
+        "url": "/meta-landing"
+      }
+    ]
+  },
+  {
+    "date": "2026-08-08",
+    "title": "Admin da landing: chamada e miniatura editáveis",
+    "detail": "Nova aba Landing em /admin para editar selo, título, subtítulo, título/descrição de compartilhamento e enviar a imagem da miniatura.",
+    "area": "Painel",
+    "status": "pendente",
+    "version": "1.9.0",
+    "impact": "O administrador geral ajusta a chamada e o preview da landing sem tocar no código.",
+    "links": [
+      {
+        "label": "Abrir admin",
+        "url": "/admin"
+      }
+    ]
+  },
+  {
+    "date": "2026-08-08",
+    "title": "Nova miniatura de compartilhamento e ajuste de copy",
+    "detail": "Arte própria de preview (og-landing.jpg) aplicada nas metatags da landing e remoção do argumento de consulta cara.",
+    "area": "Landing",
+    "status": "pendente",
+    "version": "1.8.1",
+    "impact": "Links compartilhados mostram miniatura própria e a mensagem comercial não depende do preço da consulta."
+  },
+  {
+    "date": "2026-08-08",
+    "title": "Landing page comercial premium",
+    "detail": "Nova página inicial (/) de vendas em estética noir: hero com animação palavra a palavra, aurora com parallax, marquee das escalas, contadores, linha do tempo do método, bento de recursos com spotlight, planos, FAQ animado e CTA final.",
+    "area": "Site",
+    "status": "pendente",
+    "version": "1.8.0",
+    "impact": "Material de venda próprio para apresentar a plataforma a clínicas e profissionais, separado do ambiente clínico.",
+    "links": [
+      {
+        "label": "Landing",
+        "url": "/"
+      }
+    ]
+  },
+  {
+    "date": "2026-08-08",
+    "title": "Página de administração de consultórios e equipe",
+    "detail": "Nova tela /admin (somente administrador geral) para cadastrar consultórios com identidade visual, ativar/desativar unidades e criar/vincular acessos de médicos por consultório.",
+    "area": "Painel",
+    "status": "pendente",
+    "version": "1.7.0",
+    "impact": "Você passa a abrir novos consultórios e liberar acesso a médicos sem depender de ajuste técnico.",
+    "links": [
+      {
+        "label": "Consultórios",
+        "url": "/admin"
+      }
+    ]
+  },
+  {
+    "date": "2026-08-08",
+    "title": "Exportação do roadmap em CSV",
+    "detail": "Botão na página de Roadmap que gera um CSV (UTF-8, compatível com Excel) com os itens de cada fase e o registro de entregas aprovadas e pendentes.",
+    "area": "Roadmap",
+    "status": "pendente",
+    "version": "1.6.0",
+    "impact": "Permite compartilhar o andamento do projeto com o demandante e manter rastreabilidade das entregas fora do sistema."
+  },
+  {
+    "date": "2026-08-08",
+    "title": "Aprovação de entregas antes do roadmap",
+    "detail": "Toda entrega registrada entra como pendente e só é fixada no roadmap/changelog após revisão. Nova seção 'Aguardando sua aprovação' em /roadmap e comando roadmap:review (--list, --approve, --approve-all, --reject --note, --edit).",
+    "area": "Roadmap",
+    "status": "pendente",
+    "version": "1.5.0",
+    "impact": "Você valida descrição, escopo, versão e impacto antes de a entrega virar histórico oficial."
+  },
+  {
+    "date": "2026-08-08",
+    "title": "Resumo de progresso no painel",
+    "detail": "Nova tela /resumo e endpoint getProgressSummary que agrupam a atividade registrada por consultório e por tipo de ação (7/30/90 dias) e listam as últimas entregas do roadmap.",
+    "area": "Painel",
+    "version": "1.5.0",
+    "impact": "Revisão rápida do progresso: em uma tela o médico vê o que cada consultório fez, os tipos de ação mais frequentes e as entregas recentes."
+  },
+  {
+    "date": "2026-08-08",
+    "version": "1.4.0",
+    "title": "Changelog por versão",
+    "detail": "Nova tela que agrupa as entregas do roadmap por versão, mostrando o que foi feito, o impacto e links ou prints quando existirem.",
+    "impact": "O consultório acompanha a evolução do sistema versão a versão, sem depender de aviso por mensagem.",
+    "area": "Roadmap",
+    "links": [
+      {
+        "label": "Abrir changelog",
+        "url": "/changelog"
+      }
+    ]
+  },
+  {
+    "date": "2026-08-08",
+    "version": "1.4.0",
+    "title": "Registro automático de entregas no roadmap",
+    "detail": "Toda entrega passa a ser registrada com título, descrição e data em um histórico exibido na página de Roadmap e no PDF, sem edição manual do arquivo de fases.",
+    "impact": "Elimina o trabalho manual de manter o roadmap atualizado.",
+    "area": "Roadmap",
+    "links": [
+      {
+        "label": "Abrir roadmap",
+        "url": "/roadmap"
+      }
+    ]
+  },
+  {
+    "date": "2026-08-08",
+    "version": "1.3.0",
+    "title": "Auditoria com filtros e exportação CSV",
+    "detail": "Filtro por período e por tipo de ação na tela de auditoria, com exportação em CSV (UTF-8) dos registros exibidos.",
+    "impact": "Facilita prestação de contas e conferência de acessos em auditorias internas.",
+    "area": "Painel",
+    "links": [
+      {
+        "label": "Abrir auditoria",
+        "url": "/auditoria"
+      }
+    ]
+  },
+  {
+    "date": "2026-08-07",
+    "version": "1.3.0",
+    "title": "Isolamento por consultório em envios e mensagens de acesso negado",
+    "detail": "Envios de WhatsApp e e-mail só aceitam contatos e destinatários do próprio consultório; acessos fora de escopo mostram aviso explicativo em vez de erro técnico.",
+    "impact": "Reduz risco de vazamento entre consultórios e deixa o erro compreensível para o profissional.",
+    "area": "Segurança"
+  }
+]

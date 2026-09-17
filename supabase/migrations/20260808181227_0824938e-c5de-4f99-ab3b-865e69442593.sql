@@ -1,0 +1,1 @@
+ALTER TABLE public.landing_settings ADD COLUMN share_image_path text;

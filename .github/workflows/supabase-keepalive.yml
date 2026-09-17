@@ -1,0 +1,26 @@
+name: Supabase Keepalive Ping
+
+on:
+  schedule:
+    # Executa a cada 2 dias às 06:00 UTC
+    - cron: '0 6 */2 * *'
+  workflow_dispatch:
+
+jobs:
+  ping:
+    name: Ping Supabase Database
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Supabase REST API
+        run: |
+          echo "Pinging Supabase at https://ffyjjkouscnabyxjxexu.supabase.co..."
+          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+            -H "apikey: sb_publishable_3F04VCYRIoUVH0mXyZBOEg_EQsVTMaT" \
+            -H "Authorization: Bearer sb_publishable_3F04VCYRIoUVH0mXyZBOEg_EQsVTMaT" \
+            "https://ffyjjkouscnabyxjxexu.supabase.co/rest/v1/clinics?select=count")
+          echo "Supabase Response HTTP Code: $HTTP_STATUS"
+          if [ "$HTTP_STATUS" -ne 200 ] && [ "$HTTP_STATUS" -ne 206 ]; then
+            echo "Unexpected response status: $HTTP_STATUS"
+            exit 1
+          fi
+          echo "Supabase keepalive ping successful! Database is active and running."

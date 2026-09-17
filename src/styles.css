@@ -1,0 +1,249 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * Design system — Triagem Psiquiátrica
+ * Paleta calma e clínica: verde-azulado sereno, off-white, tipografia legível.
+ */
+
+@theme inline {
+  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
+  --font-serif: "Fraunces", Georgia, serif;
+  --font-display: "Instrument Serif", "Fraunces", Georgia, serif;
+
+  /* Paleta exclusiva da landing (noir premium) */
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-ink-3: var(--ink-3);
+  --color-ivory: var(--ivory);
+  --color-gold: var(--gold);
+  --color-jade: var(--jade);
+
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-surface: var(--surface);
+}
+
+:root {
+  --radius: 0.75rem;
+
+  /* Landing noir */
+  --ink: oklch(0.145 0.018 250);
+  --ink-2: oklch(0.19 0.022 250);
+  --ink-3: oklch(0.24 0.025 250);
+  --ivory: oklch(0.96 0.012 85);
+  --gold: oklch(0.82 0.11 82);
+  --jade: oklch(0.76 0.11 178);
+
+  --background: oklch(0.985 0.005 180);
+  --foreground: oklch(0.22 0.03 220);
+  --surface: oklch(0.97 0.008 190);
+
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.22 0.03 220);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.22 0.03 220);
+
+  --primary: oklch(0.48 0.08 200);
+  --primary-foreground: oklch(0.985 0.005 180);
+
+  --secondary: oklch(0.93 0.02 190);
+  --secondary-foreground: oklch(0.28 0.04 220);
+
+  --muted: oklch(0.95 0.01 190);
+  --muted-foreground: oklch(0.50 0.02 220);
+
+  --accent: oklch(0.86 0.06 180);
+  --accent-foreground: oklch(0.25 0.04 220);
+
+  --destructive: oklch(0.55 0.20 25);
+  --destructive-foreground: oklch(0.985 0.005 180);
+  --success: oklch(0.60 0.12 155);
+  --success-foreground: oklch(0.985 0.005 180);
+  --warning: oklch(0.72 0.15 70);
+  --warning-foreground: oklch(0.22 0.03 220);
+
+  --border: oklch(0.90 0.01 200);
+  --input: oklch(0.90 0.01 200);
+  --ring: oklch(0.48 0.08 200);
+}
+
+.dark {
+  --background: oklch(0.18 0.02 220);
+  --foreground: oklch(0.96 0.005 190);
+  --surface: oklch(0.22 0.025 220);
+  --card: oklch(0.22 0.025 220);
+  --card-foreground: oklch(0.96 0.005 190);
+  --popover: oklch(0.22 0.025 220);
+  --popover-foreground: oklch(0.96 0.005 190);
+  --primary: oklch(0.72 0.10 195);
+  --primary-foreground: oklch(0.18 0.02 220);
+  --secondary: oklch(0.28 0.03 220);
+  --secondary-foreground: oklch(0.96 0.005 190);
+  --muted: oklch(0.26 0.02 220);
+  --muted-foreground: oklch(0.70 0.02 200);
+  --accent: oklch(0.35 0.05 200);
+  --accent-foreground: oklch(0.96 0.005 190);
+  --destructive: oklch(0.62 0.20 25);
+  --destructive-foreground: oklch(0.96 0.005 190);
+  --success: oklch(0.65 0.12 155);
+  --success-foreground: oklch(0.18 0.02 220);
+  --warning: oklch(0.75 0.15 70);
+  --warning-foreground: oklch(0.18 0.02 220);
+  --border: oklch(1 0 0 / 12%);
+  --input: oklch(1 0 0 / 15%);
+  --ring: oklch(0.72 0.10 195);
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1, h2, h3, h4 {
+    font-family: var(--font-serif);
+    letter-spacing: -0.01em;
+  }
+}
+
+@utility landing-grain {
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.05;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+}
+
+@utility text-gradient-gold {
+  background-image: linear-gradient(100deg, var(--ivory), var(--gold) 45%, var(--jade));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* =========================================================
+ * Variações visuais da landing (seletor no rodapé da página)
+ * Cada variação apenas redefine os tokens da paleta noir.
+ * ========================================================= */
+
+/* Noir premium — padrão (herdado de :root) */
+[data-landing-variant="noir"] {
+  --ink: oklch(0.145 0.018 250);
+  --ink-2: oklch(0.19 0.022 250);
+  --ink-3: oklch(0.24 0.025 250);
+  --ivory: oklch(0.96 0.012 85);
+  --gold: oklch(0.82 0.11 82);
+  --jade: oklch(0.76 0.11 178);
+}
+
+/* Claro — papel editorial, tinta grafite, acentos âmbar/verde */
+[data-landing-variant="claro"] {
+  --ink: oklch(0.975 0.006 95);
+  --ink-2: oklch(0.995 0.003 95);
+  --ink-3: oklch(0.955 0.008 95);
+  --ivory: oklch(0.23 0.02 250);
+  --gold: oklch(0.58 0.13 70);
+  --jade: oklch(0.52 0.10 178);
+}
+
+[data-landing-variant="claro"] .landing-grain::after {
+  opacity: 0.035;
+}
+
+/* Escuro sereno — azul profundo, acento gelo/ciano */
+[data-landing-variant="escuro"] {
+  --ink: oklch(0.16 0.03 255);
+  --ink-2: oklch(0.21 0.035 255);
+  --ink-3: oklch(0.26 0.04 255);
+  --ivory: oklch(0.94 0.01 220);
+  --gold: oklch(0.80 0.10 215);
+  --jade: oklch(0.72 0.13 165);
+}
+
+/* Ousadíssima — preto absoluto, ácido neon e magenta */
+[data-landing-variant="ousada"] {
+  --ink: oklch(0.06 0 0);
+  --ink-2: oklch(0.11 0.02 320);
+  --ink-3: oklch(0.15 0.04 320);
+  --ivory: oklch(0.98 0 0);
+  --gold: oklch(0.90 0.22 118);
+  --jade: oklch(0.68 0.28 340);
+}
+
+[data-landing-variant="ousada"] .landing-grain::after {
+  opacity: 0.09;
+}
+
+[data-landing-variant="ousada"] h1,
+[data-landing-variant="ousada"] h2 {
+  font-family: var(--font-sans);
+  font-weight: 800;
+  letter-spacing: -0.045em;
+  text-transform: uppercase;
+}
+
+[data-landing-variant="ousada"] .rounded-3xl,
+[data-landing-variant="ousada"] .rounded-2xl,
+[data-landing-variant="ousada"] .rounded-\[2rem\],
+[data-landing-variant="ousada"] .rounded-\[1\.6rem\] {
+  border-radius: 0.25rem;
+}
+
+[data-landing-variant="ousada"] [class*="border-ivory/"] {
+  border-color: color-mix(in oklab, var(--gold) 45%, transparent);
+}
+
+/* =========================================================
+ * Navegação suave entre âncoras (landing e painel)
+ * Desliga para quem pede menos movimento no sistema.
+ * ========================================================= */
+html {
+  scroll-behavior: smooth;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+}

@@ -1,0 +1,1 @@
+ALTER TABLE public.landing_settings ADD COLUMN IF NOT EXISTS share_image_version integer NOT NULL DEFAULT 1;
