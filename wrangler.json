@@ -11,11 +11,11 @@
     "binding": "ASSETS"
   },
   "vars": {
-    "SUPABASE_URL": "https://ffyjjkouscnabyxjxexu.supabase.co",
-    "SUPABASE_PUBLISHABLE_KEY": "sb_publishable_3F04VCYRIoUVH0mXyZBOEg_EQsVTMaT",
     "SUPABASE_PROJECT_ID": "ffyjjkouscnabyxjxexu",
-    "VITE_SUPABASE_URL": "https://ffyjjkouscnabyxjxexu.supabase.co",
+    "SUPABASE_PUBLISHABLE_KEY": "sb_publishable_3F04VCYRIoUVH0mXyZBOEg_EQsVTMaT",
+    "SUPABASE_URL": "https://ffyjjkouscnabyxjxexu.supabase.co",
+    "VITE_SUPABASE_PROJECT_ID": "ffyjjkouscnabyxjxexu",
     "VITE_SUPABASE_PUBLISHABLE_KEY": "sb_publishable_3F04VCYRIoUVH0mXyZBOEg_EQsVTMaT",
-    "VITE_SUPABASE_PROJECT_ID": "ffyjjkouscnabyxjxexu"
+    "VITE_SUPABASE_URL": "https://ffyjjkouscnabyxjxexu.supabase.co"
   }
 }
