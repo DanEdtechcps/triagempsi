@@ -16,7 +16,7 @@ Este documento define o pipeline contínuo e encadeado para colocar a aplicaçã
 - [x] 2.2 Gerado arquivo SQL consolidado com as 21 migrações (`supabase/consolidated_schema.sql`).
 - [x] 2.3 Executar o script SQL no SQL Editor do Supabase Web (Tabelas, RLS e Seeds aplicados com sucesso!).
 - [x] 2.4 Criado e configurado o bucket de storage privado `landing` via API REST.
-- [x] 2.5 Gerado script de keepalive interno (`supabase/keepalive.sql`) e workflow de ping anti-suspensão (`.github/workflows/supabase-keepalive.yml`).
+- [x] 2.5 Cadastrar o usuário administrador inicial e associar a role `admin` em `public.user_roles` (`coletivoaruatemvoz@gmail.com`).
 - [x] 2.6 Gerado e validado o arquivo `.env` com todas as chaves (Publishable e Service Role).
 
 ### Fase 3: Validação do Servidor Local & Repositório (Concluída ✅)
