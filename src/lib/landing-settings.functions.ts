@@ -33,14 +33,19 @@ const SELECT =
 
 export const getLandingSettings = createServerFn({ method: "GET" }).handler(
   async (): Promise<LandingSettings> => {
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { data } = await supabaseAdmin
-      .from("landing_settings")
-      .select(SELECT)
-      .limit(1)
-      .maybeSingle();
-    if (!data) return LANDING_DEFAULTS;
-    return { ...LANDING_DEFAULTS, ...(data as Partial<LandingSettings>) };
+    try {
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      const { data } = await supabaseAdmin
+        .from("landing_settings")
+        .select(SELECT)
+        .limit(1)
+        .maybeSingle();
+      if (!data) return LANDING_DEFAULTS;
+      return { ...LANDING_DEFAULTS, ...(data as Partial<LandingSettings>) };
+    } catch (e) {
+      console.warn("getLandingSettings: usando defaults", e);
+      return LANDING_DEFAULTS;
+    }
   },
 );
 
