@@ -49,19 +49,19 @@ export const BRANDING: Branding = {
   contactPhone: null,
   websiteUrl: null,
   introCopy:
-    "Seja bem-vindo(a). Este questionário breve de pré-avaliação ajuda o Dr. José Ribamar Fernandes Saraiva Junior a conhecer seu momento antes da consulta, permitindo que o nosso tempo juntos seja dedicado ao que realmente importa: uma escuta atenta, humanizada e individualizada. Suas respostas são protegidas por sigilo ético absoluto.",
+    "Seja bem-vindo(a). Este questionário breve ajuda o Dr. José Ribamar Fernandes Saraiva Junior a conhecer seu momento antes da consulta. Assim, nosso tempo juntos pode ser dedicado ao que realmente importa: uma escuta atenta e individualizada. Suas respostas são protegidas por sigilo ético.",
   doneCopy:
-    "Muito obrigado por dedicar seu tempo. Suas informações foram enviadas com segurança diretamente ao Dr. Saraiva, servindo de alicerce para a sua consulta médica.",
+    "Muito obrigado por dedicar seu tempo. Suas informações foram enviadas com segurança ao Dr. Saraiva e servirão de base para a sua consulta.",
   disclaimer:
-    "Este instrumento é um apoio ao atendimento médico do Dr. José Ribamar Fernandes Saraiva Junior (CRM-RS 29349 | RQE 30038). Não realiza diagnóstico automático e não substitui a avaliação clínica direta.",
+    "Este questionário é um instrumento de pré-avaliação clínica e não substitui uma consulta médica. Em caso de emergência, ligue 192 (SAMU) ou 188 (CVV).",
   consentCopy:
-    "Autorizo o tratamento das informações de saúde que eu informar aqui, exclusivamente pelo Dr. José Ribamar Fernandes Saraiva Junior e equipe clínica responsável pelo meu atendimento, conforme a LGPD (Lei 13.709/2018) e o sigilo médico ético.",
+    "Concordo em compartilhar estas informações com a equipe de saúde para fins exclusivos do meu atendimento médico, em conformidade com a LGPD e o Código de Ética Médica.",
   emergency: {
     cvvPhone: "188",
-    cvvLabel: "CVV — Centro de Valorização da Vida",
+    cvvLabel: "CVV — Centro de Valorização da Vida (24h)",
     samuPhone: "192",
     message:
-      "Se você está passando por sofrimento psíquico intenso ou pensamentos de morte, procure ajuda agora. Você não precisa carregar isso sozinho(a).",
+      "Seus sentimentos e seu sofrimento são importantes para nós. Se você está passando por um momento difícil, com pensamentos de morte ou de se machucar, saiba que você não está sozinho(a) e que existe ajuda imediata disponível agora.",
   },
 };
 

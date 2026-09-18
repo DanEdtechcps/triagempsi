@@ -240,8 +240,8 @@ VALUES (
   'Cuidado psiquiátrico com escuta, ciência e humanidade',
   '#1e4d5c',
   '#3d8b8b',
-  'Seja bem-vindo(a). Este questionário breve de pré-avaliação ajuda o Dr. José Ribamar Fernandes Saraiva Junior a conhecer seu momento antes da consulta, permitindo que o nosso tempo juntos seja dedicado ao que realmente importa: uma escuta atenta, humanizada e individualizada. Suas respostas são protegidas por sigilo ético absoluto.',
-  'Muito obrigado por dedicar seu tempo. Suas informações foram enviadas com segurança diretamente ao Dr. Saraiva, servindo de alicerce para a sua consulta médica.'
+  'Seja bem-vindo(a). Este questionário breve ajuda o Dr. José Ribamar Fernandes Saraiva Junior a conhecer seu momento antes da consulta. Assim, nosso tempo juntos pode ser dedicado ao que realmente importa: uma escuta atenta e individualizada. Suas respostas são protegidas por sigilo ético.',
+  'Muito obrigado por dedicar seu tempo. Suas informações foram enviadas com segurança ao Dr. Saraiva e servirão de base para a sua consulta.'
 )
 ON CONFLICT (slug) DO UPDATE SET
   name = EXCLUDED.name,
@@ -259,8 +259,8 @@ VALUES (
   'Cuidado psiquiátrico com escuta, ciência e humanidade',
   '#1e4d5c',
   '#3d8b8b',
-  'Seja bem-vindo(a). Este questionário breve de pré-avaliação ajuda o Dr. José Ribamar Fernandes Saraiva Junior a conhecer seu momento antes da consulta, permitindo que o nosso tempo juntos seja dedicado ao que realmente importa: uma escuta atenta, humanizada e individualizada. Suas respostas são protegidas por sigilo ético absoluto.',
-  'Muito obrigado por dedicar seu tempo. Suas informações foram enviadas com segurança diretamente ao Dr. Saraiva, servindo de alicerce para a sua consulta médica.'
+  'Seja bem-vindo(a). Este questionário breve ajuda o Dr. José Ribamar Fernandes Saraiva Junior a conhecer seu momento antes da consulta. Assim, nosso tempo juntos pode ser dedicado ao que realmente importa: uma escuta atenta e individualizada. Suas respostas são protegidas por sigilo ético.',
+  'Muito obrigado por dedicar seu tempo. Suas informações foram enviadas com segurança ao Dr. Saraiva e servirão de base para a sua consulta.'
 )
 ON CONFLICT (slug) DO UPDATE SET
   name = EXCLUDED.name,

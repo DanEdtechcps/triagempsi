@@ -604,7 +604,7 @@ function TriagemPage() {
                 Não foi possível enviar
               </h2>
               <p className="mt-2 text-sm text-muted-foreground">
-                {errorMsg ?? "Erro desconhecido."}
+                {errorMsg ?? "Não foi possível salvar sua triagem. Tente novamente."}
               </p>
               <Button className="mt-4" onClick={() => setPhase("escalas")}>
                 Tentar novamente
@@ -638,18 +638,18 @@ function BoasVindas({
   return (
     <Card className="border-border bg-card p-6 sm:p-10">
       <h1 className="font-serif text-2xl font-semibold text-foreground sm:text-3xl">
-        Bem-vindo(a) à pré-avaliação
+        Pré-avaliação clínica
       </h1>
       <p className="mt-4 text-base leading-relaxed text-foreground/80">
         {branding.introCopy}
       </p>
       <ul className="mt-6 space-y-2 text-sm text-foreground/80">
-        <li>• Leva cerca de 10 minutos e pode ser feito pelo celular.</li>
-        <li>• Se você fechar a página, retomamos de onde parou.</li>
-        <li>• Suas respostas são confidenciais e vistas só pela equipe clínica.</li>
+        <li>• Tempo estimado: Leve cerca de 10 minutos e pode ser feito pelo celular.</li>
+        <li>• Salvamento automático: Se você fechar a página, retomamos de onde parou.</li>
+        <li>• Confidencialidade: Suas respostas são confidenciais e vistas só pela equipe clínica.</li>
       </ul>
       <div className="mt-6 rounded-lg border border-border bg-muted/40 p-4 text-sm text-foreground/80">
-        {branding.disclaimer}
+        Esta pré-avaliação organiza seus sintomas e direciona a conversa médica inicial, mas não constitui diagnóstico clínico nem prescrição de tratamento.
       </div>
 
       <label className="mt-6 flex cursor-pointer items-start gap-3 rounded-lg border border-border p-4 text-sm">
@@ -707,49 +707,53 @@ function DadosBasicos({
       </p>
 
       {/* Escolha do profissional (opcional) */}
-      {doctors.length > 0 && (
-        <div className="mt-6">
-          <Label>Com qual profissional você quer consultar? (opcional)</Label>
-          <div className="mt-2 grid gap-2 sm:grid-cols-2">
-            {doctors.map((d) => (
-              <button
-                key={d.id}
-                type="button"
-                onClick={() => set("doctor_id", d.id)}
-                className={`min-h-12 rounded-xl border px-4 py-3 text-left transition-colors ${
-                  data.doctor_id === d.id
-                    ? "border-primary bg-primary/10"
-                    : "border-border bg-background hover:border-primary/50"
-                }`}
-              >
-                <span className="block text-base font-medium text-foreground">
-                  {d.display_name}
-                </span>
-                {d.specialty && (
-                  <span className="mt-0.5 block text-xs text-muted-foreground">
-                    {d.specialty}
-                  </span>
-                )}
-              </button>
-            ))}
+      <div className="mt-6">
+        <Label>Com qual profissional você quer consultar? (opcional)</Label>
+        <div className="mt-2 grid gap-2 sm:grid-cols-2">
+          {(doctors.length > 0
+            ? doctors
+            : [
+                {
+                  id: "saraiva-titular",
+                  display_name: "Dr. José Ribamar Fernandes Saraiva Junior",
+                  specialty: "Psiquiatria Clínica · RQE 30038",
+                },
+              ]
+          ).map((d) => (
             <button
+              key={d.id}
               type="button"
-              onClick={() => set("doctor_id", null)}
-              className={`min-h-12 rounded-xl border px-4 py-3 text-left text-base transition-colors ${
-                data.doctor_id === null
-                  ? "border-primary bg-primary/10 text-foreground"
-                  : "border-border bg-background text-muted-foreground hover:border-primary/50"
+              onClick={() => set("doctor_id", d.id === "saraiva-titular" ? null : d.id)}
+              className={`min-h-12 rounded-xl border px-4 py-3 text-left transition-colors ${
+                data.doctor_id === d.id || (d.id === "saraiva-titular" && data.doctor_id === null)
+                  ? "border-primary bg-primary/10"
+                  : "border-border bg-background hover:border-primary/50"
               }`}
             >
-              Sem preferência — a equipe direciona
+              <span className="block text-base font-medium text-foreground">
+                {d.display_name}
+              </span>
+              <span className="mt-0.5 block text-xs text-muted-foreground">
+                {d.specialty || "Psiquiatria Clínica · RQE 30038"}
+              </span>
             </button>
-          </div>
-          <p className="mt-2 text-xs text-muted-foreground">
-            Sua pré-avaliação fica destacada para o profissional escolhido, e
-            toda a equipe do consultório pode acompanhar.
-          </p>
+          ))}
+          <button
+            type="button"
+            onClick={() => set("doctor_id", null)}
+            className={`min-h-12 rounded-xl border px-4 py-3 text-left text-base transition-colors ${
+              data.doctor_id === null
+                ? "border-primary bg-primary/10 text-foreground"
+                : "border-border bg-background text-muted-foreground hover:border-primary/50"
+            }`}
+          >
+            Sem preferência — a equipe direciona
+          </button>
         </div>
-      )}
+        <p className="mt-2 text-xs text-muted-foreground">
+          Sua pré-avaliação fica destacada para o profissional escolhido, e toda a equipe do consultório pode acompanhar.
+        </p>
+      </div>
 
       <div className="mt-6 grid gap-4 sm:grid-cols-2">
         <div className="sm:col-span-2">
@@ -967,7 +971,7 @@ function TelaRisco({
     <div className="space-y-4">
       <Card className="border-destructive/50 bg-destructive/5 p-6 sm:p-8">
         <h1 className="font-serif text-2xl font-semibold text-destructive">
-          Você não está sozinho(a)
+          Você não precisa passar por isso sozinho(a)
         </h1>
         <p className="mt-3 text-base leading-relaxed text-foreground/85">
           {branding.emergency.message}
@@ -997,9 +1001,6 @@ function TelaRisco({
         <p className="mt-6 text-sm text-foreground/80">
           Procure atendimento imediato em um pronto-socorro ou CAPS mais próximo se
           o sofrimento estiver intenso agora.
-          {branding.contactPhone
-            ? ` Você também pode falar com a nossa equipe: ${branding.contactPhone}.`
-            : ""}
         </p>
       </Card>
 

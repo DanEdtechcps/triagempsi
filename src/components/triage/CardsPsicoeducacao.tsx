@@ -38,7 +38,7 @@ export function CardsPsicoeducacao({ items }: CardsPsicoeducacaoProps) {
           </h2>
         </div>
         <p className="mt-1 text-xs text-muted-foreground">
-          Com base nas áreas avaliadas, separamos materiais educativos e estratégias práticas de autorregulação elaboradas pela nossa equipe clínica:
+          Com base nas áreas avaliadas, separamos materiais educativos e estratégias práticas elaboradas pela nossa equipe clínica.
         </p>
       </div>
 

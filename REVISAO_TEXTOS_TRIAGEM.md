@@ -43,7 +43,7 @@
 
 ### 0.2. Rodapé Inferior (Footer Disclaimer)
 - **Texto:**
-  > *"Este questionário é um instrumento de pré-avaliação clínica e não substitui uma consulta médica formal. Em caso de emergência ou risco à vida, ligue 192 (SAMU) ou 188 (CVV)."*
+  > *"Este questionário é um instrumento de pré-avaliação clínica e não substitui uma consulta médica. Em caso de emergência, ligue 192 (SAMU) ou 188 (CVV)."*
 
 ---
 
@@ -54,10 +54,10 @@
 ### Textos em Tela
 
 #### Título Principal
-> **Bem-vindo(a) à pré-avaliação**
+> **Pré-avaliação clínica**
 
 #### Texto Introdutório de Boas-Vindas
-> *"Seja bem-vindo(a). Este questionário breve de pré-avaliação ajuda o Dr. José Ribamar Fernandes Saraiva Junior a conhecer seu momento antes da consulta, permitindo que o nosso tempo juntos seja dedicado ao que realmente importa: uma escuta atenta, humanizada e individualizada. Suas respostas são protegidas por sigilo ético absoluto."*
+> *"Seja bem-vindo(a). Este questionário breve ajuda o Dr. José Ribamar Fernandes Saraiva Junior a conhecer seu momento antes da consulta. Assim, nosso tempo juntos pode ser dedicado ao que realmente importa: uma escuta atenta e individualizada. Suas respostas são protegidas por sigilo ético."*
 
 #### Pontos de Destaque / Instruções Práticas
 - • **Tempo estimado:** *Leve cerca de 10 minutos e pode ser feito pelo celular.*
@@ -151,7 +151,7 @@
 | 14 | `alimentar` | **Com a comida, o peso ou o corpo ocupando muito espaço na minha cabeça** | *(Sem texto adicional)* |
 | 15 | `sono` | **Dormindo mal há semanas** | *(Sem texto adicional)* |
 | 16 | `neuro` | **Com dificuldade em situações sociais e sensibilidade a barulho, luz ou rotina** | *(Sem texto adicional)* |
-| 17 | `trabalho` | **Sobrecarregado(a) ou adoecendo por causa do trabalho** | *Ritmo, cobrança, assédio ou insegurança no emprego (rastreio de riscos psicossociais — NR-01).* |
+| 17 | `trabalho` | **Sobrecarregado(a) ou adoecendo por causa do trabalho** | *Ritmo excessivo, cobrança constante ou insegurança no trabalho.* |
 | 18 | `memoria` | **Com falhas de memória ou confusão que apareceram nos últimos anos** | *Se você estiver respondendo por outra pessoa, marque também esta opção.* |
 
 #### Botões de Navegação
@@ -225,9 +225,9 @@
 ### Textos em Tela
 
 #### Card de Alerta e Acolhimento
-- **Título de Alerta:** **Você não está sozinho(a)**
+- **Título de Alerta:** **Você não precisa passar por isso sozinho(a)**
 - **Mensagem Central de Cuidado:**
-  > *"Seus sentimentos e seu sofrimento são importantes para nós. Se você está passando por um momento difícil, com pensamentos de morte ou ideação de se machucar, queremos que saiba que você não está sozinho(a) e que existe ajuda imediata e humana disponível agora mesmo."*
+  > *"Seus sentimentos e seu sofrimento são importantes para nós. Se você está passando por um momento difícil, com pensamentos de morte ou de se machucar, saiba que você não está sozinho(a) e que existe ajuda imediata disponível agora."*
 
 #### Canais de Ajuda Rápida (Botões com Discagem Direta)
 1. **Canal 1 (CVV):**
@@ -238,7 +238,7 @@
    - Telefone em Destaque: `192`
 
 #### Orientação Adicional de Procura Presencial
-> *"Procure atendimento imediato em um pronto-socorro ou CAPS mais próximo se o sofrimento estiver intenso agora. Você também pode falar com a nossa equipe: (54) 99999-0000."*
+> *"Procure atendimento imediato em um pronto-socorro ou CAPS mais próximo se o sofrimento estiver intenso agora."*
 
 #### Card de Confirmação do Envio
 - **Texto:**
@@ -260,7 +260,7 @@
 #### Título e Confirmação
 - **Título:** **Pré-avaliação concluída**
 - **Texto de Encerramento Oficial do Consultório:**
-  > *"Muito obrigado por dedicar seu tempo. Suas informações foram enviadas com segurança diretamente ao Dr. Saraiva, servindo de alicerce para a sua consulta médica."*
+  > *"Muito obrigado por dedicar seu tempo. Suas informações foram enviadas com segurança ao Dr. Saraiva e servirão de base para a sua consulta."*
 - **Confirmação de Envio por E-mail:**
   > *"Uma confirmação será enviada para [e-mail do paciente]."*
 
@@ -271,7 +271,7 @@
 > *"Quer rever este resumo depois? [Crie seu acesso no Portal do Paciente](link) com o mesmo e-mail informado aqui."*
 
 #### Aviso Ético de Rodapé
-> *"Este questionário é um instrumento de pré-avaliação clínica e não substitui uma consulta médica formal. Em caso de emergência ou risco à vida, ligue 192 (SAMU) ou 188 (CVV)."*
+> *"Este questionário é um instrumento de pré-avaliação clínica e não substitui uma consulta médica. Em caso de emergência, ligue 192 (SAMU) ou 188 (CVV)."*
 
 ---
 
@@ -283,7 +283,7 @@
 - **Ícone:** Livro aberto
 - **Título:** **Orientações e Práticas de Cuidado Recomendadas**
 - **Subtítulo:**
-  > *"Com base nas áreas avaliadas, separamos materiais educativos e estratégias práticas de autorregulação elaboradas pela nossa equipe clínica:"*
+  > *"Com base nas áreas avaliadas, separamos materiais educativos e estratégias práticas elaboradas pela nossa equipe clínica."*
 
 ---
 
