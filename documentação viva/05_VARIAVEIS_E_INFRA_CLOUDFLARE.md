@@ -21,15 +21,15 @@ Este documento detalha o ecossistema de variáveis de ambiente, a política de p
 
 ## 2. Onde Cada Arquivo Reside e Por Quê
 
-1. **[.env](file:///mnt/armazenamento/Projetos/triagem-medica-backup%20%282%29/triagem-medica/.env) (Local):**
+1. **[.env](file:///mnt/armazenamento/Projetos/triagem-medica/.env) (Local):**
    * Contém todas as variáveis, incluindo as secretas (`SUPABASE_SERVICE_ROLE_KEY`).
-   * Está estritamente listado no [.gitignore](file:///mnt/armazenamento/Projetos/triagem-medica-backup%20%282%29/triagem-medica/.gitignore) para que senhas e credenciais nunca sejam enviadas ao GitHub.
+   * Está estritamente listado no [.gitignore](file:///mnt/armazenamento/Projetos/triagem-medica/.gitignore) para que senhas e credenciais nunca sejam enviadas ao GitHub.
 
-2. **[.env.production](file:///mnt/armazenamento/Projetos/triagem-medica-backup%20%282%29/triagem-medica/.env.production) (Repositório / Build CI):**
+2. **[.env.production](file:///mnt/armazenamento/Projetos/triagem-medica/.env.production) (Repositório / Build CI):**
    * Contém apenas as variáveis **PÚBLICAS** (`VITE_*` e `SUPABASE_URL`).
    * É lido automaticamente pelo Vite durante a execução do comando `bun run build` nos servidores da Cloudflare, garantindo que o bundle do navegador (`assets/*.js`) contenha as URLs corretas embutidas.
 
-3. **[wrangler.json](file:///mnt/armazenamento/Projetos/triagem-medica-backup%20%282%29/triagem-medica/wrangler.json) (Configuração Cloudflare):**
+3. **[wrangler.json](file:///mnt/armazenamento/Projetos/triagem-medica/wrangler.json) (Configuração Cloudflare):**
    * Define o nome oficial do Worker (`triagempsi`), modo `nodejs_compat` e as variáveis públicas da plataforma.
    * Não inclui a `SUPABASE_SERVICE_ROLE_KEY` em texto aberto, respeitando o GitHub Push Protection.
 
@@ -41,7 +41,7 @@ Este documento detalha o ecossistema de variáveis de ambiente, a política de p
 
 ## 3. Resiliência do Bundle do Cliente (Aprendizado Crítico)
 
-Para evitar que qualquer falha de injeção em CI derrube o frontend do usuário final com a tela `"This page didn't load"`, o código em [client.ts](file:///mnt/armazenamento/Projetos/triagem-medica-backup%20%282%29/triagem-medica/src/integrations/supabase/client.ts) implementa um mecanismo de **triplo fallback**:
+Para evitar que qualquer falha de injeção em CI derrube o frontend do usuário final com a tela `"This page didn't load"`, o código em [client.ts](file:///mnt/armazenamento/Projetos/triagem-medica/src/integrations/supabase/client.ts) implementa um mecanismo de **triplo fallback**:
 
 ```ts
 const SUPABASE_URL =

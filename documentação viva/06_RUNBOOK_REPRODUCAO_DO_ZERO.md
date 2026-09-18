@@ -57,7 +57,7 @@ VITE_SUPABASE_PROJECT_ID=<SEU_PROJECT_ID>
 ### Passo 3.1: Aplicar o Schema Unificado
 
 1. Acesse o painel do seu projeto no Supabase: `https://supabase.com/dashboard/project/<SEU_PROJECT_ID>/sql`
-2. Abra o arquivo [`supabase/consolidated_schema.sql`](file:///mnt/armazenamento/Projetos/triagem-medica-backup%20(2)/triagem-medica/supabase/consolidated_schema.sql).
+2. Abra o arquivo [`supabase/consolidated_schema.sql`](file:///mnt/armazenamento/Projetos/triagem-medica/supabase/consolidated_schema.sql).
 3. Copie todo o conteúdo e cole no SQL Editor do Supabase.
 4. Execute o script (`Run`). Ele irá:
    - Habilitar `pgcrypto` e `uuid-ossp`.
@@ -94,11 +94,11 @@ ON CONFLICT (user_id, role, COALESCE(clinic_id, '00000000-0000-0000-0000-0000000
 
 Para evitar que projetos no tier gratuito do Supabase sejam pausados por inatividade:
 
-1. Execute o script [`supabase/keepalive.sql`](file:///mnt/armazenamento/Projetos/triagem-medica-backup%20(2)/triagem-medica/supabase/keepalive.sql) no SQL Editor.
+1. Execute o script [`supabase/keepalive.sql`](file:///mnt/armazenamento/Projetos/triagem-medica/supabase/keepalive.sql) no SQL Editor.
 2. No repositório GitHub, adicione os segredos em **Settings -> Secrets and variables -> Actions**:
    - `SUPABASE_URL`: `https://<SEU_PROJECT_ID>.supabase.co`
    - `SUPABASE_ANON_KEY`: `sb_publishable_...`
-3. A GitHub Action [`.github/workflows/supabase-keepalive.yml`](file:///mnt/armazenamento/Projetos/triagem-medica-backup%20(2)/triagem-medica/.github/workflows/supabase-keepalive.yml) enviará requisições periódicas automaticamente.
+3. A GitHub Action [`.github/workflows/supabase-keepalive.yml`](file:///mnt/armazenamento/Projetos/triagem-medica/.github/workflows/supabase-keepalive.yml) enviará requisições periódicas automaticamente.
 
 ---
 
@@ -142,7 +142,7 @@ O projeto está otimizado para deploy em edge computing via Cloudflare Workers u
 
 ### Passo 5.1: Configurar Wrangler
 
-Edite ou confirme o arquivo [`wrangler.json`](file:///mnt/armazenamento/Projetos/triagem-medica-backup%20(2)/triagem-medica/wrangler.json):
+Edite ou confirme o arquivo [`wrangler.json`](file:///mnt/armazenamento/Projetos/triagem-medica/wrangler.json):
 
 ```json
 {

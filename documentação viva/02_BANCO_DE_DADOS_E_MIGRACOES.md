@@ -124,6 +124,6 @@ Tabela criada especificamente para impedir a suspensão automática por inativid
 
 ## 4. Script Consolidado para Replicação Imediata
 O banco completo pode ser recriado com 1 comando através do script:
-👉 **[consolidated_schema.sql](file:///mnt/armazenamento/Projetos/triagem-medica-backup%20%282%29/triagem-medica/supabase/consolidated_schema.sql)**
+👉 **[consolidated_schema.sql](file:///mnt/armazenamento/Projetos/triagem-medica/supabase/consolidated_schema.sql)**
 
 Basta abrir o SQL Editor de qualquer projeto Supabase, colar o arquivo consolidado e executar.

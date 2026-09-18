@@ -8,13 +8,13 @@ Esta documentação foi projetada para ser um repositório central, vivo e autô
 
 | Arquivo | Descrição |
 |---|---|
-| [01_ARQUITETURA_E_VISAO_GERAL.md](file:///mnt/armazenamento/Projetos/triagem-medica-backup%20%282%29/triagem-medica/documentação%20viva/01_ARQUITETURA_E_VISAO_GERAL.md) | Stack tecnológica, visão do produto, fluxo de dados e SSR com TanStack Start + Nitro. |
-| [02_BANCO_DE_DADOS_E_MIGRACOES.md](file:///mnt/armazenamento/Projetos/triagem-medica-backup%20%282%29/triagem-medica/documentação%20viva/02_BANCO_DE_DADOS_E_MIGRACOES.md) | Dicionário de dados, todas as tabelas, políticas RLS, triggers, Storage e rotina de Keepalive. |
-| [03_MOTOR_CLINICO_E_ESCALAS.md](file:///mnt/armazenamento/Projetos/triagem-medica-backup%20%282%29/triagem-medica/documentação%20viva/03_MOTOR_CLINICO_E_ESCALAS.md) | As 28 escalas psiquiátricas, algoritmo de pontuação, faixas de risco e árvore adaptativa. |
-| [04_ROTAS_E_FLUXO_DE_USUARIO.md](file:///mnt/armazenamento/Projetos/triagem-medica-backup%20%282%29/triagem-medica/documentação%20viva/04_ROTAS_E_FLUXO_DE_USUARIO.md) | Mapa de rotas do TanStack Router (Landing, Triagem, Portal do Paciente, Painel Clínico, Admin, Comercial). |
-| [05_VARIAVEIS_E_INFRA_CLOUDFLARE.md](file:///mnt/armazenamento/Projetos/triagem-medica-backup%20%282%29/triagem-medica/documentação%20viva/05_VARIAVEIS_E_INFRA_CLOUDFLARE.md) | Gestão de segredos, `.env`, `.env.production`, Cloudflare Workers e configuração do `wrangler.json`. |
-| [06_RUNBOOK_REPRODUCAO_DO_ZERO.md](file:///mnt/armazenamento/Projetos/triagem-medica-backup%20%282%29/triagem-medica/documentação%20viva/06_RUNBOOK_REPRODUCAO_DO_ZERO.md) | Passo a passo cirúrgico para subir o projeto do zero em qualquer ambiente em menos de 10 minutos. |
-| [07_SKILLS_E_RULES_AGENTICAS.md](file:///mnt/armazenamento/Projetos/triagem-medica-backup%20%282%29/triagem-medica/documentação%20viva/07_SKILLS_E_RULES_AGENTICAS.md) | Governança de agentes, regras Lovable, boas práticas Supabase e diretrizes operacionais. |
+| [01_ARQUITETURA_E_VISAO_GERAL.md](file:///mnt/armazenamento/Projetos/triagem-medica/documentação%20viva/01_ARQUITETURA_E_VISAO_GERAL.md) | Stack tecnológica, visão do produto, fluxo de dados e SSR com TanStack Start + Nitro. |
+| [02_BANCO_DE_DADOS_E_MIGRACOES.md](file:///mnt/armazenamento/Projetos/triagem-medica/documentação%20viva/02_BANCO_DE_DADOS_E_MIGRACOES.md) | Dicionário de dados, todas as tabelas, políticas RLS, triggers, Storage e rotina de Keepalive. |
+| [03_MOTOR_CLINICO_E_ESCALAS.md](file:///mnt/armazenamento/Projetos/triagem-medica/documentação%20viva/03_MOTOR_CLINICO_E_ESCALAS.md) | As 28 escalas psiquiátricas, algoritmo de pontuação, faixas de risco e árvore adaptativa. |
+| [04_ROTAS_E_FLUXO_DE_USUARIO.md](file:///mnt/armazenamento/Projetos/triagem-medica/documentação%20viva/04_ROTAS_E_FLUXO_DE_USUARIO.md) | Mapa de rotas do TanStack Router (Landing, Triagem, Portal do Paciente, Painel Clínico, Admin, Comercial). |
+| [05_VARIAVEIS_E_INFRA_CLOUDFLARE.md](file:///mnt/armazenamento/Projetos/triagem-medica/documentação%20viva/05_VARIAVEIS_E_INFRA_CLOUDFLARE.md) | Gestão de segredos, `.env`, `.env.production`, Cloudflare Workers e configuração do `wrangler.json`. |
+| [06_RUNBOOK_REPRODUCAO_DO_ZERO.md](file:///mnt/armazenamento/Projetos/triagem-medica/documentação%20viva/06_RUNBOOK_REPRODUCAO_DO_ZERO.md) | Passo a passo cirúrgico para subir o projeto do zero em qualquer ambiente em menos de 10 minutos. |
+| [07_SKILLS_E_RULES_AGENTICAS.md](file:///mnt/armazenamento/Projetos/triagem-medica/documentação%20viva/07_SKILLS_E_RULES_AGENTICAS.md) | Governança de agentes, regras Lovable, boas práticas Supabase e diretrizes operacionais. |
 
 ---
 

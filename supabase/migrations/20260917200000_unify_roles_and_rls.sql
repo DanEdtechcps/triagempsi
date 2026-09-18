@@ -5,7 +5,7 @@
 -- 2. Regra Única:
 --    - role = 'admin' AND clinic_id IS NULL: Super/Admin Global (acesso a tudo)
 --    - role = 'admin' AND clinic_id IS NOT NULL: Administrador da clínica
---    - role IN ('clinico', 'doctor'): Médico/Clínico da clínica
+--    - role = 'doctor': Médico da clínica
 --    - role = 'staff': Equipe/Apoio da clínica
 -- 3. Tabela patient_longitudinal_records com RLS tenant-isolated
 -- ====================================================================
@@ -18,6 +18,14 @@ BEGIN
   END IF;
   IF NOT EXISTS (SELECT 1 FROM pg_enum JOIN pg_type ON pg_enum.enumtypid = pg_type.oid WHERE pg_type.typname = 'app_role' AND enumlabel = 'staff') THEN
     ALTER TYPE public.app_role ADD VALUE 'staff';
+  END IF;
+END $$;
+
+-- 1.1 Migrar qualquer dado legado com role 'clinico' para 'doctor'
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM pg_enum JOIN pg_type ON pg_enum.enumtypid = pg_type.oid WHERE pg_type.typname = 'app_role' AND enumlabel = 'clinico') THEN
+    UPDATE public.user_roles SET role = 'doctor'::public.app_role WHERE role::text = 'clinico';
   END IF;
 END $$;
 
@@ -60,7 +68,6 @@ AS $$
       AND (
         role = _role
         OR (role = 'admin'::public.app_role AND clinic_id IS NULL)
-        OR (_role = 'clinico'::public.app_role AND role = 'doctor'::public.app_role)
       )
   );
 $$;

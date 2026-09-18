@@ -85,7 +85,7 @@ function AdminPage() {
   const [clinicMsg, setClinicMsg] = useState<string | null>(null);
 
   const [staffEmail, setStaffEmail] = useState("");
-  const [staffRole, setStaffRole] = useState<"admin" | "clinico">("clinico");
+  const [staffRole, setStaffRole] = useState<"admin" | "doctor" | "staff">("doctor");
   const [staffClinic, setStaffClinic] = useState<string>("");
   const [staffPassword, setStaffPassword] = useState("");
   const [savingStaff, setSavingStaff] = useState(false);
@@ -460,10 +460,11 @@ function AdminPage() {
                   <select
                     id="s-role"
                     value={staffRole}
-                    onChange={(e) => setStaffRole(e.target.value as "admin" | "clinico")}
+                    onChange={(e) => setStaffRole(e.target.value as "admin" | "doctor" | "staff")}
                     className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
                   >
-                    <option value="clinico">Médico (clínico)</option>
+                    <option value="doctor">Médico</option>
+                    <option value="staff">Equipe / Apoio</option>
                     <option value="admin">Administrador</option>
                   </select>
                 </div>
@@ -508,7 +509,7 @@ function AdminPage() {
                           {s.email ?? s.user_id}
                         </div>
                         <div className="text-xs text-muted-foreground">
-                          {s.role === "admin" ? "Administrador" : "Médico"} ·{" "}
+                          {s.role === "admin" ? "Administrador" : s.role === "doctor" ? "Médico" : "Equipe"} ·{" "}
                           {s.clinic_name ?? "Todos os consultórios"}
                           {s.last_sign_in_at
                             ? ` · último acesso ${new Date(s.last_sign_in_at).toLocaleDateString("pt-BR")}`
@@ -523,7 +524,7 @@ function AdminPage() {
                             data: {
                               user_id: s.user_id,
                               clinic_id: s.clinic_id,
-                              role: s.role as "admin" | "clinico",
+                              role: s.role as "admin" | "doctor" | "staff",
                             },
                           });
                           await queryClient.invalidateQueries({ queryKey: ["admin-staff"] });
@@ -588,7 +589,7 @@ function DoctorProfilesCard({ staffList }: { staffList: AdminStaff[] }) {
   // Médicos com vínculo em consultório que ainda não têm perfil público
   const candidatos = staffList.filter(
     (m) =>
-      m.role === "clinico" &&
+      m.role === "doctor" &&
       m.clinic_id &&
       !(profiles ?? []).some(
         (p) => p.user_id === m.user_id && p.clinic_id === m.clinic_id,

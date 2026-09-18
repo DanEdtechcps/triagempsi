@@ -1,6 +1,6 @@
 
 -- Roles enum + tabela
-CREATE TYPE public.app_role AS ENUM ('admin', 'clinico', 'doctor', 'staff');
+CREATE TYPE public.app_role AS ENUM ('admin', 'doctor', 'staff');
 
 CREATE TABLE public.user_roles (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -39,7 +39,6 @@ AS $$
       AND (
         role = _role
         OR (role = 'admin'::public.app_role AND clinic_id IS NULL)
-        OR (_role = 'clinico'::public.app_role AND role = 'doctor'::public.app_role)
       )
   );
 $$;
@@ -68,7 +67,7 @@ ALTER TABLE public.contacts ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "contacts_staff_read" ON public.contacts
   FOR SELECT TO authenticated
-  USING (public.has_role(auth.uid(), 'admin') OR public.has_role(auth.uid(), 'clinico'));
+  USING (public.has_role(auth.uid(), 'admin') OR public.has_role(auth.uid(), 'doctor'));
 CREATE POLICY "contacts_admin_write" ON public.contacts
   FOR ALL TO authenticated
   USING (public.has_role(auth.uid(), 'admin'))
@@ -129,7 +128,7 @@ CREATE POLICY "assessments_public_insert" ON public.assessments
   FOR INSERT TO anon, authenticated WITH CHECK (true);
 CREATE POLICY "assessments_staff_read" ON public.assessments
   FOR SELECT TO authenticated
-  USING (public.has_role(auth.uid(), 'admin') OR public.has_role(auth.uid(), 'clinico'));
+  USING (public.has_role(auth.uid(), 'admin') OR public.has_role(auth.uid(), 'doctor'));
 CREATE POLICY "assessments_admin_write" ON public.assessments
   FOR UPDATE TO authenticated
   USING (public.has_role(auth.uid(), 'admin'))
@@ -161,7 +160,7 @@ CREATE POLICY "scale_results_public_insert" ON public.scale_results
   FOR INSERT TO anon, authenticated WITH CHECK (true);
 CREATE POLICY "scale_results_staff_read" ON public.scale_results
   FOR SELECT TO authenticated
-  USING (public.has_role(auth.uid(), 'admin') OR public.has_role(auth.uid(), 'clinico'));
+  USING (public.has_role(auth.uid(), 'admin') OR public.has_role(auth.uid(), 'doctor'));
 CREATE POLICY "scale_results_admin_write" ON public.scale_results
   FOR ALL TO authenticated
   USING (public.has_role(auth.uid(), 'admin'))
@@ -192,7 +191,7 @@ DROP POLICY IF EXISTS "invitations_public_by_token" ON public.invitations;
 REVOKE SELECT ON public.invitations FROM anon;
 CREATE POLICY "invitations_staff_read" ON public.invitations
   FOR SELECT TO authenticated
-  USING (public.has_role(auth.uid(), 'admin') OR public.has_role(auth.uid(), 'clinico'));
+  USING (public.has_role(auth.uid(), 'admin') OR public.has_role(auth.uid(), 'doctor'));
 -- 1) Clinics table
 CREATE TABLE public.clinics (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
