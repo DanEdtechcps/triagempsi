@@ -293,7 +293,12 @@ function PainelDetalhe() {
 
           <ParecerMedico assessmentId={id} />
 
-          <PainelPsicoeducacao assessmentId={id} />
+          <PainelPsicoeducacao
+            assessmentId={id}
+            scaleResults={(a.scale_results ?? []) as any}
+            riskPathway={Boolean(summary.risk_pathway)}
+            hasRiskFlags={riskFlags.length > 0}
+          />
 
           {(a.scale_results ?? []).map((r) => {
 

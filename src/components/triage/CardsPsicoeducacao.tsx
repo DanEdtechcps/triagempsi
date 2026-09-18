@@ -91,6 +91,23 @@ export function CardsPsicoeducacao({ items }: CardsPsicoeducacaoProps) {
                     {item.topic.resumo_card}
                   </p>
 
+                  {isCrise && (
+                    <div className="mt-3 flex flex-wrap items-center gap-2">
+                      <a
+                        href="tel:188"
+                        className="inline-flex items-center gap-1.5 rounded-lg bg-destructive px-3 py-1.5 text-xs font-semibold text-destructive-foreground shadow hover:bg-destructive/90"
+                      >
+                        Ligar CVV 188 (Gratuito 24h)
+                      </a>
+                      <a
+                        href="tel:192"
+                        className="inline-flex items-center gap-1.5 rounded-lg border border-destructive/40 bg-background px-3 py-1.5 text-xs font-semibold text-destructive hover:bg-destructive/10"
+                      >
+                        SAMU 192
+                      </a>
+                    </div>
+                  )}
+
                   <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
                     <div className="flex flex-wrap gap-1.5">
                       {item.topic.tags.map((tag) => (
@@ -111,7 +128,7 @@ export function CardsPsicoeducacao({ items }: CardsPsicoeducacaoProps) {
                       }
                       className="h-8 gap-1 text-xs text-primary hover:text-primary"
                     >
-                      {isExpanded ? "Ocultar detalhes" : "Ler orientações completas"}
+                      {isExpanded ? "Ocultar detalhes" : isCrise ? "Ver Plano de Segurança Completo" : "Ler orientações completas"}
                       {isExpanded ? (
                         <ChevronUp className="h-3.5 w-3.5" />
                       ) : (

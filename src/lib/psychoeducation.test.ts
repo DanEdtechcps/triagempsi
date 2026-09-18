@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { evaluatePsychoeducationTriggers } from "./psychoeducation";
+import {
+  evaluatePsychoeducationTriggers,
+  isSafetyPlanTriggered,
+  OFFICIAL_SAFETY_PLAN,
+  getClinicalDecisionSupport,
+} from "./psychoeducation";
 import { OFFICIAL_PSYCHOEDUCATION_TOPICS } from "./psychoeducation-data";
 
 describe("Módulo de Psicoeducação - Motor de Triggers", () => {
@@ -109,5 +114,141 @@ describe("Módulo de Psicoeducação - Motor de Triggers", () => {
     });
     expect(recs[0].topic.slug).toBe("tdah-adultos");
     expect(recs[0].is_manual).toBe(true);
+  });
+});
+
+describe("Módulo de Plano de Segurança Estruturado (Feature A)", () => {
+  it("contém todos os elementos éticos obrigatórios (CVV 188, SAMU 192, 4 etapas)", () => {
+    expect(OFFICIAL_SAFETY_PLAN.versao).toBe("v1 (2026.1)");
+    expect(OFFICIAL_SAFETY_PLAN.contatos_emergencia.some((c) => c.numero === "188")).toBe(true);
+    expect(OFFICIAL_SAFETY_PLAN.contatos_emergencia.some((c) => c.numero === "192")).toBe(true);
+    expect(OFFICIAL_SAFETY_PLAN.rede_apoio.mensagem_modelo).toContain("pensamentos");
+    expect(OFFICIAL_SAFETY_PLAN.estrategias_distracao.length).toBeGreaterThanOrEqual(2);
+    expect(OFFICIAL_SAFETY_PLAN.seguranca_ambiente.orientacoes.length).toBeGreaterThanOrEqual(3);
+  });
+
+  it("dispara isSafetyPlanTriggered para PHQ-9 item 9 >= 1", () => {
+    const triggered = isSafetyPlanTriggered({
+      scaleResults: [
+        { scale_code: "PHQ-9", score: 14, answers: { "9": 1 } },
+      ],
+    });
+    expect(triggered).toBe(true);
+  });
+
+  it("dispara isSafetyPlanTriggered para C-SSRS positivo", () => {
+    const triggered = isSafetyPlanTriggered({
+      scaleResults: [
+        { scale_code: "C-SSRS", score: 3, risk: true },
+      ],
+    });
+    expect(triggered).toBe(true);
+  });
+
+  it("dispara isSafetyPlanTriggered para RISK-COMPOSITE ou via de risco", () => {
+    expect(isSafetyPlanTriggered({ riskPathway: true })).toBe(true);
+    expect(isSafetyPlanTriggered({ hasRiskFlags: true })).toBe(true);
+    expect(
+      isSafetyPlanTriggered({
+        scaleResults: [{ scale_code: "RISK-COMPOSITE", score: 2, risk: true }],
+      }),
+    ).toBe(true);
+  });
+
+  it("não dispara isSafetyPlanTriggered para perfil assintomático ou depressão sem ideação", () => {
+    const triggered = isSafetyPlanTriggered({
+      scaleResults: [
+        { scale_code: "PHQ-9", score: 12, answers: { "9": 0 } },
+        { scale_code: "GAD-7", score: 14 },
+      ],
+    });
+    expect(triggered).toBe(false);
+  });
+});
+
+describe("Apoio à Decisão Clínica do Médico (Decision Support - Feature B)", () => {
+  it("Caso 1: Paciente em crise (PHQ-9 item 9 + C-SSRS) gera alerta urgente com protocolo de segurança", () => {
+    const cds = getClinicalDecisionSupport([
+      { scale_code: "PHQ-9", score: 22, answers: { "9": 2 } },
+      { scale_code: "C-SSRS", score: 4, risk: true },
+    ]);
+    const urgente = cds.find((c) => c.level === "urgente");
+    expect(urgente).toBeDefined();
+    expect(urgente?.title).toContain("Suicida");
+    expect(urgente?.suggested_actions.some((a) => a.includes("188"))).toBe(true);
+  });
+
+  it("Caso 2: Depressão + Insônia Clínica Severa recomenda TCC-I concomitante", () => {
+    const cds = getClinicalDecisionSupport([
+      { scale_code: "PHQ-9", score: 16 },
+      { scale_code: "ISI", score: 19 },
+    ]);
+    const ins = cds.find((c) => c.id === "depressao-insonia-tcci");
+    expect(ins).toBeDefined();
+    expect(ins?.level).toBe("alerta");
+    expect(ins?.clinical_guidance).toContain("TCC-I");
+  });
+
+  it("Caso 3: Rastreio Bipolar Positivo (MDQ) com Depressão alerta sobre risco de virada maníaca", () => {
+    const cds = getClinicalDecisionSupport([
+      { scale_code: "MDQ", score: 8, band: "Rastreio Positivo" },
+      { scale_code: "PHQ-9", score: 15 },
+    ]);
+    const bip = cds.find((c) => c.id === "bipolar-virada-antidepressivo");
+    expect(bip).toBeDefined();
+    expect(bip?.level).toBe("alerta");
+    expect(bip?.clinical_guidance).toContain("monoterapia");
+  });
+
+  it("Caso 4: Uso problemático de substâncias (AUDIT) com sofrimento afetivo orienta FRAMES e redução de danos", () => {
+    const cds = getClinicalDecisionSupport([
+      { scale_code: "AUDIT", score: 14 },
+      { scale_code: "GAD-7", score: 15 },
+    ]);
+    const sub = cds.find((c) => c.id === "substancias-comorbidade");
+    expect(sub).toBeDefined();
+    expect(sub?.level).toBe("alerta");
+    expect(sub?.suggested_actions.some((a) => a.includes("FRAMES"))).toBe(true);
+  });
+
+  it("Caso 5: ASRS-18 positivo com ansiedade elevada sinaliza diagnóstico diferencial TDAH vs Ansiedade", () => {
+    const cds = getClinicalDecisionSupport([
+      { scale_code: "ASRS-18", band_level: 2, band: "Positivo" },
+      { scale_code: "GAD-7", score: 12 },
+    ]);
+    const tdah = cds.find((c) => c.id === "tdah-ansiedade-diferencial");
+    expect(tdah).toBeDefined();
+    expect(tdah?.level).toBe("orientativo");
+    expect(tdah?.clinical_guidance).toContain("ansiedade");
+  });
+
+  it("Caso 6: TEPT (PCL-5) com Insônia alerta sobre pesadelos e cautela com benzodiazepínicos", () => {
+    const cds = getClinicalDecisionSupport([
+      { scale_code: "PCL-5", score: 38 },
+      { scale_code: "ISI", score: 18 },
+    ]);
+    const tept = cds.find((c) => c.id === "trauma-sono-tept");
+    expect(tept).toBeDefined();
+    expect(tept?.clinical_guidance).toContain("trauma");
+  });
+
+  it("Caso 7: Burnout (MBI-HSS ou PSS-10) orienta reorganização de limites e possível afastamento", () => {
+    const cds = getClinicalDecisionSupport([
+      { scale_code: "MBI-HSS", score: 32 },
+    ]);
+    const burn = cds.find((c) => c.id === "burnout-trabalho");
+    expect(burn).toBeDefined();
+    expect(burn?.clinical_guidance).toContain("exaustão");
+  });
+
+  it("Caso 8: Paciente assintomático recebe orientação de medicina do estilo de vida e longevidade", () => {
+    const cds = getClinicalDecisionSupport([
+      { scale_code: "PHQ-9", score: 1, answers: { "9": 0 } },
+      { scale_code: "GAD-7", score: 2 },
+      { scale_code: "WHO-5", score: 22 },
+    ]);
+    expect(cds.length).toBe(1);
+    expect(cds[0].id).toBe("prevencao-longevidade");
+    expect(cds[0].level).toBe("orientativo");
   });
 });

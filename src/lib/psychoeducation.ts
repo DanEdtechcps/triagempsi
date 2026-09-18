@@ -23,6 +23,10 @@ export type ClinicPsychoOverride = {
   auto_trigger: boolean;
 };
 
+// Re-exports de Plano de Segurança e Apoio à Decisão Clínica
+export * from "./safety-plan";
+export * from "./clinical-decision-support";
+
 /**
  * Avalia os resultados das escalas e retorna os tópicos de psicoeducação indicados.
  * Totalmente puro (sem efeitos colaterais), seguro para execução no browser ou SSR.

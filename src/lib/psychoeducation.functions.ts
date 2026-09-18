@@ -23,6 +23,8 @@ export type AssessmentPsychoItem = {
   summary_pdf: string;
   resumo_card: string;
   body_md: string;
+  version: string;
+  tags: string[];
 };
 
 /**
@@ -62,6 +64,8 @@ export const getAssessmentPsychoeducation = createServerFn({ method: "GET" })
             summary_pdf: def.summary_pdf,
             resumo_card: def.resumo_card,
             body_md: def.body_md,
+            version: "v1 (2026.1)",
+            tags: def.tags,
           });
         }
       }
@@ -97,6 +101,8 @@ export const getAssessmentPsychoeducation = createServerFn({ method: "GET" })
       summary_pdf: e.topic.summary_pdf,
       resumo_card: e.topic.resumo_card,
       body_md: e.topic.body_md,
+      version: "v1 (2026.1)",
+      tags: e.topic.tags,
     }));
   });
 

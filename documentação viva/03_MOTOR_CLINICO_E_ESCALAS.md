@@ -84,8 +84,47 @@ O TriagemPsi integra um motor de **Psicoeducação Clínica Híbrida** (`src/lib
 10. **Bem-estar e prevenção + Longevidade (`bem-estar-prevencao`):** WHO-5 ≤ 50% ou sempre disponível (Psicodinâmica do envelhecimento e hábitos protetores).
 
 ### Os 4 Pontos de Entrega:
-- **Cards na Triagem:** Apresentados na tela de conclusão do paciente com linguagem acolhedora e acordeão de leitura.
-- **PDF do Paciente:** Resumo objetivo impresso em meia página sem emissão de diagnósticos.
-- **Portal do Paciente:** Leitura completa das orientações, dicas de TCC e registro de visualização.
-- **Painel do Médico:** Exibição dos gatilhos acionados, status de leitura e botão para liberação manual imediata.
+- **Cards na Triagem:** Apresentados na tela de conclusão do paciente com linguagem acolhedora, botões diretos de ligação rápida para o CVV 188 e SAMU 192, e acordeão de leitura.
+- **PDF do Paciente:** Resumo objetivo impresso sem emissão de diagnósticos, incluindo o Plano de Segurança Estruturado com destaque e a marcação de versão `v1 (2026.1)`.
+- **Portal do Paciente:** Biblioteca filtrável por busca e tags (`#TCC`, `#Sono`, `#Humor`, etc.), status de leitura ("Lido em DD/MM/AAAA" vs "Novo") e Plano de Segurança integrado.
+- **Painel do Médico:** Painel completo de Apoio à Decisão Clínica (Decision Support) com condutas orientativas, métricas de engajamento do paciente (percentual de materiais lidos e data do último acesso) e liberação de materiais complementares.
+
+---
+
+## 5. Evolução do Módulo de Psicoeducação e Apoio Clínico
+
+### 5.1 Plano de Segurança Estruturado (Feature A)
+Desenvolvido sob rigorosas diretrizes éticas e de proteção à vida (CVV 188 / SAMU 192 / Portarias MS), o Plano de Segurança Estruturado (`src/lib/safety-plan.ts`) é acionado preventivamente em qualquer situação de crise (PHQ-9 item 9 ≥ 1, C-SSRS positivo, RISK-COMPOSITE ou via de risco):
+
+1. **Canais Gratuitos de Urgência 24 Horas:**
+   - **CVV (Centro de Valorização da Vida):** Ligue 188 (24h, gratuito, sigiloso em todo o Brasil).
+   - **SAMU (Serviço de Atendimento Móvel de Urgência):** Ligue 192 para resgate pré-hospitalar e crise aguda descompensada.
+   - **UPA / Pronto-Socorro / CAPS III 24h:** Acolhimento presencial na rede de urgência municipal.
+2. **Rede de Apoio e Mensagem-Modelo:**
+   - Instrução de acionamento de 1 ou 2 pessoas de confiança.
+   - Mensagem-modelo de WhatsApp pronta: *"Olá, estou passando por um momento difícil e tendo pensamentos muito pesados agora. Você poderia falar comigo ou me fazer companhia por um tempo?"*
+3. **Estratégias Imediatas de Distração e Descompressão:**
+   - **Aterramento Sensorial (Grounding 5-4-3-2-1):** 5 objetos visíveis, 4 texturas táteis, 3 sons perceptíveis, 2 aromas, 1 sabor.
+   - **Respiração Ritmada Calmante (4-4-6):** Inspiração em 4s, retenção em 4s, expiração lenta em 6s (5 ciclos para induzir relaxamento vagal).
+4. **Segurança do Ambiente e Remoção de Meios:**
+   - Abafar impulso de isolamento físico em quartos fechados.
+   - Afastamento imediato de medicamentos em quantidade, bebidas alcoólicas e objetos perfurocortantes.
+   - Transferência da custódia de itens e remédios para pessoa de confiança.
+
+### 5.2 Apoio à Decisão Clínica do Médico (Clinical Decision Support - Feature B)
+O motor puro `src/lib/clinical-decision-support.ts` avalia as interações entre as 28 escalas e gera cards de orientação diagnóstica e terapêutica orientativos no painel do psiquiatra:
+
+- **Risco Suicida / Crise Aguda (Urgente):** Protocolo imediato de contenção, revisão do plano conjunto e averiguação de encaminhamento a pronto-socorro / CAPS III.
+- **Espectro Bipolar e Risco de Virada Maníaca (Alerta):** MDQ positivo com sintomas depressivos (PHQ-9). Alerta contra o uso de antidepressivos em monoterapia devido ao risco de ciclagem e hipomania; recomendação de estabilizadores de humor (Diretrizes CANMAT / ISBD).
+- **Comorbidade Depressão + Insônia Clínica Grave (Alerta):** PHQ-9 ≥ 10 + ISI ≥ 15. Recomendação de TCC-I concomitante ao manejo do humor, evitando escalada precoce de benzodiazepínicos com risco de dependência e fragmentação da arquitetura do sono (Diretrizes AASM).
+- **Uso Problemático de Substâncias com Sintomas Afetivos (Alerta):** AUDIT ≥ 8 ou DAST-10 ≥ 3 com PHQ-9 / GAD-7 elevados. Aplicação de Intervenção Breve no modelo FRAMES (Feedback, Responsabilidade, Aconselhamento, Menu de opções, Empatia, Autoeficácia), mapeamento de risco de abstinência e redução de danos.
+- **Diagnóstico Diferencial: TDAH vs. Hiperativação Ansiosa (Orientativo):** ASRS-18 positivo + GAD-7 elevado. Cautela com estimulantes antes de investigar se os déficits executivos decorrem de ansiedade crônica ou se há início na infância prévio aos 12 anos.
+- **Sintomas Pós-Traumáticos com Sono Fragmentado (Alerta):** PCL-5 ≥ 31 + ISI ≥ 15. Encaminhamento para psicoterapias focadas em trauma (TCC / EMDR); evitar dependência de BZDs.
+- **Sobrecarga Ocupacional e Esgotamento (Burnout) (Orientativo):** MBI-HSS ≥ 28 ou PSS-10 ≥ 27. Reorganização de limites laborais, afastamento temporário orientado e suporte psicoterápico.
+- **Promoção de Saúde Mental e Longevidade (Orientativo):** Triagens assintomáticas. Medicina do estilo de vida, sono regular, conexões sociais e longevidade digna.
+
+### 5.3 Biblioteca Filtrável e Métricas de Engajamento (Features C, D e E)
+- **Portal do Paciente:** Sistema de busca textual reativa, abas de leitura ("Todos", "Novos", "Lidos") e badges de tags (`#TCC`, `#Sono`, `#Humor`, etc.), com indicação de data de leitura e visualização de Plano de Segurança.
+- **Painel do Médico:** Contador dinâmico de engajamento (*"X de Y materiais lidos pelo paciente — Z%"*), barra de progresso visual colorida e registro do horário do último acesso pelo paciente.
+- **Versionamento de Conteúdo:** Todos os temas e entregas exibem a versão de publicação formal `v1 (2026.1)`.
 
