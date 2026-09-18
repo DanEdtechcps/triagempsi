@@ -1,6 +1,11 @@
-# 03. Motor Clínico e Escalas Psiquiátricas
+# 03. Motor Clínico e Escalas Psiquiátricas — Saraiva Clínica de Psiquiatria
 
-O coração do TriagemPsi é o seu motor clínico adaptativo puro (`src/lib/scoring.ts` e `src/lib/triage-tree.ts`). Em vez de submeter o paciente a um formulário estático exaustivo, a plataforma utiliza uma **árvore de decisão com ramificação adaptativa** baseada em funções puras (sem efeitos colaterais de UI), garantindo precisão psicométrica e 100% de cobertura por testes automatizados.
+> **Dr. José Ribamar Fernandes Saraiva Junior** | CRM-RS 29349 · RQE 30038  
+> *“Cuidado psiquiátrico com escuta, ciência e humanidade”*
+
+O coração do TriagemPsi é o seu motor clínico adaptativo puro (`src/lib/scoring.ts`, `src/lib/triage-tree.ts`, `src/lib/clinical-decision-support.ts` e `src/lib/safety-plan.ts`). Desenvolvido sob a ótica da prática psiquiátrica integrativa do Dr. Saraiva — aliando a escuta da Medicina de Família, evidências em Terapia Cognitivo-Comportamental (TCC), princípios de redução de danos em Dependência Química e a psicodinâmica do Envelhecimento Humano.
+
+Em vez de submeter o paciente a um formulário estático exaustivo, a plataforma utiliza uma **árvore de decisão com ramificação adaptativa** baseada em funções puras (sem efeitos colaterais de UI), garantindo precisão psicométrica e 100% de cobertura por testes automatizados.
 
 ---
 

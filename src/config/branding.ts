@@ -1,17 +1,20 @@
 /**
- * Configuração central de identidade visual e textos institucionais.
- * NENHUM componente deve ter nome de clínica, logo ou cor hardcoded.
- * No futuro white-label, os valores vindos do banco (tabela clinics)
- * sobrescrevem estes padrões via `resolveBranding`.
+ * Configuração central de identidade visual e institucional.
+ * Saraiva Clínica de Psiquiatria - Dr. José Ribamar Fernandes Saraiva Junior
+ * CRM-RS 29349 | RQE 30038 | Passo Fundo / RS
  */
 
 export type Branding = {
   clinicSlug: string;
   clinicName: string;
+  doctorName: string;
+  doctorCredentials: string;
   tagline: string;
+  shortTagline: string;
+  city: string;
   logoUrl: string | null;
-  primaryColor: string | null;
-  accentColor: string | null;
+  primaryColor: string;
+  accentColor: string;
   contactEmail: string | null;
   contactPhone: string | null;
   websiteUrl: string | null;
@@ -32,29 +35,33 @@ export type Branding = {
 };
 
 export const BRANDING: Branding = {
-  clinicSlug: "padrao",
-  clinicName: "Clínica de Saúde Mental",
-  tagline: "Pré-triagem antes da primeira consulta",
+  clinicSlug: "saraiva",
+  clinicName: "Saraiva Clínica de Psiquiatria",
+  doctorName: "Dr. José Ribamar Fernandes Saraiva Junior",
+  doctorCredentials: "CRM-RS 29349 | RQE 30038",
+  tagline: "Cuidado psiquiátrico com escuta, ciência e humanidade",
+  shortTagline: "Psiquiatria que acolhe e orienta",
+  city: "Passo Fundo/RS",
   logoUrl: null,
-  primaryColor: null,
-  accentColor: null,
-  contactEmail: null,
+  primaryColor: "#1e4d5c", // Azul-petróleo sóbrio e confiável
+  accentColor: "#3d8b8b",  // Verde-azulado suave
+  contactEmail: "contato@clinicasaraiva.med.br",
   contactPhone: null,
   websiteUrl: null,
   introCopy:
-    "Este é um questionário de pré-avaliação, respondido antes da sua primeira consulta. Ele ajuda a equipe clínica a conhecer melhor o seu momento e aproveitar melhor o tempo do atendimento.",
+    "Seja bem-vindo(a). Este questionário breve de pré-avaliação ajuda o Dr. José Ribamar Fernandes Saraiva Junior a conhecer seu momento antes da consulta, permitindo que o nosso tempo juntos seja dedicado ao que realmente importa: uma escuta atenta, humanizada e individualizada. Suas respostas são protegidas por sigilo ético absoluto.",
   doneCopy:
-    "Suas respostas foram enviadas com segurança para a equipe clínica. Elas serão revisadas pelo profissional antes da sua consulta.",
+    "Muito obrigado por dedicar seu tempo. Suas informações foram enviadas com segurança diretamente ao Dr. Saraiva, servindo de alicerce para a sua consulta médica.",
   disclaimer:
-    "Este instrumento é um apoio ao atendimento. Não realiza diagnóstico e não substitui a avaliação de um profissional de saúde.",
+    "Este instrumento é um apoio ao atendimento médico do Dr. José Ribamar Fernandes Saraiva Junior (CRM-RS 29349 | RQE 30038). Não realiza diagnóstico automático e não substitui a avaliação clínica direta.",
   consentCopy:
-    "Autorizo o tratamento das informações de saúde que eu informar aqui, exclusivamente pela equipe clínica responsável pelo meu atendimento, conforme a LGPD (Lei 13.709/2018).",
+    "Autorizo o tratamento das informações de saúde que eu informar aqui, exclusivamente pelo Dr. José Ribamar Fernandes Saraiva Junior e equipe clínica responsável pelo meu atendimento, conforme a LGPD (Lei 13.709/2018) e o sigilo médico ético.",
   emergency: {
     cvvPhone: "188",
     cvvLabel: "CVV — Centro de Valorização da Vida",
     samuPhone: "192",
     message:
-      "Se você está com pensamentos de morte ou de se machucar, procure ajuda agora. Você não precisa passar por isso sozinho(a).",
+      "Se você está passando por sofrimento psíquico intenso ou pensamentos de morte, procure ajuda agora. Você não precisa carregar isso sozinho(a).",
   },
 };
 

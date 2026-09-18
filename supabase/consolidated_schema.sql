@@ -232,17 +232,43 @@ CREATE TRIGGER clinics_updated_at
   BEFORE UPDATE ON public.clinics
   FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
 
--- 2) Seed default clinic
+-- 2) Seed default clinic (Dr. José Ribamar Fernandes Saraiva Junior)
+INSERT INTO public.clinics (slug, name, tagline, primary_color, accent_color, intro_copy, done_copy)
+VALUES (
+  'saraiva',
+  'Saraiva Clínica de Psiquiatria',
+  'Cuidado psiquiátrico com escuta, ciência e humanidade',
+  '#1e4d5c',
+  '#3d8b8b',
+  'Seja bem-vindo(a). Este questionário breve de pré-avaliação ajuda o Dr. José Ribamar Fernandes Saraiva Junior a conhecer seu momento antes da consulta, permitindo que o nosso tempo juntos seja dedicado ao que realmente importa: uma escuta atenta, humanizada e individualizada. Suas respostas são protegidas por sigilo ético absoluto.',
+  'Muito obrigado por dedicar seu tempo. Suas informações foram enviadas com segurança diretamente ao Dr. Saraiva, servindo de alicerce para a sua consulta médica.'
+)
+ON CONFLICT (slug) DO UPDATE SET
+  name = EXCLUDED.name,
+  tagline = EXCLUDED.tagline,
+  primary_color = EXCLUDED.primary_color,
+  accent_color = EXCLUDED.accent_color,
+  intro_copy = EXCLUDED.intro_copy,
+  done_copy = EXCLUDED.done_copy;
+
+-- Alias de compatibilidade para slug 'padrao'
 INSERT INTO public.clinics (slug, name, tagline, primary_color, accent_color, intro_copy, done_copy)
 VALUES (
   'padrao',
-  'Consultório',
-  'Avaliação pré-consulta psiquiátrica',
-  '#2f7a86',
-  '#7cc7cc',
-  'Este questionário breve ajuda seu psiquiatra a se preparar melhor para atender você. Você responderá a um conjunto de escalas de rastreio validadas — algumas curtas, outras um pouco mais longas, aparecendo apenas se relevantes.',
-  'Obrigado por dedicar seu tempo. Suas respostas foram enviadas para a equipe clínica.'
-);
+  'Saraiva Clínica de Psiquiatria',
+  'Cuidado psiquiátrico com escuta, ciência e humanidade',
+  '#1e4d5c',
+  '#3d8b8b',
+  'Seja bem-vindo(a). Este questionário breve de pré-avaliação ajuda o Dr. José Ribamar Fernandes Saraiva Junior a conhecer seu momento antes da consulta, permitindo que o nosso tempo juntos seja dedicado ao que realmente importa: uma escuta atenta, humanizada e individualizada. Suas respostas são protegidas por sigilo ético absoluto.',
+  'Muito obrigado por dedicar seu tempo. Suas informações foram enviadas com segurança diretamente ao Dr. Saraiva, servindo de alicerce para a sua consulta médica.'
+)
+ON CONFLICT (slug) DO UPDATE SET
+  name = EXCLUDED.name,
+  tagline = EXCLUDED.tagline,
+  primary_color = EXCLUDED.primary_color,
+  accent_color = EXCLUDED.accent_color,
+  intro_copy = EXCLUDED.intro_copy,
+  done_copy = EXCLUDED.done_copy;
 
 -- 3) Add clinic_id to existing tables (nullable first, then backfill, then NOT NULL)
 ALTER TABLE public.contacts     ADD COLUMN clinic_id uuid REFERENCES public.clinics(id) ON DELETE CASCADE;
