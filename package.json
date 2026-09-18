@@ -13,6 +13,7 @@
     "roadmap:add": "node scripts/roadmap-add.mjs",
     "test:e2e": "playwright test",
     "test": "vitest run",
+    "test:run": "vitest run",
     "test:watch": "vitest",
     "roadmap:review": "node scripts/roadmap-review.mjs"
   },

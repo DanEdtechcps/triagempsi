@@ -1,6 +1,6 @@
 
 -- Roles enum + tabela
-CREATE TYPE public.app_role AS ENUM ('admin', 'clinico');
+CREATE TYPE public.app_role AS ENUM ('admin', 'clinico', 'doctor', 'staff');
 
 CREATE TABLE public.user_roles (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -13,6 +13,19 @@ GRANT SELECT ON public.user_roles TO authenticated;
 GRANT ALL ON public.user_roles TO service_role;
 ALTER TABLE public.user_roles ENABLE ROW LEVEL SECURITY;
 
+CREATE OR REPLACE FUNCTION public.is_global_admin(_user_id uuid)
+RETURNS boolean
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = public
+AS $$
+  SELECT EXISTS (
+    SELECT 1 FROM public.user_roles
+    WHERE user_id = _user_id AND role = 'admin'::public.app_role AND clinic_id IS NULL
+  );
+$$;
+
 CREATE OR REPLACE FUNCTION public.has_role(_user_id uuid, _role app_role)
 RETURNS boolean
 LANGUAGE sql
@@ -20,7 +33,15 @@ STABLE
 SECURITY DEFINER
 SET search_path = public
 AS $$
-  SELECT EXISTS (SELECT 1 FROM public.user_roles WHERE user_id = _user_id AND role = _role);
+  SELECT EXISTS (
+    SELECT 1 FROM public.user_roles
+    WHERE user_id = _user_id
+      AND (
+        role = _role
+        OR (role = 'admin'::public.app_role AND clinic_id IS NULL)
+        OR (_role = 'clinico'::public.app_role AND role = 'doctor'::public.app_role)
+      )
+  );
 $$;
 
 CREATE POLICY "user_roles_self_read" ON public.user_roles
@@ -256,7 +277,10 @@ AS $$
   SELECT EXISTS (
     SELECT 1 FROM public.user_roles
     WHERE user_id = auth.uid()
-      AND (clinic_id IS NULL OR clinic_id = _clinic_id)
+      AND (
+        (role = 'admin'::public.app_role AND clinic_id IS NULL)
+        OR clinic_id = _clinic_id
+      )
   );
 $$;
 
@@ -738,9 +762,49 @@ CREATE POLICY "clinic_subscriptions_team_read" ON public.clinic_subscriptions
   FOR SELECT TO authenticated
   USING (public.has_clinic_access(clinic_id));
 
+CREATE POLICY "clinic_subscriptions_admin_write" ON public.clinic_subscriptions
+  FOR ALL TO authenticated
+  USING (public.is_global_admin(auth.uid()))
+  WITH CHECK (public.is_global_admin(auth.uid()));
+
 CREATE TRIGGER clinic_subscriptions_updated_at BEFORE UPDATE ON public.clinic_subscriptions
   FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 INSERT INTO public.clinic_subscriptions (clinic_id, plan_code, status, trial_ends_at, current_period_end, notes)
 SELECT c.id, 'consultorio', 'trial', now() + interval '30 days', CURRENT_DATE + 30, 'Trial inicial automático (30 dias)'
-FROM public.clinics c;
+FROM public.clinics c
+ON CONFLICT (clinic_id) DO NOTHING;
+
+-- Acompanhamento Longitudinal
+CREATE TABLE IF NOT EXISTS public.patient_longitudinal_records (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  clinic_id UUID NOT NULL REFERENCES public.clinics(id) ON DELETE CASCADE,
+  patient_email TEXT NOT NULL,
+  patient_name TEXT NOT NULL,
+  assessment_id UUID NOT NULL REFERENCES public.assessments(id) ON DELETE CASCADE,
+  scale_code TEXT NOT NULL,
+  score NUMERIC NOT NULL,
+  band TEXT,
+  band_level INTEGER,
+  risk BOOLEAN NOT NULL DEFAULT false,
+  recorded_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
+GRANT SELECT, INSERT, UPDATE ON public.patient_longitudinal_records TO authenticated;
+GRANT ALL ON public.patient_longitudinal_records TO service_role;
+ALTER TABLE public.patient_longitudinal_records ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "patient_longitudinal_records_team_read" ON public.patient_longitudinal_records
+  FOR SELECT TO authenticated
+  USING (has_clinic_access(clinic_id));
+
+CREATE POLICY "patient_longitudinal_records_team_write" ON public.patient_longitudinal_records
+  FOR ALL TO authenticated
+  USING (has_clinic_access(clinic_id))
+  WITH CHECK (has_clinic_access(clinic_id));
+
+CREATE INDEX IF NOT EXISTS patient_longitudinal_records_clinic_email_idx
+  ON public.patient_longitudinal_records (clinic_id, patient_email);
+CREATE INDEX IF NOT EXISTS patient_longitudinal_records_assessment_idx
+  ON public.patient_longitudinal_records (assessment_id);

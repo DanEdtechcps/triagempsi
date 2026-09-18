@@ -82,12 +82,12 @@ ON CONFLICT (id) DO NOTHING;
 2. Preencha o e-mail e senha desejados (ex: `admin@clinica.com.br` / `SenhaForte123!`).
 3. Marque a opção **Auto Confirm User?** como **Yes**.
 4. Copie o UID gerado para este usuário.
-5. Volte ao SQL Editor e atribua o perfil de superadmin:
+5. Volte ao SQL Editor e atribua o perfil de Administrador Global (`role = 'admin'` e `clinic_id = NULL`):
 
 ```sql
-INSERT INTO public.user_roles (user_id, role)
-VALUES ('<UID_COPIADO>', 'superadmin')
-ON CONFLICT (user_id, role) DO NOTHING;
+INSERT INTO public.user_roles (user_id, role, clinic_id)
+VALUES ('<UID_COPIADO>', 'admin', NULL)
+ON CONFLICT (user_id, role, COALESCE(clinic_id, '00000000-0000-0000-0000-000000000000'::uuid)) DO NOTHING;
 ```
 
 ### Passo 3.4: Ativar Prevenção de Suspensão (Keepalive)

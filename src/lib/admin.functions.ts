@@ -214,7 +214,7 @@ export const addStaffAdmin = createServerFn({ method: "POST" })
     z
       .object({
         email: z.string().trim().email().max(200),
-        role: z.enum(["admin", "clinico"]),
+        role: z.enum(["admin", "clinico", "doctor", "staff"]),
         clinic_id: z.string().uuid().nullable(),
         password: z.string().min(8).max(72).optional().nullable(),
       })
@@ -299,7 +299,7 @@ export const removeStaffAdmin = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((raw: unknown) =>
     z
-      .object({ user_id: z.string().uuid(), clinic_id: z.string().uuid().nullable(), role: z.enum(["admin", "clinico"]) })
+      .object({ user_id: z.string().uuid(), clinic_id: z.string().uuid().nullable(), role: z.enum(["admin", "clinico", "doctor", "staff"]) })
       .parse(raw),
   )
   .handler(async ({ data, context }) => {

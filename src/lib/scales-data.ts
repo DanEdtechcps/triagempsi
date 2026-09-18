@@ -12,6 +12,8 @@ import {
 import { EXTRA_SCALES, ASSIST_V0 } from "./scales-extra";
 import { SCALES_AMPLIADAS } from "./scales-ampliadas";
 import { SCALES_OCUPACIONAL } from "./scales-ocupacional";
+import { OFFICIAL_28_EXTRA_SCALES } from "./scales-official-28";
+export * from "./scales-official-28";
 
 export type {
   LikertOption,
@@ -400,6 +402,7 @@ export const ALL_SCALES: Scale[] = [
   ...EXTRA_SCALES,
   ...SCALES_AMPLIADAS,
   ...SCALES_OCUPACIONAL,
+  ...OFFICIAL_28_EXTRA_SCALES,
 ];
 
 export const SCALE_BY_CODE = Object.fromEntries(

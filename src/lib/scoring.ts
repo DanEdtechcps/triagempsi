@@ -144,6 +144,35 @@ export function scoreScale(
         : `${atWorst[0].band} — ${atWorst.map((s) => s.label).join(", ")}`;
   }
 
+  // Refinamentos específicos de bandas para escalas com critérios complexos
+  if (scaleCode === "ASRS-18") {
+    let parteAPositivos = 0;
+    for (let i = 1; i <= 6; i++) {
+      const val = Number(answers[String(i)]) || 0;
+      if (i <= 3 && val >= 2) parteAPositivos++;
+      else if (i >= 4 && val >= 3) parteAPositivos++;
+    }
+    if (parteAPositivos >= 4) {
+      bandLabel = `Rastreio positivo (${parteAPositivos}/6 sintomas na Parte A) — investigar TDAH adulto`;
+      bandLevel = 3;
+    } else {
+      bandLabel = `Rastreio negativo (${parteAPositivos}/6 sintomas na Parte A)`;
+      bandLevel = 0;
+    }
+  } else if (scaleCode === "C-SSRS") {
+    const hasCritical = (answers["4"] ?? 0) > 0 || (answers["5"] ?? 0) > 0 || (answers["6"] ?? 0) > 0;
+    if (hasCritical) {
+      bandLabel = "Risco alto / iminente — intenção, plano ou comportamento recente";
+      bandLevel = 4;
+    } else if ((answers["3"] ?? 0) > 0) {
+      bandLabel = "Risco moderado — ideação com métodos considerados";
+      bandLevel = 3;
+    } else if ((answers["1"] ?? 0) > 0 || (answers["2"] ?? 0) > 0) {
+      bandLabel = "Risco baixo — ideação passiva sem método";
+      bandLevel = 2;
+    }
+  }
+
   // Regras de risco: itens sinalizados na configuração da escala
   let risk = false;
   for (const itemId of scale.riskItems ?? []) {
@@ -153,6 +182,14 @@ export function scoreScale(
   if (scale.domain === "risco" && adjusted >= (scale.positiveCutoff ?? 1)) {
     risk = true;
   }
+  // Regras adicionais de corte de risco
+  if (scaleCode === "CGI-S" && score >= 6) risk = true;
+  if (scaleCode === "CRAFFT" && score >= 2) risk = true;
+  if (scaleCode === "WHO-5" && score <= 7) risk = true;
+  if (scaleCode === "DAST-10" && score >= 6) risk = true;
+  if (scaleCode === "AUDIT" && score >= 20) risk = true;
+  if (scaleCode === "PCL-5" && score >= 33) risk = true;
+  if (scaleCode === "GAD-7" && score >= 15) risk = true;
 
   return {
     scale_code: scale.code,
