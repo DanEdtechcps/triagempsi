@@ -43,6 +43,7 @@ export type PdfReportData = {
   decisions?: Decision[];
   indicated?: IndicatedScale[];
   ageBand?: string | null;
+  psychoeducation?: Array<{ title: string; summary: string }>;
 };
 
 
@@ -332,7 +333,19 @@ export function buildPatientPdf(
     }
   }
 
-
+  if (data.psychoeducation?.length) {
+    b.title("Orientações e Práticas de Cuidado Recomendadas");
+    b.paragraph(
+      "Com base nas respostas informadas, nossa equipe médica preparou as seguintes orientações educativas e de autorregulação:",
+      { color: 80, size: 9 },
+    );
+    b.y += 2;
+    for (const p of data.psychoeducation) {
+      b.paragraph(`• ${p.title}`, { color: 30, size: 10 });
+      b.paragraph(p.summary, { color: 70, size: 9 });
+      b.y += 2;
+    }
+  }
 
   if (data.riskPathway || data.riskFlags?.length) {
     b.y += 6;

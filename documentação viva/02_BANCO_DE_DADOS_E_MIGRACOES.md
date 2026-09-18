@@ -122,7 +122,15 @@ Tabela criada especificamente para impedir a suspensão automática por inativid
 
 ---
 
-## 4. Script Consolidado para Replicação Imediata
+## 4. Tabelas do Módulo de Psicoeducação
+* **`public.psychoeducation_topics`**: Categorias clínicas com slugs, ícones, ordenação e status ativo.
+* **`public.psychoeducation_contents`**: Versões de conteúdo (`resumo`, `completo`, `crise`) em Markdown e texto para PDF.
+* **`public.clinic_psychoeducation_settings`**: Configuração granular por clínica (ativação de tópicos e trigger automático).
+* **`public.assessment_psychoeducation`**: Recomendações vinculadas por triagem com histórico de visualização do paciente.
+
+---
+
+## 5. Script Consolidado para Replicação Imediata
 O banco completo pode ser recriado com 1 comando através do script:
 👉 **[consolidated_schema.sql](file:///mnt/armazenamento/Projetos/triagem-medica/supabase/consolidated_schema.sql)**
 

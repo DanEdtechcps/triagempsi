@@ -23,6 +23,7 @@ import { useState } from "react";
 import { ParecerMedico } from "@/components/painel/ParecerMedico";
 import { QueueNav } from "@/components/painel/QueueNav";
 import { HistoricoRevisoes } from "@/components/painel/HistoricoRevisoes";
+import { PainelPsicoeducacao } from "@/components/painel/PainelPsicoeducacao";
 import { AcessoNegado } from "@/components/painel/AcessoNegado";
 import { isAccessDenied, accessDeniedMessage } from "@/lib/access-error";
 
@@ -291,6 +292,8 @@ function PainelDetalhe() {
           <HistoricoRevisoes assessmentId={id} />
 
           <ParecerMedico assessmentId={id} />
+
+          <PainelPsicoeducacao assessmentId={id} />
 
           {(a.scale_results ?? []).map((r) => {
 

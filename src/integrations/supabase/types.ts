@@ -718,6 +718,194 @@ export type Database = {
           },
         ]
       }
+      psychoeducation_topics: {
+        Row: {
+          id: string
+          slug: string
+          title: string
+          short_title: string | null
+          description: string | null
+          icon: string | null
+          sort_order: number | null
+          is_active: boolean | null
+          created_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          slug: string
+          title: string
+          short_title?: string | null
+          description?: string | null
+          icon?: string | null
+          sort_order?: number | null
+          is_active?: boolean | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          slug?: string
+          title?: string
+          short_title?: string | null
+          description?: string | null
+          icon?: string | null
+          sort_order?: number | null
+          is_active?: boolean | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      psychoeducation_contents: {
+        Row: {
+          id: string
+          topic_id: string
+          version: string
+          level: "resumo" | "completo" | "crise"
+          title: string
+          body_md: string
+          summary_pdf: string | null
+          external_links: Json | null
+          video_urls: Json | null
+          is_published: boolean | null
+          created_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          topic_id: string
+          version?: string
+          level: "resumo" | "completo" | "crise"
+          title: string
+          body_md: string
+          summary_pdf?: string | null
+          external_links?: Json | null
+          video_urls?: Json | null
+          is_published?: boolean | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          topic_id?: string
+          version?: string
+          level?: "resumo" | "completo" | "crise"
+          title?: string
+          body_md?: string
+          summary_pdf?: string | null
+          external_links?: Json | null
+          video_urls?: Json | null
+          is_published?: boolean | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "psychoeducation_contents_topic_id_fkey"
+            columns: ["topic_id"]
+            isOneToOne: false
+            referencedRelation: "psychoeducation_topics"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      clinic_psychoeducation_settings: {
+        Row: {
+          id: string
+          clinic_id: string
+          topic_id: string
+          is_enabled: boolean | null
+          auto_trigger: boolean | null
+          custom_intro: string | null
+          created_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          clinic_id: string
+          topic_id: string
+          is_enabled?: boolean | null
+          auto_trigger?: boolean | null
+          custom_intro?: string | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          clinic_id?: string
+          topic_id?: string
+          is_enabled?: boolean | null
+          auto_trigger?: boolean | null
+          custom_intro?: string | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "clinic_psychoeducation_settings_clinic_id_fkey"
+            columns: ["clinic_id"]
+            isOneToOne: false
+            referencedRelation: "clinics"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "clinic_psychoeducation_settings_topic_id_fkey"
+            columns: ["topic_id"]
+            isOneToOne: false
+            referencedRelation: "psychoeducation_topics"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      assessment_psychoeducation: {
+        Row: {
+          id: string
+          assessment_id: string
+          topic_id: string
+          content_id: string | null
+          trigger_reason: string | null
+          is_manual: boolean | null
+          viewed_at: string | null
+          created_at: string | null
+        }
+        Insert: {
+          id?: string
+          assessment_id: string
+          topic_id: string
+          content_id?: string | null
+          trigger_reason?: string | null
+          is_manual?: boolean | null
+          viewed_at?: string | null
+          created_at?: string | null
+        }
+        Update: {
+          id?: string
+          assessment_id?: string
+          topic_id?: string
+          content_id?: string | null
+          trigger_reason?: string | null
+          is_manual?: boolean | null
+          viewed_at?: string | null
+          created_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "assessment_psychoeducation_assessment_id_fkey"
+            columns: ["assessment_id"]
+            isOneToOne: false
+            referencedRelation: "assessments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assessment_psychoeducation_topic_id_fkey"
+            columns: ["topic_id"]
+            isOneToOne: false
+            referencedRelation: "psychoeducation_topics"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never

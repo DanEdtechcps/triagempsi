@@ -154,6 +154,42 @@ export const submitAssessment = createServerFn({ method: "POST" })
       }
     }
 
+    // Grava recomendações automáticas de psicoeducação
+    try {
+      const { evaluatePsychoeducationTriggers } = await import("@/lib/psychoeducation");
+      const recommendations = evaluatePsychoeducationTriggers(data.results, {
+        riskPathway: Boolean(data.summary.risk_flags?.length),
+      });
+
+      if (recommendations.length > 0) {
+        const slugs = recommendations.map((rec) => rec.topic.slug);
+        const { data: topics } = await supabaseAdmin
+          .from("psychoeducation_topics")
+          .select("id, slug")
+          .in("slug", slugs);
+
+        if (topics && topics.length > 0) {
+          const topicMap = new Map(topics.map((t) => [t.slug, t.id]));
+          const psychoRows = recommendations
+            .filter((rec) => topicMap.has(rec.topic.slug))
+            .map((rec) => ({
+              assessment_id: assessment.id,
+              topic_id: topicMap.get(rec.topic.slug)!,
+              trigger_reason: rec.trigger_reason,
+              is_manual: false,
+            }));
+
+          if (psychoRows.length > 0) {
+            await supabaseAdmin
+              .from("assessment_psychoeducation")
+              .upsert(psychoRows, { onConflict: "assessment_id, topic_id" });
+          }
+        }
+      }
+    } catch (psyErr) {
+      console.warn("submitAssessment: falha ao salvar psicoeducação (não bloqueia)", psyErr);
+    }
+
     if (invitationId) {
       await supabaseAdmin
         .from("invitations")

@@ -64,3 +64,28 @@ A jornada do paciente é dividida em 3 fases puras:
 
 - **Nunca emitir diagnóstico conclusivo no documento do paciente:** O PDF do paciente contém apenas informações psicoeducativas, faixas de sintomas e acolhimento.
 - **Relatório Médico (PDF Clínico):** Apresenta ao psiquiatra os escores brutos, subescalas calculadas, pontos de corte, histórico longitudinal e alertas de segurança.
+
+---
+
+## 4. Módulo de Psicoeducação (Curadoria Dr. Saraiva)
+
+O TriagemPsi integra um motor de **Psicoeducação Clínica Híbrida** (`src/lib/psychoeducation.ts` e `src/lib/psychoeducation-data.ts`), alinhado à visão médica integrativa (Medicina de Família, Psiquiatria ABP, TCC, Dependência Química e Envelhecimento Humano):
+
+### Os 10 Temas Oficiais e Gatilhos:
+1. **Depressão e humor baixo (`depressao-humor`):** PHQ-9 ≥ 10 ou PHQ-2 ≥ 3.
+2. **Ansiedade e preocupação excessiva (`ansiedade-preocupacao`):** GAD-7 ≥ 10 ou GAD-2 ≥ 3.
+3. **Crise emocional e ideação suicida (`crise-emocional`):** PHQ-9 item 9 ≥ 1, C-SSRS positivo ou RISK-COMPOSITE (Prioridade 1 Máxima + CVV 188 / SAMU 192).
+4. **Insônia e higiene do sono (`insonia-sono`):** ISI ≥ 15 (Pilares da TCC-I).
+5. **TDAH em adultos (`tdah-adultos`):** ASRS-18 Parte A positiva (Funções executivas e externalização).
+6. **Oscilações de humor (`oscilacoes-humor`):** MDQ positivo (Espectro bipolar e ritmos circadianos).
+7. **Álcool e substâncias (`alcool-substancias`):** AUDIT ≥ 8, DAST-10 ≥ 3 ou CRAFFT ≥ 2 (Redução progressiva de danos).
+8. **Trauma e estresse pós-traumático (`trauma-tept`):** PCL-5 ≥ 31-33 (Neurobiologia do trauma e TCC focada).
+9. **Burnout e esgotamento (`burnout-esgotamento`):** MBI-HSS elevado ou PSS-10 ≥ 27 (3 dimensões do esgotamento).
+10. **Bem-estar e prevenção + Longevidade (`bem-estar-prevencao`):** WHO-5 ≤ 50% ou sempre disponível (Psicodinâmica do envelhecimento e hábitos protetores).
+
+### Os 4 Pontos de Entrega:
+- **Cards na Triagem:** Apresentados na tela de conclusão do paciente com linguagem acolhedora e acordeão de leitura.
+- **PDF do Paciente:** Resumo objetivo impresso em meia página sem emissão de diagnósticos.
+- **Portal do Paciente:** Leitura completa das orientações, dicas de TCC e registro de visualização.
+- **Painel do Médico:** Exibição dos gatilhos acionados, status de leitura e botão para liberação manual imediata.
+
