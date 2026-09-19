@@ -1,0 +1,28 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "code": "GDS-15",
+  "name": "GDS-15",
+  "fullName": "Escala de Depressão Geriátrica de Yesavage",
+  "version": "1.0.0",
+  "domain": "depressao",
+  "instructions": "Escolha a melhor resposta sobre como você se sentiu na última semana.",
+  "timeframe": "Última semana",
+  "eligibility": {
+    "min_age": 60,
+    "required_symptoms": ["tristeza"]
+  },
+  "options": [
+    { "label": "Não", "value": 0 },
+    { "label": "Sim", "value": 1 }
+  ],
+  "items": [
+    { "id": "1", "text": "Você está basicamente satisfeito(a) com sua vida?" },
+    { "id": "2", "text": "Você deixou muitos de seus interesses e atividades?" }
+  ],
+  "bands": [
+    { "min": 0, "max": 5, "label": "Normal", "level": 0 },
+    { "min": 6, "max": 10, "label": "Sintomas depressivos leves", "level": 2 },
+    { "min": 11, "max": 15, "label": "Sintomas depressivos graves", "level": 4 }
+  ],
+  "positiveCutoff": 6
+}

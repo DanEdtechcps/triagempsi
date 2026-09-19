@@ -9,7 +9,7 @@
   "timeframe": "Últimas 2 semanas",
   "eligibility": {
     "min_age": 12,
-    "required_symptoms": ["tristeza", "angustia", "morte"]
+    "triggers_only": true
   },
   "options": [
     { "label": "Nenhuma vez", "value": 0 },

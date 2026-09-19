@@ -1,0 +1,30 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "code": "SNAP-IV",
+  "name": "SNAP-IV",
+  "fullName": "Swanson, Nolan, and Pelham Questionnaire (TDAH e TOD)",
+  "version": "1.0.0",
+  "domain": "atencao",
+  "status": "estrutura",
+  "instructions": "Para pais e professores avaliarem crianças e adolescentes de 6 a 17 anos.",
+  "eligibility": {
+    "min_age": 6,
+    "max_age": 17,
+    "required_symptoms": ["atencao"]
+  },
+  "options": [
+    { "label": "Nem um pouco", "value": 0 },
+    { "label": "Só um pouco", "value": 1 },
+    { "label": "Bastante", "value": 2 },
+    { "label": "Demais", "value": 3 }
+  ],
+  "items": [
+    { "id": "1", "text": "Não consegue prestar muita atenção a detalhes ou comete erros por descuido" },
+    { "id": "2", "text": "Tem dificuldade de manter a atenção em tarefas ou jogos" }
+  ],
+  "bands": [
+    { "min": 0, "max": 1, "label": "Sem indícios clínicos", "level": 0 },
+    { "min": 2, "max": 6, "label": "Possível desatenção/hiperatividade", "level": 2 }
+  ],
+  "positiveCutoff": 2
+}

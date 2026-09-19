@@ -1,0 +1,26 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "code": "AD-8",
+  "name": "AD-8",
+  "fullName": "Questionário de Rastreio de Comprometimento Cognitivo",
+  "version": "1.0.0",
+  "domain": "memoria",
+  "instructions": "Avaliação de mudanças de memória, julgamento e orientação nos últimos anos.",
+  "eligibility": {
+    "min_age": 50,
+    "required_symptoms": ["memoria"]
+  },
+  "options": [
+    { "label": "Não houve mudança", "value": 0 },
+    { "label": "Sim, houve mudança", "value": 1 }
+  ],
+  "items": [
+    { "id": "1", "text": "Problemas de julgamento (ex: decisões financeiras ruins, dificuldade com dinheiro)" },
+    { "id": "2", "text": "Menor interesse em atividades ou hobbies" }
+  ],
+  "bands": [
+    { "min": 0, "max": 1, "label": "Cognição preservada", "level": 0 },
+    { "min": 2, "max": 8, "label": "Sinais sugestivos de declínio cognitivo", "level": 2 }
+  ],
+  "positiveCutoff": 2
+}

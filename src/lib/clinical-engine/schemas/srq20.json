@@ -1,0 +1,29 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "code": "SRQ-20",
+  "name": "SRQ-20",
+  "fullName": "Rastreio de sofrimento psíquico geral",
+  "version": "1.0.0",
+  "domain": "geral",
+  "instructions": "Estas perguntas se referem a como você tem se sentido nos últimos 30 dias. Responda sim ou não para cada uma.",
+  "timeframe": "Últimos 30 dias",
+  "eligibility": {
+    "min_age": 15,
+    "required_symptoms": ["angustia"]
+  },
+  "options": [
+    { "label": "Não", "value": 0 },
+    { "label": "Sim", "value": 1 }
+  ],
+  "items": [
+    { "id": "1", "text": "Tem dores de cabeça com frequência?" },
+    { "id": "2", "text": "Tem falta de apetite?" },
+    { "id": "17", "text": "Tem tido ideia de acabar com a vida?", "is_risk": true }
+  ],
+  "bands": [
+    { "min": 0, "max": 6, "label": "Sofrimento psíquico improvável", "level": 0 },
+    { "min": 7, "max": 20, "label": "Suspeita de transtorno mental comum", "level": 2 }
+  ],
+  "positiveCutoff": 7,
+  "riskItems": ["17"]
+}

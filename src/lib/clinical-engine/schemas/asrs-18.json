@@ -1,0 +1,30 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "code": "ASRS-18",
+  "name": "ASRS-18",
+  "fullName": "Escala de Autoavaliação de TDAH em Adultos (OMS)",
+  "version": "1.0.0",
+  "domain": "atencao",
+  "instructions": "Responda às perguntas abaixo com base em como você se sentiu e se comportou nos últimos 6 meses.",
+  "timeframe": "Últimos 6 meses",
+  "eligibility": {
+    "min_age": 18,
+    "required_symptoms": ["atencao"]
+  },
+  "options": [
+    { "label": "Nunca", "value": 0 },
+    { "label": "Raramente", "value": 1 },
+    { "label": "Às vezes", "value": 2 },
+    { "label": "Frequentemente", "value": 3 },
+    { "label": "Muito frequentemente", "value": 4 }
+  ],
+  "items": [
+    { "id": "1", "text": "Com que frequência você tem dificuldade para finalizar os detalhes de um projeto?" },
+    { "id": "2", "text": "Com que frequência você tem dificuldade para colocar as coisas em ordem?" }
+  ],
+  "bands": [
+    { "min": 0, "max": 3, "label": "Improvável TDAH", "level": 0 },
+    { "min": 4, "max": 8, "label": "Sintomas altamente consistentes com TDAH em adultos", "level": 2 }
+  ],
+  "positiveCutoff": 4
+}

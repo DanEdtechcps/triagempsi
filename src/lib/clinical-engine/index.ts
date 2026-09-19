@@ -10,3 +10,5 @@ export * from "./schema-evaluator";
 export * from "./reactive-dag";
 export * from "./reactions";
 export * from "./tenant-context";
+export * from "./shadow-runner";
+export * from "./flags";
