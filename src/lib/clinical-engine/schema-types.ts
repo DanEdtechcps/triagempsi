@@ -9,12 +9,20 @@ export type ScaleItemOption = {
   value: number;
 };
 
+export type TRIParameters = {
+  /** Parâmetro 'a' de discriminação do item (ex: PROMIS / GRM) */
+  a_discrimination: number;
+  /** Limiares 'b' de transição entre categorias da escala Likert */
+  b_thresholds: number[];
+};
+
 export type ScaleItem = {
   id: string;
   text: string;
   hint?: string;
   options?: ScaleItemOption[];
   is_risk?: boolean;
+  tri_parameters?: TRIParameters;
 };
 
 export type ScaleEligibility = {

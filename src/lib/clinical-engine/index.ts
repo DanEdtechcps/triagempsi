@@ -12,3 +12,5 @@ export * from "./reactions";
 export * from "./tenant-context";
 export * from "./shadow-runner";
 export * from "./flags";
+export * from "./cat-estimator";
+export * from "./dwell-time";
