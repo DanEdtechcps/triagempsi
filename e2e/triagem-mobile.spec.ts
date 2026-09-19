@@ -110,10 +110,13 @@ test.describe("Validação em Dispositivos Móveis (Mobile UX & Responsividade)"
     const questionHeader = page.locator("text=/· pergunta \\d+ de \\d+/").first();
     await expect(questionHeader).toBeVisible({ timeout: 10_000 });
 
-    // Responde as perguntas do rastreio
-    for (let i = 0; i < 10; i++) {
-      const isHeaderVisible = await questionHeader.isVisible({ timeout: 500 }).catch(() => false);
+    // Responde os itens na interface móvel até concluir
+    for (let guard = 0; guard < 80; guard++) {
+      const header = page.locator("text=/· pergunta \\d+ de \\d+/").first();
+      const isHeaderVisible = await header.isVisible({ timeout: 1500 }).catch(() => false);
       if (!isHeaderVisible) break;
+      const text = (await header.textContent()) ?? "";
+
       const optionButtons = page.locator("main button.min-h-14");
       const count = await optionButtons.count();
       if (count > 0) {
@@ -122,8 +125,9 @@ test.describe("Validação em Dispositivos Móveis (Mobile UX & Responsividade)"
         if (box) {
           expect(box.height).toBeGreaterThanOrEqual(44);
         }
-        await optionButtons.first().click({ force: true });
-        await page.waitForTimeout(200);
+        await optionButtons.first().click();
+        await expect(header).not.toHaveText(text, { timeout: 4000 }).catch(() => {});
+        await page.waitForTimeout(100);
       } else {
         break;
       }
