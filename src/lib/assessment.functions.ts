@@ -23,7 +23,7 @@ const SubmitSchema = z.object({
   respondent_phone: z.string().trim().max(40).optional().nullable(),
   respondent_age: z.number().int().min(0).max(120).optional().nullable(),
   birth_date: z.string().trim().max(20).optional().nullable(),
-  respondent_sex: z.string().max(40).optional().nullable(),
+  respondent_sex: z.string().max(100).optional().nullable(),
   respondent_type: z.enum(["paciente", "familiar"]).default("paciente"),
   informant_name: z.string().trim().max(120).optional().nullable(),
   informant_relation: z.string().trim().max(80).optional().nullable(),
@@ -44,6 +44,8 @@ const SubmitSchema = z.object({
     informant_notes: z.array(z.any()).default([]),
     risk_pathway: z.boolean().default(false),
     risk_flags: z.array(z.string()),
+    preferred_name: z.string().max(120).optional().nullable(),
+    pronouns: z.string().max(60).optional().nullable(),
   }),
 
 });

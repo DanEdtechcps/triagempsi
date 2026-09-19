@@ -24,6 +24,8 @@ export function buildPdfPayload(
   const riskFlags = (a.risk_flags as string[]) ?? [];
   return {
     respondent_name: String(a.respondent_name ?? "Paciente"),
+    preferred_name: ((summary as any)?.preferred_name as string | null) ?? null,
+    pronouns: ((summary as any)?.pronouns as string | null) ?? null,
     respondent_age: (a.respondent_age as number | null) ?? null,
     birth_date: (a.birth_date as string | null) ?? null,
     respondent_sex: (a.respondent_sex as string | null) ?? null,

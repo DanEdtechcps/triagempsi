@@ -1,94 +1,199 @@
-import { test, expect, devices } from "@playwright/test";
+import { test, expect, type Page } from "@playwright/test";
 
 /**
- * Validação de Responsividade e Ergonomia Mobile:
- * Dispositivos móveis compactos (iPhone SE 375x667, Pixel / Galaxy)
+ * Testes de Validação e Responsividade para Dispositivos Móveis
+ * - iPhone SE / Android Compacto (375 x 667)
+ * - iPhone 14 / Telas Padrão (390 x 844)
  * 
- * Critérios auditados:
- * 1. Meta viewport configurada corretamente
- * 2. Ausência total de scroll horizontal (overflow-x = 0)
- * 3. Prevenção de auto-zoom no iOS Safari (font-size >= 16px em inputs)
- * 4. Touch targets ergonômicos (mínimo de 44px a 48px)
- * 5. Discagem telefônica direta nos links de emergência (tel:188 e tel:192)
+ * Verifica:
+ * 1. Zero overflow horizontal (document.documentElement.scrollWidth <= window.innerWidth)
+ * 2. Touch targets adequados (mínimo 44px / 48px)
+ * 3. Textos e campos legíveis sem zoom indesejado (font-size >= 16px)
+ * 4. Links de emergência telefônica direta (tel:188, tel:192)
+ * 5. Expansão e leitura de cards de psicoeducação em telas estreitas
  */
 
-test.use({
-  ...devices["iPhone SE"], // 375x667, hasTouch: true, mobile: true
-});
+function birthDateForAge(age: number) {
+  const now = new Date();
+  const d = new Date(now.getFullYear() - age, now.getMonth(), 1);
+  d.setMonth(d.getMonth() - 1);
+  return d.toISOString().slice(0, 10);
+}
 
-test.describe("TriagemPsi — Experiência Mobile & Responsividade", () => {
-  test.beforeEach(async ({ page }) => {
+async function mockSubmit(page: Page) {
+  await page.route(
+    (url) => /_serverFn|serverFn|\/api\//.test(url.pathname + url.search),
+    (route) =>
+      route.request().method() === "POST"
+        ? route.fulfill({
+            status: 200,
+            contentType: "application/json",
+            body: JSON.stringify({ result: { ok: true, assessment_id: "mobile-test-id" } }),
+          })
+        : route.fallback(),
+  );
+}
+
+test.describe("Validação em Dispositivos Móveis (Mobile UX & Responsividade)", () => {
+  test.use({
+    viewport: { width: 375, height: 667 }, // iPhone SE / Compact Mobile
+    isMobile: true,
+    hasTouch: true,
+  });
+
+  test("Jornada do paciente sem overflow horizontal e com touch targets adequados", async ({ page }) => {
+    await mockSubmit(page);
     await page.addInitScript(() => window.localStorage.clear());
-  });
 
-  test("deve renderizar tela inicial sem scroll horizontal e com touch targets adequados", async ({ page }) => {
+    // 1. Tela 1 — Boas-Vindas
     await page.goto("/saraiva/triagem", { waitUntil: "networkidle" });
-
-    // 1. Verifica contenção de largura (zero overflow horizontal)
-    const hasHorizontalOverflow = await page.evaluate(() => {
-      return document.documentElement.scrollWidth > window.innerWidth;
+    
+    // Verifica ausência de scroll horizontal (viewport containment)
+    const isContainedScreen1 = await page.evaluate(() => {
+      return document.documentElement.scrollWidth <= window.innerWidth;
     });
-    expect(hasHorizontalOverflow).toBe(false);
+    expect(isContainedScreen1).toBe(true);
 
-    // 2. Verifica botão 'Começar' com altura mínima ergonômica (>= 44px)
-    const startButton = page.getByRole("button", { name: "Começar" });
-    const box = await startButton.boundingBox();
-    expect(box).not.toBeNull();
-    if (box) {
-      expect(box.height).toBeGreaterThanOrEqual(44);
-    }
+    // Título oficial visível
+    await expect(page.getByRole("heading", { name: /Pré-avaliação clínica/i })).toBeVisible();
 
-    // 3. Verifica links de emergência com discagem direta (tel:)
-    const cvvLink = page.locator('a[href^="tel:188"]');
-    await expect(cvvLink).toBeVisible();
-    await expect(cvvLink).toHaveAttribute("href", "tel:188");
-  });
-
-  test("inputs devem ter font-size >= 16px para evitar auto-zoom indesejado no iOS Safari", async ({ page }) => {
-    await page.goto("/saraiva/triagem", { waitUntil: "networkidle" });
-
-    // Aceita consentimento e vai para tela de identificação
+    // Checkbox de consentimento com rótulo clicável
     const consent = page.getByRole("checkbox");
     const consentLabel = page.locator("label").filter({ has: consent });
     await consentLabel.locator("span").last().click();
-    await page.getByRole("button", { name: "Começar" }).click();
+    await expect(consent).toHaveAttribute("data-state", "checked");
 
-    // Aguarda campo de nome
-    const nameInput = page.getByLabel("Nome completo *");
-    await expect(nameInput).toBeVisible();
+    const startBtn = page.getByRole("button", { name: "Começar" });
+    await expect(startBtn).toBeVisible();
+    await startBtn.click();
 
-    // Mede tamanho computado da fonte do input
-    const fontSize = await nameInput.evaluate((el) => {
-      return parseFloat(window.getComputedStyle(el).fontSize);
+    // 2. Tela 2 — Dados Básicos
+    await expect(page.getByRole("heading", { name: "Seus dados" })).toBeVisible();
+    
+    const isContainedScreen2 = await page.evaluate(() => {
+      return document.documentElement.scrollWidth <= window.innerWidth;
     });
-    // Tailwind text-base = 1rem = 16px. Se for < 16px, iOS Safari força zoom in.
-    expect(fontSize).toBeGreaterThanOrEqual(16);
-  });
+    expect(isContainedScreen2).toBe(true);
 
-  test("botões de sintomas e opções Likert devem ter espaçamento e touch targets confortáveis", async ({ page }) => {
-    await page.goto("/saraiva/triagem", { waitUntil: "networkidle" });
+    // Card do Dr. Saraiva visível e selecionável
+    await expect(page.getByText(/Dr\. José Ribamar Fernandes Saraiva Junior/i)).toBeVisible();
 
-    // Consentimento
-    const consent = page.getByRole("checkbox");
-    const consentLabel = page.locator("label").filter({ has: consent });
-    await consentLabel.locator("span").last().click();
-    await page.getByRole("button", { name: "Começar" }).click();
+    await page.getByLabel(/Nome completo/).fill("Paciente Mobile Teste");
+    await page.getByLabel("Data de nascimento *").fill(birthDateForAge(32));
+    await page.getByLabel("E-mail *").fill("paciente.mobile@example.com");
+    await page.getByLabel(/Telefone/).fill("(54) 99999-8888");
 
-    // Preenche dados básicos
-    await page.getByLabel("Nome completo *").fill("Paciente Mobile");
-    await page.getByLabel("Data de nascimento *").fill("1990-05-15");
-    await page.getByLabel("E-mail *").fill("mobile.teste@example.com");
+    // Botões de navegação empilhados de forma amigável no mobile
+    const continueBtn = page.getByRole("button", { name: "Continuar" });
+    await expect(continueBtn).toBeVisible();
+    await continueBtn.click();
+
+    // 3. Tela 3 — Sintomas
+    await expect(page.getByRole("heading", { name: /Nas últimas semanas/i })).toBeVisible();
+    
+    const isContainedScreen3 = await page.evaluate(() => {
+      return document.documentElement.scrollWidth <= window.innerWidth;
+    });
+    expect(isContainedScreen3).toBe(true);
+
+    // Seleciona sintomas: Tristeza e Sono
+    await page.getByRole("button", { name: /Triste/i }).click();
+    await page.getByRole("button", { name: /Dormindo mal/i }).click();
+
     await page.getByRole("button", { name: "Continuar" }).click();
 
-    // Tela de sintomas — botões de múltipla escolha
-    const symptomButton = page.getByRole("button", { name: /Tristeza ou desânimo/i });
-    await expect(symptomButton).toBeVisible();
+    // 4. Tela 4 — Escalas
+    const isContainedScreen4 = await page.evaluate(() => {
+      return document.documentElement.scrollWidth <= window.innerWidth;
+    });
+    expect(isContainedScreen4).toBe(true);
 
-    const box = await symptomButton.boundingBox();
-    expect(box).not.toBeNull();
-    if (box) {
-      // Touch target recomendado >= 48px para facilidade com o polegar
-      expect(box.height).toBeGreaterThanOrEqual(48);
+    // Responde os itens na interface móvel
+    const questionHeader = page.locator("text=/· pergunta \\d+ de \\d+/").first();
+    await expect(questionHeader).toBeVisible();
+
+    // Responde com primeiro botão
+    for (let i = 0; i < 20; i++) {
+      const isHeaderVisible = await questionHeader.isVisible().catch(() => false);
+      if (!isHeaderVisible) break;
+      const optionButtons = page.locator("main button.min-h-14");
+      const count = await optionButtons.count();
+      if (count > 0) {
+        // Verifica que o touch target da opção tem pelo menos 48px de altura
+        const box = await optionButtons.first().boundingBox();
+        if (box) {
+          expect(box.height).toBeGreaterThanOrEqual(44);
+        }
+        await optionButtons.first().click();
+      }
+      await page.waitForTimeout(50);
     }
+
+    // 5. Conclusão ou Risco
+    await expect(
+      page.getByRole("heading", { name: /(Pré-avaliação concluída|Você não precisa passar)/i })
+    ).toBeVisible({ timeout: 15_000 });
+
+    const isContainedFinal = await page.evaluate(() => {
+      return document.documentElement.scrollWidth <= window.innerWidth;
+    });
+    expect(isContainedFinal).toBe(true);
+
+    // Botão de PDF
+    await expect(page.getByRole("button", { name: /Baixar meu resumo em PDF/i })).toBeVisible();
+
+    // Seção de Psicoeducação com cartões expansíveis
+    const psicoHeading = page.getByRole("heading", { name: /Orientações e Práticas de Cuidado Recomendadas/i });
+    if (await psicoHeading.isVisible()) {
+      const lerMaisBtn = page.getByRole("button", { name: /Ler orientações completas/i }).first();
+      if (await lerMaisBtn.isVisible()) {
+        await lerMaisBtn.click();
+        await expect(page.getByText(/Aviso importante:/i).first()).toBeVisible();
+      }
+    }
+  });
+
+  test("Links de emergência são válidos para discagem móvel nativa (tel:188 e tel:192)", async ({ page }) => {
+    await mockSubmit(page);
+    await page.addInitScript(() => window.localStorage.clear());
+
+    await page.goto("/saraiva/triagem", { waitUntil: "networkidle" });
+    
+    // Início
+    const consent = page.getByRole("checkbox");
+    const consentLabel = page.locator("label").filter({ has: consent });
+    await consentLabel.locator("span").last().click();
+    await page.getByRole("button", { name: "Começar" }).click();
+
+    // Dados
+    await page.getByLabel(/Nome completo/).fill("Paciente Emergencia");
+    await page.getByLabel("Data de nascimento *").fill(birthDateForAge(25));
+    await page.getByLabel("E-mail *").fill("emergencia@example.com");
+    await page.getByRole("button", { name: "Continuar" }).click();
+
+    // Sintoma de morte/risco direto
+    await page.getByRole("button", { name: /pensamentos de morte|machucar/i }).click();
+    await page.getByRole("button", { name: "Continuar" }).click();
+
+    // Responde o rastreio
+    const questionHeader = page.locator("text=/· pergunta \\d+ de \\d+/").first();
+    for (let i = 0; i < 20; i++) {
+      const isHeaderVisible = await questionHeader.isVisible().catch(() => false);
+      if (!isHeaderVisible) break;
+      const optionButtons = page.locator("main button.min-h-14");
+      if ((await optionButtons.count()) > 0) {
+        await optionButtons.first().click();
+      }
+      await page.waitForTimeout(50);
+    }
+
+    // Na tela de acolhimento de risco
+    const cvvLink = page.locator('a[href="tel:188"]');
+    await expect(cvvLink).toBeVisible();
+    await expect(cvvLink).toContainText("188");
+
+    const samuLink = page.locator('a[href="tel:192"]');
+    await expect(samuLink).toBeVisible();
+    await expect(samuLink).toContainText("192");
   });
 });

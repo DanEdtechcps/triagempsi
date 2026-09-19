@@ -18,7 +18,8 @@ import { downloadClinicianPdf, downloadPatientPdf } from "@/lib/pdf-report";
 import { buildPdfPayload } from "@/lib/pdf-payload";
 import { logReportExport } from "@/lib/audit.functions";
 import { resendAssessmentInvite } from "@/lib/contacts.functions";
-import { waLink } from "@/lib/phone";
+import { toE164BR, waLink } from "@/lib/phone";
+import { formatDateBR, maskPhoneBR } from "@/lib/masks";
 import { useState } from "react";
 import { ParecerMedico } from "@/components/painel/ParecerMedico";
 import { QueueNav } from "@/components/painel/QueueNav";
@@ -206,67 +207,100 @@ function PainelDetalhe() {
             </Card>
           )}
 
-          <Card className="p-4 sm:p-5">
-            <h2 className="font-serif text-lg font-semibold">Identificação</h2>
-            <dl className="mt-3 grid gap-x-6 gap-y-2 text-sm sm:grid-cols-2">
-              <Field label="Nome" value={String(a.respondent_name ?? "")} />
-              <Field
-                label="Idade"
-                value={a.respondent_age != null ? `${a.respondent_age} anos` : "—"}
-              />
-              <Field
-                label="Nascimento"
-                value={
-                  a.birth_date
-                    ? new Date(String(a.birth_date)).toLocaleDateString("pt-BR")
-                    : "—"
-                }
-              />
-              <Field label="Sexo/gênero" value={String(a.respondent_sex ?? "—")} />
-              <Field
-                label="Quem respondeu"
-                value={
-                  a.respondent_type === "familiar"
-                    ? `Familiar/responsável${
-                        a.informant_name ? ` — ${String(a.informant_name)}` : ""
-                      }${a.informant_relation ? ` (${String(a.informant_relation)})` : ""}`
-                    : "O próprio paciente"
-                }
-              />
-              <Field
-                label="Profissional escolhido"
-                value={
-                  medico
-                    ? `${medico.display_name}${medico.specialty ? ` — ${medico.specialty}` : ""}`
-                    : "Sem preferência"
-                }
-              />
-              <Field label="E-mail" value={String(a.respondent_email ?? "—")} />
-              <Field label="Telefone" value={String(a.respondent_phone ?? "—")} />
-              <Field
-                label="Enviado em"
-                value={new Date(String(a.submitted_at)).toLocaleString("pt-BR")}
-              />
-              <Field
-                label="Consentimento LGPD"
-                value={
-                  a.consent_at
-                    ? `Registrado em ${new Date(String(a.consent_at)).toLocaleString("pt-BR")}`
-                    : "Registrado"
-                }
-              />
-            </dl>
-            {a.main_complaint ? (
-              <div className="mt-4">
-                <div className="text-xs uppercase tracking-wide text-muted-foreground">
-                  Motivo da busca (relato do paciente)
-                </div>
-                <p className="mt-1 whitespace-pre-line text-sm text-foreground/90">
-                  {String(a.main_complaint)}
-                </p>
-              </div>
-            ) : null}
-          </Card>
+          {(() => {
+            const preferredName = (a.summary as any)?.preferred_name as string | undefined;
+            const pronouns = (a.summary as any)?.pronouns as string | undefined;
+            const rawPhone = a.respondent_phone ? String(a.respondent_phone) : null;
+            const phoneMasked = rawPhone ? maskPhoneBR(rawPhone) : null;
+            const phoneE164 = rawPhone ? toE164BR(rawPhone) : null;
+
+            return (
+              <Card className="p-4 sm:p-5">
+                <h2 className="font-serif text-lg font-semibold">Identificação</h2>
+                <dl className="mt-3 grid gap-x-6 gap-y-2 text-sm sm:grid-cols-2">
+                  <Field label="Nome completo" value={String(a.respondent_name ?? "")} />
+                  {preferredName && (
+                    <Field
+                      label="Nome social / Como prefere ser chamado(a)"
+                      value={preferredName}
+                    />
+                  )}
+                  {pronouns && (
+                    <Field label="Pronomes de tratamento" value={pronouns} />
+                  )}
+                  <Field
+                    label="Idade"
+                    value={a.respondent_age != null ? `${a.respondent_age} anos` : "—"}
+                  />
+                  <Field
+                    label="Nascimento"
+                    value={formatDateBR(a.birth_date ? String(a.birth_date) : null)}
+                  />
+                  <Field label="Sexo / Identidade de gênero" value={String(a.respondent_sex ?? "—")} />
+                  <Field
+                    label="Quem respondeu"
+                    value={
+                      a.respondent_type === "familiar"
+                        ? `Familiar/responsável${
+                            a.informant_name ? ` — ${String(a.informant_name)}` : ""
+                          }${a.informant_relation ? ` (${String(a.informant_relation)})` : ""}`
+                        : "O próprio paciente"
+                    }
+                  />
+                  <Field
+                    label="Profissional escolhido"
+                    value={
+                      medico
+                        ? `${medico.display_name}${medico.specialty ? ` — ${medico.specialty}` : ""}`
+                        : "Sem preferência"
+                    }
+                  />
+                  <Field label="E-mail" value={String(a.respondent_email ?? "—")} />
+                  <div>
+                    <dt className="text-xs text-muted-foreground">Telefone / WhatsApp</dt>
+                    <dd className="font-medium text-foreground flex items-center gap-2">
+                      <span>{phoneMasked || "—"}</span>
+                      {phoneE164 && (
+                        <a
+                          href={waLink(
+                            phoneE164,
+                            `Olá, ${preferredName || a.respondent_name}! Entramos em contato a respeito da sua pré-avaliação na ${BRANDING.clinicName}.`,
+                          )}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center rounded-md bg-primary/10 px-2 py-0.5 text-xs font-semibold text-primary hover:bg-primary/20 transition-colors"
+                        >
+                          WhatsApp
+                        </a>
+                      )}
+                    </dd>
+                  </div>
+                  <Field
+                    label="Enviado em"
+                    value={new Date(String(a.submitted_at)).toLocaleString("pt-BR")}
+                  />
+                  <Field
+                    label="Consentimento LGPD"
+                    value={
+                      a.consent_at
+                        ? `Registrado em ${new Date(String(a.consent_at)).toLocaleString("pt-BR")}`
+                        : "Registrado"
+                    }
+                  />
+                </dl>
+                {a.main_complaint ? (
+                  <div className="mt-4">
+                    <div className="text-xs uppercase tracking-wide text-muted-foreground">
+                      Motivo da busca (relato do paciente)
+                    </div>
+                    <p className="mt-1 whitespace-pre-line text-sm text-foreground/90">
+                      {String(a.main_complaint)}
+                    </p>
+                  </div>
+                ) : null}
+              </Card>
+            );
+          })()}
 
           <Card className="p-4 sm:p-5">
             <h2 className="font-serif text-lg font-semibold">

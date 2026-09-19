@@ -16,6 +16,19 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Progress } from "@/components/ui/progress";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { GENDER_OPTIONS, PRONOUN_OPTIONS } from "@/config/gender-options";
+import {
+  maskPhoneBR,
+  isValidPhoneBR,
+  isValidEmail,
+} from "@/lib/masks";
 
 import {
   SCALE_BY_CODE,
@@ -76,6 +89,8 @@ type RespondentData = {
   informant_name: string;
   informant_relation: string;
   respondent_name: string;
+  preferred_name: string;
+  pronouns: string;
   respondent_email: string;
   respondent_phone: string;
   birth_date: string;
@@ -91,6 +106,8 @@ const EMPTY_RESPONDENT: RespondentData = {
   informant_name: "",
   informant_relation: "",
   respondent_name: "",
+  preferred_name: "",
+  pronouns: "",
   respondent_email: "",
   respondent_phone: "",
   birth_date: "",
@@ -202,15 +219,23 @@ function TriagemPage() {
     results,
   ]);
 
+  const todayISO = useMemo(() => new Date().toISOString().split("T")[0], []);
+  const isFutureBirth = Boolean(
+    respondent.birth_date && respondent.birth_date > todayISO,
+  );
+
   const dadosValidos = useMemo(
     () =>
       respondent.respondent_name.trim().length >= 2 &&
-      /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(respondent.respondent_email.trim()) &&
+      isValidEmail(respondent.respondent_email) &&
       age != null &&
       age >= 5 &&
+      age <= 125 &&
+      !isFutureBirth &&
+      isValidPhoneBR(respondent.respondent_phone, false) &&
       (respondent.respondent_type === "paciente" ||
         respondent.informant_name.trim().length >= 2),
-    [respondent, age],
+    [respondent, age, isFutureBirth],
   );
 
   const currentScale = plan?.flow[scaleIndex]
@@ -281,7 +306,7 @@ function TriagemPage() {
     try {
       const riskPathway =
         usedPlan.riskPathway || allResults.some((r) => r.risk);
-      const summary = summarize(allResults, {
+      const baseSummary = summarize(allResults, {
         symptoms: usedSymptoms,
         indicated: usedPlan.indicated,
         decisions: usedPlan.decisions,
@@ -289,6 +314,12 @@ function TriagemPage() {
         informant: respondent.respondent_type,
         riskPathway,
       });
+
+      const summary = {
+        ...baseSummary,
+        preferred_name: respondent.preferred_name?.trim() || null,
+        pronouns: respondent.pronouns?.trim() || null,
+      };
 
       await submit({
         data: {
@@ -337,7 +368,13 @@ function TriagemPage() {
     downloadPatientPdf(
       {
         respondent_name: respondent.respondent_name.trim() || "Paciente",
+        preferred_name: respondent.preferred_name?.trim() || null,
+        pronouns: respondent.pronouns?.trim() || null,
         respondent_age: age,
+        birth_date: respondent.birth_date || null,
+        respondent_sex: respondent.respondent_sex || null,
+        respondent_email: respondent.respondent_email || null,
+        respondent_phone: respondent.respondent_phone || null,
         respondent_type: respondent.respondent_type,
         informant_name: respondent.informant_name.trim() || null,
         informant_relation: respondent.informant_relation.trim() || null,
@@ -699,6 +736,44 @@ function DadosBasicos({
   const set = <K extends keyof RespondentData>(k: K, v: RespondentData[K]) =>
     onChange({ ...data, [k]: v });
 
+  const currentSex = data.respondent_sex || "";
+  const knownMatch = GENDER_OPTIONS.find((o) => o.value === currentSex);
+  const isOtherPrefix =
+    currentSex.startsWith("Outra:") ||
+    currentSex === "Outra identidade" ||
+    (!knownMatch && currentSex !== "");
+  const genderSelectValue = knownMatch
+    ? knownMatch.value
+    : isOtherPrefix
+    ? "Outra identidade"
+    : undefined;
+  const customGenderText = currentSex.startsWith("Outra: ")
+    ? currentSex.slice(7)
+    : !knownMatch && currentSex !== "Outra identidade"
+    ? currentSex
+    : "";
+
+  const todayISO = useMemo(() => new Date().toISOString().split("T")[0], []);
+  const isFutureBirth = Boolean(data.birth_date && data.birth_date > todayISO);
+  const birthError = isFutureBirth
+    ? "A data de nascimento não pode estar no futuro."
+    : data.birth_date && age != null && age < 5
+    ? "A idade mínima para esta pré-avaliação é de 5 anos."
+    : null;
+
+  const emailTouched = Boolean(data.respondent_email);
+  const emailInvalid = emailTouched && !isValidEmail(data.respondent_email);
+  const emailError = emailInvalid ? "Digite um e-mail válido (ex.: nome@exemplo.com)." : null;
+
+  const phoneTouched = Boolean(data.respondent_phone);
+  const phoneInvalid = phoneTouched && !isValidPhoneBR(data.respondent_phone, false);
+  const phoneError = phoneInvalid ? "Telefone incompleto (informe DDD + número de 10 ou 11 dígitos)." : null;
+
+  const nameTouched = Boolean(data.respondent_name);
+  const nameError = nameTouched && data.respondent_name.trim().length < 2
+    ? "Informe o nome completo do paciente."
+    : null;
+
   return (
     <Card className="border-border bg-card p-6 sm:p-8">
       <h1 className="font-serif text-xl font-semibold sm:text-2xl">Seus dados</h1>
@@ -814,32 +889,106 @@ function DadosBasicos({
             value={data.respondent_name}
             onChange={(e) => set("respondent_name", e.target.value)}
             maxLength={120}
+            placeholder="Nome e sobrenome"
+            className="h-12 text-base"
+          />
+          {nameError && (
+            <p className="mt-1 text-xs text-destructive">{nameError}</p>
+          )}
+        </div>
+
+        <div>
+          <Label htmlFor="preferred-name">
+            Nome social / Como prefere ser chamado(a) <span className="text-xs text-muted-foreground font-normal">(opcional)</span>
+          </Label>
+          <Input
+            id="preferred-name"
+            value={data.preferred_name}
+            onChange={(e) => set("preferred_name", e.target.value)}
+            maxLength={120}
+            placeholder="Ex.: Alex, Bia, Dani…"
             className="h-12 text-base"
           />
         </div>
+
+        <div>
+          <Label htmlFor="pronouns">
+            Pronomes de tratamento <span className="text-xs text-muted-foreground font-normal">(opcional)</span>
+          </Label>
+          <Select
+            value={data.pronouns || undefined}
+            onValueChange={(val) => set("pronouns", val)}
+          >
+            <SelectTrigger id="pronouns" className="h-12 text-base bg-background">
+              <SelectValue placeholder="Selecione seus pronomes" />
+            </SelectTrigger>
+            <SelectContent>
+              {PRONOUN_OPTIONS.map((p) => (
+                <SelectItem key={p} value={p}>
+                  {p}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
         <div>
           <Label htmlFor="birth">Data de nascimento *</Label>
           <Input
             id="birth"
             type="date"
+            max={todayISO}
+            min="1900-01-01"
             value={data.birth_date}
             onChange={(e) => set("birth_date", e.target.value)}
             className="h-12 text-base"
           />
-          {age != null && (
+          {birthError ? (
+            <p className="mt-1 text-xs text-destructive">{birthError}</p>
+          ) : age != null ? (
             <p className="mt-1 text-xs text-muted-foreground">{age} anos</p>
+          ) : null}
+        </div>
+
+        <div>
+          <Label htmlFor="sex">Sexo biológico / Identidade de gênero</Label>
+          <Select
+            value={genderSelectValue}
+            onValueChange={(val) => {
+              if (val === "Outra identidade") {
+                set("respondent_sex", "Outra identidade");
+              } else {
+                set("respondent_sex", val);
+              }
+            }}
+          >
+            <SelectTrigger id="sex" className="h-12 text-base bg-background">
+              <SelectValue placeholder="Selecione como você se identifica" />
+            </SelectTrigger>
+            <SelectContent>
+              {GENDER_OPTIONS.map((opt) => (
+                <SelectItem key={opt.value} value={opt.value}>
+                  {opt.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {isOtherPrefix && (
+            <div className="mt-2">
+              <Input
+                placeholder="Como prefere se identificar? (opcional)"
+                value={customGenderText}
+                onChange={(e) => {
+                  const text = e.target.value;
+                  set("respondent_sex", text ? `Outra: ${text}` : "Outra identidade");
+                }}
+                maxLength={60}
+                className="h-11 text-sm"
+              />
+            </div>
           )}
         </div>
-        <div>
-          <Label htmlFor="sex">Sexo/gênero</Label>
-          <Input
-            id="sex"
-            value={data.respondent_sex}
-            onChange={(e) => set("respondent_sex", e.target.value)}
-            maxLength={40}
-            className="h-12 text-base"
-          />
-        </div>
+
         <div>
           <Label htmlFor="email">E-mail *</Label>
           <Input
@@ -847,26 +996,43 @@ function DadosBasicos({
             type="email"
             inputMode="email"
             autoComplete="email"
+            autoCapitalize="none"
+            autoCorrect="off"
             value={data.respondent_email}
-            onChange={(e) => set("respondent_email", e.target.value)}
+            onChange={(e) => set("respondent_email", e.target.value.trim().toLowerCase())}
             maxLength={200}
+            placeholder="seu.email@exemplo.com"
             className="h-12 text-base"
           />
+          {emailError && (
+            <p className="mt-1 text-xs text-destructive">{emailError}</p>
+          )}
         </div>
+
         <div>
-          <Label htmlFor="phone">Telefone / WhatsApp</Label>
+          <Label htmlFor="phone">
+            Telefone / WhatsApp <span className="text-xs text-muted-foreground font-normal">(opcional)</span>
+          </Label>
           <Input
             id="phone"
             type="tel"
             inputMode="tel"
             autoComplete="tel"
             value={data.respondent_phone}
-            onChange={(e) => set("respondent_phone", e.target.value)}
-            maxLength={40}
+            onChange={(e) => set("respondent_phone", maskPhoneBR(e.target.value))}
+            maxLength={16}
             placeholder="(11) 99999-9999"
             className="h-12 text-base"
           />
+          {phoneError ? (
+            <p className="mt-1 text-xs text-destructive">{phoneError}</p>
+          ) : (
+            <p className="mt-1 text-xs text-muted-foreground">
+              Para contato e orientações do consultório.
+            </p>
+          )}
         </div>
+
         <div className="sm:col-span-2">
           <Label htmlFor="complaint">
             O que motiva sua busca por atendimento? (opcional)

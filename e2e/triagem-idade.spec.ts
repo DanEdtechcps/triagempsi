@@ -49,7 +49,7 @@ async function startTriagem(
   await page.getByRole("button", { name: "Começar" }).click();
 
   // Dados básicos
-  await page.getByLabel("Nome completo *").fill("Paciente E2E");
+  await page.getByLabel(/Nome completo/).fill("Paciente E2E");
   await page.getByLabel("Data de nascimento *").fill(birthDateForAge(opts.age));
   await page.getByLabel("E-mail *").fill("paciente.e2e@example.com");
   await page.getByRole("button", { name: "Continuar" }).click();

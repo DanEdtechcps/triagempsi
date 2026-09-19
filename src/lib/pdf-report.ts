@@ -26,6 +26,8 @@ export type PdfScale = {
 
 export type PdfReportData = {
   respondent_name: string;
+  preferred_name?: string | null;
+  pronouns?: string | null;
   respondent_age?: number | null;
   birth_date?: string | null;
   respondent_sex?: string | null;
@@ -298,6 +300,12 @@ export function buildPatientPdf(
   const b = new Doc(branding, "Resumo da sua pré-avaliação");
 
   b.field("Nome", data.respondent_name);
+  if (data.preferred_name) {
+    b.field(
+      "Nome social / Tratamento",
+      `${data.preferred_name}${data.pronouns ? ` (${data.pronouns})` : ""}`,
+    );
+  }
   b.field("Data de envio", fmtDate(data.submitted_at ?? new Date().toISOString()));
   b.y += 6;
 
@@ -399,6 +407,12 @@ export function buildClinicianPdf(
 
   b.title("Identificação");
   b.field("Nome", data.respondent_name);
+  if (data.preferred_name) {
+    b.field(
+      "Nome social / Tratamento",
+      `${data.preferred_name}${data.pronouns ? ` (${data.pronouns})` : ""}`,
+    );
+  }
   b.field(
     "Idade",
     data.respondent_age != null ? `${data.respondent_age} anos` : "—",

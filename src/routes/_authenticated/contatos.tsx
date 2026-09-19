@@ -15,6 +15,7 @@ import {
   logWhatsappSend,
 } from "@/lib/contacts.functions";
 import { toE164BR, waLink } from "@/lib/phone";
+import { maskPhoneBR, isValidPhoneBR, isValidEmail } from "@/lib/masks";
 import { BRANDING } from "@/config/branding";
 
 export const Route = createFileRoute("/_authenticated/contatos")({
@@ -71,9 +72,17 @@ function ContatosPage() {
   async function handleAdd(e: React.FormEvent) {
     e.preventDefault();
     setMsg(null);
+    if (!isValidPhoneBR(phone, true)) {
+      setMsg("Telefone incompleto ou inválido. Use DDD + número, ex.: (11) 99999-8888.");
+      return;
+    }
     const e164 = toE164BR(phone);
     if (!e164) {
-      setMsg("Telefone inválido. Use DDD + número, ex.: (11) 99999-8888.");
+      setMsg("Telefone inválido. Verifique o número digitado.");
+      return;
+    }
+    if (email && !isValidEmail(email)) {
+      setMsg("E-mail com formato inválido.");
       return;
     }
     if (!selectedClinic) {
@@ -182,14 +191,16 @@ function ContatosPage() {
             />
           </div>
           <div>
-            <Label htmlFor="tel">WhatsApp</Label>
+            <Label htmlFor="tel">WhatsApp *</Label>
             <Input
               id="tel"
               required
+              type="tel"
               inputMode="tel"
               placeholder="(11) 99999-8888"
+              maxLength={16}
               value={phone}
-              onChange={(e) => setPhone(e.target.value)}
+              onChange={(e) => setPhone(maskPhoneBR(e.target.value))}
               className="text-base"
             />
           </div>
