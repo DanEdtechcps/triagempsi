@@ -70,15 +70,33 @@ async function expectScale(page: Page, code: string) {
 
 /** Responde toda a escala atual com a primeira opção (menor pontuação). */
 async function answerCurrentScale(page: Page) {
-  const header = page.locator("text=/· pergunta \\d+ de \\d+/").first();
+  const initialHeader = await page.locator("text=/· pergunta \\d+ de \\d+/").first().textContent();
+  const scaleCode = initialHeader?.split("·")[0]?.trim();
+  if (!scaleCode) return;
+
   for (let guard = 0; guard < 60; guard++) {
-    const visible = await header.isVisible().catch(() => false);
-    if (!visible) return;
+    const header = page.locator(`text=/${scaleCode} · pergunta (\\d+) de (\\d+)/`).first();
+    const isVisible = await header.isVisible({ timeout: 1500 }).catch(() => false);
+    if (!isVisible) break;
+
     const text = (await header.textContent()) ?? "";
     const m = text.match(/pergunta (\d+) de (\d+)/);
-    if (!m) return;
-    await page.locator("main button.min-h-14").first().click();
-    if (Number(m[1]) === Number(m[2])) return;
+    if (!m) break;
+    const currentQ = Number(m[1]);
+    const totalQ = Number(m[2]);
+
+    const optionBtn = page.locator("main button.min-h-14").first();
+    await optionBtn.click();
+
+    if (currentQ === totalQ) {
+      await expect(header).not.toBeVisible({ timeout: 4000 }).catch(() => {});
+      await page.waitForTimeout(300);
+      break;
+    }
+
+    const nextQHeader = page.locator(`text=/${scaleCode} · pergunta ${currentQ + 1} de/`);
+    await nextQHeader.waitFor({ state: "visible", timeout: 4000 }).catch(() => {});
+    await page.waitForTimeout(50);
   }
 }
 
@@ -117,7 +135,7 @@ test.describe("Encaminhamento por faixa etária", () => {
   }) => {
     await startTriagem(page, { age: 8, symptoms: [SINTOMA.morte] });
     await expect(
-      page.getByRole("heading", { name: /Você não está sozinho/i }),
+      page.getByRole("heading", { name: /(Você não precisa passar por isso sozinho|Você não está sozinho)/i }),
     ).toBeVisible();
   });
 

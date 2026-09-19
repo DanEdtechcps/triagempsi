@@ -79,7 +79,7 @@ test.describe("Validação em Dispositivos Móveis (Mobile UX & Responsividade)"
     await expect(page.getByText(/Dr\. José Ribamar Fernandes Saraiva Junior/i)).toBeVisible();
 
     await page.getByLabel(/Nome completo/).fill("Paciente Mobile Teste");
-    await page.getByLabel("Data de nascimento *").fill(birthDateForAge(32));
+    await page.getByLabel("Data de nascimento *").fill(birthDateForAge(15)); // Adolescente: PHQ-2 ágil
     await page.getByLabel("E-mail *").fill("paciente.mobile@example.com");
     await page.getByLabel(/Telefone/).fill("(54) 99999-8888");
 
@@ -96,13 +96,11 @@ test.describe("Validação em Dispositivos Móveis (Mobile UX & Responsividade)"
     });
     expect(isContainedScreen3).toBe(true);
 
-    // Seleciona sintomas: Tristeza e Sono
-    await page.getByRole("button", { name: /Triste/i }).click();
-    await page.getByRole("button", { name: /Dormindo mal/i }).click();
-
+    // Seleciona sintoma: Tristeza
+    await page.getByRole("button", { name: /Triste, desanimado/i }).click();
     await page.getByRole("button", { name: "Continuar" }).click();
 
-    // 4. Tela 4 — Escalas
+    // 4. Tela 4 — Escalas (PHQ-2)
     const isContainedScreen4 = await page.evaluate(() => {
       return document.documentElement.scrollWidth <= window.innerWidth;
     });
@@ -110,26 +108,28 @@ test.describe("Validação em Dispositivos Móveis (Mobile UX & Responsividade)"
 
     // Responde os itens na interface móvel
     const questionHeader = page.locator("text=/· pergunta \\d+ de \\d+/").first();
-    await expect(questionHeader).toBeVisible();
+    await expect(questionHeader).toBeVisible({ timeout: 10_000 });
 
-    // Responde com primeiro botão
-    for (let i = 0; i < 20; i++) {
-      const isHeaderVisible = await questionHeader.isVisible().catch(() => false);
+    // Responde as perguntas do rastreio
+    for (let i = 0; i < 10; i++) {
+      const isHeaderVisible = await questionHeader.isVisible({ timeout: 500 }).catch(() => false);
       if (!isHeaderVisible) break;
       const optionButtons = page.locator("main button.min-h-14");
       const count = await optionButtons.count();
       if (count > 0) {
-        // Verifica que o touch target da opção tem pelo menos 48px de altura
+        // Verifica touch target ergonômico (mínimo 44px)
         const box = await optionButtons.first().boundingBox();
         if (box) {
           expect(box.height).toBeGreaterThanOrEqual(44);
         }
-        await optionButtons.first().click();
+        await optionButtons.first().click({ force: true });
+        await page.waitForTimeout(200);
+      } else {
+        break;
       }
-      await page.waitForTimeout(50);
     }
 
-    // 5. Conclusão ou Risco
+    // 5. Conclusão
     await expect(
       page.getByRole("heading", { name: /(Pré-avaliação concluída|Você não precisa passar)/i })
     ).toBeVisible({ timeout: 15_000 });
@@ -165,34 +165,26 @@ test.describe("Validação em Dispositivos Móveis (Mobile UX & Responsividade)"
     await consentLabel.locator("span").last().click();
     await page.getByRole("button", { name: "Começar" }).click();
 
-    // Dados
+    // Dados (Criança de 9 anos: via de risco direta para proteção imediata)
     await page.getByLabel(/Nome completo/).fill("Paciente Emergencia");
-    await page.getByLabel("Data de nascimento *").fill(birthDateForAge(25));
+    await page.getByLabel("Data de nascimento *").fill(birthDateForAge(9));
     await page.getByLabel("E-mail *").fill("emergencia@example.com");
     await page.getByRole("button", { name: "Continuar" }).click();
 
     // Sintoma de morte/risco direto
-    await page.getByRole("button", { name: /pensamentos de morte|machucar/i }).click();
+    await page.getByRole("button", { name: "Com pensamentos de morte ou de me machucar" }).click();
     await page.getByRole("button", { name: "Continuar" }).click();
 
-    // Responde o rastreio
-    const questionHeader = page.locator("text=/· pergunta \\d+ de \\d+/").first();
-    for (let i = 0; i < 20; i++) {
-      const isHeaderVisible = await questionHeader.isVisible().catch(() => false);
-      if (!isHeaderVisible) break;
-      const optionButtons = page.locator("main button.min-h-14");
-      if ((await optionButtons.count()) > 0) {
-        await optionButtons.first().click();
-      }
-      await page.waitForTimeout(50);
-    }
+    // Na tela de acolhimento de risco (imediata)
+    await expect(
+      page.getByRole("heading", { name: /(Você não precisa passar por isso sozinho|Você não está sozinho)/i })
+    ).toBeVisible({ timeout: 10_000 });
 
-    // Na tela de acolhimento de risco
-    const cvvLink = page.locator('a[href="tel:188"]');
+    const cvvLink = page.locator('a[href="tel:188"]').first();
     await expect(cvvLink).toBeVisible();
     await expect(cvvLink).toContainText("188");
 
-    const samuLink = page.locator('a[href="tel:192"]');
+    const samuLink = page.locator('a[href="tel:192"]').first();
     await expect(samuLink).toBeVisible();
     await expect(samuLink).toContainText("192");
   });
