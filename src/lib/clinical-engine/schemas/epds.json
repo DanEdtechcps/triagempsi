@@ -1,0 +1,83 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "code": "EPDS",
+  "name": "EPDS",
+  "fullName": "Escala de Depressão Pós-Parto de Edimburgo (gestação e puerpério)",
+  "version": "1.0.0",
+  "domain": "perinatal",
+  "instructions": "Você está grávida ou teve um bebê recentemente. Pensando nos últimos 7 dias, escolha a resposta que mais se aproxima de como você se sentiu.",
+  "timeframe": "Últimos 7 dias",
+  "eligibility": {
+    "sex_exclude": ["masculino"],
+    "min_age": 12,
+    "required_symptoms": ["perinatal"]
+  },
+  "options": [
+    { "label": "Nunca", "value": 0 },
+    { "label": "Poucas vezes", "value": 1 },
+    { "label": "Na maioria das vezes", "value": 2 },
+    { "label": "Sempre", "value": 3 }
+  ],
+  "items": [
+    {
+      "id": "1",
+      "text": "Tenho conseguido rir e achar graça das coisas.",
+      "options": [
+        { "label": "Sempre, como antes", "value": 0 },
+        { "label": "Um pouco menos que antes", "value": 1 },
+        { "label": "Bem menos que antes", "value": 2 },
+        { "label": "Quase nada", "value": 3 }
+      ]
+    },
+    {
+      "id": "2",
+      "text": "Tenho olhado para o futuro com alegria e expectativa.",
+      "options": [
+        { "label": "Sempre, como antes", "value": 0 },
+        { "label": "Um pouco menos que antes", "value": 1 },
+        { "label": "Bem menos que antes", "value": 2 },
+        { "label": "Quase nada", "value": 3 }
+      ]
+    },
+    {
+      "id": "3",
+      "text": "Tenho me culpado sem necessidade quando as coisas dão errado."
+    },
+    {
+      "id": "4",
+      "text": "Tenho ficado ansiosa ou preocupada sem um bom motivo."
+    },
+    {
+      "id": "5",
+      "text": "Tenho me sentido assustada ou em pânico sem um bom motivo."
+    },
+    {
+      "id": "6",
+      "text": "Tenho sentido que as coisas estão me sobrecarregando."
+    },
+    {
+      "id": "7",
+      "text": "Tenho me sentido tão infeliz que tenho dificuldade para dormir."
+    },
+    {
+      "id": "8",
+      "text": "Tenho me sentido triste ou arrasada."
+    },
+    {
+      "id": "9",
+      "text": "Tenho me sentido tão infeliz que tenho chorado."
+    },
+    {
+      "id": "10",
+      "text": "Tenho tido pensamentos de fazer mal a mim mesma.",
+      "is_risk": true
+    }
+  ],
+  "bands": [
+    { "min": 0, "max": 9, "label": "Sem indicação relevante", "level": 0 },
+    { "min": 10, "max": 12, "label": "Sintomas depressivos possíveis — reavaliar", "level": 2 },
+    { "min": 13, "max": 30, "label": "Rastreio positivo para depressão perinatal", "level": 4, "is_risk": true }
+  ],
+  "positiveCutoff": 10,
+  "riskItems": ["10"]
+}

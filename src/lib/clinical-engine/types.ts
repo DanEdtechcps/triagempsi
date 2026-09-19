@@ -6,7 +6,6 @@
 
 import type {
   LikertOption,
-  ScaleItem,
   ScaleBand,
   SubscaleBand,
   SubscaleDef,
@@ -22,7 +21,6 @@ import type {
 
 export type {
   LikertOption,
-  ScaleItem,
   ScaleBand,
   SubscaleBand,
   SubscaleDef,

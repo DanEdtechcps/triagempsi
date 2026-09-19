@@ -1,0 +1,36 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "code": "PHQ-2",
+  "name": "PHQ-2",
+  "fullName": "Rastreio breve de depressão",
+  "version": "1.0.0",
+  "domain": "depressao",
+  "instructions": "Nas últimas duas semanas, com que frequência você foi incomodado(a) pelos seguintes problemas?",
+  "timeframe": "Últimas 2 semanas",
+  "eligibility": {
+    "min_age": 12,
+    "required_symptoms": ["tristeza", "angustia"]
+  },
+  "options": [
+    { "label": "Nenhuma vez", "value": 0 },
+    { "label": "Vários dias", "value": 1 },
+    { "label": "Mais da metade dos dias", "value": 2 },
+    { "label": "Quase todos os dias", "value": 3 }
+  ],
+  "items": [
+    {
+      "id": "1",
+      "text": "Pouco interesse ou prazer em fazer as coisas"
+    },
+    {
+      "id": "2",
+      "text": "Sentir-se para baixo, deprimido(a) ou sem esperança"
+    }
+  ],
+  "bands": [
+    { "min": 0, "max": 2, "label": "Negativo", "level": 0 },
+    { "min": 3, "max": 6, "label": "Positivo — aplicar PHQ-9", "level": 2 }
+  ],
+  "positiveCutoff": 3,
+  "triggersScale": "PHQ-9"
+}

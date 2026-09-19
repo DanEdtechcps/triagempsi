@@ -5,3 +5,5 @@
 
 export * from "./types";
 export * from "./triage-tree";
+export * from "./schema-types";
+export * from "./schema-evaluator";
