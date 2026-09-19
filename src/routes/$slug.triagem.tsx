@@ -65,7 +65,7 @@ import {
   AGE_BAND_LABEL,
   calcAge,
   type TriagePlan,
-} from "@/config/triage-tree";
+} from "@/lib/clinical-engine";
 
 
 const parentApi = getRouteApi("/$slug");

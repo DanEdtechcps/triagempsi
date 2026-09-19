@@ -1,0 +1,7 @@
+/**
+ * Clinical Engine — Motor Clínico de Triagem Psiquiátrica.
+ * Centraliza os tipos das 28 escalas, payloads e árvore adaptativa de decisões.
+ */
+
+export * from "./types";
+export * from "./triage-tree";
