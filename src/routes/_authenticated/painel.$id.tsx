@@ -25,6 +25,8 @@ import { ParecerMedico } from "@/components/painel/ParecerMedico";
 import { QueueNav } from "@/components/painel/QueueNav";
 import { HistoricoRevisoes } from "@/components/painel/HistoricoRevisoes";
 import { PainelPsicoeducacao } from "@/components/painel/PainelPsicoeducacao";
+import { TelemetryCard } from "@/components/medical/TelemetryCard";
+import { PsychoeducationTracker } from "@/components/medical/PsychoeducationTracker";
 import { AcessoNegado } from "@/components/painel/AcessoNegado";
 import { isAccessDenied, accessDeniedMessage } from "@/lib/access-error";
 
@@ -334,9 +336,16 @@ function PainelDetalhe() {
             </div>
           </Card>
 
+          <TelemetryCard
+            telemetryRecords={(a.summary as any)?.telemetry_records ?? (a.summary as any)?.item_telemetry ?? []}
+            scaleResults={(a.scale_results ?? []) as any}
+          />
+
           <HistoricoRevisoes assessmentId={id} />
 
           <ParecerMedico assessmentId={id} />
+
+          <PsychoeducationTracker assessmentId={id} />
 
           <PainelPsicoeducacao
             assessmentId={id}

@@ -12,7 +12,7 @@ import { useStaffRole } from "@/lib/staff";
 import { MailWarning } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { PortalPsychoeducationCard } from "@/components/portal/PortalPsychoeducationCard";
+import { PsychoeducationPortal } from "@/pages/portal/PsychoeducationPortal";
 
 export const Route = createFileRoute("/portal")({
   ssr: false,
@@ -289,7 +289,12 @@ function AssessmentCard({ assessment }: { assessment: PortalAssessment }) {
         )}
       </div>
 
-      <PortalPsychoeducationCard assessmentId={assessment.id} />
+      <div className="mt-6 border-t border-border pt-5">
+        <PsychoeducationPortal
+          assessmentId={assessment.id}
+          patientName={assessment.clinic_name}
+        />
+      </div>
     </Card>
   );
 }
