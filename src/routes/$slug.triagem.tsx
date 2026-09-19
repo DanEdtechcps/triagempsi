@@ -60,6 +60,8 @@ import {
   SYMPTOM_QUESTION,
   buildTriagePlan,
   applyEscalations,
+  isMaleSex,
+  isMalePatient,
   AGE_BAND_LABEL,
   calcAge,
   type TriagePlan,
@@ -68,7 +70,10 @@ import {
 
 const parentApi = getRouteApi("/$slug");
 
-const searchSchema = z.object({ t: z.string().optional() });
+const searchSchema = z.object({
+  t: z.string().optional(),
+  reset: z.string().optional(),
+});
 
 export const Route = createFileRoute("/$slug/triagem")({
   validateSearch: searchSchema,
@@ -161,28 +166,81 @@ function TriagemPage() {
   const doctors = doctorsData ?? [];
   const age = calcAge(respondent.birth_date);
 
+  const isMale = isMalePatient(respondent);
+
+  function handleReset() {
+    try {
+      localStorage.removeItem(storageKey);
+    } catch {
+      /* ignora erro de storage */
+    }
+    setPhase("boas-vindas");
+    setRespondent(EMPTY_RESPONDENT);
+    setSymptoms([]);
+    setPlan(null);
+    setScaleIndex(0);
+    setItemIndex(0);
+    setAnswers({});
+    setResults([]);
+    setErrorMsg(null);
+  }
+
   // Retomada automática da sessão
   useEffect(() => {
     try {
+      if (search.reset === "1" || search.reset === "true") {
+        localStorage.removeItem(storageKey);
+        setRestored(true);
+        return;
+      }
       const raw = localStorage.getItem(storageKey);
       if (raw) {
         const s = JSON.parse(raw) as Saved;
         if (s && s.phase && s.phase !== "fim") {
+          const resp = { ...EMPTY_RESPONDENT, ...s.respondent };
+          const patientIsMale = isMalePatient(resp);
+
+          let cleanedSymptoms = s.symptoms ?? [];
+          let cleanedPlan = s.plan ?? null;
+          let cleanedAnswers = s.answers ?? {};
+          let cleanedResults = s.results ?? [];
+
+          // Purga rigorosa de resíduos perinatais / EPDS para homens em cache
+          if (patientIsMale) {
+            cleanedSymptoms = cleanedSymptoms.filter((sym) => sym !== "perinatal");
+            if (cleanedPlan) {
+              cleanedPlan = {
+                ...cleanedPlan,
+                flow: cleanedPlan.flow.filter((code) => code !== "EPDS"),
+                indicated: cleanedPlan.indicated.filter((i) => i.code !== "EPDS"),
+              };
+            }
+            if (cleanedAnswers["EPDS"]) {
+              delete cleanedAnswers["EPDS"];
+            }
+            cleanedResults = cleanedResults.filter((r) => r.scale_code !== "EPDS");
+          }
+
+          let nextScaleIdx = s.scaleIndex ?? 0;
+          if (cleanedPlan && nextScaleIdx >= cleanedPlan.flow.length) {
+            nextScaleIdx = Math.max(0, cleanedPlan.flow.length - 1);
+          }
+
           setPhase(s.phase);
-          setRespondent({ ...EMPTY_RESPONDENT, ...s.respondent });
-          setSymptoms(s.symptoms ?? []);
-          setPlan(s.plan ?? null);
-          setScaleIndex(s.scaleIndex ?? 0);
+          setRespondent(resp);
+          setSymptoms(cleanedSymptoms);
+          setPlan(cleanedPlan);
+          setScaleIndex(nextScaleIdx);
           setItemIndex(s.itemIndex ?? 0);
-          setAnswers(s.answers ?? {});
-          setResults(s.results ?? []);
+          setAnswers(cleanedAnswers);
+          setResults(cleanedResults);
         }
       }
     } catch {
       /* sessão local inválida — recomeça */
     }
     setRestored(true);
-  }, [storageKey]);
+  }, [storageKey, search.reset]);
 
   // Salvamento automático
   useEffect(() => {
@@ -228,6 +286,10 @@ function TriagemPage() {
     () =>
       respondent.respondent_name.trim().length >= 2 &&
       isValidEmail(respondent.respondent_email) &&
+      Boolean(
+        respondent.respondent_sex &&
+          respondent.respondent_sex.trim().length > 0,
+      ) &&
       age != null &&
       age >= 5 &&
       age <= 125 &&
@@ -278,15 +340,18 @@ function TriagemPage() {
       : 0;
 
   function startFlow(selected: string[]) {
-    const p = buildTriagePlan(selected, age, respondent.respondent_sex);
+    const cleanedSelected = isMale
+      ? selected.filter((s) => s !== "perinatal")
+      : selected;
+    const p = buildTriagePlan(cleanedSelected, age, respondent.respondent_sex);
     setPlan(p);
-    setSymptoms(selected);
+    setSymptoms(cleanedSelected);
     setScaleIndex(0);
     setItemIndex(0);
     setAnswers({});
     setResults([]);
     if (p.flow.length === 0) {
-      void finalize([], p, selected);
+      void finalize([], p, cleanedSelected);
     } else {
       setPhase("escalas");
     }
@@ -444,6 +509,7 @@ function TriagemPage() {
       age,
       nextResults.map((r) => r.scale_code),
       scaleIndex,
+      respondent.respondent_sex,
     );
     if (adaptive.stop && adaptive.reason) {
       nextPlan = {
@@ -533,13 +599,25 @@ function TriagemPage() {
               {branding.clinicName}
             </div>
           </div>
-          <Link
-            to="/$slug"
-            params={{ slug }}
-            className="shrink-0 text-sm text-muted-foreground hover:text-foreground"
-          >
-            Início
-          </Link>
+          <div className="flex items-center gap-3 shrink-0">
+            {phase !== "boas-vindas" && phase !== "fim" && (
+              <button
+                type="button"
+                onClick={handleReset}
+                className="text-xs text-muted-foreground hover:text-destructive transition-colors"
+                title="Reiniciar pré-avaliação do zero"
+              >
+                Recomeçar
+              </button>
+            )}
+            <Link
+              to="/$slug"
+              params={{ slug }}
+              className="text-sm text-muted-foreground hover:text-foreground"
+            >
+              Início
+            </Link>
+          </div>
         </div>
         {phase === "escalas" && (
           <Progress value={progress} className="h-1 rounded-none" />
@@ -576,6 +654,7 @@ function TriagemPage() {
               onNext={() => startFlow(symptoms)}
               onBack={() => setPhase("dados")}
               submitting={submitting}
+              isMale={isMale}
             />
           )}
 
@@ -951,7 +1030,7 @@ function DadosBasicos({
         </div>
 
         <div>
-          <Label htmlFor="sex">Sexo biológico / Identidade de gênero</Label>
+          <Label htmlFor="sex">Sexo biológico / Identidade de gênero *</Label>
           <Select
             value={genderSelectValue}
             onValueChange={(val) => {
@@ -1066,13 +1145,27 @@ function Sintomas({
   onNext,
   onBack,
   submitting,
+  isMale,
 }: {
   selected: string[];
   onChange: (s: string[]) => void;
   onNext: () => void;
   onBack: () => void;
   submitting: boolean;
+  isMale?: boolean;
 }) {
+  const visibleOptions = useMemo(() => {
+    if (!isMale) return SYMPTOM_QUESTION.options;
+    return SYMPTOM_QUESTION.options.filter((opt) => opt.id !== "perinatal");
+  }, [isMale]);
+
+  // Se por qualquer razão 'perinatal' estiver presente no array para paciente masculino, purga imediatamente
+  useEffect(() => {
+    if (isMale && selected.includes("perinatal")) {
+      onChange(selected.filter((id) => id !== "perinatal"));
+    }
+  }, [isMale, selected, onChange]);
+
   function toggle(id: string) {
     onChange(
       selected.includes(id) ? selected.filter((s) => s !== id) : [...selected, id],
@@ -1088,7 +1181,7 @@ function Sintomas({
         {SYMPTOM_QUESTION.subtitle}
       </p>
       <div className="mt-6 grid gap-3">
-        {SYMPTOM_QUESTION.options.map((opt) => {
+        {visibleOptions.map((opt) => {
           const on = selected.includes(opt.id);
           return (
             <button

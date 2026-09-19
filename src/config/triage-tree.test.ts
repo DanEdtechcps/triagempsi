@@ -1,5 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { ageBand, buildTriagePlan, calcAge, isMaleSex, applyEscalations } from "@/config/triage-tree";
+import {
+  ageBand,
+  buildTriagePlan,
+  calcAge,
+  isMaleSex,
+  isMalePatient,
+  applyEscalations,
+} from "@/config/triage-tree";
 import { scoreScale } from "@/lib/scoring";
 
 describe("faixas etárias", () => {
@@ -111,11 +118,33 @@ describe("filtro clínico de sexo / gênero para EPDS", () => {
   it("detecta corretamente sexo masculino em diferentes formatos", () => {
     expect(isMaleSex("Masculino (cisgênero)")).toBe(true);
     expect(isMaleSex("masculino")).toBe(true);
+    expect(isMaleSex("Homem")).toBe(true);
+    expect(isMaleSex("homem")).toBe(true);
+    expect(isMaleSex("Homem cis")).toBe(true);
+    expect(isMaleSex("Homem cisgênero")).toBe(true);
+    expect(isMaleSex("Outra: Homem")).toBe(true);
+    expect(isMaleSex("Outra: homem cis")).toBe(true);
+    expect(isMaleSex("Outra: masculino")).toBe(true);
     expect(isMaleSex("M")).toBe(true);
+    expect(isMaleSex("m")).toBe(true);
+    expect(isMaleSex("male")).toBe(true);
     expect(isMaleSex("Feminino (cisgênero)")).toBe(false);
     expect(isMaleSex("Mulher transgênero")).toBe(false);
+    expect(isMaleSex("Não-binário")).toBe(false);
+    expect(isMaleSex("Prefiro não informar")).toBe(false);
     expect(isMaleSex(null)).toBe(false);
     expect(isMaleSex(undefined)).toBe(false);
+  });
+
+  it("detecta paciente masculino através de isMalePatient (sexo ou pronomes)", () => {
+    expect(isMalePatient({ respondent_sex: "Masculino (cisgênero)" })).toBe(true);
+    expect(isMalePatient({ respondent_sex: "Homem" })).toBe(true);
+    expect(isMalePatient({ pronouns: "Ele / Dele" })).toBe(true);
+    expect(isMalePatient({ respondent_sex: "", pronouns: "Ele / Dele" })).toBe(true);
+    expect(isMalePatient({ respondent_sex: "Feminino (cisgênero)", pronouns: "Ele / Dele" })).toBe(false);
+    expect(isMalePatient({ respondent_sex: "Feminino (cisgênero)" })).toBe(false);
+    expect(isMalePatient(null)).toBe(false);
+    expect(isMalePatient(undefined)).toBe(false);
   });
 
   it("paciente masculino com sintomas perinatais NUNCA recebe EPDS", () => {
@@ -131,6 +160,12 @@ describe("filtro clínico de sexo / gênero para EPDS", () => {
     expect(plan.indicated.some((i) => i.code === "EPDS")).toBe(false);
   });
 
+  it("paciente masculino (string 'Homem') com sintomas perinatais NUNCA recebe EPDS", () => {
+    const plan = buildTriagePlan(["perinatal"], 30, "Homem");
+    expect(plan.flow).not.toContain("EPDS");
+    expect(plan.indicated.some((i) => i.code === "EPDS")).toBe(false);
+  });
+
   it("paciente feminino com sintomas perinatais recebe EPDS normalmente", () => {
     const plan = buildTriagePlan(["perinatal"], 30, "Feminino (cisgênero)");
     expect(plan.flow).toContain("EPDS");
@@ -139,6 +174,13 @@ describe("filtro clínico de sexo / gênero para EPDS", () => {
   it("paciente sem sexo informado com sintomas perinatais recebe EPDS (compatibilidade)", () => {
     const plan = buildTriagePlan(["perinatal"], 30);
     expect(plan.flow).toContain("EPDS");
+  });
+
+  it("applyEscalations nunca adiciona EPDS para paciente masculino", () => {
+    const initialPlan = buildTriagePlan(["ansiedade"], 30, "Masculino (cisgênero)");
+    const mockResult = scoreScale("FTND", { "1": 3, "2": 3 }); // FTND alto
+    const escalated = applyEscalations(initialPlan, mockResult, 30, ["FTND"], 0, "Masculino (cisgênero)");
+    expect(escalated.flow).not.toContain("EPDS");
   });
 });
 

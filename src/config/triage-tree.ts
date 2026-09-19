@@ -669,12 +669,45 @@ function classify(
 export function isMaleSex(sex: string | null | undefined): boolean {
   if (!sex) return false;
   const s = sex.trim().toLowerCase();
+  if (
+    s.includes("mulher") ||
+    s.includes("feminina") ||
+    s.includes("feminino") ||
+    s.includes("trans")
+  ) {
+    return false;
+  }
   return (
+    s === "m" ||
+    s === "male" ||
+    s === "homem" ||
     s === "masculino" ||
     s.startsWith("masculino") ||
+    s.startsWith("homem") ||
     s.includes("homem cis") ||
-    s === "m"
+    s.includes("masculin") ||
+    s.endsWith("homem")
   );
+}
+
+/**
+ * Avalia se o paciente é do sexo masculino considerando tanto o campo de sexo/gênero
+ * quanto pronomes declarados (ex: "Ele / Dele").
+ */
+export function isMalePatient(respondent?: {
+  respondent_sex?: string | null;
+  pronouns?: string | null;
+} | null): boolean {
+  if (!respondent) return false;
+  if (isMaleSex(respondent.respondent_sex)) return true;
+  if (
+    respondent.pronouns === "Ele / Dele" &&
+    !respondent.respondent_sex?.toLowerCase().includes("fem") &&
+    !respondent.respondent_sex?.toLowerCase().includes("mulher")
+  ) {
+    return true;
+  }
+  return false;
 }
 
 export function buildTriagePlan(
@@ -687,12 +720,24 @@ export function buildTriagePlan(
   const wanted: { code: string; reason: string }[] = [];
   const isMale = isMaleSex(sex);
 
+  // Se o paciente for masculino, qualquer queixa perinatal é expurgada na entrada
+  const effectiveSymptoms = isMale
+    ? symptoms.filter((s) => s !== "perinatal")
+    : symptoms;
+
+  if (isMale && symptoms.includes("perinatal")) {
+    decisions.push({
+      step: "EPDS",
+      reason: "Escala EPDS (depressão perinatal) não aplicável a paciente do sexo masculino",
+    });
+  }
+
   for (const code of BASELINE_BY_BAND[band] ?? []) {
     wanted.push({ code, reason: `Rastreio geral (${AGE_BAND_LABEL[band]})` });
   }
 
   for (const rule of ROUTING_RULES) {
-    if (!symptoms.includes(rule.symptom)) continue;
+    if (!effectiveSymptoms.includes(rule.symptom)) continue;
     if (rule.riskPathway) decisions.push({ step: rule.symptom, reason: "Via de risco ativada pelo sintoma relatado" });
 
     const codes = rule.byBand[band] ?? [];
@@ -716,10 +761,12 @@ export function buildTriagePlan(
 
   for (const { code, reason } of wanted) {
     if (code === "EPDS" && isMale) {
-      decisions.push({
-        step: "EPDS",
-        reason: "Escala EPDS (depressão perinatal) não aplicável a paciente do sexo masculino",
-      });
+      if (!decisions.some((d) => d.step === "EPDS")) {
+        decisions.push({
+          step: "EPDS",
+          reason: "Escala EPDS (depressão perinatal) não aplicável a paciente do sexo masculino",
+        });
+      }
       continue;
     }
 
@@ -734,7 +781,7 @@ export function buildTriagePlan(
 
   // Avisos de faixa etária sem instrumento aplicável
   for (const rule of ROUTING_RULES) {
-    if (!symptoms.includes(rule.symptom)) continue;
+    if (!effectiveSymptoms.includes(rule.symptom)) continue;
     const note = rule.noteByBand?.[band];
     if (note && !indicated.some((i) => i.reason === note)) {
       const codes = rule.byBand[band] ?? [];
@@ -750,7 +797,7 @@ export function buildTriagePlan(
   safeFlow.sort((a, b) => orderOf(a) - orderOf(b));
 
   const riskPathway = ROUTING_RULES.some(
-    (r) => r.riskPathway && symptoms.includes(r.symptom),
+    (r) => r.riskPathway && effectiveSymptoms.includes(r.symptom),
   );
 
   return { flow: safeFlow, indicated: safeIndicated, decisions, riskPathway, band };
@@ -771,12 +818,14 @@ export function applyEscalations(
   age: number | null,
   completedCodes: string[],
   currentIndex: number,
+  sex?: string | null,
 ): TriagePlan {
   let flow = [...plan.flow];
   const indicated = [...plan.indicated];
   const decisions = [...plan.decisions];
   let riskPathway = plan.riskPathway;
   let insertAt = currentIndex + 1;
+  const isMale = isMaleSex(sex);
 
   for (const rule of ESCALATION_RULES) {
     if (rule.from !== result.scale_code) continue;
@@ -786,6 +835,7 @@ export function applyEscalations(
     decisions.push({ step: rule.from, reason: rule.reason });
 
     for (const code of rule.add) {
+      if (code === "EPDS" && isMale) continue;
       if (flow.includes(code) || completedCodes.includes(code)) continue;
       if (indicated.some((i) => i.code === code)) continue;
 
@@ -799,7 +849,10 @@ export function applyEscalations(
     }
   }
 
-  return { ...plan, flow, indicated, decisions, riskPathway };
+  const safeFlow = isMale ? flow.filter((c) => c !== "EPDS") : flow;
+  const safeIndicated = isMale ? indicated.filter((i) => i.code !== "EPDS") : indicated;
+
+  return { ...plan, flow: safeFlow, indicated: safeIndicated, decisions, riskPathway };
 }
 
 export function calcAge(birthDateISO: string): number | null {
