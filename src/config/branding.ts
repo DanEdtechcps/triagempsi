@@ -65,6 +65,29 @@ export const BRANDING: Branding = {
   },
 };
 
+export const LUMINA_BRANDING: Branding = {
+  clinicSlug: "lumina-saude",
+  clinicName: "Instituto Lumina de Saúde Mental & Neurociências",
+  doctorName: "Dr. Gustavo Mello",
+  doctorCredentials: "CRM 198765-SP · Psiquiatria de Adultos & Neurociências",
+  tagline: "Psiquiatria de Precisão, Neurociências e Acolhimento Humano",
+  shortTagline: "Psiquiatria de Precisão & Neurociências",
+  city: "São Paulo/SP",
+  logoUrl: null,
+  primaryColor: "#4c1d95", // Púrpura Nobre
+  accentColor: "#8b5cf6",  // Violeta Clínico
+  contactEmail: "contato@lumina.med.br",
+  contactPhone: "11988887777",
+  websiteUrl: "https://lumina.med.br",
+  introCopy:
+    "Seja bem-vindo(a) ao Instituto Lumina de Saúde Mental & Neurociências. Este questionário personalizado organiza seus relatos clínicos antes da consulta, permitindo foco nas suas necessidades reais.",
+  doneCopy:
+    "Muito obrigado por preencher sua pré-triagem. Suas informações foram enviadas com sigilo ético ao corpo clínico do Instituto Lumina.",
+  disclaimer: BRANDING.disclaimer,
+  consentCopy: BRANDING.consentCopy,
+  emergency: BRANDING.emergency,
+};
+
 /** Mescla o branding padrão com os dados da clínica vindos do banco. */
 export function resolveBranding(
   clinic?: Partial<{
@@ -81,19 +104,20 @@ export function resolveBranding(
     done_copy: string | null;
   }> | null,
 ): Branding {
-  if (!clinic) return BRANDING;
+  const base = clinic?.slug === "lumina-saude" ? LUMINA_BRANDING : BRANDING;
+  if (!clinic) return base;
   return {
-    ...BRANDING,
-    clinicSlug: clinic.slug ?? BRANDING.clinicSlug,
-    clinicName: clinic.name ?? BRANDING.clinicName,
-    tagline: clinic.tagline ?? BRANDING.tagline,
-    logoUrl: clinic.logo_url ?? BRANDING.logoUrl,
-    primaryColor: clinic.primary_color ?? BRANDING.primaryColor,
-    accentColor: clinic.accent_color ?? BRANDING.accentColor,
-    contactEmail: clinic.contact_email ?? BRANDING.contactEmail,
-    contactPhone: clinic.contact_phone ?? BRANDING.contactPhone,
-    websiteUrl: clinic.website_url ?? BRANDING.websiteUrl,
-    introCopy: clinic.intro_copy ?? BRANDING.introCopy,
-    doneCopy: clinic.done_copy ?? BRANDING.doneCopy,
+    ...base,
+    clinicSlug: clinic.slug ?? base.clinicSlug,
+    clinicName: clinic.name ?? base.clinicName,
+    tagline: clinic.tagline ?? base.tagline,
+    logoUrl: clinic.logo_url ?? base.logoUrl,
+    primaryColor: clinic.primary_color ?? base.primaryColor,
+    accentColor: clinic.accent_color ?? base.accentColor,
+    contactEmail: clinic.contact_email ?? base.contactEmail,
+    contactPhone: clinic.contact_phone ?? base.contactPhone,
+    websiteUrl: clinic.website_url ?? base.websiteUrl,
+    introCopy: clinic.intro_copy ?? base.introCopy,
+    doneCopy: clinic.done_copy ?? base.doneCopy,
   };
 }
