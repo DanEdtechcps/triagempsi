@@ -99,10 +99,38 @@ No bundle estático gerado por Vite, o código do cliente não deve assumir que 
 
 ---
 
-## 7. Governança para Próximos Agentes de IA
+---
+
+## 7. Skill de Qualidade de Interface (UI Quality Baseline) e Checklist Vivo
+
+A interface do TriagemPsi é governada permanentemente pela skill corporativa instalada em:
+- [`.agents/skills/ui-quality-baseline/SKILL.md`](file:///mnt/armazenamento/Projetos/triagem-medica/.agents/skills/ui-quality-baseline/SKILL.md)
+- Volume oficial de governança: [`documentação viva/09_CHECKLIST_VIVO_UI_QUALITY.md`](file:///mnt/armazenamento/Projetos/triagem-medica/documentação%20viva/09_CHECKLIST_VIVO_UI_QUALITY.md)
+
+### Os 5 Pilares Obrigatórios:
+1. **Layout & Responsividade:** Mobile-First (≤480px), zero overflow-x, touch targets ≥ 44-48px.
+2. **Tipografia & Hierarquia:** Contraste WCAG 2.2 AA (≥ 4.5:1), inputs mobile ≥ 16px (evita auto-zoom iOS).
+3. **Estados de Interface:** Loading (Skeletons), Empty State acolhedor, Error State com retry, Disabled State com prevenção de double-click.
+4. **Acessibilidade (a11y):** Foco visível (`focus-visible:ring-2`), `<Label htmlFor>` em todo input, navegação completa por teclado.
+5. **Feedback Visual:** Toasts imediatos, mensagens claras de erro acionável.
+
+---
+
+## 8. Política de Execução Anti-Freeze (Playwright & E2E)
+
+Devido às características de GPU em ambiente Linux/Wayland (Intel Iris Xe / `i915`), testes E2E nunca devem saturar buffers gráficos simultâneos:
+- **Regra:** Testes do Playwright DEVEM ser executados obrigatoriamente com `--workers=1` e sem concorrência paralela (`fullyParallel: false`).
+- **Comando padrão:** `npx playwright test --workers=1`
+- O arquivo [`playwright.config.ts`](file:///mnt/armazenamento/Projetos/triagem-medica/playwright.config.ts) já está protegido com essa configuração por padrão.
+
+---
+
+## 9. Governança para Próximos Agentes de IA
 
 Ao ser inicializado para trabalhar neste projeto:
 1. **Consulte a pasta `documentação viva/`** antes de propor mudanças arquiteturais.
-2. **Execute os testes (`bun test:run`)** para garantir que o ambiente está íntegro (**132 testes passando**).
-3. **Mantenha os arquivos da pasta `documentação viva/` atualizados** sempre que novas tabelas, rotas ou fluxos clínicos forem adicionados.
-4. **Respeite o formato de saída do usuário Daniel**, mantendo links de arquivo clicáveis e foco cirúrgico na execução.
+2. **Consulte o Checklist Vivo em [`09_CHECKLIST_VIVO_UI_QUALITY.md`](file:///mnt/armazenamento/Projetos/triagem-medica/documentação%20viva/09_CHECKLIST_VIVO_UI_QUALITY.md)** antes de finalizar qualquer tela ou componente.
+3. **Execute os testes (`bun run test`)** para garantir que o ambiente está íntegro (**137 testes passando**).
+4. **Mantenha os arquivos da pasta `documentação viva/` atualizados** sempre que novas tabelas, rotas ou fluxos clínicos forem adicionados.
+5. **Respeite o formato de saída do usuário Daniel**, mantendo links de arquivo clicáveis (`file:///...`) e foco cirúrgico na execução.
+

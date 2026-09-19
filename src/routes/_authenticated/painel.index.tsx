@@ -275,7 +275,7 @@ function PainelLista() {
     queryFn: () => fetchAccess(),
   });
 
-  const { data, isLoading, error } = useQuery({
+  const { data, isLoading, error, refetch } = useQuery({
     queryKey: ["assessments"],
     queryFn: () => fetchList(),
     enabled: access?.hasAccess === true,
@@ -771,7 +771,11 @@ function PainelLista() {
 
 
       {isLoading && (
-        <p className="text-sm text-muted-foreground">Carregando triagens…</p>
+        <div className="space-y-3" aria-busy="true" aria-label="Carregando triagens">
+          <div className="h-16 w-full animate-pulse rounded-xl bg-muted/60" />
+          <div className="h-16 w-full animate-pulse rounded-xl bg-muted/40" />
+          <div className="h-16 w-full animate-pulse rounded-xl bg-muted/20" />
+        </div>
       )}
       {error && isAccessDenied(error) && (
         <AcessoNegado
@@ -781,13 +785,23 @@ function PainelLista() {
         />
       )}
       {error && !isAccessDenied(error) && (
-        <p className="text-sm text-destructive">
-          {error instanceof Error ? error.message : "Erro ao carregar."}
-        </p>
+        <Card className="flex flex-col items-center justify-center gap-3 border-destructive/30 bg-destructive/5 p-6 text-center">
+          <p className="text-sm font-medium text-destructive">
+            {error instanceof Error ? error.message : "Erro ao carregar triagens."}
+          </p>
+          <Button variant="outline" size="sm" onClick={() => void refetch()}>
+            Tentar novamente
+          </Button>
+        </Card>
       )}
-      {lista && lista.length === 0 && (
-        <Card className="p-6 text-sm text-muted-foreground">
-          Nenhuma triagem para os filtros atuais.
+      {!isLoading && !error && lista && lista.length === 0 && (
+        <Card className="flex flex-col items-center justify-center gap-3 p-8 text-center text-sm text-muted-foreground">
+          <p>Nenhuma triagem encontrada para os filtros atuais.</p>
+          {filtrosAtivos && (
+            <Button variant="outline" size="sm" onClick={limparFiltros}>
+              Limpar filtros aplicados
+            </Button>
+          )}
         </Card>
       )}
 

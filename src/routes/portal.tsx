@@ -75,7 +75,7 @@ function PortalDashboard() {
   const queryClient = useQueryClient();
   const fetchAssessments = useServerFn(getMyPortalAssessments);
 
-  const { data, isLoading, error } = useQuery({
+  const { data, isLoading, error, refetch } = useQuery({
     queryKey: ["portal-assessments"],
     queryFn: () => fetchAssessments({}),
     retry: false,
@@ -145,16 +145,22 @@ function PortalDashboard() {
       </div>
 
       {isLoading && (
-        <p className="text-sm text-muted-foreground">
-          Carregando suas pré-avaliações…
-        </p>
+        <div className="space-y-4" aria-busy="true" aria-label="Carregando suas pré-avaliações">
+          <div className="h-28 w-full animate-pulse rounded-xl bg-muted/60" />
+          <div className="h-28 w-full animate-pulse rounded-xl bg-muted/40" />
+        </div>
       )}
       {error && (
-        <p className="text-sm text-destructive">
-          {error instanceof Error
-            ? error.message
-            : "Não foi possível carregar agora."}
-        </p>
+        <Card className="flex flex-col items-center justify-center gap-3 border-destructive/30 bg-destructive/5 p-6 text-center">
+          <p className="text-sm font-medium text-destructive">
+            {error instanceof Error
+              ? error.message
+              : "Não foi possível carregar agora."}
+          </p>
+          <Button variant="outline" size="sm" onClick={() => void refetch()}>
+            Tentar novamente
+          </Button>
+        </Card>
       )}
 
       {!isLoading && !error && assessments.length === 0 && (

@@ -79,7 +79,7 @@ export function QuestionScreen({
                 },
               }}
               whileTap={reduce ? undefined : { scale: 0.985 }}
-              className={`min-h-14 w-full rounded-xl border px-4 py-3 text-left text-base transition-colors ${
+              className={`min-h-14 w-full rounded-xl border px-4 py-3 text-left text-base transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 ${
                 selected
                   ? "border-primary bg-primary text-primary-foreground"
                   : "border-border bg-background hover:border-primary/50 hover:bg-accent/30"
@@ -96,7 +96,7 @@ export function QuestionScreen({
         <button
           type="button"
           onClick={onBack}
-          className="text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline"
+          className="inline-flex min-h-[44px] items-center text-sm text-muted-foreground underline-offset-4 hover:text-foreground hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 rounded-md py-2"
         >
           ← Voltar
         </button>

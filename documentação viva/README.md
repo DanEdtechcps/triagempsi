@@ -33,6 +33,7 @@ Esta documentação foi projetada para ser um repositório central, vivo e autô
 | [06_RUNBOOK_REPRODUCAO_DO_ZERO.md](file:///mnt/armazenamento/Projetos/triagem-medica/documentação%20viva/06_RUNBOOK_REPRODUCAO_DO_ZERO.md) | Guia cirúrgico para reproduzir o sistema do zero em qualquer servidor em menos de 10 minutos. |
 | [07_SKILLS_E_RULES_AGENTICAS.md](file:///mnt/armazenamento/Projetos/triagem-medica/documentação%20viva/07_SKILLS_E_RULES_AGENTICAS.md) | Governança de agentes, regras Lovable, boas práticas Supabase e diretrizes operacionais. |
 | [08_REVISAO_TEXTOS_TRIAGEM.md](file:///mnt/armazenamento/Projetos/triagem-medica/documentação%20viva/08_REVISAO_TEXTOS_TRIAGEM.md) | Auditoria e revisão textual completa de todas as 8 telas da jornada do paciente na triagem. |
+| [09_CHECKLIST_VIVO_UI_QUALITY.md](file:///mnt/armazenamento/Projetos/triagem-medica/documentação%20viva/09_CHECKLIST_VIVO_UI_QUALITY.md) | Checklist vivo e permanente de qualidade de interface (UI Quality Baseline), mobile-first, a11y e feedback. |
 
 ---
 

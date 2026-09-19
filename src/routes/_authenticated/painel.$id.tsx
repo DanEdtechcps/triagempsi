@@ -70,7 +70,7 @@ function PainelDetalhe() {
   const resendInvite = useServerFn(resendAssessmentInvite);
   const [resendMsg, setResendMsg] = useState<string | null>(null);
   const [resending, setResending] = useState(false);
-  const { data, isLoading, error } = useQuery({
+  const { data, isLoading, error, refetch } = useQuery({
     queryKey: ["assessment", id],
     queryFn: () => fetchOne({ data: { id } }),
   });
@@ -183,12 +183,23 @@ function PainelDetalhe() {
       </Link>
 
 
-      {isLoading && <p className="text-sm text-muted-foreground">Carregando…</p>}
+      {isLoading && (
+        <div className="space-y-4" aria-busy="true" aria-label="Carregando detalhes da triagem">
+          <div className="h-28 w-full animate-pulse rounded-xl bg-muted/60" />
+          <div className="h-44 w-full animate-pulse rounded-xl bg-muted/40" />
+          <div className="h-32 w-full animate-pulse rounded-xl bg-muted/30" />
+        </div>
+      )}
       {error && isAccessDenied(error) && <AcessoNegado error={error} />}
       {error && !isAccessDenied(error) && (
-        <p className="text-sm text-destructive">
-          {error instanceof Error ? error.message : "Erro ao carregar."}
-        </p>
+        <Card className="flex flex-col items-center justify-center gap-3 border-destructive/30 bg-destructive/5 p-6 text-center">
+          <p className="text-sm font-medium text-destructive">
+            {error instanceof Error ? error.message : "Erro ao carregar detalhes da triagem."}
+          </p>
+          <Button variant="outline" size="sm" onClick={() => void refetch()}>
+            Tentar novamente
+          </Button>
+        </Card>
       )}
 
       {a && (
