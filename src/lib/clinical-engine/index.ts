@@ -7,3 +7,5 @@ export * from "./types";
 export * from "./triage-tree";
 export * from "./schema-types";
 export * from "./schema-evaluator";
+export * from "./reactive-dag";
+export * from "./reactions";
