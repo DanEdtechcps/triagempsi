@@ -138,6 +138,7 @@ export type EscalationRule = {
  */
 export interface AssessmentPayload {
   clinic_slug: string;
+  clinic_id?: string | null;
   respondent_name: string;
   respondent_email: string;
   respondent_phone: string | null;
@@ -156,3 +157,7 @@ export interface AssessmentPayload {
   results: ScaleResult[];
   summary: Record<string, unknown>;
 }
+
+export type SealedAssessmentPayload = AssessmentPayload & {
+  clinic_id: string;
+};
