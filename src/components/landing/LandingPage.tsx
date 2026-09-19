@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { motion, useScroll, useSpring, useTransform } from "motion/react";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 
 import {
   LANDING_DEFAULTS,
@@ -24,6 +24,7 @@ import {
   SpotlightCard,
   WordsReveal,
 } from "./parts";
+import { DemoModal } from "./DemoModal";
 
 const ESCALAS = [
   "PHQ-9",
@@ -166,6 +167,7 @@ const FAQ = [
 export function LandingPage({ settings }: { settings?: LandingSettings | null }) {
   const copy = { ...LANDING_DEFAULTS, ...(settings ?? {}) };
   const { variant, setVariant } = useLandingVariant();
+  const [demoOpen, setDemoOpen] = useState(false);
 
   const heroRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress: heroProgress } = useScroll({
@@ -446,14 +448,13 @@ export function LandingPage({ settings }: { settings?: LandingSettings | null })
                     ))}
                   </ul>
                   <div className="mt-8 pt-2">
-                    <a href="#contato">
-                      <MagneticButton
-                        variant={p.destaque ? "solid" : "ghost"}
-                        className="w-full"
-                      >
-                        Falar com a equipe
-                      </MagneticButton>
-                    </a>
+                    <MagneticButton
+                      variant={p.destaque ? "solid" : "ghost"}
+                      className="w-full"
+                      onClick={() => setDemoOpen(true)}
+                    >
+                      Falar com a equipe
+                    </MagneticButton>
                   </div>
                 </SpotlightCard>
               </Reveal>
@@ -491,9 +492,9 @@ export function LandingPage({ settings }: { settings?: LandingSettings | null })
             configuramos seu consultório no mesmo dia.
           </p>
           <div className="mt-11 flex flex-wrap justify-center gap-3">
-            <a href="mailto:contato@triagem.app?subject=Quero%20implantar%20a%20triagem">
-              <MagneticButton>Agendar demonstração</MagneticButton>
-            </a>
+            <MagneticButton onClick={() => setDemoOpen(true)}>
+              Agendar demonstração
+            </MagneticButton>
             <Link to="/$slug" params={{ slug: "padrao" }}>
               <MagneticButton variant="ghost">Experimentar a triagem</MagneticButton>
             </Link>
@@ -512,6 +513,8 @@ export function LandingPage({ settings }: { settings?: LandingSettings | null })
           </p>
         </div>
       </footer>
+
+      <DemoModal open={demoOpen} onOpenChange={setDemoOpen} />
     </div>
   );
 }

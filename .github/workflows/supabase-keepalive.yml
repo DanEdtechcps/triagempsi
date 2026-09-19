@@ -11,16 +11,31 @@ jobs:
     name: Ping Supabase Database
     runs-on: ubuntu-latest
     steps:
-      - name: Ping Supabase REST API
+      - name: Ping Supabase REST API & Database
+        env:
+          SUPABASE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: |
-          echo "Pinging Supabase at https://ffyjjkouscnabyxjxexu.supabase.co..."
+          echo "Pinging Supabase REST API and Postgres database at https://ffyjjkouscnabyxjxexu.supabase.co..."
+          KEY="${SUPABASE_KEY:-sb_secret_w5ruUZ9avOSTyUdlZvcgOA_OxifLNtV}"
           HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
-            -H "apikey: sb_publishable_3F04VCYRIoUVH0mXyZBOEg_EQsVTMaT" \
-            -H "Authorization: Bearer sb_publishable_3F04VCYRIoUVH0mXyZBOEg_EQsVTMaT" \
+            -H "apikey: $KEY" \
+            -H "Authorization: Bearer $KEY" \
             "https://ffyjjkouscnabyxjxexu.supabase.co/rest/v1/clinics?select=count")
-          echo "Supabase Response HTTP Code: $HTTP_STATUS"
+          echo "Supabase REST API Response HTTP Code: $HTTP_STATUS"
           if [ "$HTTP_STATUS" -ne 200 ] && [ "$HTTP_STATUS" -ne 206 ]; then
             echo "Unexpected response status: $HTTP_STATUS"
             exit 1
           fi
-          echo "Supabase keepalive ping successful! Database is active and running."
+          echo "Database query successful! Database is active and running."
+
+      - name: Ping Supabase Auth Health
+        run: |
+          AUTH_STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+            -H "apikey: sb_publishable_3F04VCYRIoUVH0mXyZBOEg_EQsVTMaT" \
+            "https://ffyjjkouscnabyxjxexu.supabase.co/auth/v1/health")
+          echo "Supabase Auth Health Response HTTP Code: $AUTH_STATUS"
+          if [ "$AUTH_STATUS" -ne 200 ]; then
+            echo "Unexpected auth health status: $AUTH_STATUS"
+            exit 1
+          fi
+          echo "Supabase keepalive ping completed successfully!"
