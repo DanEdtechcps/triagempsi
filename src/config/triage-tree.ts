@@ -658,13 +658,30 @@ function classify(
   return { kind: "flow" };
 }
 
+/**
+ * Detecta se o sexo informado corresponde ao sexo biológico masculino / homem cisgênero
+ * para fins de elegibilidade em instrumentos obstétricos/perinatais restritos.
+ */
+export function isMaleSex(sex: string | null | undefined): boolean {
+  if (!sex) return false;
+  const s = sex.trim().toLowerCase();
+  return (
+    s === "masculino" ||
+    s.startsWith("masculino") ||
+    s.includes("homem cis") ||
+    s === "m"
+  );
+}
+
 export function buildTriagePlan(
   symptoms: string[],
   age: number | null,
+  sex?: string | null,
 ): TriagePlan {
   const band = ageBand(age);
   const decisions: { step: string; reason: string }[] = [];
   const wanted: { code: string; reason: string }[] = [];
+  const isMale = isMaleSex(sex);
 
   for (const code of BASELINE_BY_BAND[band] ?? []) {
     wanted.push({ code, reason: `Rastreio geral (${AGE_BAND_LABEL[band]})` });
@@ -694,6 +711,14 @@ export function buildTriagePlan(
   const indicated: IndicatedScale[] = [];
 
   for (const { code, reason } of wanted) {
+    if (code === "EPDS" && isMale) {
+      decisions.push({
+        step: "EPDS",
+        reason: "Escala EPDS (depressão perinatal) não aplicável a paciente do sexo masculino",
+      });
+      continue;
+    }
+
     const r = classify(code, age, reason);
     if (r.kind === "flow") {
       flow.push(code);
@@ -715,13 +740,16 @@ export function buildTriagePlan(
     }
   }
 
-  flow.sort((a, b) => orderOf(a) - orderOf(b));
+  const safeFlow = isMale ? flow.filter((c) => c !== "EPDS") : flow;
+  const safeIndicated = isMale ? indicated.filter((i) => i.code !== "EPDS") : indicated;
+
+  safeFlow.sort((a, b) => orderOf(a) - orderOf(b));
 
   const riskPathway = ROUTING_RULES.some(
     (r) => r.riskPathway && symptoms.includes(r.symptom),
   );
 
-  return { flow, indicated, decisions, riskPathway, band };
+  return { flow: safeFlow, indicated: safeIndicated, decisions, riskPathway, band };
 }
 
 function orderOf(code: string) {

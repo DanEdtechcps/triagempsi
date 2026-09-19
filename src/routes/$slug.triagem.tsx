@@ -278,7 +278,7 @@ function TriagemPage() {
       : 0;
 
   function startFlow(selected: string[]) {
-    const p = buildTriagePlan(selected, age);
+    const p = buildTriagePlan(selected, age, respondent.respondent_sex);
     setPlan(p);
     setSymptoms(selected);
     setScaleIndex(0);
