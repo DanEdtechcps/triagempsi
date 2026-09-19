@@ -41,6 +41,8 @@ import { QuestionScreen } from "@/components/triagem/QuestionScreen";
 import { StepTransition } from "@/components/motion/primitives";
 import { downloadPatientPdf } from "@/lib/pdf-report";
 import { resolveBranding } from "@/config/branding";
+import { evaluatePsychoeducationTriggers, type PsychoTriggerResult } from "@/lib/psychoeducation";
+import { CardsPsicoeducacao } from "@/components/triage/CardsPsicoeducacao";
 import {
   SYMPTOM_QUESTION,
   buildTriagePlan,
@@ -325,6 +327,12 @@ function TriagemPage() {
     }
   }
 
+  const psychoRecommendations = useMemo(() => {
+    return evaluatePsychoeducationTriggers(results, {
+      riskPathway: Boolean(plan?.riskPathway) || results.some((r) => r.risk),
+    });
+  }, [results, plan]);
+
   function handleDownloadPdf() {
     downloadPatientPdf(
       {
@@ -348,7 +356,10 @@ function TriagemPage() {
         decisions: plan?.decisions ?? [],
         indicated: plan?.indicated ?? [],
         ageBand: plan?.band ?? null,
-
+        psychoeducation: psychoRecommendations.map((rec) => ({
+          title: rec.topic.title,
+          summary: rec.topic.summary_pdf,
+        })),
       },
       branding,
     );
@@ -571,13 +582,18 @@ function TriagemPage() {
           )}
 
           {phase === "risco" && (
-            <TelaRisco branding={branding} onDownload={handleDownloadPdf} />
+            <TelaRisco
+              branding={branding}
+              recommendations={psychoRecommendations}
+              onDownload={handleDownloadPdf}
+            />
           )}
 
           {phase === "fim" && (
             <TelaFinal
               branding={branding}
               email={respondent.respondent_email}
+              recommendations={psychoRecommendations}
               onDownload={handleDownloadPdf}
             />
           )}
@@ -588,7 +604,7 @@ function TriagemPage() {
                 Não foi possível enviar
               </h2>
               <p className="mt-2 text-sm text-muted-foreground">
-                {errorMsg ?? "Erro desconhecido."}
+                {errorMsg ?? "Não foi possível salvar sua triagem. Tente novamente."}
               </p>
               <Button className="mt-4" onClick={() => setPhase("escalas")}>
                 Tentar novamente
@@ -622,18 +638,18 @@ function BoasVindas({
   return (
     <Card className="border-border bg-card p-6 sm:p-10">
       <h1 className="font-serif text-2xl font-semibold text-foreground sm:text-3xl">
-        Bem-vindo(a) à pré-avaliação
+        Pré-avaliação clínica
       </h1>
       <p className="mt-4 text-base leading-relaxed text-foreground/80">
         {branding.introCopy}
       </p>
       <ul className="mt-6 space-y-2 text-sm text-foreground/80">
-        <li>• Leva cerca de 10 minutos e pode ser feito pelo celular.</li>
-        <li>• Se você fechar a página, retomamos de onde parou.</li>
-        <li>• Suas respostas são confidenciais e vistas só pela equipe clínica.</li>
+        <li>• Tempo estimado: Leve cerca de 10 minutos e pode ser feito pelo celular.</li>
+        <li>• Salvamento automático: Se você fechar a página, retomamos de onde parou.</li>
+        <li>• Confidencialidade: Suas respostas são confidenciais e vistas só pela equipe clínica.</li>
       </ul>
       <div className="mt-6 rounded-lg border border-border bg-muted/40 p-4 text-sm text-foreground/80">
-        {branding.disclaimer}
+        Esta pré-avaliação organiza seus sintomas e direciona a conversa médica inicial, mas não constitui diagnóstico clínico nem prescrição de tratamento.
       </div>
 
       <label className="mt-6 flex cursor-pointer items-start gap-3 rounded-lg border border-border p-4 text-sm">
@@ -691,49 +707,53 @@ function DadosBasicos({
       </p>
 
       {/* Escolha do profissional (opcional) */}
-      {doctors.length > 0 && (
-        <div className="mt-6">
-          <Label>Com qual profissional você quer consultar? (opcional)</Label>
-          <div className="mt-2 grid gap-2 sm:grid-cols-2">
-            {doctors.map((d) => (
-              <button
-                key={d.id}
-                type="button"
-                onClick={() => set("doctor_id", d.id)}
-                className={`min-h-12 rounded-xl border px-4 py-3 text-left transition-colors ${
-                  data.doctor_id === d.id
-                    ? "border-primary bg-primary/10"
-                    : "border-border bg-background hover:border-primary/50"
-                }`}
-              >
-                <span className="block text-base font-medium text-foreground">
-                  {d.display_name}
-                </span>
-                {d.specialty && (
-                  <span className="mt-0.5 block text-xs text-muted-foreground">
-                    {d.specialty}
-                  </span>
-                )}
-              </button>
-            ))}
+      <div className="mt-6">
+        <Label>Com qual profissional você quer consultar? (opcional)</Label>
+        <div className="mt-2 grid gap-2 sm:grid-cols-2">
+          {(doctors.length > 0
+            ? doctors
+            : [
+                {
+                  id: "saraiva-titular",
+                  display_name: "Dr. José Ribamar Fernandes Saraiva Junior",
+                  specialty: "Psiquiatria Clínica · RQE 30038",
+                },
+              ]
+          ).map((d) => (
             <button
+              key={d.id}
               type="button"
-              onClick={() => set("doctor_id", null)}
-              className={`min-h-12 rounded-xl border px-4 py-3 text-left text-base transition-colors ${
-                data.doctor_id === null
-                  ? "border-primary bg-primary/10 text-foreground"
-                  : "border-border bg-background text-muted-foreground hover:border-primary/50"
+              onClick={() => set("doctor_id", d.id === "saraiva-titular" ? null : d.id)}
+              className={`min-h-12 rounded-xl border px-4 py-3 text-left transition-colors ${
+                data.doctor_id === d.id || (d.id === "saraiva-titular" && data.doctor_id === null)
+                  ? "border-primary bg-primary/10"
+                  : "border-border bg-background hover:border-primary/50"
               }`}
             >
-              Sem preferência — a equipe direciona
+              <span className="block text-base font-medium text-foreground">
+                {d.display_name}
+              </span>
+              <span className="mt-0.5 block text-xs text-muted-foreground">
+                {d.specialty || "Psiquiatria Clínica · RQE 30038"}
+              </span>
             </button>
-          </div>
-          <p className="mt-2 text-xs text-muted-foreground">
-            Sua pré-avaliação fica destacada para o profissional escolhido, e
-            toda a equipe do consultório pode acompanhar.
-          </p>
+          ))}
+          <button
+            type="button"
+            onClick={() => set("doctor_id", null)}
+            className={`min-h-12 rounded-xl border px-4 py-3 text-left text-base transition-colors ${
+              data.doctor_id === null
+                ? "border-primary bg-primary/10 text-foreground"
+                : "border-border bg-background text-muted-foreground hover:border-primary/50"
+            }`}
+          >
+            Sem preferência — a equipe direciona
+          </button>
         </div>
-      )}
+        <p className="mt-2 text-xs text-muted-foreground">
+          Sua pré-avaliação fica destacada para o profissional escolhido, e toda a equipe do consultório pode acompanhar.
+        </p>
+      </div>
 
       <div className="mt-6 grid gap-4 sm:grid-cols-2">
         <div className="sm:col-span-2">
@@ -940,16 +960,18 @@ function Sintomas({
 
 function TelaRisco({
   branding,
+  recommendations,
   onDownload,
 }: {
   branding: BrandingType;
+  recommendations: PsychoTriggerResult[];
   onDownload: () => void;
 }) {
   return (
     <div className="space-y-4">
       <Card className="border-destructive/50 bg-destructive/5 p-6 sm:p-8">
         <h1 className="font-serif text-2xl font-semibold text-destructive">
-          Você não está sozinho(a)
+          Você não precisa passar por isso sozinho(a)
         </h1>
         <p className="mt-3 text-base leading-relaxed text-foreground/85">
           {branding.emergency.message}
@@ -979,11 +1001,9 @@ function TelaRisco({
         <p className="mt-6 text-sm text-foreground/80">
           Procure atendimento imediato em um pronto-socorro ou CAPS mais próximo se
           o sofrimento estiver intenso agora.
-          {branding.contactPhone
-            ? ` Você também pode falar com a nossa equipe: ${branding.contactPhone}.`
-            : ""}
         </p>
       </Card>
+
       <Card className="p-6">
         <p className="text-sm text-foreground/80">
           Suas respostas foram enviadas e a equipe clínica será avisada com
@@ -993,6 +1013,8 @@ function TelaRisco({
           Baixar meu resumo em PDF
         </Button>
       </Card>
+
+      <CardsPsicoeducacao items={recommendations} />
     </div>
   );
 }
@@ -1000,52 +1022,58 @@ function TelaRisco({
 function TelaFinal({
   branding,
   email,
+  recommendations,
   onDownload,
 }: {
   branding: BrandingType;
   email: string;
+  recommendations: PsychoTriggerResult[];
   onDownload: () => void;
 }) {
   return (
-    <Card className="border-border bg-card p-8 text-center sm:p-10">
-      <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-success/15 text-success">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          width="28"
-          height="28"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2.5"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        >
-          <polyline points="20 6 9 17 4 12" />
-        </svg>
-      </div>
-      <h1 className="mt-5 font-serif text-2xl font-semibold">
-        Pré-avaliação concluída
-      </h1>
-      <p className="mt-3 text-sm text-muted-foreground">{branding.doneCopy}</p>
-      {email && (
-        <p className="mt-2 text-sm text-muted-foreground">
-          Uma confirmação será enviada para <strong>{email}</strong>.
+    <div className="space-y-6">
+      <Card className="border-border bg-card p-8 text-center sm:p-10">
+        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-success/15 text-success">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="28"
+            height="28"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <polyline points="20 6 9 17 4 12" />
+          </svg>
+        </div>
+        <h1 className="mt-5 font-serif text-2xl font-semibold">
+          Pré-avaliação concluída
+        </h1>
+        <p className="mt-3 text-sm text-muted-foreground">{branding.doneCopy}</p>
+        {email && (
+          <p className="mt-2 text-sm text-muted-foreground">
+            Uma confirmação será enviada para <strong>{email}</strong>.
+          </p>
+        )}
+        <Button variant="outline" onClick={onDownload} className="mt-6 w-full sm:w-auto">
+          Baixar meu resumo em PDF
+        </Button>
+        <p className="mt-5 text-sm text-muted-foreground">
+          Quer rever este resumo depois?{" "}
+          <Link
+            to="/primeiro-acesso"
+            className="font-medium text-primary underline-offset-4 hover:underline"
+          >
+            Crie seu acesso no Portal do Paciente
+          </Link>{" "}
+          com o mesmo e-mail informado aqui.
         </p>
-      )}
-      <Button variant="outline" onClick={onDownload} className="mt-6 w-full sm:w-auto">
-        Baixar meu resumo em PDF
-      </Button>
-      <p className="mt-5 text-sm text-muted-foreground">
-        Quer rever este resumo depois?{" "}
-        <Link
-          to="/primeiro-acesso"
-          className="font-medium text-primary underline-offset-4 hover:underline"
-        >
-          Crie seu acesso no Portal do Paciente
-        </Link>{" "}
-        com o mesmo e-mail informado aqui.
-      </p>
-      <p className="mt-6 text-xs text-muted-foreground">{branding.disclaimer}</p>
-    </Card>
+        <p className="mt-6 text-xs text-muted-foreground">{branding.disclaimer}</p>
+      </Card>
+
+      <CardsPsicoeducacao items={recommendations} />
+    </div>
   );
 }

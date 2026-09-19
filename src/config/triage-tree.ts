@@ -90,7 +90,7 @@ export const SYMPTOM_QUESTION = {
     {
       id: "trabalho",
       label: "Sobrecarregado(a) ou adoecendo por causa do trabalho",
-      hint: "Ritmo, cobrança, assédio ou insegurança no emprego (rastreio de riscos psicossociais — NR-01).",
+      hint: "Ritmo excessivo, cobrança constante ou insegurança no trabalho.",
     },
     {
       id: "memoria",

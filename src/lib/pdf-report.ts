@@ -43,6 +43,7 @@ export type PdfReportData = {
   decisions?: Decision[];
   indicated?: IndicatedScale[];
   ageBand?: string | null;
+  psychoeducation?: Array<{ title: string; summary: string }>;
 };
 
 
@@ -332,13 +333,41 @@ export function buildPatientPdf(
     }
   }
 
+  const hasCrisisRisk = Boolean(
+    data.riskPathway ||
+      data.riskFlags?.length ||
+      data.psychoeducation?.some(
+        (p) =>
+          p.title.toLowerCase().includes("crise") ||
+          p.summary.toLowerCase().includes("188") ||
+          p.summary.toLowerCase().includes("samu"),
+      ),
+  );
 
+  if (data.psychoeducation?.length) {
+    b.title("Orientações e Práticas de Cuidado Recomendadas");
+    b.paragraph(
+      "Com base nas respostas informadas, nossa equipe médica preparou as seguintes orientações educativas e de autorregulação (Versão v1 · 2026.1):",
+      { color: 80, size: 9 },
+    );
+    b.y += 2;
+    for (const p of data.psychoeducation) {
+      b.paragraph(`• ${p.title}`, { color: 30, size: 10 });
+      b.paragraph(p.summary, { color: 70, size: 9 });
+      b.y += 2;
+    }
+  }
 
-  if (data.riskPathway || data.riskFlags?.length) {
+  if (hasCrisisRisk) {
     b.y += 6;
     b.riskBox(
-      `${branding.emergency.message} ${branding.emergency.cvvLabel}: ${branding.emergency.cvvPhone}. ` +
-        `Emergência médica (SAMU): ${branding.emergency.samuPhone}.`,
+      `PLANO DE SEGURANÇA IMEDIATO — CANAIS DE URGÊNCIA 24 HORAS:\n` +
+        `• ${branding.emergency.cvvLabel}: Ligue ${branding.emergency.cvvPhone} (Ligação gratuita, confidencial e 24h em todo o Brasil).\n` +
+        `• Emergência Médica (SAMU): Ligue ${branding.emergency.samuPhone} ou procure a UPA / Pronto-Socorro mais próximo.\n` +
+        `• Mensagem para pessoa de confiança: "Estou passando por um momento difícil e com pensamentos pesados. Você poderia falar comigo ou me fazer companhia agora?"\n` +
+        `• Aterramento rápido (5-4-3-2-1): Nomeie 5 coisas que vê, 4 que toca, 3 sons, 2 cheiros e 1 sabor.\n` +
+        `• Respiração calmante: Inspire em 4s, segure 4s e solte em 6s (repita 5 vezes).\n` +
+        `• Proteção ambiental: Afaste medicamentos e objetos perigosos; permaneça em local seguro e acompanhado.`,
     );
   }
 
@@ -348,7 +377,9 @@ export function buildPatientPdf(
     { color: 70 },
   );
 
-  return b.finish(branding.disclaimer);
+  return b.finish(
+    `${branding.disclaimer} TriagemPsi Psicoeducação v1 (2026.1) · Uso exclusivo do paciente.`,
+  );
 }
 
 /** Relatório completo para a equipe clínica / contratante. */

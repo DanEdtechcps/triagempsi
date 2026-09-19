@@ -1,19 +1,19 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
-const AnswerRecord = z.record(z.string(), z.number().int().min(0).max(4));
+const AnswerRecord = z.record(z.string(), z.number().int().min(0).max(10));
 
 const ScaleResultInput = z.object({
-  scale_code: z.string().min(1).max(20),
-  scale_name: z.string().min(1).max(160),
-  score: z.number().int().min(0),
-  band: z.string().min(1).max(80),
+  scale_code: z.string().min(1).max(30),
+  scale_name: z.string().min(1).max(200),
+  score: z.number().min(0),
+  band: z.string().min(1).max(150),
   band_level: z.number().int().min(0).max(5),
   answers: AnswerRecord,
   risk: z.boolean(),
   informant: z.enum(["paciente", "familiar"]).optional(),
-  score_adjusted: z.number().int().min(0).optional(),
-  informant_note: z.string().max(600).nullable().optional(),
+  score_adjusted: z.number().min(0).optional(),
+  informant_note: z.string().max(1000).nullable().optional(),
 });
 
 const SubmitSchema = z.object({
@@ -32,8 +32,8 @@ const SubmitSchema = z.object({
   consent_at: z.string().trim().max(40).optional().nullable(),
   invitation_token: z.string().trim().max(120).optional().nullable(),
   doctor_id: z.string().uuid().optional().nullable(),
-  symptom_path: z.array(z.string().max(40)).max(30).default([]),
-  results: z.array(ScaleResultInput).min(0).max(20),
+  symptom_path: z.array(z.string().max(80)).max(60).default([]),
+  results: z.array(ScaleResultInput).min(0).max(50),
   summary: z.object({
     highlights: z.array(z.any()),
     symptoms: z.array(z.string()).default([]),
@@ -152,6 +152,42 @@ export const submitAssessment = createServerFn({ method: "POST" })
         console.error("scale_results insert error", rErr);
         throw new Error("Erro ao salvar respostas.");
       }
+    }
+
+    // Grava recomendações automáticas de psicoeducação
+    try {
+      const { evaluatePsychoeducationTriggers } = await import("@/lib/psychoeducation");
+      const recommendations = evaluatePsychoeducationTriggers(data.results, {
+        riskPathway: Boolean(data.summary.risk_flags?.length),
+      });
+
+      if (recommendations.length > 0) {
+        const slugs = recommendations.map((rec) => rec.topic.slug);
+        const { data: topics } = await supabaseAdmin
+          .from("psychoeducation_topics")
+          .select("id, slug")
+          .in("slug", slugs);
+
+        if (topics && topics.length > 0) {
+          const topicMap = new Map(topics.map((t) => [t.slug, t.id]));
+          const psychoRows = recommendations
+            .filter((rec) => topicMap.has(rec.topic.slug))
+            .map((rec) => ({
+              assessment_id: assessment.id,
+              topic_id: topicMap.get(rec.topic.slug)!,
+              trigger_reason: rec.trigger_reason,
+              is_manual: false,
+            }));
+
+          if (psychoRows.length > 0) {
+            await supabaseAdmin
+              .from("assessment_psychoeducation")
+              .upsert(psychoRows, { onConflict: "assessment_id, topic_id" });
+          }
+        }
+      }
+    } catch (psyErr) {
+      console.warn("submitAssessment: falha ao salvar psicoeducação (não bloqueia)", psyErr);
     }
 
     if (invitationId) {
