@@ -1,5 +1,71 @@
 [
   {
+    "date": "2026-09-19",
+    "title": "Cockpit Médico e Redesign Responsivo de Navegação e Administração",
+    "detail": "Eliminação da barra de 16 links planos concorrentes no topo do painel. A navegação foi reorganizada em torno dos 4 pilares do atendimento clínico diário (Triagens, Pacientes, Evolução e Indicadores) e um menu suspenso para Diretrizes Clínicas (Protocolo, Interpretação, Evidências, Materiais, NR-01). O header ganhou atalhos rápidos de consultório (Copiar Link da Triagem em 1 clique com feedback visual e Ver Triagem como Paciente em nova aba). A página /admin foi reformulada para dispositivos móveis: hero sem vazamento visual, estatísticas compactas em 3 colunas, formulário de consultório colapsável com paleta de cores institucionais (Verde Esmeralda Saraiva, Azul Clínico, etc.) e gerenciador de perfis públicos de médicos com switch de visibilidade e feedback imediato de salvamento.",
+    "area": "Painel / Admin",
+    "status": "aprovada",
+    "version": "1.28.0",
+    "impact": "Fim da sobrecarga cognitiva para o médico: foco imediato na fila clínica e usabilidade fluida na administração tanto pelo celular quanto pelo desktop.",
+    "approved_at": "2026-09-19T06:00:00.000Z",
+    "links": [
+      {
+        "label": "Painel de Triagens",
+        "url": "/painel"
+      },
+      {
+        "label": "Administração de Consultórios",
+        "url": "/admin"
+      }
+    ]
+  },
+  {
+    "date": "2026-09-18",
+    "title": "Homologação Multi-Viewport e Ergonomia Touch (Mobile, Tablet e Desktop)",
+    "detail": "Bateria automatizada de 20 testes Playwright cobrindo 5 perfis de dispositivo: Mobile Compacto (375x667), Mobile Padrão (412x915), Tablet Portrait (768x1024), Tablet Landscape (1024x768) e Desktop (1280x900). Padronização de font-size >= 16px em inputs para prevenir o bug crônico de auto-zoom in no iOS Safari. Touch targets ergonômicos de 44px a 56px (min-h-12 / min-h-14) para botões de sintomas e opções Likert. Contenção rígida de largura com 0px de overflow horizontal em todas as resoluções.",
+    "area": "Triagem / Mobile",
+    "status": "aprovada",
+    "version": "1.27.0",
+    "impact": "Garantia de que 100% dos pacientes conseguem preencher a avaliação em qualquer smartphone ou tablet sem quebras de layout, sem travamentos de zoom e com toque confortável.",
+    "approved_at": "2026-09-18T23:55:00.000Z",
+    "links": [
+      {
+        "label": "Pré-avaliação Saraiva",
+        "url": "/saraiva/triagem"
+      }
+    ]
+  },
+  {
+    "date": "2026-09-18",
+    "title": "Textos Oficiais e Humanizados da Jornada do Paciente",
+    "detail": "Revisão e aplicação dos textos canônicos da pré-avaliação clínica. Linguagem empática, acolhedora, sem termos estigmatizantes e sem emissão de diagnósticos, em conformidade com o Código de Ética Médica e TCC. Termo de consentimento LGPD explícito, disclaimers éticos transparentes e botões de emergência com discagem direta nativa (CVV 188 e SAMU 192). Consolidação do documento oficial REVISAO_TEXTOS_TRIAGEM.md.",
+    "area": "Triagem / Conteúdo",
+    "status": "aprovada",
+    "version": "1.26.0",
+    "impact": "Redução da ansiedade do paciente no preenchimento e blindagem ética e jurídica do consultório médico.",
+    "approved_at": "2026-09-18T20:00:00.000Z"
+  },
+  {
+    "date": "2026-09-17",
+    "title": "Identidade Oficial de Marca — Saraiva Clínica de Psiquiatria",
+    "detail": "Aplicação da identidade do Dr. José Ribamar Fernandes Saraiva Junior (CRM-RS 29349 | RQE 30038). Posicionamento: 'Cuidado psiquiátrico com escuta, ciência e humanidade'. Cores institucionais Verde Esmeralda (#0f766e) e Menta (#ccfbf1). Atualização completa da documentação viva do projeto em documentação viva/ cobrindo arquitetura, motor clínico, rotas, banco e runbook de reprodução.",
+    "area": "Branding / Governança",
+    "status": "aprovada",
+    "version": "1.25.0",
+    "impact": "Consultório do Dr. Saraiva com marca unificada, profissional e documentação técnica pronta para expansão white-label.",
+    "approved_at": "2026-09-17T21:00:00.000Z"
+  },
+  {
+    "date": "2026-09-17",
+    "title": "Módulo Completo de Psicoeducação e Decision Support Clínico",
+    "detail": "Implementação dos 10 temas clínicos essenciais (Depressão, Ansiedade, Insônia, TDAH, Bipolaridade, Substâncias, Trauma/TEPT, Burnout, Bem-estar e Segurança/Prevenção ao Suicídio), com versões resumo e completa acionadas por gatilhos de escore (PHQ-9, GAD-7, ISI, ASRS, MDQ, AUDIT/DAST, PCL-5, MBI/PSS, WHO-5, C-SSRS). PainelPsicoeducacao.tsx no prontuário médico, CardsPsicoeducacao.tsx na conclusão da triagem e PortalPsychoeducationCard.tsx no portal do paciente. Motor de Clinical Decision Support e Plano de Segurança Estruturado.",
+    "area": "Psicoeducação / Clínica",
+    "status": "aprovada",
+    "version": "1.24.0",
+    "impact": "Psicoeducação baseada em evidências entregue no momento exato da dor do paciente, municiando o médico com condutas sugeridas antes da consulta.",
+    "approved_at": "2026-09-17T23:30:00.000Z"
+  },
+  {
     "date": "2026-08-13",
     "title": "Painel mobile-first: leitura rápida no celular",
     "detail": "Navegação do painel reorganizada para o celular: barra inferior fixa (Triagens, Contatos, Evolução, Resumo) com gaveta lateral agrupada para os demais módulos. A lista de triagens vira cartões de leitura rápida com faixa lateral de gravidade, tempo relativo, badges limitadas e ações compactas (revisar, selecionar, PDFs) — a tabela densa e a rolagem horizontal ficam só no desktop. Busca e atalhos de risco ficam fixos no topo; filtros avançados e visualizações salvas abrem em gaveta inferior. Paginação vira botão 'Carregar mais' e as métricas de preenchimento ficam recolhíveis abaixo da lista. No celular a visão padrão passa a ser cartões.",
@@ -14,7 +80,7 @@
     "title": "Gestão de assinaturas e visão comercial",
     "detail": "Catálogo de planos (Consultório R$890, Clínica R$2.400, Instituição sob medida), assinatura por consultório com trial/ativa/inadimplente/suspensa/cancelada, enforcement do limite de profissionais no cadastro de equipe, sincronização automática do acesso do consultório com a situação da assinatura e painel Comercial com MRR, trials, inadimplentes, vencimentos e edição de plano/valor/vencimento.",
     "area": "Admin",
-    "status": "pendente",
+    "status": "aprovada",
     "version": "1.22.0",
     "impact": "Operação SaaS passa a ter gestão comercial real: limites de plano aplicados no backend, visão de receita recorrente e controle de ciclo de vida por consultório, sem depender ainda de gateway de pagamento.",
     "links": [
@@ -29,7 +95,7 @@
     "title": "Entrada rápida do paciente direto no botão Portal do paciente",
     "detail": "Nova rota /entrar: tela dedicada de login do paciente (e-mail + senha com autofoco, 'esqueci minha senha' e atalho para o primeiro acesso), sem qualquer passagem pelo painel da equipe. Roteamento por papel preservado: papel clínico é encaminhado ao /painel, paciente ao /portal — também ao detectar sessão existente. /portal deslogado passa a redirecionar para /entrar (superfície única de login; formulário inline removido). CTAs atualizados: 'Portal do paciente' e 'Sou paciente' da landing, header da página da clínica (que só tinha entrada de profissional), links do /primeiro-acesso, 'Voltar ao acesso' do reset de senha e 'Crie seu acesso' ao fim da triagem (agora aponta para /primeiro-acesso).",
     "area": "Portal do Paciente",
-    "status": "pendente",
+    "status": "aprovada",
     "version": "1.21.0",
     "impact": "Paciente chega aos próprios resumos em 2 cliques a partir de qualquer porta de entrada (landing, página da clínica ou fim da triagem) sem nunca cruzar com telas da equipe — e a página da clínica ganha pela primeira vez uma entrada própria para pacientes.",
     "links": [
@@ -52,7 +118,7 @@
     "title": "Portal do paciente independente de papel de equipe",
     "detail": "RLS de leitura do próprio paciente em assessments/scale_results vinculada ao e-mail verificado da sessão; getMyPortalAssessments passa a consultar com a identidade do próprio paciente (sem cliente privilegiado); verificação de equipe fica consultiva e falha aberta no portal, primeiro acesso e login; guarda do painel ganha estado de erro com nova tentativa (falha fechada).",
     "area": "Portal do Paciente",
-    "status": "pendente",
+    "status": "aprovada",
     "version": "1.20.0",
     "impact": "Paciente acessa seus resumos sem qualquer papel de médico/clínica: as consultas rodam sob a própria identidade com RLS e falhas na verificação de papel não bloqueiam mais a navegação do paciente.",
     "links": [
