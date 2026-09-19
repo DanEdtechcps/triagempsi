@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { ageBand, buildTriagePlan, calcAge, isMaleSex } from "@/config/triage-tree";
+import { ageBand, buildTriagePlan, calcAge, isMaleSex, applyEscalations } from "@/config/triage-tree";
+import { scoreScale } from "@/lib/scoring";
 
 describe("faixas etárias", () => {
   it("classifica os limites de cada banda", () => {
@@ -138,6 +139,102 @@ describe("filtro clínico de sexo / gênero para EPDS", () => {
   it("paciente sem sexo informado com sintomas perinatais recebe EPDS (compatibilidade)", () => {
     const plan = buildTriagePlan(["perinatal"], 30);
     expect(plan.flow).toContain("EPDS");
+  });
+});
+
+describe("Auditoria de Elegibilidade Psicometria & QA Clínico (Matriz de Perfis)", () => {
+  // 1. Perfil Homem Adulto (35 anos, masculino)
+  it("Perfil Homem Adulto (35 anos): exclusão de EPDS e CRAFFT; ativação de ASRS-18, AQ-10 e MBI-HSS", () => {
+    const queixas = ["perinatal", "atencao", "neuro", "trabalho", "substancias"];
+    const plan = buildTriagePlan(queixas, 35, "Masculino (cisgênero)");
+
+    // Sexo: EPDS estritamente bloqueada
+    expect(plan.flow).not.toContain("EPDS");
+    expect(plan.indicated.some((i) => i.code === "EPDS")).toBe(false);
+
+    // Idade: TDAH adulto ativado (ASRS-18 no indicated por ser estrutura, sem ASRS-C ou SNAP-IV no flow)
+    expect(plan.flow).not.toContain("ASRS-C");
+    expect(plan.flow).not.toContain("SNAP-IV");
+    expect(plan.indicated.some((i) => i.code === "ASRS-18")).toBe(true);
+
+    // Idade: Autismo adulto ativado (AQ-10 no flow)
+    expect(plan.flow).toContain("AQ-10");
+
+    // Idade: Burnout ocupacional adulto ativado (MBI-HSS no flow)
+    expect(plan.flow).toContain("MBI-HSS");
+
+    // Idade: CRAFFT bloqueada para > 21 anos
+    expect(plan.flow).not.toContain("CRAFFT");
+    expect(plan.indicated.some((i) => i.code === "CRAFFT")).toBe(false);
+  });
+
+  // 2. Perfil Mulher Jovem (19 anos, feminino)
+  it("Perfil Mulher Jovem (19 anos): recebe EPDS; elegível para CRAFFT (<=21) e MBI-HSS (>=18)", () => {
+    const queixas = ["perinatal", "trabalho", "substancias"];
+    const plan = buildTriagePlan(queixas, 19, "Feminino (cisgênero)");
+
+    // Sexo: EPDS ativa
+    expect(plan.flow).toContain("EPDS");
+
+    // Idade: MBI-HSS ativa no adulto (19 anos)
+    expect(plan.flow).toContain("MBI-HSS");
+
+    // Idade: CRAFFT permitida por ter <= 21 anos
+    expect(plan.flow).toContain("CRAFFT");
+  });
+
+  // 3. Perfil Adolescente (15 anos)
+  it("Perfil Adolescente (15 anos): ativa ASRS-C, SNAP-IV e CRAFFT; bloqueia ASRS-18, AQ-10 e MBI-HSS", () => {
+    const queixas = ["atencao", "neuro", "trabalho", "substancias"];
+    const plan = buildTriagePlan(queixas, 15, "Masculino (cisgênero)");
+
+    // Idade: TDAH infantojuvenil ativo (ASRS-C no flow, SNAP-IV no indicated)
+    expect(plan.flow).toContain("ASRS-C");
+    expect(plan.indicated.some((i) => i.code === "SNAP-IV")).toBe(true);
+
+    // TDAH adulto bloqueado
+    expect(plan.flow).not.toContain("ASRS-18");
+    expect(plan.indicated.some((i) => i.code === "ASRS-18")).toBe(false);
+
+    // Idade: AQ-10 bloqueado no flow para menores de 18 anos
+    expect(plan.flow).not.toContain("AQ-10");
+
+    // Idade: MBI-HSS bloqueado no flow para menores de 18 anos
+    expect(plan.flow).not.toContain("MBI-HSS");
+
+    // Idade: CRAFFT ativada para substâncias em adolescentes (<21)
+    expect(plan.flow).toContain("CRAFFT");
+  });
+
+  // 4. Perfil Criança (9 anos)
+  it("Perfil Criança (9 anos): TDAH infantojuvenil ativo, sem escalas adultas", () => {
+    const plan = buildTriagePlan(["atencao", "neuro"], 9);
+    expect(plan.flow).toContain("ASRS-C");
+    expect(plan.flow).not.toContain("ASRS-18");
+    expect(plan.flow).not.toContain("AQ-10");
+  });
+
+  // 5. Verificação dos Screeners Ultrarrápidos (PHQ-2 e GAD-2)
+  it("Screener ultrarrápido: PHQ-2 < 3 não expande; PHQ-2 >= 3 expande para PHQ-9", () => {
+    const plan = buildTriagePlan(["tristeza"], 30);
+    const rAbaixo = scoreScale("PHQ-2", { "1": 1, "2": 1 }); // score 2
+    const escaladoAbaixo = applyEscalations(plan, rAbaixo, 30, [], 0);
+    expect(escaladoAbaixo.flow).not.toContain("PHQ-9");
+
+    const rCorte = scoreScale("PHQ-2", { "1": 2, "2": 1 }); // score 3
+    const escaladoCorte = applyEscalations(plan, rCorte, 30, [], 0);
+    expect(escaladoCorte.flow).toContain("PHQ-9");
+  });
+
+  it("Screener ultrarrápido: GAD-2 < 3 não expande; GAD-2 >= 3 expande para GAD-7", () => {
+    const plan = buildTriagePlan(["ansiedade"], 30);
+    const rAbaixo = scoreScale("GAD-2", { "1": 1, "2": 1 }); // score 2
+    const escaladoAbaixo = applyEscalations(plan, rAbaixo, 30, [], 0);
+    expect(escaladoAbaixo.flow).not.toContain("GAD-7");
+
+    const rCorte = scoreScale("GAD-2", { "1": 2, "2": 1 }); // score 3
+    const escaladoCorte = applyEscalations(plan, rCorte, 30, [], 0);
+    expect(escaladoCorte.flow).toContain("GAD-7");
   });
 });
 

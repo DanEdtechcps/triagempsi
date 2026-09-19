@@ -252,6 +252,7 @@ export const MBI_HSS: Scale = {
   domain: "ocupacional",
   status: "ativa",
   minAge: 18,
+  quietIfOutOfRange: true,
   instructions: "Pensando no seu trabalho habitual, com que frequência você vivencia cada uma destas sensações?",
   timeframe: "No trabalho atual",
   options: [
@@ -293,6 +294,7 @@ export const CRAFFT: Scale = {
   status: "ativa",
   minAge: 11,
   maxAge: 21,
+  quietIfOutOfRange: true,
   instructions: "Responda com sinceridade sim ou não sobre os últimos 12 meses.",
   timeframe: "Últimos 12 meses",
   options: OPTS_0_1_SIM_NAO,
@@ -443,6 +445,7 @@ export const ASRS_C: Scale = {
   domain: "tdah",
   status: "ativa",
   maxAge: 17,
+  quietIfOutOfRange: true,
   informantMode: "ambos",
   instructions: "Avalie a frequência com que a criança/adolescente apresenta os seguintes comportamentos.",
   timeframe: "Últimos 6 meses",

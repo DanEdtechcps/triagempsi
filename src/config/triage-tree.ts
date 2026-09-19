@@ -205,8 +205,8 @@ export const ROUTING_RULES: RoutingRule[] = [
   {
     symptom: "substancias",
     byBand: {
-      adolescente: ["AUDIT-C", "ASSIST"],
-      adulto: ["AUDIT-C", "CAGE", "ASSIST"],
+      adolescente: ["AUDIT-C", "CRAFFT", "ASSIST"],
+      adulto: ["AUDIT-C", "CRAFFT", "CAGE", "ASSIST"],
       idoso: ["AUDIT-C", "CAGE", "ASSIST"],
     },
     noteByBand: {
@@ -237,8 +237,8 @@ export const ROUTING_RULES: RoutingRule[] = [
   {
     symptom: "atencao",
     byBand: {
-      crianca: ["SNAP-IV"],
-      adolescente: ["SNAP-IV"],
+      crianca: ["SNAP-IV", "ASRS-C"],
+      adolescente: ["SNAP-IV", "ASRS-C"],
       adulto: ["ASRS-18"],
       idoso: ["ASRS-18"],
     },
@@ -300,21 +300,22 @@ export const ROUTING_RULES: RoutingRule[] = [
   {
     symptom: "neuro",
     byBand: {
-      adolescente: ["AQ-10"],
       adulto: ["AQ-10"],
       idoso: ["AQ-10"],
     },
     noteByBand: {
       crianca:
-        "Suspeita de traços do espectro autista na infância — encaminhar para avaliação especializada",
+        "Sinais de espectro autista em menores de 18 anos — avaliação clínica especializada com anamnese de desenvolvimento",
+      adolescente:
+        "Sinais de espectro autista em menores de 18 anos — avaliação clínica especializada com anamnese de desenvolvimento",
     },
   },
   {
     symptom: "trabalho",
     byBand: {
       adolescente: ["COPSOQ-BR"],
-      adulto: ["COPSOQ-BR"],
-      idoso: ["COPSOQ-BR"],
+      adulto: ["COPSOQ-BR", "MBI-HSS"],
+      idoso: ["COPSOQ-BR", "MBI-HSS"],
     },
     noteByBand: {
       crianca: "Trabalho infantil relatado — acionar rede de proteção",
@@ -597,6 +598,7 @@ const ORDER = [
   "AUDIT-C",
   "AUDIT",
   "CAGE",
+  "CRAFFT",
   "ASSIST",
   "FTND",
   "PGSI",
@@ -605,8 +607,10 @@ const ORDER = [
   "PCL-5",
   "PHQ-15",
   "SNAP-IV",
+  "ASRS-C",
   "ASRS-18",
   "AQ-10",
+  "MBI-HSS",
   "COPSOQ-BR",
 ];
 

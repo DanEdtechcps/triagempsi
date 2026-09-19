@@ -276,7 +276,8 @@ export const AQ10: Scale = {
   fullName: "Rastreio de traços do espectro autista (10 itens)",
   domain: "neurodesenvolvimento",
   status: "ativa",
-  minAge: 16,
+  minAge: 18,
+  quietIfOutOfRange: true,
   informantMode: "ambos",
   instructions:
     "Indique se você concorda ou discorda de cada afirmação, pensando em como você é na maior parte do tempo.",
