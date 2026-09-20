@@ -1,149 +1,197 @@
 /**
  * scenarios.ts — Cenários pré-configurados de simulação OpenMAIC.
  *
- * Fluxo A — CLINICAL_CASE (Corte800 / CENE):
- *   Simulações de anamnese, rounds médicos e discussão de condutas.
+ * Fonte dos casos clínicos CLINICAL_CASE (5 Casos Autorais Dr. Saraiva):
+ *   1. Bipolaridade I vs. Hipomania ("Episódio de humor em jovem universitária")
+ *   2. Síndrome de Ekbom por Cocaína ("Infestação que ninguém mais vê" — Saraiva Jr et al., 2015)
+ *   3. Alcoolismo Geriátrico ("O uísque das seis da tarde" — Saraiva Jr & Diehl, 2014)
+ *   4. Desmame de Benzodiazepínicos ("A receita renovada há doze anos" — Saraiva Jr & Diehl, 2014)
+ *   5. Delirium Tremens na Internação ("O senhor que ninguém perguntou")
  *
- * Fluxo B — HARM_REDUCTION (Caminhos Campinas — caminhos-cps.social):
- *   Simulações de desescalada e escuta humanizada para equipes SUS/SUAS.
- *
- * IMPORTANTE: Nenhum dado real de paciente aqui. Apenas personas fictícias
- * com fins exclusivamente pedagógicos.
+ * Fonte dos casos HARM_REDUCTION (Caminhos Campinas / caminhos-cps.social):
+ *   1. Abordagem de Redução de Danos para Crack na Rua
+ *   2. Desescalada em Crise por Álcool no SUAS/CRAS
  */
 
 import type { ScenarioConfig } from "./types";
 
-// ── FLUXO A: Discussão de Caso Clínico / Preceptoria ─────────────────────────
+// ── FLUXO A: Casos Clínicos Autorais do Dr. Saraiva (Corte 800 / CENE) ──────
 
 export const CLINICAL_CASE_SCENARIOS: ScenarioConfig[] = [
   {
-    id: "cc-001-depressao-maior-idoso",
+    id: "cc-001-bipolaridade-jovem",
     flow: "CLINICAL_CASE",
-    title: "Depressão Maior em Idoso com Polimedicação",
+    title: "Episódio de humor em jovem universitária (Mania vs. Hipomania)",
     description:
-      "Paciente fictício de 72 anos, masculino, com queixa de tristeza, anedonia e insônia " +
-      "há 4 meses. Polimedicado (anti-hipertensivo, estatina, metformina). Caso focado em " +
-      "diagnóstico diferencial, triagem com GDS-15 e conduta medicamentosa segura.",
+      "Mulher de 22 anos trazida pela mãe. Dorme 3 horas por noite sem cansaço há 10 dias, " +
+      "projetos múltiplos simultâneos, taquipsiquismo e gastos impulsivos. Episódio depressivo prévio há 2 anos.",
+    agent_roles: ["preceptor", "resident", "patient"],
+    max_turns: 20,
+    seed_data: {
+      patient_age: 22,
+      patient_sex: "F",
+      source_reference: "Autoral Dr. José Saraiva Junior · Corte 800",
+      chief_complaint: "Dorme 3h/noite sem cansaço há 10 dias, gastos impulsivos que 'vão virar negócio'",
+      past_history: "Episódio depressivo prévio (tristeza, hipersonia, anedonia por 3 meses) há 2 anos",
+      key_diagnostics: "Transtorno Bipolar Tipo I, episódio maníaco atual",
+      differential_rationale: "Prejuízo funcional grave com repercussão financeira diferencia mania de hipomania",
+      pharmacotherapy: "Estabilizador do humor (Lítio) em monoterapia. Contraindicado ISRS isolado (risco de virada e ciclagem rápida)",
+      learning_objectives: [
+        "Identificar critérios DSM-5 para episódio maníaco",
+        "Diferenciar mania de hipomania com base em gravidade e impacto funcional",
+        "Prescrever estabilizador do humor de 1ª linha e evitar antidepressivo em monoterapia"
+      ]
+    }
+  },
+  {
+    id: "cc-002-ekbom-cocaina",
+    flow: "CLINICAL_CASE",
+    title: "Infestação que ninguém mais vê (Síndrome de Ekbom induzida por Cocaína)",
+    description:
+      "Homem de 41 anos com escoriações lineares e convicção de 'bichinhos sob a pele', trazendo pote com fragmentos de pele. " +
+      "Uso diário de cocaína aspirada há semanas. Baseado no trabalho científico de Saraiva Junior et al. (2015).",
+    agent_roles: ["preceptor", "specialist", "patient"],
+    max_turns: 20,
+    seed_data: {
+      patient_age: 41,
+      patient_sex: "M",
+      source_reference: "SARAIVA JUNIOR, J.R.F.; MARCON, G.; REAL, A.G. Síndrome de Ekbom Induzida por Cocaína (2015)",
+      chief_complaint: "Convicção de infestação parasitária subcutânea, trazendo fragmentos em pote ('sinal do pote')",
+      physical_exam: "Escoriações secundárias nos antebraços e couro cabeludo; sem lesão dermatológica primária",
+      key_diagnostics: "Delírio de infestação (Síndrome de Ekbom) secundário ao uso de estimulante",
+      clinical_conduct: "Suspensão do estimulante, antipsicótico em dose baixa e manejo acolhedor SEM confrontação direta do delírio",
+      learning_objectives: [
+        "Reconhecer a Síndrome de Ekbom secundária à formicação induzida por estimulantes",
+        "Evitar confronto direto com o delírio para preservar a aliança terapêutica",
+        "Articular conduta conjunta entre psiquiatria e dermatologia"
+      ]
+    }
+  },
+  {
+    id: "cc-003-alcool-idoso",
+    flow: "CLINICAL_CASE",
+    title: "O uísque das seis da tarde (Uso Problemático de Álcool no Idoso)",
+    description:
+      "Homem de 72 anos aposentado com quedas repetidas, esquecimentos e garrafas escondidas. " +
+      "Nega problema com álcool ('só uma dose de sempre'). Baseado em Saraiva Junior & Diehl (Ed. Berthier, 2014).",
     agent_roles: ["preceptor", "resident", "patient"],
     max_turns: 20,
     seed_data: {
       patient_age: 72,
       patient_sex: "M",
-      chief_complaint: "tristeza e falta de interesse há 4 meses",
-      current_medications: ["metformina 500mg", "losartana 50mg", "atorvastatina 20mg"],
-      scales_to_apply: ["GDS-15", "PHQ-2"],
+      source_reference: "SARAIVA JUNIOR, J.R.F.; DIEHL, A.A. Utilização de substâncias psicoativas em idosos (Ed. Berthier, 2014)",
+      chief_complaint: "Quedas repetidas, esquecimentos e irritabilidade; viúvo recente; parou caminhadas",
+      pharmacokinetics: "Menor água corporal, metabolismo hepático lento e polifarmácia amplificam a mesma dose de décadas",
+      screening_tool: "AUDIT-C adaptado para idosos, aplicado na consulta sem postura acusatória",
+      clinical_conduct: "Intervenção breve motivacional (FRAMES), revisão da polifarmácia e reinserção social",
       learning_objectives: [
-        "Reconhecer apresentação atípica de depressão no idoso",
-        "Aplicar GDS-15 com técnica adequada de rapport",
-        "Identificar interações medicamentosas relevantes",
-        "Diferenciar depressão de quadro demencial incipiente (AD-8)",
-      ],
-    },
+        "Compreender a vulnerabilidade farmacocinética do idoso ao álcool",
+        "Aplicar rastreio AUDIT-C sem confrontação",
+        "Identificar o luto e isolamento como mantenedores do consumo"
+      ]
+    }
   },
   {
-    id: "cc-002-transtorno-panico-jovem",
+    id: "cc-004-desmame-bzd-idoso",
     flow: "CLINICAL_CASE",
-    title: "Transtorno do Pânico em Adulto Jovem — Abordagem TCC",
+    title: "A receita renovada há doze anos (Desmame de Benzodiazepínicos em Idosos)",
     description:
-      "Paciente fictício de 28 anos com crises de pânico recorrentes há 6 meses, " +
-      "evitação agorafóbica incipiente. Caso focado em psicoeducação, triagem com " +
-      "SRQ-20 e plano de tratamento TCC + farmacológico.",
-    agent_roles: ["preceptor", "specialist", "resident"],
-    max_turns: 18,
+      "Mulher de 76 anos em uso contínuo de benzodiazepínico há 12 anos para dormir. " +
+      "Sonolência diurna, queda no banheiro, lapsos de memória e abstinência severa ao tentar parar sozinha. (Saraiva Jr & Diehl, 2014).",
+    agent_roles: ["preceptor", "specialist", "patient"],
+    max_turns: 22,
     seed_data: {
-      patient_age: 28,
+      patient_age: 76,
       patient_sex: "F",
-      chief_complaint: "crises de sufocamento e taquicardia com medo de morrer",
-      scales_to_apply: ["SRQ-20", "PHQ-2"],
+      source_reference: "SARAIVA JUNIOR, J.R.F.; DIEHL, A.A. Adicções em Idosos (Ed. Berthier, 2014)",
+      chief_complaint: "Uso de BZD há 12 anos; mal-estar intenso na interrupção abrupta (dependência fisiológica iatrogênica)",
+      risks: "Quedas com fratura de fêmur, sedação diurna e declínio cognitivo mimetizando demência",
+      tapering_protocol: "Desmame gradual programado (10-25% a cada 1-2 semanas) com suporte de TCC-I e higiene do sono",
+      interdisciplinary_team: "Prescritor, enfermagem, farmacêutico e família orientada",
       learning_objectives: [
-        "Distinguir pânico de síndrome coronariana aguda",
-        "Apresentar modelo cognitivo do pânico ao residente",
-        "Planejar combinação ISRS + TCC com critérios de resposta",
-      ],
-    },
+        "Diagnosticar dependência iatrogênica de benzodiazepínicos no idoso",
+        "Executar protocolo de desmame gradual seguro sem interrupção abrupta",
+        "Implementar intervenções não farmacológicas para o sono (TCC-I)"
+      ]
+    }
   },
   {
-    id: "cc-003-risco-suicidio-adolescente",
+    id: "cc-005-delirium-tremens",
     flow: "CLINICAL_CASE",
-    title: "Avaliação de Risco de Suicídio em Adolescente",
+    title: "O senhor que ninguém perguntou (Delirium Tremens na Internação Hospitalar)",
     description:
-      "Paciente fictício de 16 anos, referenciado pela escola após relatos de " +
-      "automutilação. Caso de alta complexidade — avaliação C-SSRS, plano de " +
-      "segurança e comunicação com responsáveis.",
-    agent_roles: ["preceptor", "specialist", "patient", "observer"],
-    max_turns: 25,
+      "Homem de 68 anos internado por pneumonia que desenvolve tremores, sudorese, agitação e alucinações visuais (zoopsias) no 3º dia. " +
+      "Omissão da história de consumo de álcool na admissão.",
+    agent_roles: ["preceptor", "resident", "observer"],
+    max_turns: 20,
     seed_data: {
-      patient_age: 16,
-      patient_sex: "F",
-      chief_complaint: "tristeza persistente e arranhões no braço",
-      scales_to_apply: ["C-SSRS", "PHQ-9"],
+      patient_age: 68,
+      patient_sex: "M",
+      source_reference: "Autoral Dr. José Saraiva Junior · Protocolo de Emergências Hospitalares",
+      chief_complaint: "Agitação psicomotora, tremores e alucinações visuais no 3º dia de internação clínica",
+      key_diagnostics: "Delirium Tremens (abstinência alcoólica grave em 48-96h) — emergência com alta mortalidade",
+      emergency_protocol: "Benzodiazepínico em esquema protocolado (Diazepam/Lorazepam), Tiamina parenteral precoce (prevenção de Wernicke) e suporte hidroeletrolítico",
+      systemic_prevention: "Rastreio obrigatório do consumo de álcool na admissão de todo paciente hospitalizado",
       learning_objectives: [
-        "Aplicar C-SSRS com abordagem não-estigmatizante",
-        "Diferenciar ideação passiva de planejamento ativo",
-        "Elaborar plano de segurança com paciente e família",
-        "Documentar corretamente o risco (prontuário / notificação)",
-      ],
-      alert_triggers: ["C-SSRS >= 3", "PHQ-9 item 9 >= 1"],
-    },
-  },
+        "Reconhecer Delirium Tremens precocemente em enfermarias clínicas",
+        "Instituir protocolo de sedação e reposição de tiamina antes da glicose",
+        "Superar o etarismo no rastreio sistemático de substâncias na admissão"
+      ]
+    }
+  }
 ];
 
-// ── FLUXO B: Redução de Danos / Abordagem de Rua ────────────────────────────
+// ── FLUXO B: Redução de Danos & Abordagem de Rua (Caminhos Campinas) ────────
 
 export const HARM_REDUCTION_SCENARIOS: ScenarioConfig[] = [
   {
     id: "hr-001-abordagem-crack-rua",
     flow: "HARM_REDUCTION",
-    title: "Primeira Abordagem — Usuário de Crack em Situação de Rua",
+    title: "Primeira Abordagem — Pessoa em Uso de Crack em Situação de Rua",
     description:
-      "Persona fictícia de homem de ~40 anos em situação de rua há 2 anos, " +
-      "uso pesado de crack, desconfiante da equipe. Treino de desescalada, " +
-      "escuta ativa e oferta de redução de danos sem imposição de abstinência.",
+      "Persona de ~40 anos em situação de rua há 2 anos, uso de crack, desconfiança da rede institucional. " +
+      "Treino de desescalada, vínculo e redução de danos sem exigência prévia de abstinência (caminhos-cps.social).",
     agent_roles: ["counselor", "supervisor", "street_person"],
-    max_turns: 15,
+    max_turns: 18,
     seed_data: {
       persona_age_approx: 40,
       substance: "crack",
       time_on_street_years: 2,
       trust_level: "low",
       learning_objectives: [
-        "Abordagem sem julgamento e sem imposição de metas",
-        "Técnicas de escuta reflexiva e validação emocional",
-        "Oferta de insumos de redução de danos (cachimbo higiênico, água)",
-        "Mapeamento de vínculos afetivos e motivação para mudança",
-        "Reconhecimento de sinais de crise aguda e protocolo de encaminhamento CAPS-AD",
+        "Abordagem sem julgamento moral e sem impor abstinência como condição de atendimento",
+        "Aplicação de escuta ativa, validação e acolhimento de demandas imediatas (água, alimentação, curativos)",
+        "Oferta de insumos de redução de danos (piteiras, protetor labial, água potável)",
+        "Pactuação de plano de cuidado compartilhado no CAPS-AD e Centro Pop"
       ],
       ethical_guardrails: [
-        "Nunca romantizar uso de substâncias",
-        "Nunca prometer resultados não garantíveis",
-        "Respeitar autonomia — oferecer, não impor",
-      ],
-    },
+        "Nunca romantizar nem criminalizar o uso de substâncias",
+        "Respeitar o protagonismo e o tempo da pessoa atendida",
+        "Garantir sigilo e proteção contra violência institucional"
+      ]
+    }
   },
   {
     id: "hr-002-desescalada-crise-alcool",
     flow: "HARM_REDUCTION",
-    title: "Desescalada em Crise por Álcool — SUAS / CRAS",
+    title: "Desescalada em Crise por Álcool — Equipe SUAS / CRAS",
     description:
-      "Persona fictícia de mulher de ~35 anos em crise etílica moderada, " +
-      "acompanhada de filha. Cenário de abordagem no CRAS com suporte emocional, " +
-      "triagem AUDIT e referenciamento para CAPS-AD.",
+      "Mulher de ~35 anos em sofrimento e intoxicação etílica moderada no atendimento social. " +
+      "Manejo de crise verbal, prevenção de violência e integração intersetorial SUS/SUAS.",
     agent_roles: ["counselor", "supervisor", "street_person", "observer"],
-    max_turns: 15,
+    max_turns: 16,
     seed_data: {
       persona_age_approx: 35,
-      substance: "alcohol",
-      setting: "CRAS",
-      family_present: true,
-      scales_to_apply: ["AUDIT"],
+      substance: "álcool",
+      setting: "Unidade de Assistência Social (CRAS)",
       learning_objectives: [
-        "Gestão emocional do profissional em situação de pressão",
-        "Avaliação rápida de segurança (criança presente)",
-        "Aplicação simplificada do AUDIT em crise",
-        "Encaminhamento humanizado para CAPS-AD",
-      ],
-    },
-  },
+        "Técnicas de desescalada verbal em ambiente social",
+        "Identificação de sinais de abstinência grave vs. intoxicação aguda",
+        "Articulação intersetorial entre SUAS, Atenção Básica e CAPS-AD",
+        "Construção de projeto terapêutico singular (PTS)"
+      ]
+    }
+  }
 ];
 
 // ── Index combinado ────────────────────────────────────────────────────────────
