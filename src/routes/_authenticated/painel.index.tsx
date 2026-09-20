@@ -160,6 +160,21 @@ function PainelLista() {
   }, []);
 
   useEffect(() => {
+    function handleTenantChange(e: Event) {
+      const detail = (e as CustomEvent<string>).detail;
+      if (detail) {
+        setClinicFilter(detail);
+      }
+    }
+    window.addEventListener("tenant-changed", handleTenantChange);
+    const saved = localStorage.getItem("triagem_active_clinic_id");
+    if (saved) {
+      setClinicFilter(saved);
+    }
+    return () => window.removeEventListener("tenant-changed", handleTenantChange);
+  }, []);
+
+  useEffect(() => {
     setPagina(1);
   }, [
     busca,

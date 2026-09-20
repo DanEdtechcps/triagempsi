@@ -23,6 +23,98 @@ export type ClinicPsychoOverride = {
   auto_trigger: boolean;
 };
 
+export type PsychoTriggerSpec = {
+  topicSlug: string;
+  title: string;
+  scales: string[];
+  criterion: string;
+  priority: "urgente" | "rotina";
+  description: string;
+};
+
+export const PSYCHOEDUCATION_TRIGGER_SPECS: PsychoTriggerSpec[] = [
+  {
+    topicSlug: "crise-emocional",
+    title: "Crise emocional e apoio prioritário",
+    scales: ["PHQ-9 (Item 9)", "C-SSRS", "RISK-COMPOSITE"],
+    criterion: "PHQ-9 item 9 ≥ 1, C-SSRS positivo ou via de risco clínico",
+    priority: "urgente",
+    description: "Aciona acolhimento de emergência, canais CVV 188 / SAMU 192 e plano de segurança.",
+  },
+  {
+    topicSlug: "depressao-humor",
+    title: "Depressão e humor baixo",
+    scales: ["PHQ-9", "PHQ-2"],
+    criterion: "PHQ-9 ≥ 10 ou PHQ-2 ≥ 3",
+    priority: "rotina",
+    description: "Orientações de TCC, ativação comportamental e higiene circadiana.",
+  },
+  {
+    topicSlug: "ansiedade-preocupacao",
+    title: "Ansiedade e preocupação excessiva",
+    scales: ["GAD-7", "GAD-2"],
+    criterion: "GAD-7 ≥ 10 ou GAD-2 ≥ 3",
+    priority: "rotina",
+    description: "Técnicas de respiração 4-4-6, Grounding 5-4-3-2-1 e regulação cognitiva.",
+  },
+  {
+    topicSlug: "insonia-sono",
+    title: "Insônia e higiene do sono",
+    scales: ["ISI"],
+    criterion: "ISI ≥ 15 (insônia clínica)",
+    priority: "rotina",
+    description: "Diretrizes de TCC-I, controle de estímulos e regra dos 25 minutos.",
+  },
+  {
+    topicSlug: "tdah-adultos",
+    title: "TDAH em adultos (atenção e organização)",
+    scales: ["ASRS-18"],
+    criterion: "ASRS-18 Parte A positiva ou faixa moderada/grave",
+    priority: "rotina",
+    description: "Estratégias de funções executivas, micropassos e externalização mental.",
+  },
+  {
+    topicSlug: "oscilacoes-humor",
+    title: "Oscilações de humor (espectro bipolar)",
+    scales: ["MDQ"],
+    criterion: "MDQ positivo (≥ 7 itens concomitantes com prejuízo)",
+    priority: "rotina",
+    description: "Estabilidade de ritmo biológico e vigilância de sintomas de aceleração.",
+  },
+  {
+    topicSlug: "alcool-substancias",
+    title: "Álcool e substâncias",
+    scales: ["AUDIT", "DAST-10", "CRAFFT"],
+    criterion: "AUDIT ≥ 8, DAST-10 ≥ 3 ou CRAFFT ≥ 2",
+    priority: "rotina",
+    description: "Redução progressiva de danos sem estigma ou julgamento moral.",
+  },
+  {
+    topicSlug: "trauma-tept",
+    title: "Trauma e estresse pós-traumático",
+    scales: ["PCL-5"],
+    criterion: "PCL-5 ≥ 31 (rastreio provável de TEPT)",
+    priority: "rotina",
+    description: "Psicoeducação sobre intrusão/hiperativação e caminhos de restabelecimento seguro.",
+  },
+  {
+    topicSlug: "burnout-esgotamento",
+    title: "Burnout e esgotamento",
+    scales: ["MBI-HSS", "PSS-10"],
+    criterion: "MBI-HSS exaustão ≥ 28 ou PSS-10 ≥ 27",
+    priority: "rotina",
+    description: "Dimensões do esgotamento laboral e desconexão digital protetora.",
+  },
+  {
+    topicSlug: "bem-estar-prevencao",
+    title: "Bem-estar e prevenção na vida e no envelhecimento",
+    scales: ["WHO-5"],
+    criterion: "WHO-5 ≤ 12 (baixo bem-estar) ou disparado universalmente",
+    priority: "rotina",
+    description: "BDNF, vínculos presenciais, senso de propósito e dignidade no envelhecimento.",
+  },
+];
+
 // Re-exports de Plano de Segurança e Apoio à Decisão Clínica
 export * from "./safety-plan";
 export * from "./clinical-decision-support";

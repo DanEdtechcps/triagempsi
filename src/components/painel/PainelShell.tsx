@@ -48,7 +48,9 @@ import {
 } from "@/components/ui/sheet";
 import { BRANDING } from "@/config/branding";
 import { GuardAreaProfissional } from "@/components/painel/GuardAreaProfissional";
-import { getMyAccess } from "@/lib/painel.functions";
+import { getMyAccess, type MyAccess } from "@/lib/painel.functions";
+import { TenantProvider, useTenant } from "@/context/TenantContext";
+import { TenantSwitcher } from "@/components/painel/TenantSwitcher";
 
 /**
  * Layout do painel profissional (Cockpit Médico).
@@ -69,9 +71,18 @@ export function PainelShell(props: {
   action?: ReactNode;
   children: ReactNode;
 }) {
+  const fetchAccess = useServerFn(getMyAccess);
+  const { data: access } = useQuery({
+    queryKey: ["my-access"],
+    queryFn: () => fetchAccess({}),
+    staleTime: 5 * 60 * 1000,
+  });
+
   return (
     <GuardAreaProfissional>
-      <PainelShellContent {...props} />
+      <TenantProvider access={access}>
+        <PainelShellContent {...props} access={access} />
+      </TenantProvider>
     </GuardAreaProfissional>
   );
 }
@@ -129,9 +140,9 @@ const CLINICAL_GUIDELINES: NavLink[] = [
   },
   {
     to: "/materiais",
-    label: "Materiais Clínicos",
-    description: "Modelos e materiais de apoio impresso",
-    icon: <FolderOpen className="h-4 w-4 text-indigo-600" />,
+    label: "Cockpit de Psicoeducação",
+    description: "10 temas de TCC, prevenção e guias práticos",
+    icon: <BookOpen className="h-4 w-4 text-indigo-600" />,
   },
   {
     to: "/ocupacional",
@@ -207,10 +218,12 @@ function PainelShellContent({
   title,
   action,
   children,
+  access: propAccess,
 }: {
   title: string;
   action?: ReactNode;
   children: ReactNode;
+  access?: MyAccess;
 }) {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -219,15 +232,17 @@ function PainelShellContent({
   const pathname = useRouterState({ select: (s) => s.location.pathname });
 
   const fetchAccess = useServerFn(getMyAccess);
-  const { data: access } = useQuery({
+  const { data: queryAccess } = useQuery({
     queryKey: ["my-access"],
     queryFn: () => fetchAccess({}),
     staleTime: 5 * 60 * 1000,
   });
+  const access = propAccess ?? queryAccess;
 
-  const activeClinic = access?.clinics?.[0];
-  const activeSlug = activeClinic?.slug ?? "saraiva";
-  const clinicDisplayName = activeClinic?.name ?? BRANDING.clinicName;
+  const { activeClinic, activeSlug, isGlobalAdmin } = useTenant();
+  const clinicDisplayName =
+    activeClinic?.name ??
+    (isGlobalAdmin ? "Todas as Clínicas (Global)" : BRANDING.clinicName);
 
   async function signOut() {
     await queryClient.cancelQueries();
@@ -263,9 +278,9 @@ function PainelShellContent({
       {/* Header Principal */}
       <header className="sticky top-0 z-30 border-b border-border bg-card/95 backdrop-blur print:hidden">
         <div className="mx-auto flex max-w-6xl items-center justify-between gap-3 px-4 py-2.5 sm:px-6">
-          {/* Lado Esquerdo: Identidade do Consultório */}
-          <div className="flex min-w-0 items-center gap-3">
-            <Link to="/painel" className="flex items-center gap-2.5 min-w-0">
+          {/* Lado Esquerdo: Identidade do Consultório & Tenant Switcher */}
+          <div className="flex min-w-0 items-center gap-2 sm:gap-3">
+            <Link to="/painel" className="flex items-center gap-2 shrink-0">
               {BRANDING.logoUrl ? (
                 <img
                   src={BRANDING.logoUrl}
@@ -277,15 +292,10 @@ function PainelShellContent({
                   <Sparkles className="h-4 w-4" />
                 </div>
               )}
-              <div className="min-w-0">
-                <div className="truncate font-serif text-sm font-semibold sm:text-base leading-tight">
-                  {clinicDisplayName}
-                </div>
-                <div className="truncate text-xs text-muted-foreground">
-                  Cockpit Clínico
-                </div>
-              </div>
             </Link>
+            <div className="min-w-0">
+              <TenantSwitcher />
+            </div>
           </div>
 
           {/* Lado Direito: Ações Rápidas & Menu do Usuário */}
@@ -547,7 +557,7 @@ function PainelShellContent({
           <SheetHeader className="pb-3 text-left border-b border-border">
             <SheetTitle className="font-serif text-lg">Hub do Consultório</SheetTitle>
             <p className="text-xs text-muted-foreground">
-              {clinicDisplayName} · Dr. José Ribamar F. Saraiva Jr.
+              {clinicDisplayName} · Cockpit Clínico
             </p>
           </SheetHeader>
 
