@@ -115,7 +115,7 @@ No painel **Authentication -> Users**, crie os seguintes acessos (marcando **Aut
 ```bash
 bun run test
 ```
-*Critério de Aceite:* **204 testes aprovados** (100% verde em 16 arquivos de teste, cobrindo CAT/TRI, Dwell-Time, Grafo DAG, Schemas JSON e RLS multi-tenant).
+*Critério de Aceite:* **208 testes aprovados** (100% verde em 17 arquivos de teste, cobrindo CAT/TRI, Dwell-Time, Grafo DAG, Schemas JSON, RLS multi-tenant e segurança de borda).
 
 ### Passo 4.2: Verificação Estrita de Tipagem TypeScript
 ```bash

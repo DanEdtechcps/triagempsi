@@ -1,5 +1,6 @@
 /**
  * Server Functions para o Módulo de Psicoeducação - TriagemPsi
+ * Blindagem Multi-Tenant e conformidade estrita com RLS.
  */
 
 import { createServerFn } from "@tanstack/react-start";
@@ -29,7 +30,7 @@ export type AssessmentPsychoItem = {
 
 /**
  * Retorna as recomendações de psicoeducação vinculadas a uma avaliação.
- * Se ainda não foram persistidas no banco, calcula em tempo real usando o motor puro.
+ * Valida o acesso à avaliação através de context.supabase (RLS do PostgreSQL).
  */
 export const getAssessmentPsychoeducation = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
@@ -37,9 +38,21 @@ export const getAssessmentPsychoeducation = createServerFn({ method: "GET" })
     z.object({ assessment_id: z.string().uuid() }).parse(raw),
   )
   .handler(async ({ data, context }): Promise<AssessmentPsychoItem[]> => {
+    // 1. Validação estrita de barreira multi-tenant via RLS do PostgreSQL
+    const { data: assessment, error: aErr } = await context.supabase
+      .from("assessments")
+      .select("id, clinic_id")
+      .eq("id", data.assessment_id)
+      .maybeSingle();
+
+    if (aErr || !assessment) {
+      const { accessDeniedError } = await import("@/lib/access-error");
+      throw accessDeniedError("Avaliação não encontrada ou sem permissão de acesso para o seu perfil.");
+    }
+
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    // 1. Tenta buscar da tabela assessment_psychoeducation
+    // 2. Tenta buscar da tabela assessment_psychoeducation
     const { data: dbRecords, error } = await supabaseAdmin
       .from("assessment_psychoeducation")
       .select("topic_id, trigger_reason, is_manual, viewed_at, psychoeducation_topics(slug)")
@@ -72,8 +85,8 @@ export const getAssessmentPsychoeducation = createServerFn({ method: "GET" })
       return items;
     }
 
-    // 2. Se não encontrou no banco, calcula a partir dos resultados da triagem
-    const { data: scaleResults } = await supabaseAdmin
+    // 3. Se não encontrou no banco, calcula a partir dos resultados da triagem
+    const { data: scaleResults } = await context.supabase
       .from("scale_results")
       .select("scale_code, score, band, band_level, risk, answers")
       .eq("assessment_id", data.assessment_id);
@@ -108,6 +121,7 @@ export const getAssessmentPsychoeducation = createServerFn({ method: "GET" })
 
 /**
  * Permite ao médico liberar manualmente um material de psicoeducação para o paciente.
+ * Valida a autorização via RLS antes de persistir o material.
  */
 export const releaseManualPsychoeducation = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -121,6 +135,18 @@ export const releaseManualPsychoeducation = createServerFn({ method: "POST" })
       .parse(raw),
   )
   .handler(async ({ data, context }) => {
+    // 1. Validação estrita de barreira multi-tenant via RLS do PostgreSQL
+    const { data: assessment, error: aErr } = await context.supabase
+      .from("assessments")
+      .select("id, clinic_id")
+      .eq("id", data.assessment_id)
+      .maybeSingle();
+
+    if (aErr || !assessment) {
+      const { accessDeniedError } = await import("@/lib/access-error");
+      throw accessDeniedError("Avaliação não encontrada ou sem permissão de acesso para o seu perfil.");
+    }
+
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     // Localiza o topic_id
@@ -156,6 +182,7 @@ export const releaseManualPsychoeducation = createServerFn({ method: "POST" })
 
 /**
  * Registra a visualização do material pelo paciente no Portal.
+ * Valida a identidade e escopo da avaliação antes de gravar.
  */
 export const markPsychoeducationViewed = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -168,6 +195,18 @@ export const markPsychoeducationViewed = createServerFn({ method: "POST" })
       .parse(raw),
   )
   .handler(async ({ data, context }) => {
+    // 1. Validação estrita de barreira multi-tenant via RLS do PostgreSQL
+    const { data: assessment, error: aErr } = await context.supabase
+      .from("assessments")
+      .select("id, clinic_id")
+      .eq("id", data.assessment_id)
+      .maybeSingle();
+
+    if (aErr || !assessment) {
+      const { accessDeniedError } = await import("@/lib/access-error");
+      throw accessDeniedError("Avaliação não encontrada ou sem permissão de acesso para o seu perfil.");
+    }
+
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     const { data: topic } = await supabaseAdmin

@@ -69,7 +69,7 @@ A plataforma opera com governança baseada em papéis federados (`user_roles`), 
 | **Hospedagem de Borda** | Cloudflare Workers | Latest | Execução serverless global com latência < 25ms em território brasileiro. |
 | **Banco de Dados & Auth** | Supabase (PostgreSQL 15) | Latest | RLS granular por tenant, sessões JWT, enum roles e pgcrypto. |
 | **Storage de Mídia** | Supabase Storage | Latest | Bucket `landing` para logos institucionais e identidades visuais. |
-| **Motor de Testes** | Vitest | v3.0+ | Suíte automatizada com 204 testes (16 suítes) cobrindo regras clínicas e infra. |
+| **Motor de Testes** | Vitest | v3.0+ | Suíte automatizada com 208 testes (17 suítes) cobrindo regras clínicas, segurança e infra. |
 
 ---
 
@@ -150,5 +150,5 @@ triagem-medica/
 
 O código no repositório `origin/main` obedece rigorosamente a três critérios inegociáveis antes de qualquer deploy ou publicação:
 1. **Verificação de Tipos TypeScript:** `bun x tsc --noEmit` deve retornar **0 erros**.
-2. **Suíte Completa de Testes:** `bun run test` deve executar e aprovar **204 testes em 16 arquivos**.
+2. **Suíte Completa de Testes:** `bun run test` deve executar e aprovar **208 testes em 17 arquivos** (incluindo testes de cabeçalhos de borda, CSP, HSTS e expurgo de PII).
 3. **Build de Produção:** `bun run build` deve compilar sem avisos críticos em menos de 2 segundos.

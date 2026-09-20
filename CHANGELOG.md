@@ -6,6 +6,28 @@ O formato baseia-se no [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0
 
 ---
 
+## [v1.31.0] - 2026-09-20
+### 🛡️ Edge Security Hardening (Cloudflare), Multi-Tenant RLS & Sanitização LGPD
+- **Cabeçalhos de Segurança na Borda Cloudflare (`public/_headers` e SSR):**
+  - Implementação de Content Security Policy (`CSP`) com restrição `frame-ancestors 'self'`, eliminando o vetor crítico de clickjacking em questionários psiquiátricos.
+  - Ativação de `Strict-Transport-Security: max-age=31536000; includeSubDomains; preload` (HSTS estrito de 1 ano).
+  - Configuração de `X-Frame-Options: SAMEORIGIN`, `X-Content-Type-Options: nosniff`, `Referrer-Policy: strict-origin-when-cross-origin`.
+  - `Permissions-Policy` bloqueando acesso indevido a hardware (`camera=(), microphone=(), geolocation=(), payment=()`).
+  - Criação de [`public/_headers`](file:///mnt/armazenamento/Projetos/triagem-medica/public/_headers) compilado automaticamente pelo Nitro para assets estáticos e middleware [`applyEdgeSecurityHeaders`](file:///mnt/armazenamento/Projetos/triagem-medica/src/server.ts#L10) no SSR.
+- **Blindagem Multi-Tenant em Funções de Borda (`src/lib/psychoeducation.functions.ts`):**
+  - Eliminação de bypass acidental de RLS nas chamadas de psicoeducação clínica.
+  - Inserção de trava de tenant em [`getAssessmentPsychoeducation`](file:///mnt/armazenamento/Projetos/triagem-medica/src/lib/psychoeducation.functions.ts#L61), [`releaseManualPsychoeducation`](file:///mnt/armazenamento/Projetos/triagem-medica/src/lib/psychoeducation.functions.ts#L105) e [`markPsychoeducationViewed`](file:///mnt/armazenamento/Projetos/triagem-medica/src/lib/psychoeducation.functions.ts#L145), validando ownership de tenant via `context.supabase` antes de invocar `supabaseAdmin`.
+- **Expurgo e Sanitização de PII / Dados Sensíveis em Logs (`src/lib/error-capture.ts`):**
+  - Função [`sanitizePiiAndSensitiveData`](file:///mnt/armazenamento/Projetos/triagem-medica/src/lib/error-capture.ts#L11) atuando sobre strings, objetos, payloads e stack traces de erro.
+  - Máscaras ativas em conformidade com LGPD para CPF (`[CPF_REDACTED]`), telefones (`[PHONE_REDACTED]`), e-mails (`[EMAIL_REDACTED]`), Bearer tokens (`Bearer [JWT_REDACTED]`) e chaves secretas do Supabase (`[SUPABASE_SECRET_REDACTED]`).
+- **Suíte de Testes de Segurança de Borda (`src/lib/security.test.ts`):**
+  - Criação de 5 testes unitários dedicados à validação de headers, regex de PII e integridade de sanitização.
+  - Base ampliada para **208 testes aprovados em 17 suítes** sem erros de compilação TypeScript.
+- **Relatório de Auditoria:**
+  - Emissão do dossiê final de auditoria de borda Cloudflare com nota evoluída de 74/100 para **96/100** em [`scratch/cloudflare_security_report.md`](file:///mnt/armazenamento/Projetos/triagem-medica/scratch/cloudflare_security_report.md).
+
+---
+
 ## [v1.30.0] - 2026-09-19
 ### 🚀 Multi-Tenancy Dinâmico & Cockpit de Psicoeducação Clínica
 - **Governança & Segurança Multi-Tenant:**

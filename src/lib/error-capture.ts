@@ -1,5 +1,6 @@
 // Captures the original Error out-of-band so server.ts can recover the stack
 // when h3 has already swallowed the throw into a generic 500 Response.
+// Inclui camada de sanitização LGPD / PII para expurgo em logs de borda.
 
 let lastCapturedError: { error: unknown; at: number } | undefined;
 const TTL_MS = 5_000;
@@ -8,10 +9,35 @@ function record(error: unknown) {
   lastCapturedError = { error, at: Date.now() };
 }
 
+// Regex de higienização de dados sensíveis e credenciais (LGPD)
+const PII_PATTERNS: Array<{ regex: RegExp; mask: string }> = [
+  // JWT / Bearer tokens
+  { regex: /Bearer\s+[A-Za-z0-9-_=]+\.[A-Za-z0-9-_=]+\.?[A-Za-z0-9-_.+/=]*/gi, mask: "Bearer [JWT_REDACTED]" },
+  // Supabase secret keys
+  { regex: /sb_secret_[A-Za-z0-9_-]+/gi, mask: "[SUPABASE_SECRET_REDACTED]" },
+  // E-mails
+  { regex: /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g, mask: "[EMAIL_REDACTED]" },
+  // Telefones celulares / WhatsApp (Brasil)
+  { regex: /(?:\+?55\s?)?(?:\(?\d{2}\)?\s?)?\d{4,5}[-\s]?\d{4}/g, mask: "[PHONE_REDACTED]" },
+  // CPFs
+  { regex: /\b\d{3}\.?\d{3}\.?\d{3}-?\d{2}\b/g, mask: "[CPF_REDACTED]" },
+];
+
+/**
+ * Expura dados de identificação pessoal (PII) e tokens de segurança de strings de log.
+ */
+export function sanitizeLogOutput(raw: string): string {
+  let clean = raw;
+  for (const { regex, mask } of PII_PATTERNS) {
+    clean = clean.replace(regex, mask);
+  }
+  return clean;
+}
+
 // h3's HTTPError serializes to {"status":500,"unhandled":true,"message":"HTTPError"} —
 // no stack, no cause — so a plain console.error(error) reaches the log pipeline with
 // the failure detail stripped. Expand Error-like args into a string that keeps the
-// message, stack, and the full cause chain.
+// message, stack, and the full cause chain, with PII sanitization.
 const CAUSE_DEPTH_LIMIT = 5;
 const DESCRIPTION_LENGTH_LIMIT = 8_000;
 
@@ -28,7 +54,8 @@ export function describeError(error: unknown): string {
     parts.push(`${label}${current.stack ?? `${current.name}: ${current.message}`}${status}`);
     current = current.cause;
   }
-  return parts.join("\n").slice(0, DESCRIPTION_LENGTH_LIMIT);
+  const serialized = parts.join("\n").slice(0, DESCRIPTION_LENGTH_LIMIT);
+  return sanitizeLogOutput(serialized);
 }
 
 function describeStatus(error: Error): string {
@@ -55,6 +82,9 @@ function isErrorLike(value: unknown): value is Error {
 const originalConsoleError = console.error.bind(console);
 console.error = (...args: unknown[]) => {
   const expanded = args.map((arg) => {
+    if (typeof arg === "string") {
+      return sanitizeLogOutput(arg);
+    }
     if (!isErrorLike(arg)) return arg;
     record(arg);
     return describeError(arg);
