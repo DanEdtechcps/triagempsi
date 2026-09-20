@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Slides — Desmame de Benzodiazepínicos | Dr. Saraiva</title>
+  <style>
+    :root {
+      --primary: #1e4d5c;
+      --accent: #3d8b8b;
+      --bg: #0B1920;
+      --card: #14252E;
+      --text: #F8FAFC;
+      --muted: #94A3B8;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+    .slide-deck {
+      width: 100%;
+      max-width: 960px;
+      background: var(--card);
+      border-radius: 16px;
+      border: 1px solid rgba(61, 139, 139, 0.3);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      height: 580px;
+    }
+    .slide-header {
+      padding: 20px 32px;
+      background: rgba(30, 77, 92, 0.4);
+      border-bottom: 1px solid rgba(61, 139, 139, 0.2);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .slide-body {
+      flex: 1;
+      padding: 40px 48px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    .slide-footer {
+      padding: 16px 32px;
+      background: rgba(11, 25, 32, 0.6);
+      border-top: 1px solid rgba(61, 139, 139, 0.2);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    h2 { font-size: 28px; color: var(--accent); margin-bottom: 20px; }
+    p { font-size: 18px; line-height: 1.6; color: var(--text); margin-bottom: 16px; }
+    ul { margin-left: 24px; font-size: 18px; line-height: 1.6; color: var(--muted); }
+    li { margin-bottom: 10px; }
+    li strong { color: var(--text); }
+    .btn {
+      background: var(--accent);
+      color: white;
+      border: none;
+      padding: 10px 24px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 15px;
+      transition: opacity 0.2s;
+    }
+    .btn:hover { opacity: 0.9; }
+    .btn:disabled { opacity: 0.3; cursor: not-allowed; }
+    .badge {
+      background: rgba(61, 139, 139, 0.2);
+      color: var(--accent);
+      padding: 4px 12px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+
+<div class="slide-deck">
+  <div class="slide-header">
+    <span class="badge">SARAIVA CLÍNICA · EDUCAÇÃO MÉDICA</span>
+    <span style="font-size: 13px; color: var(--muted);" id="slideCounter">Slide 1 de 5</span>
+  </div>
+
+  <div class="slide-body" id="slideContent">
+    <!-- Renderizado dinamicamente via JS -->
+  </div>
+
+  <div class="slide-footer">
+    <button class="btn" id="prevBtn" onclick="prevSlide()">Anterior</button>
+    <span style="font-size: 13px; color: var(--muted);">Navegue com as setas do teclado</span>
+    <button class="btn" id="nextBtn" onclick="nextSlide()">Próximo</button>
+  </div>
+</div>
+
+<script>
+  const slides = [
+    {
+      title: "Desmame Seguro de Benzodiazepínicos e TCC-I",
+      content: "<p><strong>Chancela Médica:</strong> Dr. José Saraiva Junior (CRM-RS 29349 · RQE 30038)</p><p>Abordagem interdisciplinar para dependência iatrogênica em idosos, prevenção de fraturas por quedas e restauração do sono com evidências cognitivo-comportamentais.</p>"
+    },
+    {
+      title: "1. A Farmacocinética do Envelhecimento",
+      content: "<ul><li><strong>Maior Adiposidade:</strong> Amplia o volume de distribuição de drogas lipossolúveis (acúmulo tecidual).</li><li><strong>Menor Água Corporal:</strong> Eleva a concentração sérica basal de fármacos hidrossolúveis e do álcool.</li><li><strong>Declínio Hepático (P450):</strong> Prolonga a meia-vida do diazepam e clonazepam por dias.</li></ul>"
+    },
+    {
+      title: "2. O Perigo das Quedas e Falsas Demências",
+      content: "<ul><li><strong>Ataxia e Sedação Diurna:</strong> Principal fator de risco para fraturas de colo de fêmur à noite.</li><li><strong>Pseudodemência Medicamentosa:</strong> Bloqueio na memória anterógrada mimetizando Alzheimer.</li><li><strong>Contraindicação:</strong> Suspensão abrupta causa convulsões e rebote grave.</li></ul>"
+    },
+    {
+      title: "3. O Protocolo de Desmame Escalonado",
+      content: "<ul><li><strong>Velocidade:</strong> Redução de 10% a 25% a cada 7 a 14 dias.</li><li><strong>Fase Final Crítica:</strong> Nos últimos 25%, estender o intervalo para 2 a 4 semanas.</li><li><strong>Regra de Ouro:</strong> Em abstinência tolerável, manter a dose estabilizada (sem aumentar).</li></ul>"
+    },
+    {
+      title: "4. Os 4 Pilares da TCC-I",
+      content: "<ul><li><strong>Controle de Estímulos:</strong> Cama apenas para sono; levantar em 20 min se acordado.</li><li><strong>Restrição de Sono:</strong> Concentrar o sono aumentando a pressão homeostática.</li><li><strong>Higiene do Sono:</strong> Cessar cafeína às 14h; banho morno e quarto fresco e escuro.</li><li><strong>Respiração 4-7-8:</strong> Quebra de hiperativação autonômica simpática.</li></ul>"
+    }
+  ];
+
+  let current = 0;
+
+  function renderSlide() {
+    const s = slides[current];
+    document.getElementById("slideContent").innerHTML = `<h2>${s.title}</h2>${s.content}`;
+    document.getElementById("slideCounter").innerText = `Slide ${current + 1} de ${slides.length}`;
+    document.getElementById("prevBtn").disabled = current === 0;
+    document.getElementById("nextBtn").disabled = current === slides.length - 1;
+  }
+
+  function nextSlide() {
+    if (current < slides.length - 1) { current++; renderSlide(); }
+  }
+
+  function prevSlide() {
+    if (current > 0) { current--; renderSlide(); }
+  }
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "ArrowRight") nextSlide();
+    if (e.key === "ArrowLeft") prevSlide();
+  });
+
+  renderSlide();
+</script>
+</body>
+</html>

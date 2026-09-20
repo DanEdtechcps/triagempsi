@@ -1,0 +1,24 @@
+[
+  {
+    "question": "Qual alteração farmacocinética prolonga a meia-vida de BZDs lipofílicos no idoso?",
+    "options": [
+      "Maior adiposidade e menor depuração hepática",
+      "Maior filtração renal",
+      "Menor tecido adiposo",
+      "Aumento de albumina"
+    ],
+    "answer": "Maior adiposidade e menor depuração hepática",
+    "param_b": 0.2
+  },
+  {
+    "question": "Qual a conduta segura para retirada de BZD em idoso?",
+    "options": [
+      "Desmame gradual associado a TCC-I",
+      "Suspensão abrupta imediata",
+      "Substituição por neuroléptico em dose alta",
+      "Manutenção indefinida"
+    ],
+    "answer": "Desmame gradual associado a TCC-I",
+    "param_b": 0.65
+  }
+]

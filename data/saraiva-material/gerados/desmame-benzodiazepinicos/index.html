@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cockpit Multimídia — Dr. Saraiva | TriagemPsi</title>
+  <style>
+    :root {
+      --primary: #1e4d5c;
+      --accent: #3d8b8b;
+      --bg: #0B1920;
+      --card: #14252E;
+      --text: #F8FAFC;
+      --muted: #94A3B8;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      padding: 32px 20px;
+    }
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    header {
+      text-align: center;
+      margin-bottom: 40px;
+      padding-bottom: 24px;
+      border-bottom: 1px solid rgba(61, 139, 139, 0.3);
+    }
+    .badge {
+      background: rgba(61, 139, 139, 0.2);
+      color: var(--accent);
+      padding: 6px 16px;
+      border-radius: 999px;
+      font-size: 13px;
+      font-weight: 700;
+      display: inline-block;
+      margin-bottom: 12px;
+      letter-spacing: 0.05em;
+    }
+    h1 { font-size: 32px; color: var(--text); margin-bottom: 8px; }
+    .subtitle { font-size: 16px; color: var(--muted); }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+      gap: 24px;
+      margin-bottom: 36px;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid rgba(61, 139, 139, 0.2);
+      border-radius: 12px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+    }
+    .card h2 { font-size: 20px; color: var(--accent); margin-bottom: 16px; }
+    video, audio { width: 100%; border-radius: 8px; margin-top: 10px; background: #000; }
+    .btn-link {
+      display: inline-block;
+      background: var(--accent);
+      color: white;
+      text-decoration: none;
+      padding: 10px 18px;
+      border-radius: 8px;
+      font-weight: 600;
+      margin-top: 12px;
+      text-align: center;
+    }
+    .btn-link:hover { opacity: 0.9; }
+    .assets-list { list-style: none; margin-top: 10px; }
+    .assets-list li { padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+    .assets-list a { color: var(--accent); text-decoration: none; }
+    .assets-list a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <header>
+    <div class="badge">SARAIVA CLÍNICA DE PSIQUIATRIA · ACERVO OFICIAL</div>
+    <h1>Desmame de Benzodiazepínicos e TCC-I na Terceira Idade</h1>
+    <div class="subtitle">Dr. José Ribamar Fernandes Saraiva Junior (CRM-RS 29349 · RQE 30038) · Cuidado psiquiátrico com escuta, ciência e humanidade</div>
+  </header>
+
+  <div class="grid">
+    <!-- Card Vídeo 16:9 -->
+    <div class="card">
+      <h2>🎬 Vídeo Horizontal (16:9)</h2>
+      <p style="color: var(--muted); font-size: 14px;">Vídeo em alta definição para exibição em sala de espera, reuniões clínicas e YouTube.</p>
+      <video controls src="09_video_16x9.mp4" poster="04_capa_youtube.png"></video>
+      <a href="09_video_16x9.mp4" download class="btn-link">Baixar Vídeo 16:9</a>
+    </div>
+
+    <!-- Card Shorts 9:16 -->
+    <div class="card">
+      <h2>📱 Shorts Vertical (9:16)</h2>
+      <p style="color: var(--muted); font-size: 14px;">Formato vertical otimizado para Reels, TikTok, Shorts e status WhatsApp da clínica.</p>
+      <video controls src="09_shorts_9x16.mp4" style="max-height: 480px; object-fit: contain;"></video>
+      <a href="09_shorts_9x16.mp4" download class="btn-link">Baixar Shorts 9:16</a>
+    </div>
+
+    <!-- Card Podcast Áudio -->
+    <div class="card">
+      <h2>🎙️ Podcast Neural Multi-Voz</h2>
+      <p style="color: var(--muted); font-size: 14px;">Discussão clínica com vozes neurais de estúdio (Dr. Saraiva e Especialista) sobre o caso de D. Eunice.</p>
+      <audio controls src="08_podcast_master.mp3"></audio>
+      <img src="03_capa_podcast.png" style="width: 100%; max-height: 200px; object-fit: cover; border-radius: 8px; margin-top: 14px;" alt="Capa">
+      <a href="08_podcast_master.mp3" download class="btn-link">Baixar Áudio MP3</a>
+    </div>
+  </div>
+
+  <div class="grid">
+    <!-- Card Slides & Leitura -->
+    <div class="card">
+      <h2>📊 Slides Interativos & Guia Clínico</h2>
+      <p style="color: var(--muted); font-size: 14px;">Deck de slides interativo para apresentações e o artigo mestre completo.</p>
+      <a href="02_slides.html" target="_blank" class="btn-link" style="margin-bottom: 8px;">Abrir Apresentação de Slides</a>
+      <a href="01_leitura.md" target="_blank" class="btn-link" style="background: var(--primary);">Ler Artigo Clínico (.md)</a>
+    </div>
+
+    <!-- Card Infográfico e Materiais -->
+    <div class="card">
+      <h2>🖼️ Imagens e Infográficos</h2>
+      <ul class="assets-list">
+        <li>📊 <a href="05_infografico.png" target="_blank">Infográfico Vertical Completo (1080x1920)</a></li>
+        <li>🖼️ <a href="04_capa_youtube.png" target="_blank">Thumbnail YouTube (1280x720)</a></li>
+        <li>🎧 <a href="03_capa_podcast.png" target="_blank">Capa do Podcast (1400x1400)</a></li>
+      </ul>
+    </div>
+
+    <!-- Card EdTech TRI e Flashcards -->
+    <div class="card">
+      <h2>🧠 Banco de Questões TRI & Flashcards</h2>
+      <ul class="assets-list">
+        <li>❓ <a href="07_quiz.json" target="_blank">5 Questões em Formato TRI 3PL (.json)</a></li>
+        <li>🃏 <a href="06_flashcards.json" target="_blank">10 Flashcards FSRS v6 (.json)</a></li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>

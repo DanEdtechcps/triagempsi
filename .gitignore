@@ -39,3 +39,8 @@ dist-ssr
 
 test-results/
 playwright-report/
+
+# Mídia gerada (vídeos/áudios)
+*.mp4
+*.aac
+temp_audio/
