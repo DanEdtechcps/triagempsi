@@ -1,7 +1,7 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
-import { useState, type ReactNode } from "react";
+import { useState, useMemo, type ReactNode } from "react";
 import {
   BookOpen,
   Building2,
@@ -251,6 +251,13 @@ function PainelShellContent({
 
   const isGuidelinesActive = CLINICAL_GUIDELINES.some((g) => isActive(g.to));
 
+  const mobileGroups = useMemo(() => {
+    return MOBILE_MENU_GROUPS.map((grupo) => ({
+      ...grupo,
+      links: grupo.links.filter((l) => (l.to === "/admin" ? Boolean(access?.global) : true)),
+    })).filter((grupo) => grupo.links.length > 0);
+  }, [access?.global]);
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header Principal */}
@@ -351,12 +358,14 @@ function PainelShellContent({
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuGroup>
-                  <DropdownMenuItem asChild>
-                    <Link to="/admin" className="cursor-pointer gap-2">
-                      <Building2 className="h-4 w-4 text-muted-foreground" />
-                      Consultórios & Equipe
-                    </Link>
-                  </DropdownMenuItem>
+                  {access?.global && (
+                    <DropdownMenuItem asChild>
+                      <Link to="/admin" className="cursor-pointer gap-2">
+                        <Building2 className="h-4 w-4 text-muted-foreground" />
+                        Consultórios & Equipe
+                      </Link>
+                    </DropdownMenuItem>
+                  )}
                   <DropdownMenuItem asChild>
                     <Link to="/senha" className="cursor-pointer gap-2">
                       <KeyRound className="h-4 w-4 text-muted-foreground" />
@@ -584,7 +593,7 @@ function PainelShellContent({
           </div>
 
           <div className="mt-5 space-y-6">
-            {MOBILE_MENU_GROUPS.map((grupo) => (
+            {mobileGroups.map((grupo) => (
               <div key={grupo.title}>
                 <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                   {grupo.title}

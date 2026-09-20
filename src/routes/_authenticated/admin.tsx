@@ -212,6 +212,17 @@ function AdminPage() {
     }
   }
 
+  if (clinics.isLoading || staff.isLoading) {
+    return (
+      <PainelShell title="Consultórios e equipe">
+        <div className="space-y-4" aria-busy="true" aria-label="Carregando informações administrativas">
+          <div className="h-32 w-full animate-pulse rounded-2xl bg-muted/60" />
+          <div className="h-64 w-full animate-pulse rounded-2xl bg-muted/40" />
+        </div>
+      </PainelShell>
+    );
+  }
+
   if (denied) {
     return (
       <PainelShell title="Consultórios e equipe">
