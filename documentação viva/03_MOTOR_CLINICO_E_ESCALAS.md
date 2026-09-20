@@ -1,135 +1,144 @@
-# 03. Motor Clínico e Escalas Psiquiátricas — Saraiva Clínica de Psiquiatria
+# 03. Motor Clínico, Escalas Psiquiátricas e Inteligência Adaptativa
 
+> **Saraiva Clínica de Psiquiatria** & **Instituto Lumina de Saúde Mental**  
 > **Dr. José Ribamar Fernandes Saraiva Junior** | CRM-RS 29349 · RQE 30038  
-> *“Cuidado psiquiátrico com escuta, ciência e humanidade”*
-
-O coração do TriagemPsi é o seu motor clínico adaptativo puro (`src/lib/scoring.ts`, `src/lib/triage-tree.ts`, `src/lib/clinical-decision-support.ts` e `src/lib/safety-plan.ts`). Desenvolvido sob a ótica da prática psiquiátrica integrativa do Dr. Saraiva — aliando a escuta da Medicina de Família, evidências em Terapia Cognitivo-Comportamental (TCC), princípios de redução de danos em Dependência Química e a psicodinâmica do Envelhecimento Humano.
-
-Em vez de submeter o paciente a um formulário estático exaustivo, a plataforma utiliza uma **árvore de decisão com ramificação adaptativa** baseada em funções puras (sem efeitos colaterais de UI), garantindo precisão psicométrica e 100% de cobertura por testes automatizados.
+> **Versão do Motor Clínico:** v1.30.0 (Isolated Clinical Engine)
 
 ---
 
-## 1. As 28 Escalas Psiquiátricas Oficiais
+## 1. Visão Geral da Arquitetura Clínica
 
-Cada escala atende rigorosamente ao contrato padronizado: `scale_code`, `score` (numérico), `band` (texto da faixa), `band_level` (0 a 4) e `risk` (booleano).
+O motor clínico do **TriagemPsi** foi projetado para operar com **zero acoplamento com a interface do usuário (UI)**. Localizado em [`src/lib/clinical-engine/`](file:///mnt/armazenamento/Projetos/triagem-medica/src/lib/clinical-engine/) e complementado por [`src/lib/scoring.ts`](file:///mnt/armazenamento/Projetos/triagem-medica/src/lib/scoring.ts), ele executa funções determinísticas puras, garantindo:
 
-| # | Código | Nome Completo | Alvo Clínico | Cut-offs / Bandas Principais | Risk Flag |
+1. **Rigor Psicométrico:** Instrumentos internacionais validados (DSM-5, OMS, CID-11).
+2. **Eficiência Adaptativa:** O paciente não responde perguntas desnecessárias; árvores reativas (DAG) e Teoria de Resposta ao Item (TRI/CAT) selecionam apenas itens informativos.
+3. **Detecção Comportamental Fina (Dwell-Time):** Monitoramento de milissegundos de hesitação em itens sensíveis de risco.
+4. **Isolamento e Segurança Multi-Tenant:** Contexto de execução selado contra vazamento entre clínicas.
+5. **Apoio à Decisão Médica (Decision Support):** Tradução dos escores brutos em condutas orientativas práticas para o psiquiatra.
+
+---
+
+## 2. As 28 Escalas Psiquiátricas Catalogadas
+
+| # | Código | Nome Completo | Alvo Clínico | Cut-offs / Bandas Principais | Flag de Risco |
 |---|---|---|---|---|---|
-| 1 | **PHQ-9** | Patient Health Questionnaire-9 | Depressão maior e gravidade | 0-4 Mínima, 5-9 Leve, 10-14 Moderada, 15-19 Mod. Grave, 20-27 Grave. | Item 9 ≥ 1 (pensamento de morte/autolesão) |
-| 2 | **GAD-7** | Generalized Anxiety Disorder-7 | Transtorno de ansiedade generalizada | 0-4 Mínima, 5-9 Leve, 10-14 Moderada, 15-21 Grave. | Score ≥ 15 (ansiedade severa) |
-| 3 | **ASRS-18** | Adult ADHD Self-Report Scale | TDAH em adultos (Partes A + B) | Parte A ≥ 4 sintomas frequentes = rastreio positivo; scores totais de desatenção e hiperatividade. | Atenção clínica para diagnóstico diferencial |
-| 4 | **MDQ** | Mood Disorder Questionnaire | Espectro bipolar e virada maníaca | ≥ 7 sintomas simultâneos com prejuízo moderado/grave = rastreio positivo. | Alerta para risco de prescrição isolada de antidepressivo |
-| 5 | **ISI** | Insomnia Severity Index | Gravidade da insônia | 0-7 Sem insônia, 8-14 Subclínica, 15-21 Moderada, 22-28 Grave. | Insônia grave como amplificador de risco |
-| 6 | **AUDIT** | Alcohol Use Disorders Identification | Padrão de consumo de álcool | 0-7 Baixo risco, 8-15 Uso de risco, 16-19 Uso nocivo, ≥ 20 Provável dependência. | Score ≥ 20 (dependência severa) |
-| 7 | **DAST-10** | Drug Abuse Screening Test | Uso abusivo de substâncias ilícitas | 0 Sem problemas, 1-2 Baixo, 3-5 Moderado, 6-8 Substancial, 9-10 Grave. | Score ≥ 6 (risco substancial/grave) |
-| 8 | **C-SSRS** | Columbia Suicide Severity Rating Scale | Avaliação e gravidade do risco de suicídio | 0 Sem risco, 1-2 Risco baixo (ideação passiva), 3 Risco moderado, 4-6 Risco crítico / iminente. | Qualquer resposta positiva ativa via de risco; ≥ 4 emergência |
-| 9 | **Y-BOCS** | Yale-Brown Obsessive Compulsive Scale | Sintomas obsessivo-compulsivos (TOC) | 0-7 Subclínico, 8-15 Leve, 16-23 Moderado, 24-31 Grave, 32-40 Extremo. | Angústia severa e prejuízo funcional |
-| 10 | **PCL-5** | PTSD Checklist for DSM-5 | Estresse pós-traumático (TEPT) | 0-30 Negativo, 31-80 TEPT provável (corte ≥ 31-33). Avalia 4 clusters do DSM-5. | Score ≥ 33 ou histórico de violência ativa |
-| 11 | **EPDS** | Edinburgh Postnatal Depression Scale | Depressão perinatal e pós-parto | 0-9 Sem indicação, 10-12 Sintomas possíveis, 13-30 Rastreio positivo. | Item 10 ≥ 1 (ideação de autolesão) |
-| 12 | **AQ-10** | Autism Spectrum Quotient-10 | Traços do espectro autista em adultos | 0-5 Negativo, 6-10 Rastreio positivo indicativo de avaliação especializada. | Encaminhamento diagnóstico |
-| 13 | **SPIN** | Social Phobia Inventory | Fobia social e ansiedade social | 0-19 Subclínico, 20-30 Leve, 31-40 Moderada, 41-50 Grave, 51-68 Muito grave. | Prejuízo de esquiva fóbica |
-| 14 | **PDSS-SR** | Panic Disorder Severity Scale | Transtorno de pânico e agorafobia | 0-3 Normal, 4-7 Borderline, 8-10 Leve, 11-13 Moderado, 14-28 Grave. | Ataques recorrentes e agorafobia |
-| 15 | **BES** | Binge Eating Scale | Compulsão alimentar periódica | 0-17 Ausente, 18-26 Compulsão moderada, 27-48 Compulsão grave. | Episódios frequentes de perda de controle |
-| 16 | **PHQ-15** | Patient Health Questionnaire-15 | Somatização e sintomas físicos | 0-4 Mínima, 5-9 Baixa, 10-14 Média, 15-30 Alta gravidade somática. | Hiperfrequência e sofrimento físico |
-| 17 | **MBI-HSS** | Maslach Burnout Inventory | Síndrome de Burnout no trabalho | Exaustão emocional, despersonalização e baixa realização profissional. | Score ≥ 28 (risco elevado de Burnout) |
-| 18 | **CRAFFT** | CRAFFT 2.1 Screening Tool | Substâncias em jovens e adolescentes (< 21 anos) | 0-1 Baixo risco, 2-6 Risco significativo de abuso/dependência. | Score ≥ 2 (risco clínico na juventude) |
-| 19 | **SCOFF** | SCOFF Questionnaire | Rastreio de transtornos alimentares | 0-1 Negativo, 2-5 Rastreio positivo para anorexia/bulimia. | Vômitos provocados ou perda rápida de peso |
-| 20 | **HADS** | Hospital Anxiety and Depression Scale | Ansiedade e depressão hospitalar/ambulatorial | Subescalas HADS-A e HADS-D: 0-7 Normal, 8-10 Borderline, 11-21 Caso provável. | Casos moderados a graves |
-| 21 | **PSS-10** | Perceived Stress Scale-10 | Nível de estresse percebido | 0-13 Baixo estresse, 14-26 Estresse moderado, 27-40 Alto estresse. | Sobrecarga crônica de adaptabilidade |
-| 22 | **WHO-5** | WHO-5 Well-Being Index | Índice de bem-estar da OMS | 51-100% Adequado, 29-50% Baixo bem-estar, 0-28% Muito comprometido. | Score ≤ 28% (forte indicativo de depressão) |
-| 23 | **ASRS-C** | ASRS-Criança e Adolescente | TDAH infantojuvenil (< 18 anos) | 0-15 Negativo, 16-24 Limítrofe, 25-48 Rastreio positivo. | Avaliação combinada com responsáveis |
-| 24 | **SNAP-IV** | Swanson, Nolan and Pelham | TDAH e Transtorno Opositor Desafiador | Desatenção (1-9), Hiperatividade (10-18) e Oposição (19-26). | Sintomas em ambiente escolar e familiar |
-| 25 | **CGI-S** | Clinical Global Impressions (Paciente) | Gravidade global percebida | 1-2 Normal/Limítrofe, 3 Leve, 4 Moderado, 5 Acentuado, 6-7 Severo/Extremo. | Score ≥ 6 (sofrimento psíquico incapacitante) |
-| 26 | **WSAS** | Work and Social Adjustment Scale | Prejuízo funcional e impacto social | 0-9 Mínimo, 10-20 Prejuízo significativo, 21-40 Prejuízo severo/incapacitante. | Incapacidade laboral ou social severa |
-| 27 | **PHQ-2 + GAD-2** | Screeners Ultrarrápidos | Rastreio inicial ultra-breve (~1 minuto) | PHQ-2 ≥ 3 dispara expansão para PHQ-9; GAD-2 ≥ 3 dispara expansão para GAD-7. | Gatilho para bateria diagnóstica |
-| 28 | **RISK-COMPOSITE** | Risk Composite (Engine Interna) | Sinais agregados de risco psiquiátrico imediato | Alerta integrado: ideação suicida, psicose, virada maníaca, violência, gravidez. | Score ≥ 1 aciona prioridade máxima na fila |
+| 1 | **PHQ-9** | Patient Health Questionnaire-9 | Depressão maior | 0-4 Mínima, 5-9 Leve, 10-14 Moderada, 15-19 Mod. Grave, 20-27 Grave. | Item 9 ≥ 1 (ideação suicida) |
+| 2 | **GAD-7** | Generalized Anxiety Disorder-7 | Ansiedade generalizada | 0-4 Mínima, 5-9 Leve, 10-14 Moderada, 15-21 Grave. | Score ≥ 15 (ansiedade severa) |
+| 3 | **ASRS-18** | Adult ADHD Self-Report Scale | TDAH em adultos (Partes A + B) | Parte A ≥ 4 itens frequentes = positivo; subtotais de desatenção e hiperatividade. | Atenção para diagnóstico diferencial |
+| 4 | **MDQ** | Mood Disorder Questionnaire | Espectro bipolar / hipomania | ≥ 7 sintomas simultâneos com prejuízo moderado/grave = positivo. | Risco crítico de virada com antidepressivo |
+| 5 | **ISI** | Insomnia Severity Index | Gravidade da insônia | 0-7 Normal, 8-14 Subclínica, 15-21 Moderada, 22-28 Grave. | Amplificador de ideação e desregulação |
+| 6 | **AUDIT** | Alcohol Use Disorders Identification | Padrão de consumo alcoólico | 0-7 Baixo risco, 8-15 Uso de risco, 16-19 Uso nocivo, ≥ 20 Provável dependência. | Score ≥ 20 (dependência severa) |
+| 7 | **DAST-10** | Drug Abuse Screening Test | Uso nocivo de substâncias ilícitas | 0 Sem problemas, 1-2 Baixo, 3-5 Moderado, 6-8 Substancial, 9-10 Grave. | Score ≥ 6 (risco substancial/grave) |
+| 8 | **C-SSRS** | Columbia Suicide Severity Rating Scale | Avaliação e gravidade de risco de suicídio | 0 Inexistente, 1-2 Passiva, 3 Ativa sem método, 4-6 Crítica / Iminente. | Qualquer resposta positiva ativa via de crise |
+| 9 | **Y-BOCS** | Yale-Brown Obsessive Compulsive Scale | Sintomas obsessivo-compulsivos (TOC) | 0-7 Subclínico, 8-15 Leve, 16-23 Moderado, 24-31 Grave, 32-40 Extremo. | Angústia severa e prejuízo de tempo |
+| 10 | **PCL-5** | PTSD Checklist for DSM-5 | Estresse pós-traumático (TEPT) | 0-30 Negativo, 31-80 TEPT provável (cut-off clínico ≥ 31-33). | Score ≥ 33 ou flashbacks incapacitantes |
+| 11 | **EPDS** | Edinburgh Postnatal Depression Scale | Depressão perinatal / pós-parto | 0-9 Normal, 10-12 Sintomas possíveis, 13-30 Rastreio positivo. | Item 10 ≥ 1 (pensamento de autolesão) |
+| 12 | **AQ-10** | Autism Spectrum Quotient-10 | Traços do espectro autista em adultos | 0-5 Negativo, 6-10 Rastreio positivo indicativo de avaliação especializada. | Encaminhamento para neuropsicologia |
+| 13 | **SPIN** | Social Phobia Inventory | Ansiedade social e fobia social | 0-19 Subclínico, 20-30 Leve, 31-40 Moderada, 41-50 Grave, 51-68 Muito grave. | Prejuízo acentuado de esquiva social |
+| 14 | **PDSS-SR** | Panic Disorder Severity Scale | Pânico e agorafobia | 0-3 Normal, 4-7 Borderline, 8-10 Leve, 11-13 Moderado, 14-28 Grave. | Ataques recorrentes e esquiva |
+| 15 | **BES** | Binge Eating Scale | Compulsão alimentar periódica | 0-17 Ausente, 18-26 Moderada, 27-48 Severa compulsão. | Perda de controle alimentar frequente |
+| 16 | **PHQ-15** | Patient Health Questionnaire-15 | Somatização e queixas físicas | 0-4 Mínima, 5-9 Baixa, 10-14 Média, 15-30 Alta gravidade somática. | Sofrimento físico sem causa orgânica |
+| 17 | **MBI-HSS** | Maslach Burnout Inventory | Esgotamento profissional / Burnout | Exaustão emocional, despersonalização e baixa realização profissional. | Score elevado (risco ocupacional NR-01) |
+| 18 | **CRAFFT** | CRAFFT 2.1 Screening Tool | Substâncias em adolescentes (< 21 anos) | 0-1 Baixo risco, 2-6 Risco significativo de abuso/dependência. | Score ≥ 2 em jovens |
+| 19 | **SCOFF** | SCOFF Questionnaire | Rastreio de transtornos alimentares | 0-1 Negativo, 2-5 Rastreio positivo para anorexia/bulimia. | Vômitos induzidos ou perda rápida de peso |
+| 20 | **HADS** | Hospital Anxiety and Depression Scale | Ansiedade e depressão ambulatorial | Subescalas HADS-A e HADS-D: 0-7 Normal, 8-10 Limítrofe, 11-21 Provável. | Sintomatologia moderada a severa |
+| 21 | **PSS-10** | Perceived Stress Scale-10 | Nível de estresse percebido | 0-13 Baixo estresse, 14-26 Estresse moderado, 27-40 Alto estresse. | Sobrecarga alostática crônica |
+| 22 | **WHO-5** | WHO-5 Well-Being Index | Índice de bem-estar da OMS | 51-100% Adequado, 29-50% Baixo bem-estar, 0-28% Muito comprometido. | Score ≤ 28% (forte alerta depressivo) |
+| 23 | **ASRS-C** | ASRS Criança e Adolescente | TDAH infantojuvenil (< 18 anos) | 0-15 Negativo, 16-24 Limítrofe, 25-48 Positivo. | Avaliação combinada com cuidadores |
+| 24 | **SNAP-IV** | Swanson, Nolan and Pelham | TDAH e Transtorno Desafiador Opositor | Desatenção (1-9), Hiperatividade (10-18) e Oposição (19-26). | Sintomas no ambiente escolar e familiar |
+| 25 | **CGI-S** | Clinical Global Impressions (Paciente) | Gravidade global subjetiva | 1-2 Normal/Limítrofe, 3 Leve, 4 Moderado, 5 Acentuado, 6-7 Severo/Extremo. | Score ≥ 6 (sofrimento incapacitante) |
+| 26 | **WSAS** | Work and Social Adjustment Scale | Impacto e prejuízo funcional | 0-9 Mínimo, 10-20 Prejuízo significativo, 21-40 Prejuízo severo/incapacitante. | Incapacidade laboral ou relacional |
+| 27 | **PHQ-2 + GAD-2** | Screeners Ultrarrápidos | Rastreio inicial ultra-breve | PHQ-2 ≥ 3 dispara PHQ-9; GAD-2 ≥ 3 dispara GAD-7. | Gatilho para expansão de escalas |
+| 28 | **RISK-COMPOSITE** | Risk Composite (Engine Interna) | Agregador de emergência psiquiátrica | Ideação suicida ativa, sintomas psicóticos, virada maníaca, violência. | Ativa protocolo de emergência imediato |
 
 ---
 
-## 2. A Árvore de Decisão Adaptativa (`triage-tree.ts`)
+## 3. O Motor Clínico Isolado (`src/lib/clinical-engine/`)
 
-A jornada do paciente é dividida em 3 fases puras:
+### 3.1 Schemas Declarativos em JSON (`schemas/`)
+Cada instrumento clínico possui um schema JSON estruturado com validações de faixa, cut-offs psicométricos e regras de elegibilidade:
+* **`epds.json`**: Contém a regra de elegibilidade biológica estrita:
+  ```json
+  "eligibility": {
+    "gender": "female_only",
+    "biologicalSexRequired": "female"
+  }
+  ```
+* **`c-ssrs.json`**: Mapeia as 6 perguntas do Columbia com pesos de risco exponencial.
+* **`phq9.json`**: Define as 9 perguntas do PHQ-9 e isola o item 9 como gatilho automático de risco.
+* Demais schemas: `phq2`, `snap-iv`, `asrs-18`, `ad8`, `gds15`, `y-bocs`, `pcl-5`, `isi`, `mbi-hss`, `audit`, `assist`, `srq20`.
 
-### Fase 1: Identificação e Queixas Iniciais
-- Nome, Idade, Tipo de respondente (`'paciente'` ou `'familiar'`).
-- Seleção de queixas subjetivas (tristeza, ansiedade, atenção, sono, substâncias, trauma, oscilação de humor, pensamentos de morte, trabalho, etc.).
+### 3.2 Avaliador Puro (`schema-evaluator.ts`)
+Executa a validação psicométrica de qualquer schema sem tocar no banco ou na interface:
+- **Trava Biológica EPDS:** Se o paciente for do sexo masculino (`biologicalSex === 'male'`), o avaliador rejeita a execução do EPDS e retorna inelegibilidade imediata com aviso seguro.
+- **Cálculo de Bandas:** Mapeia pontuações brutas para faixas clínicas (`minimal`, `mild`, `moderate`, `severe`).
+- **Detecção de Gatilho de Risco:** Identifica se itens críticos foram pontuados positivamente.
 
-### Fase 2: Rastreio Ultra-Rápido (PHQ-2 + GAD-2)
-- Se o **PHQ-2** for positivo (≥ 3), o motor injeta automaticamente os 9 itens completos do **PHQ-9**.
-- Se o **GAD-2** for positivo (≥ 3), o motor expande para o **GAD-7** completo.
+### 3.3 Grafo Reativo Acíclico Dirigido (`reactive-dag.ts` & `reactions.ts`)
+Orquestra o avanço e desdobramento das escalas através de nós e arestas de decisão:
+- **Prevenção de Deadlocks e Loops:** Utiliza busca em profundidade (**DFS — Depth-First Search**) para validar a aciclicidade do grafo no momento do registro das regras. Se um ciclo for detectado, um erro de integridade é lançado antes do processamento.
+- **Reações Cruzadas Catalogadas (`reactions.ts`):**
+  - `PHQ-2 >= 3` ➔ Dispara expansão para `PHQ-9`.
+  - `GAD-2 >= 3` ➔ Dispara expansão para `GAD-7`.
+  - `PHQ-9 item 9 >= 1` ➔ Dispara `C-SSRS` e aciona a Via de Risco Crítica.
+  - `Idade >= 60 anos + Queixa de Memória` ➔ Aciona `AD-8` e `GDS-15`.
+  - `Idade < 18 anos + Queixa Escolar/Atenção` ➔ Aciona `SNAP-IV` / `ASRS-C`.
 
-### Fase 3: Ramificação Adaptativa Especializada
-- **Gatilho Bipolar (MDQ):** Ativado por queixa de oscilação de humor ou quando o PHQ-9 atinge faixa moderada/grave, prevenindo o erro médico comum de prescrever antidepressivo sem investigar histórico hipomaníaco.
-- **Gatilho de TDAH (ASRS-18 ou ASRS-C):** Acionado por idade (adultos recebem ASRS-18; menores de 18 anos recebem ASRS-C / SNAP-IV).
-- **Gatilho de Risco (C-SSRS / CVV):** Se o item 9 do PHQ-9 for positivo ou se o C-SSRS for ativado, a via de risco prioritária é ligada imediatamente, apresentando acolhimento ao paciente (CVV 188 e SAMU 192) sem interromper a coleta dos dados.
+### 3.4 Motor CAT/TRI (`cat-estimator.ts`) — Teste Adaptativo Computadorizado
+Baseado na **Teoria de Resposta ao Item (TRI)** unidimensional politômica:
+- **Modelo de Resposta Graduada de Samejima (GRM):** Modela a probabilidade de um paciente com traço latente $\theta$ responder a cada categoria ordinal de um item:
+  $$P_{jk}(\theta) = P^*_{jk}(\theta) - P^*_{j,k+1}(\theta)$$
+  Onde $P^*_{jk}(\theta) = \frac{1}{1 + e^{-a_j(\theta - b_{jk})}}$.
+- **Seleção do Próximo Item:** O motor calcula a **Informação de Fisher** $I_j(\theta)$ para todos os itens ainda não respondidos e seleciona aquele que maximiza a informação no nível estimado atual de $\theta$:
+  $$I_j(\theta) = \sum_{k=0}^{K} \frac{[P'_{jk}(\theta)]^2}{P_{jk}(\theta)}$$
+- **Estimativa do Traço Latente:** Atualização bayesiana via **EAP (Expected A Posteriori)** com prior normal padrão $\mathcal{N}(0, 1)$.
+- **Critério de Parada:** O teste é finalizado de forma inteligente quando o erro padrão atinge:
+  $$SE(\theta) \le 0.30$$
+  Ou quando atinge o teto máximo de itens configurado, economizando até 60% do tempo de resposta do paciente sem perda de precisão diagnóstica.
+
+### 3.5 Telemetria de Dwell-Time (`dwell-time.ts`)
+Analisa o padrão temporal de resposta do paciente:
+- **Média vs. Mediana:** Registra a média aritmética e a mediana de tempo por item em milissegundos. A mediana é utilizada como linha de base robusta, ignorando pausas distrativas externas.
+- **Detector de Hesitação Focal (Focal Hesitation Detector):** Se um item crítico de risco (ex: autolesão no PHQ-9, traumas no PCL-5, ideação no C-SSRS) apresentar tempo de permanência significativamente superior à linha de base do paciente:
+  $$T_{item} \ge 2.5 \times \text{Mediana do Paciente}$$
+  O motor sinaliza um alerta de hesitação focal (`focal_hesitation_alert: true`), indicando ao psiquiatra conflito interno, ambivalência ou sofrimento agudo durante a resposta daquele item.
+
+### 3.6 Isolamento de Tenant (`tenant-context.ts`)
+- O contexto da clínica é congelado em tempo de execução via `Object.freeze()`.
+- O middleware rejeita requisições onde o `clinic_id` da avaliação divirja do tenant autenticado, impedindo vazamento de dados entre consultórios.
+
+### 3.7 Comparador Sombra (`shadow-runner.ts`)
+Permite executar o novo motor clínico em paralelo com o motor de pontuação legado sem afetar a experiência do usuário final, comparando divergências em logs estruturados para auditoria contínua.
 
 ---
 
-## 3. Diretriz Ética: Rastreio vs. Diagnóstico
+## 4. Apoio à Decisão Clínica (Decision Support — Dr. Saraiva)
 
-- **Nunca emitir diagnóstico conclusivo no documento do paciente:** O PDF do paciente contém apenas informações psicoeducativas, faixas de sintomas e acolhimento.
-- **Relatório Médico (PDF Clínico):** Apresenta ao psiquiatra os escores brutos, subescalas calculadas, pontos de corte, histórico longitudinal e alertas de segurança.
-
----
-
-## 4. Módulo de Psicoeducação (Curadoria Dr. Saraiva)
-
-O TriagemPsi integra um motor de **Psicoeducação Clínica Híbrida** (`src/lib/psychoeducation.ts` e `src/lib/psychoeducation-data.ts`), alinhado à visão médica integrativa (Medicina de Família, Psiquiatria ABP, TCC, Dependência Química e Envelhecimento Humano):
-
-### Os 10 Temas Oficiais e Gatilhos:
-1. **Depressão e humor baixo (`depressao-humor`):** PHQ-9 ≥ 10 ou PHQ-2 ≥ 3.
-2. **Ansiedade e preocupação excessiva (`ansiedade-preocupacao`):** GAD-7 ≥ 10 ou GAD-2 ≥ 3.
-3. **Crise emocional e ideação suicida (`crise-emocional`):** PHQ-9 item 9 ≥ 1, C-SSRS positivo ou RISK-COMPOSITE (Prioridade 1 Máxima + CVV 188 / SAMU 192).
-4. **Insônia e higiene do sono (`insonia-sono`):** ISI ≥ 15 (Pilares da TCC-I).
-5. **TDAH em adultos (`tdah-adultos`):** ASRS-18 Parte A positiva (Funções executivas e externalização).
-6. **Oscilações de humor (`oscilacoes-humor`):** MDQ positivo (Espectro bipolar e ritmos circadianos).
-7. **Álcool e substâncias (`alcool-substancias`):** AUDIT ≥ 8, DAST-10 ≥ 3 ou CRAFFT ≥ 2 (Redução progressiva de danos).
-8. **Trauma e estresse pós-traumático (`trauma-tept`):** PCL-5 ≥ 31-33 (Neurobiologia do trauma e TCC focada).
-9. **Burnout e esgotamento (`burnout-esgotamento`):** MBI-HSS elevado ou PSS-10 ≥ 27 (3 dimensões do esgotamento).
-10. **Bem-estar e prevenção + Longevidade (`bem-estar-prevencao`):** WHO-5 ≤ 50% ou sempre disponível (Psicodinâmica do envelhecimento e hábitos protetores).
-
-### Os 4 Pontos de Entrega:
-- **Cards na Triagem:** Apresentados na tela de conclusão do paciente com linguagem acolhedora, botões diretos de ligação rápida para o CVV 188 e SAMU 192, e acordeão de leitura.
-- **PDF do Paciente:** Resumo objetivo impresso sem emissão de diagnósticos, incluindo o Plano de Segurança Estruturado com destaque e a marcação de versão `v1 (2026.1)`.
-- **Portal do Paciente:** Biblioteca filtrável por busca e tags (`#TCC`, `#Sono`, `#Humor`, etc.), status de leitura ("Lido em DD/MM/AAAA" vs "Novo") e Plano de Segurança integrado.
-- **Painel do Médico:** Painel completo de Apoio à Decisão Clínica (Decision Support) com condutas orientativas, métricas de engajamento do paciente (percentual de materiais lidos e data do último acesso) e liberação de materiais complementares.
+O motor em [`src/lib/clinical-decision-support.ts`](file:///mnt/armazenamento/Projetos/triagem-medica/src/lib/clinical-decision-support.ts) gera cartões de raciocínio médico no prontuário:
+1. **Espectro Bipolar (MDQ Positivo + Depressão):** Alerta em vermelho contra o uso de antidepressivos em monoterapia devido ao risco iminente de virada maníaca, ciclagem rápida ou indução de estados mistos com ideação suicida.
+2. **Insônia e Desregulação (ISI ≥ 15):** Recomenda priorizar intervenções de Higiene do Sono e TCC-I antes de escalar medicações hipnóticas de tarja preta.
+3. **Substâncias (AUDIT / DAST-10):** Sugere a aplicação imediata da intervenção breve pelo modelo **FRAMES** (*Feedback, Responsibility, Advice, Menu of options, Empathy, Self-efficacy*).
+4. **Trauma e Dissociação (PCL-5 ≥ 33):** Orienta acolhimento prévio, descompressão e encaminhamento para TCC focada em trauma, evitando exposição abrupta na primeira sessão.
 
 ---
 
-## 5. Evolução do Módulo de Psicoeducação e Apoio Clínico
+## 5. Módulo de Psicoeducação e Gatilhos Clínicos
 
-### 5.1 Plano de Segurança Estruturado (Feature A)
-Desenvolvido sob rigorosas diretrizes éticas e de proteção à vida (CVV 188 / SAMU 192 / Portarias MS), o Plano de Segurança Estruturado (`src/lib/safety-plan.ts`) é acionado preventivamente em qualquer situação de crise (PHQ-9 item 9 ≥ 1, C-SSRS positivo, RISK-COMPOSITE ou via de risco):
+O sistema aciona automaticamente as trilhas educativas correspondentes ao perfil apurado:
 
-1. **Canais Gratuitos de Urgência 24 Horas:**
-   - **CVV (Centro de Valorização da Vida):** Ligue 188 (24h, gratuito, sigiloso em todo o Brasil).
-   - **SAMU (Serviço de Atendimento Móvel de Urgência):** Ligue 192 para resgate pré-hospitalar e crise aguda descompensada.
-   - **UPA / Pronto-Socorro / CAPS III 24h:** Acolhimento presencial na rede de urgência municipal.
-2. **Rede de Apoio e Mensagem-Modelo:**
-   - Instrução de acionamento de 1 ou 2 pessoas de confiança.
-   - Mensagem-modelo de WhatsApp pronta: *"Olá, estou passando por um momento difícil e tendo pensamentos muito pesados agora. Você poderia falar comigo ou me fazer companhia por um tempo?"*
-3. **Estratégias Imediatas de Distração e Descompressão:**
-   - **Aterramento Sensorial (Grounding 5-4-3-2-1):** 5 objetos visíveis, 4 texturas táteis, 3 sons perceptíveis, 2 aromas, 1 sabor.
-   - **Respiração Ritmada Calmante (4-4-6):** Inspiração em 4s, retenção em 4s, expiração lenta em 6s (5 ciclos para induzir relaxamento vagal).
-4. **Segurança do Ambiente e Remoção de Meios:**
-   - Abafar impulso de isolamento físico em quartos fechados.
-   - Afastamento imediato de medicamentos em quantidade, bebidas alcoólicas e objetos perfurocortantes.
-   - Transferência da custódia de itens e remédios para pessoa de confiança.
-
-### 5.2 Apoio à Decisão Clínica do Médico (Clinical Decision Support - Feature B)
-O motor puro `src/lib/clinical-decision-support.ts` avalia as interações entre as 28 escalas e gera cards de orientação diagnóstica e terapêutica orientativos no painel do psiquiatra:
-
-- **Risco Suicida / Crise Aguda (Urgente):** Protocolo imediato de contenção, revisão do plano conjunto e averiguação de encaminhamento a pronto-socorro / CAPS III.
-- **Espectro Bipolar e Risco de Virada Maníaca (Alerta):** MDQ positivo com sintomas depressivos (PHQ-9). Alerta contra o uso de antidepressivos em monoterapia devido ao risco de ciclagem e hipomania; recomendação de estabilizadores de humor (Diretrizes CANMAT / ISBD).
-- **Comorbidade Depressão + Insônia Clínica Grave (Alerta):** PHQ-9 ≥ 10 + ISI ≥ 15. Recomendação de TCC-I concomitante ao manejo do humor, evitando escalada precoce de benzodiazepínicos com risco de dependência e fragmentação da arquitetura do sono (Diretrizes AASM).
-- **Uso Problemático de Substâncias com Sintomas Afetivos (Alerta):** AUDIT ≥ 8 ou DAST-10 ≥ 3 com PHQ-9 / GAD-7 elevados. Aplicação de Intervenção Breve no modelo FRAMES (Feedback, Responsabilidade, Aconselhamento, Menu de opções, Empatia, Autoeficácia), mapeamento de risco de abstinência e redução de danos.
-- **Diagnóstico Diferencial: TDAH vs. Hiperativação Ansiosa (Orientativo):** ASRS-18 positivo + GAD-7 elevado. Cautela com estimulantes antes de investigar se os déficits executivos decorrem de ansiedade crônica ou se há início na infância prévio aos 12 anos.
-- **Sintomas Pós-Traumáticos com Sono Fragmentado (Alerta):** PCL-5 ≥ 31 + ISI ≥ 15. Encaminhamento para psicoterapias focadas em trauma (TCC / EMDR); evitar dependência de BZDs.
-- **Sobrecarga Ocupacional e Esgotamento (Burnout) (Orientativo):** MBI-HSS ≥ 28 ou PSS-10 ≥ 27. Reorganização de limites laborais, afastamento temporário orientado e suporte psicoterápico.
-- **Promoção de Saúde Mental e Longevidade (Orientativo):** Triagens assintomáticas. Medicina do estilo de vida, sono regular, conexões sociais e longevidade digna.
-
-### 5.3 Biblioteca Filtrável e Métricas de Engajamento (Features C, D e E)
-- **Portal do Paciente:** Sistema de busca textual reativa, abas de leitura ("Todos", "Novos", "Lidos") e badges de tags (`#TCC`, `#Sono`, `#Humor`, etc.), com indicação de data de leitura e visualização de Plano de Segurança.
-- **Painel do Médico:** Contador dinâmico de engajamento (*"X de Y materiais lidos pelo paciente — Z%"*), barra de progresso visual colorida e registro do horário do último acesso pelo paciente.
-- **Versionamento de Conteúdo:** Todos os temas e entregas exibem a versão de publicação formal `v1 (2026.1)`.
-
+```
+[ Escores e Respostas ] ──► [ Avaliador Psicométrico ]
+                                      │
+           ┌──────────────────────────┴──────────────────────────┐
+           ▼                                                     ▼
+ [ Gatilhos de Psicoeducação ]                         [ Gatilhos de Risco ]
+ 1. Depressão (PHQ-9 >= 10)                           1. Item 9 PHQ-9 >= 1
+ 2. Ansiedade (GAD-7 >= 10)                           2. C-SSRS Positivo
+ 3. Sono / TCC-I (ISI >= 15)                          3. RISK-COMPOSITE
+ 4. Bipolaridade (MDQ Positivo)                                  │
+ 5. TDAH Adulto (ASRS-18 Positivo)                              ▼
+ 6. Substâncias (AUDIT >= 8 / DAST >= 3)              [ BANNER DE EMERGÊNCIA ]
+ 7. Burnout / NR-01 (MBI-HSS Positivo)                - Ativação imediata do CVV 188
+ 8. Trauma / TEPT (PCL-5 >= 31)                       - Chamada de emergência SAMU 192
+ 9. Longevidade / Bem-Estar (WHO-5 <= 50)             - Aterramento e descompressão
+```

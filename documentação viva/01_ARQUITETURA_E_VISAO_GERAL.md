@@ -1,103 +1,154 @@
-# 01. Arquitetura e Visão Geral — TriagemPsi & Saraiva Clínica de Psiquiatria
+# 01. Arquitetura e Visão Geral — TriagemPsi & Multi-Tenant Clínico
+
+> **Saraiva Clínica de Psiquiatria** & **Instituto Lumina de Saúde Mental**  
+> **Dr. José Ribamar Fernandes Saraiva Junior** | CRM-RS 29349 · RQE 30038 | Passo Fundo / RS  
+> **Dra. Camila Rocha** | CRM-SP 189420 · RQE 92314 | São Paulo / SP  
+> **Superadministrador da Plataforma:** Daniel Arraes Reino (`coletivoaruatemvoz@gmail.com`)  
+> *Versão de Arquitetura: v1.30.0 (Atualizada em Setembro de 2026)*
+
+---
 
 ## 1. Visão do Produto e Posicionamento Institucional
 
-O **TriagemPsi** foi estruturado e refinado para atender às demandas de excelência clínica da **Saraiva Clínica de Psiquiatria**, liderada pelo **Dr. José Ribamar Fernandes Saraiva Junior** (CRM-RS 29349 · RQE 30038), com consultório particular em Passo Fundo/RS.
+O **TriagemPsi** é uma plataforma médica de alta precisão para acolhimento inicial, pré-triagem adaptativa psicométrica, apoio à decisão diagnóstica (*Clinical Decision Support*) e prescrição de psicoeducação baseada em evidências.
 
-O projeto combina a solidez diagnóstica da Psiquiatria Clínica com a sensibilidade de escuta da Medicina de Família, integrando abordagens de Terapia Cognitivo-Comportamental (TCC), Redução de Danos em Dependência Química e Envelhecimento Humano com dignidade.
+Originalmente projetado para a **Saraiva Clínica de Psiquiatria** (Passo Fundo/RS), o ecossistema evoluiu na versão **v1.30.0** para uma **arquitetura multi-tenant federada**, viabilizando consultórios isolados, com marcas próprias, regras de privacidade invioláveis e um superpainel de governança.
 
 ### Princípios Norteadores:
-1. **Eliminar o início do zero na primeira consulta:** O paciente responde antecipadamente a um questionário adaptativo inteligente baseado em 28 escalas psiquiátricas internacionais validadas.
-2. **Entregar o caso estruturado ao psiquiatra (Decision Support):** O painel clínico do Dr. Saraiva consolida queixas, escores, cálculo de risco, diagnóstico diferencial e condutas orientativas personalizadas (ex: TCC-I no sono, cautela com antidepressivos no espectro bipolar, modelo FRAMES em substâncias).
-3. **Psicoeducação e Plano de Segurança Estruturado:** Devolutiva acolhedora imediata ao paciente, com dicas práticas de autorregulação, canais de emergência 24h (CVV 188 / SAMU 192), técnicas de aterramento e segurança ambiental.
-4. **Arquitetura Multi-Clínica White-Label:** Capacidade de operação multi-tenant onde cada consultório opera em seu próprio slug (`/saraiva`, `/padrao`), com paleta de cores (#1e4d5c / #3d8b8b), logo e corpo clínico isolado.
-5. **Conformidade Estrita com a LGPD e Ética Médica:** Consentimento explícito prévio, proteção de dados sob sigilo médico ético, RLS (Row Level Security) nativo no PostgreSQL e criptografia de ponta a ponta.
+1. **Eliminar o Início do Zero na Primeira Consulta:** O paciente responde antecipadamente a uma jornada adaptativa psicométrica orientada por Teoria de Resposta ao Item (TRI/CAT) e grafos de decisão reativos (DAG).
+2. **Entregar o Caso Estruturado ao Psiquiatra (Decision Support):** O painel clínico do médico consolida queixas, escores, cálculo de risco, diagnóstico diferencial, detecção de hesitação focal (Dwell-Time) e condutas orientativas personalizadas (ex: TCC-I no sono, cautela estrita com antidepressivos no espectro bipolar, modelo FRAMES em substâncias, profilaxia em TEPT).
+3. **Psicoeducação e Plano de Segurança Estruturado:** Devolutiva acolhedora imediata ao paciente, com 10 trilhas clínicas validadas, técnicas de aterramento, higiene do sono, descompressão e canais de emergência 24h gratuitos (**CVV 188** / **SAMU 192**).
+4. **Isolamento Multi-Tenant Estrito (Zero Leakage):** Segregação total de dados entre clínicas no PostgreSQL (RLS), com guardas de contexto congeladas (`TenantContext`), switcher dinâmico no painel para Super Admin e restrição médica inviolável.
+5. **Conformidade Estrita com a LGPD e Ética Médica (CFM / ABP):** Consentimento explícito prévio, proteção de dados sob sigilo médico ético, separação categórica entre rastreio psicométrico e diagnóstico conclusivo (nunca emitir CID no PDF do paciente).
 
 ---
 
-## 2. Stack Tecnológica Oficial
+## 2. Topologia Multi-Tenant da Plataforma
 
-| Camada | Tecnologia | Versão | Função |
+A plataforma opera com governança baseada em papéis federados (`user_roles`), garantindo que nenhum médico acesse dados de outro consultório, enquanto a administração técnica global supervisiona o sistema:
+
+```
+                          ┌────────────────────────────────────────────────────────┐
+                          │     SUPERADMINISTRADOR GLOBAL DA PLATAFORMA            │
+                          │        coletivoaruatemvoz@gmail.com (clinic_id: null)  │
+                          │   Acesso Irrestrito · TenantSwitcher · Auditoria Total │
+                          └──────────────────────────┬─────────────────────────────┘
+                                                     │
+                         ┌───────────────────────────┴────────────────────────────┐
+                         │                                                        │
+                         ▼                                                        ▼
+       ┌──────────────────────────────────────┐                ┌──────────────────────────────────────┐
+       │   SARAIVA CLÍNICA DE PSIQUIATRIA    │                │   INSTITUTO LUMINA SAÚDE MENTAL      │
+       │   ID: 0da5f2ec-c592-429a-af9c-       │                │   ID: b1a1a1a1-bbbb-cccc-            │
+       │       0da5f2ec-c592-429a-af9c-       │                │       dddd-eeeeeeeeeeee              │
+       │   Slug: /saraiva (alias /padrao)     │                │   Slug: /lumina                      │
+       │   Médico: Dr. José R. F. Saraiva Jr  │                │   Médica: Dra. Camila Rocha          │
+       │   Email: joserfsaraivajr@gmail.com   │                │   Email: lumina.diretoria@gmail.com  │
+       │   Cor: #1e4d5c / #3d8b8b             │                │   Cor: #1e1b4b / #6366f1             │
+       └──────────────────────────────────────┘                └──────────────────────────────────────┘
+```
+
+### Regras do Multi-Tenant:
+- **`coletivoaruatemvoz@gmail.com`**: Único usuário com `role: 'admin'` e `clinic_id: null`. Possui o componente `TenantSwitcher` ativo na barra de navegação superior do painel clínico, permitindo filtrar triagens por clínica ou inspecionar a base global consolidada.
+- **`joserfsaraivajr@gmail.com`**: Usuário associado estritamente à Saraiva Clínica (`clinic_id: '0da5f2ec-c592-429a-af9c-e4c7eb4e952b'`). O RLS e o middleware bloqueiam qualquer tentativa de ler ou alterar triagens de terceiros.
+- **`lumina.diretoria@gmail.com`**: Usuário associado estritamente ao Instituto Lumina (`clinic_id: 'b1a1a1a1-bbbb-cccc-dddd-eeeeeeeeeeee'`).
+
+---
+
+## 3. Stack Tecnológica Oficial
+
+| Camada | Tecnologia | Versão | Função na Arquitetura |
 |---|---|---|---|
-| **Runtime & Pacotes** | Bun / Node.js | Bun 1.4+ / Node 22+ | Gerenciamento de dependências e scripts ultra rápidos. |
-| **Framework Web** | TanStack Start | v1.168+ | Framework fullstack React com SSR nativo e Server Functions tipadas. |
-| **Frontend UI** | React | 19.2+ | Biblioteca de renderização reativa moderna. |
-| **Roteamento** | TanStack Router | v1.170+ | Roteamento 100% tipado (Type-Safe Routing). |
-| **Estilização** | Tailwind CSS v4 | v4.2+ | CSS utilitário com variáveis semânticas e paleta do consultório. |
-| **Componentes Base** | Radix UI + Lucide | Latest | Primitives acessíveis (Dialog, Popover, Select, Accordion). |
-| **SSR Engine** | Nitro | 3.0-beta | Compilação otimizada para Cloudflare Workers. |
-| **Banco de Dados** | PostgreSQL (Supabase) | PG 15+ | Banco relacional com RLS por tenant e extensões (`pgcrypto`). |
-| **Autenticação** | Supabase Auth | v2 | Sessões JWT, papéis (`admin` global, `doctor`, `staff`), recuperação de senha. |
-| **Armazenamento** | Supabase Storage | v2 | Bucket `landing` para logos e metadados visuais. |
-| **Deploy / Hosting** | Cloudflare Workers | Latest | Execução serverless na borda com resposta < 20ms no Brasil. |
+| **Runtime & Pacotes** | Bun / Node.js | Bun 1.4+ / Node 22+ | Gerenciamento de dependências, scripts de validação e testes em milissegundos. |
+| **Framework Web Fullstack** | TanStack Start | v1.168+ | SSR nativo, Server Functions tipadas e orquestração de rotas. |
+| **Frontend UI Engine** | React | 19.2+ | Renderização concorrente, hooks modernos e reatividade pura. |
+| **Roteamento Tipado** | TanStack Router | v1.170+ | Roteamento 100% type-safe com code splitting automático. |
+| **Design System & Estilos** | Tailwind CSS v4 + Radix UI | v4.2+ | Design tokens semânticos, acessibilidade WCAG 2.1 AA e paletas multi-marca. |
+| **Motor Clínico Isolado** | TypeScript Puro | ES2022+ | Schemas JSON, CAT/TRI, Grafo DAG, Dwell-Time e isolamento total de UI. |
+| **SSR & Edge Compiler** | Nitro Engine | v3.0-beta | Compilação em bundle único otimizado para o Cloudflare Workers. |
+| **Hospedagem de Borda** | Cloudflare Workers | Latest | Execução serverless global com latência < 25ms em território brasileiro. |
+| **Banco de Dados & Auth** | Supabase (PostgreSQL 15) | Latest | RLS granular por tenant, sessões JWT, enum roles e pgcrypto. |
+| **Storage de Mídia** | Supabase Storage | Latest | Bucket `landing` para logos institucionais e identidades visuais. |
+| **Motor de Testes** | Vitest | v3.0+ | Suíte automatizada com 204 testes (16 suítes) cobrindo regras clínicas e infra. |
 
 ---
 
-## 3. Topologia e Fluxo de Execução
+## 4. O Motor Clínico Isolado (`src/lib/clinical-engine/`)
+
+Implementado como uma camada desacoplada de alto desempenho, o motor clínico reside em [`src/lib/clinical-engine/`](file:///mnt/armazenamento/Projetos/triagem-medica/src/lib/clinical-engine/) e é composto por 6 pilares:
 
 ```
-[ Paciente / Dr. Saraiva / Equipe ]
-        │  HTTPS (TLS 1.3 / HTTP/2 e HTTP/3)
-        ▼
-[ Cloudflare Edge (Workers) ]
-   ├── Assets Estáticos (.output/public: JS, CSS, Imagens)
-   └── Server Functions Nitro (.output/server/index.mjs)
-        │
-        ├── Client Components: React 19 + TanStack Router
-        └── Server Functions (src/lib/*.functions.ts)
-                 │  Bearer JWT + apikey (RLS Enforced)
-                 ▼
-        [ Supabase Cloud (PostgreSQL + Auth + Storage) ]
-           ├── Row Level Security (RLS) policies
-           ├── auth.users (Autenticação do Médico/Admin)
-           ├── public.user_roles (Controle de Acesso RBAC unificado)
-           ├── public.clinics (Identidade Saraiva Clínica de Psiquiatria)
-           ├── public.psychoeducation_* (10 temas, conteúdos e engajamento)
-           └── public._keepalive (Prevenção de suspensão automática)
+src/lib/clinical-engine/
+├── schemas/                     # 15 Schemas declarativos em JSON padronizados
+│   ├── epds.json                # Depressão perinatal (com trava biológica masculina)
+│   ├── phq2.json & phq9.json    # Depressão maior e screener ultrarrápido
+│   ├── c-ssrs.json              # Columbia Suicide Severity Rating Scale
+│   ├── snap-iv.json & asrs-18.json # TDAH infantil e adulto
+│   ├── ad8.json & gds15.json    # Rastreio cognitivo e depressão geriátrica
+│   ├── y-bocs.json & pcl-5.json # TOC e Estresse Pós-Traumático
+│   ├── isi.json & mbi-hss.json  # Insônia e Esgotamento Profissional / Burnout
+│   ├── audit.json & assist.json # Álcool e Substâncias (OMS)
+│   └── srq20.json               # Self-Reporting Questionnaire (Atenção Básica)
+├── schema-evaluator.ts          # Avaliador puro de elegibilidade e pontuação psicométrica
+├── reactive-dag.ts              # Grafo acíclico dirigido (DAG) com prevenção de ciclos por DFS
+├── reactions.ts                 # Catálogo de regras de reação cruzada e desdobramentos
+├── cat-estimator.ts             # Motor de Teste Adaptativo Computadorizado (TRI / GRM de Samejima)
+├── dwell-time.ts                # Telemetria de tempo de resposta, média vs. mediana e hesitação focal
+├── tenant-context.ts            # Contexto imutável congelado com validação estrita anti-leakage
+├── shadow-runner.ts             # Comparador paralelo para migração segura (legado vs. novo motor)
+├── flags.ts                     # Feature flags dinâmicas para ativação gradual de CAT e Dwell-Time
+└── index.ts                     # Ponto de exportação unificado do motor clínico
 ```
 
 ---
 
-## 4. Estrutura de Diretórios do Projeto
+## 5. Estrutura de Diretórios Atualizada
 
 ```
 triagem-medica/
-├── .agents/skills/              # Skills locais de governança
-├── .github/workflows/          # Automações CI/CD
-├── documentação viva/          # Documentação viva oficial e sincronizada
-├── public/                     # Assets estáticos servidos na raiz
-├── scripts/                    # Scripts de automação e validação de produção
+├── .agents/skills/              # Skills locais de governança (Supabase, UI Quality)
+├── .github/workflows/          # Automações CI/CD e keepalive do banco
+├── documentação viva/          # Repositório vivo central de documentação e runbooks
+├── public/                     # Assets estáticos servidos na raiz do site
+├── scripts/                    # Scripts de build, validação e diagnóstico
 ├── src/
-│   ├── components/             # Componentes React reutilizáveis
-│   │   ├── landing/            # Landing Page Luxury
-│   │   ├── painel/             # Painel Clínico, Psicoeducação e Decision Support
-│   │   ├── portal/             # Portal do Paciente com biblioteca filtrável
-│   │   ├── triage/             # Componentes de fluxo de triagem e cards de crise
-│   │   └── ui/                 # Primitives do Shadcn / Radix UI
-│   ├── config/                 # Configurações de domínio e branding
-│   │   ├── branding.ts         # Identidade da Saraiva Clínica de Psiquiatria
-│   │   └── triage-tree.ts      # Árvore de decisão adaptativa e questionários
-│   ├── integrations/supabase/  # Clientes Supabase Browser e SSR
-│   │   ├── client.ts           # Cliente singleton seguro com triplo fallback
-│   │   ├── client.server.ts    # Cliente com Service Role para Server Functions
-│   │   ├── auth-middleware.ts  # Validação de sessão e Bearer JWT
-│   │   └── types.ts            # Tipos gerados do schema do banco
-│   ├── lib/                    # Motores clínicos, cálculos e server functions
-│   │   ├── scoring.ts          # Algoritmos de cálculo das 28 escalas psiquiátricas
+│   ├── components/
+│   │   ├── landing/            # Landing Page institucional luxury
+│   │   ├── painel/             # Painel Clínico, TenantSwitcher, TelemetryCard, PsychoeducationTracker
+│   │   ├── portal/             # Portal do Paciente com biblioteca filtrável e plano de segurança
+│   │   ├── triage/             # Fluxo da pré-avaliação adaptativa e componentes de crise
+│   │   └── ui/                 # Primitives do Shadcn / Radix UI acessíveis
+│   ├── config/                 # Configurações de branding e árvore de triagem
+│   ├── context/
+│   │   └── TenantContext.tsx   # Provedor React de tenant ativo para Super Admin
+│   ├── integrations/supabase/  # Clientes Supabase com triplo fallback resiliente
+│   ├── lib/
+│   │   ├── clinical-engine/    # Motor Clínico Isolado v1.30 (CAT/TRI, DAG, Schemas, Dwell-Time)
+│   │   ├── scoring.ts          # Motor de pontuação das 28 escalas clínicas
 │   │   ├── safety-plan.ts      # Plano de Segurança Estruturado (CVV 188 / SAMU 192)
-│   │   ├── clinical-decision-support.ts # Apoio à decisão clínica do Dr. Saraiva
-│   │   ├── psychoeducation.ts  # Motor de triggers e re-exports clínicos
-│   │   ├── psychoeducation-data.ts # Os 10 temas oficiais (TCC, redução de danos)
-│   │   ├── psychoeducation.functions.ts # Server RPCs de psicoeducação e visualizações
-│   │   └── pdf-report.ts       # Geração dos relatórios em PDF (Paciente e Médico)
-│   ├── routes/                 # Rotas da aplicação (TanStack Router)
-│   ├── router.tsx              # Instanciação do Router
-│   └── server.ts               # Handler de entrada do SSR no Nitro
+│   │   ├── clinical-decision-support.ts # Regras de apoio à decisão diagnóstica do psiquiatra
+│   │   ├── psychoeducation-data.ts      # 10 tópicos clínicos oficiais estruturados
+│   │   ├── psychoeducation.functions.ts # Server Functions RPC de engajamento e visualização
+│   │   └── pdf-report.ts       # Gerador dos relatórios em PDF (Paciente e Médico)
+│   ├── routes/                 # Rotas tipadas do TanStack Router
+│   │   ├── _authenticated/     # Painel, /materiais, /painel/$id, /admin, /auditoria
+│   │   └── ...                 # Rotas públicas (/saraiva, /lumina, /auth, /portal)
+│   ├── router.tsx              # Instanciação central do roteador
+│   └── server.ts               # Entrypoint SSR compilado pelo Nitro
 ├── supabase/
-│   ├── migrations/             # Migrações SQL cronológicas
-│   ├── consolidated_schema.sql # Script SQL único consolidado para reprodução
-│   └── keepalive.sql           # Script de heartbeat anti-suspensão
-├── wrangler.json               # Configuração de deploy no Cloudflare Workers
-├── package.json                # Dependências e scripts de build
-└── tsconfig.json               # Configuração do compilador TypeScript
+│   ├── migrations/             # Migrações SQL versionadas
+│   ├── consolidated_schema.sql # Schema consolidado reproduzível
+│   └── keepalive.sql           # Query periódica de heartbeat anti-pausa
+├── wrangler.json               # Configuração do Cloudflare Workers
+├── package.json                # Scripts e pacotes gerenciados via Bun
+└── tsconfig.json               # Configuração estrita do TypeScript
 ```
+
+---
+
+## 6. Garantia de Qualidade e Portões de Aceite (Quality Gates)
+
+O código no repositório `origin/main` obedece rigorosamente a três critérios inegociáveis antes de qualquer deploy ou publicação:
+1. **Verificação de Tipos TypeScript:** `bun x tsc --noEmit` deve retornar **0 erros**.
+2. **Suíte Completa de Testes:** `bun run test` deve executar e aprovar **204 testes em 16 arquivos**.
+3. **Build de Produção:** `bun run build` deve compilar sem avisos críticos em menos de 2 segundos.

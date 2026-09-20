@@ -1,131 +1,186 @@
-# 02. Banco de Dados e Migrações (PostgreSQL / Supabase)
+# 02. Banco de Dados, Migrações e Políticas RLS (PostgreSQL / Supabase)
 
-O banco de dados do **TriagemPsi** reside no PostgreSQL (Supabase Cloud) sob o projeto `ffyjjkouscnabyxjxexu.supabase.co`. Toda a integridade relacional, isolamento multi-tenant entre consultórios e conformidade com a LGPD e Ética Médica são garantidos a nível de banco de dados via **Row Level Security (RLS)** nativo e funções de segurança definidas (`SECURITY DEFINER`).
+> **Instância de Produção:** `ffyjjkouscnabyxjxexu.supabase.co` (Região: São Paulo `sa-east-1`)  
+> **Motor Relacional:** PostgreSQL 15+ com extensões `pgcrypto` e `uuid-ossp`  
+> **Versão do Schema:** v1.30.0 (Atualizada com Provisionamento Lumina Saúde Mental)
 
 ---
 
 ## 1. Dicionário de Tabelas Principais
 
-### `public.clinics` (Consultórios / Clínicas)
-Representa as unidades e consultórios atendidos pela plataforma.
-* `id` (uuid, PK): Identificador único do consultório.
-* `slug` (text, UNIQUE): Slug da URL (oficial: `saraiva`, compatibilidade: `padrao`).
-* `name` (text): Nome institucional (ex: `"Saraiva Clínica de Psiquiatria"`).
-* `tagline` (text): Descrição institucional (ex: `"Cuidado psiquiátrico com escuta, ciência e humanidade"`).
-* `primary_color` (text): Cor primária institucional (ex: `"#1e4d5c"` — azul-petróleo sóbrio).
-* `accent_color` (text): Cor de destaque (ex: `"#3d8b8b"` — verde-azulado suave).
-* `intro_copy` (text): Texto de acolhimento e contextualização da consulta do Dr. Saraiva.
-* `done_copy` (text): Mensagem de encerramento seguro ao paciente.
-* `logo_url`, `favicon_url` (text): Assets visuais do consultório.
-* `contact_email`, `contact_phone`, `website_url` (text): Canais de atendimento.
+### `public.clinics` (Consultórios e Clínicas Federadas)
+Cadastra as unidades médicas atendidas pela plataforma, permitindo isolamento visual e operacional.
+* `id` (`uuid`, PK): Identificador único da clínica.
+* `slug` (`text`, UNIQUE): Identificador amigável de rota (ex: `'saraiva'`, `'padrao'`, `'lumina'`).
+* `name` (`text`): Nome institucional (ex: `"Saraiva Clínica de Psiquiatria"`, `"Instituto Lumina de Saúde Mental"`).
+* `tagline` (`text`): Lema de acolhimento clínico.
+* `primary_color` (`text`): Hexadecimal da cor primária (ex: `"#1e4d5c"` Saraiva, `"#1e1b4b"` Lumina).
+* `accent_color` (`text`): Hexadecimal de realce (ex: `"#3d8b8b"` Saraiva, `"#6366f1"` Lumina).
+* `intro_copy` (`text`): Texto de boas-vindas do responsável técnico na abertura da triagem.
+* `done_copy` (`text`): Mensagem final orientativa apresentada ao paciente após a submissão.
+* `logo_url`, `favicon_url` (`text`): Assets gráficos armazenados no bucket Supabase Storage `landing`.
+* `contact_email`, `contact_phone`, `website_url` (`text`): Canais diretos de comunicação e WhatsApp.
 
-### `public.user_roles` (Papéis e Permissões - Padrão Unificado)
-Define o papel e o escopo de cada usuário autenticado no sistema:
-* `id` (uuid, PK)
-* `user_id` (uuid, FK `auth.users`): Usuário autenticado.
-* `clinic_id` (uuid, FK `clinics`, Nullable): 
-  * Se `NULL`: Usuário é **Admin Global** (acesso total irrestrito a todos os consultórios, auditoria e gestão).
-  * Se preenchido: Usuário pertence estritamente àquele consultório.
-* `role` (enum `app_role`):
-  * `'admin'`: Acesso total (Global se `clinic_id IS NULL`; ou Administrador da clínica).
-  * `'doctor'`: Médico psiquiatra vinculado ao consultório.
-  * `'staff'`: Secretária / equipe de recepção e apoio.
+### `public.user_roles` (Controle de Acesso RBAC Unificado)
+Gerencia as permissões de acesso ao sistema com suporte nativo a multi-tenancy federado:
+* `id` (`uuid`, PK)
+* `user_id` (`uuid`, FK `auth.users`, ON DELETE CASCADE): Usuário autenticado no Supabase Auth.
+* `clinic_id` (`uuid`, FK `clinics`, Nullable):
+  * **Se `NULL`:** O usuário é **Superadministrador Global**. Possui acesso irrestrito a todas as clínicas, todas as triagens, visualização global no `TenantSwitcher` e privilégio de auditoria total. (Exclusivo: `coletivoaruatemvoz@gmail.com`).
+  * **Se preenchido com UUID:** O usuário tem seu acesso escopado estritamente àquela clínica específica (Médico ou Staff local).
+* `role` (`app_role` ENUM):
+  * `'admin'`: Administrador (Global se `clinic_id IS NULL`; Local se associado a uma clínica).
+  * `'doctor'`: Médico psiquiatra titular ou assistente.
+  * `'staff'`: Secretária, recepcionista ou equipe multidisciplinar de apoio.
 
 ### `public.doctor_profiles` (Perfis Médicos)
-Médicos do corpo clínico disponíveis para seleção pelo paciente:
-* `id` (uuid, PK)
-* `clinic_id` (uuid, FK `clinics`): Consultório ao qual o médico pertence.
-* `user_id` (uuid, FK `auth.users`): Conta de login do profissional.
-* `display_name` (text): Nome completo visível (ex: `"Dr. José Ribamar Fernandes Saraiva Junior"`).
-* `crm` (text): Registro profissional (ex: `"CRM-RS 29349"`).
-* `specialty` (text): Especialidade e qualificações (ex: `"Psiquiatria ABP · RQE 30038 · TCC · Dependência Química · Geriatria"`).
-* `is_active` (boolean): Disponibilidade no seletor da pré-triagem.
+Profissionais cadastrados para seleção na jornada de acolhimento e assinatura de relatórios:
+* `id` (`uuid`, PK, FK `auth.users` opcional): Identificador do médico.
+* `clinic_id` (`uuid`, FK `clinics`): Unidade à qual o médico pertence.
+* `display_name` (`text`): Nome formal (ex: `"Dr. José Ribamar Fernandes Saraiva Junior"`, `"Dra. Camila Rocha"`).
+* `crm` (`text`): Registro médico e estado (ex: `"CRM-RS 29349"`, `"CRM-SP 189420"`).
+* `specialty` (`text`): RQE e áreas de atuação (ex: `"Psiquiatria ABP · RQE 30038 · TCC · Dependência Química · Geriatria"`).
+* `is_active` (`boolean`): Flag que habilita a exibição do profissional no seletor da pré-triagem.
 
-### `public.assessments` (Triagens Realizadas)
-Armazena as respostas da jornada adaptativa do paciente:
-* `id` (uuid, PK)
-* `clinic_id` (uuid, FK `clinics`): Consultório onde a triagem foi feita.
-* `doctor_id` (uuid, FK `doctor_profiles`, Nullable): Médico direcionado.
-* `respondent_name` (text): Nome do paciente.
-* `respondent_age` (integer): Idade em anos.
-* `respondent_email` (text): E-mail do paciente (chave mestra do Portal do Paciente).
-* `respondent_phone` (text): WhatsApp com DDD para contato da clínica.
-* `respondent_type` (text): `'paciente'` ou `'familiar'`.
-* `status` (text): `'submitted'`, `'reviewed'`, `'in_progress'`.
-* `risk_flags` (text[]): Sinalizadores clínicos de alerta imediato (ideação suicida, virada maníaca, crise).
-* `summary` (jsonb): Resumo estruturado do caso, queixas, escalas indicadas e `risk_pathway`.
-* `submitted_at` (timestamptz): Timestamp da submissão.
+### `public.assessments` (Triagens e Prontuários Adaptativos)
+Registro central de cada avaliação preenchida pelo paciente ou familiar:
+* `id` (`uuid`, PK, DEFAULT `gen_random_uuid()`): Identificador do caso.
+* `clinic_id` (`uuid`, FK `clinics`, NOT NULL): Clínica onde a triagem foi realizada.
+* `doctor_id` (`uuid`, FK `doctor_profiles`, Nullable): Médico direcionado para o atendimento.
+* `respondent_name` (`text`): Nome do paciente.
+* `respondent_age` (`integer`): Idade cronológica em anos (utilizada para bifurcações infantojuvenil/adulto/idoso).
+* `respondent_email` (`text`, NOT NULL): E-mail do paciente (chave de autenticação do Portal do Paciente).
+* `respondent_phone` (`text`): WhatsApp para contato da secretaria.
+* `respondent_type` (`text`): `'paciente'` ou `'familiar'`.
+* `status` (`text`): `'submitted'` (aguardando consulta), `'reviewed'` (analisado pelo médico), `'in_progress'`.
+* `risk_flags` (`text[]`): Sinais de risco imediato detectados (ex: `['IDEACAO_SUICIDA', 'RISCO_BIPOLAR', 'ABUSO_SUBSTANCIAS']`).
+* `summary` (`jsonb`): Estrutura com dados consolidados: queixa principal, escalas respondidas, telemetria de **Dwell-Time** (tempo total, tempo mediano por item, itens de hesitação focal) e **Estimativas CAT/TRI** ($\theta$ e erro padrão $SE$).
+* `submitted_at` (`timestamptz`, DEFAULT `now()`): Data/hora de envio.
 
-### `public.scale_results` (Resultados das 28 Escalas)
-Pontuações individuais e psicométricas de cada instrumento aplicado:
-* `id` (uuid, PK)
-* `assessment_id` (uuid, FK `assessments`, ON DELETE CASCADE): Triagem vinculada.
-* `scale_code` (text): Código padronizado (ex: `'PHQ-9'`, `'GAD-7'`, `'ISI'`, `'MDQ'`, `'AUDIT'`).
-* `score` (numeric): Escore bruto obtido.
-* `band` (text): Classificação clínica da gravidade (ex: `'Depressão moderada'`).
-* `band_level` (integer): Gravidade ordinal (0 a 4).
-* `risk` (boolean): Flag de risco clínico crítico associado à escala.
-* `answers` (jsonb): Respostas item a item para análise detalhada do médico.
-
----
-
-## 2. Módulo de Psicoeducação & Plano de Segurança
-
-### `public.psychoeducation_topics`
-Os 10 temas clínicos oficiais com ícones Lucide, tags e ordenação prioritária:
-* `id` (uuid, PK)
-* `slug` (text, UNIQUE): Slugs canônicos (`depressao-humor`, `ansiedade-preocupacao`, `crise-emocional`, `insonia-sono`, `tdah-adultos`, `oscilacoes-humor`, `alcool-substancias`, `trauma-tept`, `burnout-esgotamento`, `bem-estar-prevencao`).
-* `title` (text): Título humanizado do tema.
-* `short_title` (text): Título condensado para navegação e tags.
-* `description` (text): Descrição da finalidade clínica.
-* `icon` (text): Nome do ícone visual.
-* `is_active` (boolean): Disponibilidade global.
-
-### `public.psychoeducation_contents`
-Versões de conteúdo (`version: 'v1'`, `level: 'resumo'` | `'completo'` | `'crise'`):
-* `id` (uuid, PK)
-* `topic_id` (uuid, FK `psychoeducation_topics`, ON DELETE CASCADE)
-* `version` (text): Versão editorial (ex: `'v1'`).
-* `level` (text): Nível de detalhamento.
-* `title` (text): Título do conteúdo.
-* `body_md` (text): Texto em Markdown detalhado para o Portal do Paciente.
-* `summary_pdf` (text): Síntese de autocuidado para impressão no PDF do paciente.
-* `is_published` (boolean): Status de publicação.
-
-### `public.clinic_psychoeducation_settings`
-Controle do médico sobre quais temas ativar ou desativar em seu consultório:
-* `id` (uuid, PK)
-* `clinic_id` (uuid, FK `clinics`, ON DELETE CASCADE)
-* `topic_id` (uuid, FK `psychoeducation_topics`, ON DELETE CASCADE)
-* `is_enabled` (boolean): Se o tema está liberado na clínica.
-* `auto_trigger` (boolean): Se é disparado automaticamente pelos algoritmos.
-
-### `public.assessment_psychoeducation`
-Materiais vinculados a cada avaliação individual e rastreamento de engajamento:
-* `id` (uuid, PK)
-* `assessment_id` (uuid, FK `assessments`, ON DELETE CASCADE)
-* `topic_id` (uuid, FK `psychoeducation_topics`, ON DELETE CASCADE)
-* `trigger_reason` (text): Justificativa do gatilho clínico (ex: `"PHQ-9 escore 16"`).
-* `is_manual` (boolean): Se foi prescrito manualmente pelo Dr. Saraiva no prontuário.
-* `viewed_at` (timestamptz): Registro da leitura pelo paciente no Portal (Métricas de Engajamento).
+### `public.scale_results` (Resultados Detalhados das 28 Escalas)
+Pontuação psicométrica de cada instrumento acionado:
+* `id` (`uuid`, PK)
+* `assessment_id` (`uuid`, FK `assessments`, ON DELETE CASCADE): Triagem vinculada.
+* `scale_code` (`text`): Sigla do instrumento (ex: `'PHQ-9'`, `'GAD-7'`, `'ASRS-18'`, `'MDQ'`, `'C-SSRS'`, `'ISI'`, `'EPDS'`).
+* `score` (`numeric`): Pontuação total bruta ou subtotal normalizado.
+* `band` (`text`): Faixa clínica de severidade (ex: `'Depressão grave'`, `'Ansiedade moderada'`).
+* `band_level` (`integer`): Gravidade ordinal de 0 a 4.
+* `risk` (`boolean`): Flag booleano de risco clínico para triagem rápida.
+* `answers` (`jsonb`): Respostas item a item com pontuações unitárias e timestamps de dwell-time.
 
 ---
 
-## 3. Row Level Security (RLS) & Governança
+## 2. Tabelas do Módulo de Psicoeducação
 
-1. **Pacientes Anônimos (anon):**
-   * Leitura de dados públicos da clínica pelo slug (`clinics`).
-   * Submissão pública de triagem e escalas (`INSERT ON assessments`, `scale_results`).
-   * Isolamento absoluto: não conseguem ler nenhuma triagem de outros pacientes.
-2. **Pacientes Autenticados (authenticated):**
-   * Acesso exclusivo às triagens associadas ao seu próprio e-mail verificado no Portal do Paciente.
-3. **Corpo Clínico (Médicos e Staff):**
-   * Acesso restrito às triagens e prontuários da clínica vinculada em `user_roles`.
-4. **Admin Global (`role = 'admin'` e `clinic_id IS NULL`):**
-   * Acesso total e irrestrito para auditoria, suporte clínico e faturamento de todas as unidades.
+### `public.psychoeducation_topics` (10 Temas Clínicos Oficiais)
+* `id` (`uuid`, PK)
+* `slug` (`text`, UNIQUE): Slugs canônicos:
+  1. `depressao-humor`
+  2. `ansiedade-preocupacao`
+  3. `crise-emocional` (Prioridade Máxima — CVV 188 / SAMU 192)
+  4. `insonia-sono` (Pilares TCC-I)
+  5. `tdah-adultos` (Funções executivas)
+  6. `oscilacoes-humor` (Espectro Bipolar)
+  7. `alcool-substancias` (Redução de danos)
+  8. `trauma-tept` (TCC focada no trauma)
+  9. `burnout-esgotamento` (NR-01 e estresse ocupacional)
+  10. `bem-estar-prevencao` (Longevidade e estilo de vida)
+* `title`, `short_title`, `description` (`text`): Textos humanizados de apresentação.
+* `icon` (`text`): Nome do ícone Lucide correspondente.
+* `is_active` (`boolean`): Ativação global no sistema.
+
+### `public.psychoeducation_contents` (Conteúdos e Níveis Editoriais)
+* `id` (`uuid`, PK)
+* `topic_id` (`uuid`, FK `psychoeducation_topics`, ON DELETE CASCADE)
+* `version` (`text`): Versão editorial (ex: `'v1'`).
+* `level` (`text`): Nível de detalhe (`'resumo'`, `'completo'`, `'crise'`).
+* `title` (`text`): Título do artigo ou guia.
+* `body_md` (`text`): Conteúdo formatado em Markdown com técnicas de autorregulação e orientações.
+* `summary_pdf` (`text`): Síntese de autocuidado incluída na impressão do relatório do paciente.
+* `is_published` (`boolean`): Status de publicação.
+
+### `public.clinic_psychoeducation_settings` (Customização por Consultório)
+* `id` (`uuid`, PK)
+* `clinic_id` (`uuid`, FK `clinics`, ON DELETE CASCADE)
+* `topic_id` (`uuid`, FK `psychoeducation_topics`, ON DELETE CASCADE)
+* `is_enabled` (`boolean`): Se a clínica disponibiliza o tema aos seus pacientes.
+* `auto_trigger` (`boolean`): Se o material é acionado automaticamente pelos algoritmos de triagem.
+
+### `public.assessment_psychoeducation` (Trilha do Paciente e Rastreio de Leitura)
+* `id` (`uuid`, PK)
+* `assessment_id` (`uuid`, FK `assessments`, ON DELETE CASCADE)
+* `topic_id` (`uuid`, FK `psychoeducation_topics`, ON DELETE CASCADE)
+* `trigger_reason` (`text`): Justificativa do gatilho clínico (ex: `"PHQ-9 escore 18 (Depressão Moderadamente Grave)"`).
+* `is_manual` (`boolean`): Se foi prescrito manualmente pelo psiquiatra via prontuário.
+* `viewed_at` (`timestamptz`): Registro da primeira leitura pelo paciente no Portal (Métricas de Engajamento).
 
 ---
 
-## 4. Script Consolidado para Replicação Imediata
-O banco completo com todas as 28 escalas, RLS, clínicas, triggers e psicoeducação pode ser recriado com 1 comando via:  
+## 3. Registro de Migrações Versionadas (`supabase/migrations/`)
+
+| Migração | Descrição / Finalidade |
+|---|---|
+| `20260727173055_...` a `20260813064220_...` | Criação das tabelas base, primeiras 12 escalas e cadastros de consultório. |
+| `20260917200000_unify_roles_and_rls.sql` | Unificação do controle de acesso `app_role` e definição de políticas RLS com suporte a Admin Global (`clinic_id IS NULL`). |
+| `20260917230000_psychoeducation_module.sql` | Criação das 4 tabelas de psicoeducação, carga dos 10 tópicos com conteúdos em Markdown e vínculo com avaliações. |
+| `20260919200000_provision_lumina_saude.sql` | Provisionamento do **Instituto Lumina de Saúde Mental** (`b1a1a1a1-bbbb-cccc-dddd-eeeeeeeeeeee`), cadastro da Dra. Camila Rocha e vinculação estrita de médicos por clínica. |
+
+---
+
+## 4. Políticas de Row Level Security (RLS) e Funções Auxiliares
+
+Todas as tabelas de saúde e dados sensíveis possuem RLS habilitado:
+
+```sql
+ALTER TABLE public.assessments ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.scale_results ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.assessment_psychoeducation ENABLE ROW LEVEL SECURITY;
+```
+
+### Funções de Apoio com `SECURITY DEFINER`:
+
+```sql
+-- Identifica se o usuário autenticado é Admin Global (irrestrito)
+CREATE OR REPLACE FUNCTION public.is_global_admin()
+RETURNS boolean
+LANGUAGE sql
+STABLE SECURITY DEFINER
+SET search_path = public
+AS $$
+  SELECT EXISTS (
+    SELECT 1 FROM public.user_roles
+    WHERE user_id = auth.uid()
+      AND role = 'admin'
+      AND clinic_id IS NULL
+  );
+$$;
+
+-- Obtém a clínica do usuário autenticado (se restrito)
+CREATE OR REPLACE FUNCTION public.get_auth_clinic_id()
+RETURNS uuid
+LANGUAGE sql
+STABLE SECURITY DEFINER
+SET search_path = public
+AS $$
+  SELECT clinic_id FROM public.user_roles
+  WHERE user_id = auth.uid()
+  LIMIT 1;
+$$;
+```
+
+### Regras de Acesso à Tabela `assessments`:
+1. **Pacientes Anônimos (`anon`):**
+   * Podem apenas criar novas avaliações (`INSERT`). Não possuem permissão de leitura (`SELECT`).
+2. **Pacientes Autenticados (`authenticated`):**
+   * Podem ler apenas as triagens cujo `respondent_email` seja idêntico a `auth.jwt() ->> 'email'`.
+3. **Médicos e Equipe (`authenticated` com papel associado):**
+   * Podem ler e atualizar apenas avaliações com `clinic_id = public.get_auth_clinic_id()`.
+4. **Superadministrador Global:**
+   * Caso `public.is_global_admin()` seja verdadeiro, tem acesso total de leitura, filtragem e atualização a qualquer triagem de qualquer clínica.
+
+---
+
+## 5. Script SQL Consolidado
+
+Para provisionar ou restaurar a base integral de uma só vez, utilize o script mestre mantido em:  
 👉 **[consolidated_schema.sql](file:///mnt/armazenamento/Projetos/triagem-medica/supabase/consolidated_schema.sql)**
