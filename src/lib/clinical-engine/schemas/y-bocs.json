@@ -1,0 +1,117 @@
+{
+  "$schema": "../schema-types.ts",
+  "code": "Y-BOCS",
+  "name": "Y-BOCS",
+  "fullName": "Yale-Brown Obsessive Compulsive Scale",
+  "version": "1.0",
+  "domain": "Transtorno Obsessivo-Compulsivo",
+  "instructions": "Avalie o tempo, interferência, angústia e controle sobre obsessões e compulsões na última semana.",
+  "timeframe": "Últimos 7 dias",
+  "eligibility": {
+    "min_age": 16,
+    "required_symptoms": [
+      "toc",
+      "obsessoes",
+      "rituais"
+    ]
+  },
+  "options": [
+    {
+      "label": "Nenhum / Menos de 1h por dia",
+      "value": 0
+    },
+    {
+      "label": "Leve (1 a 3h por dia)",
+      "value": 1
+    },
+    {
+      "label": "Moderado (3 a 8h por dia)",
+      "value": 2
+    },
+    {
+      "label": "Grave (8 a 14h por dia)",
+      "value": 3
+    },
+    {
+      "label": "Extremo (> 14h por dia / Quase constante)",
+      "value": 4
+    }
+  ],
+  "items": [
+    {
+      "id": "1",
+      "text": "Tempo ocupado por pensamentos obsessivos"
+    },
+    {
+      "id": "2",
+      "text": "Interferência das obsessões nas atividades diárias"
+    },
+    {
+      "id": "3",
+      "text": "Angústia ou ansiedade causada pelas obsessões"
+    },
+    {
+      "id": "4",
+      "text": "Resistência aos pensamentos obsessivos"
+    },
+    {
+      "id": "5",
+      "text": "Controle sobre as obsessões"
+    },
+    {
+      "id": "6",
+      "text": "Tempo gasto realizando comportamentos compulsivos"
+    },
+    {
+      "id": "7",
+      "text": "Interferência das compulsões na rotina cotidiana"
+    },
+    {
+      "id": "8",
+      "text": "Angústia associada à interrupção das compulsões"
+    },
+    {
+      "id": "9",
+      "text": "Resistência aos comportamentos compulsivos"
+    },
+    {
+      "id": "10",
+      "text": "Controle sobre as compulsões"
+    }
+  ],
+  "bands": [
+    {
+      "min": 0,
+      "max": 7,
+      "label": "Subclínico",
+      "level": 1
+    },
+    {
+      "min": 8,
+      "max": 15,
+      "label": "TOC Leve",
+      "level": 2
+    },
+    {
+      "min": 16,
+      "max": 23,
+      "label": "TOC Moderado",
+      "level": 3
+    },
+    {
+      "min": 24,
+      "max": 31,
+      "label": "TOC Grave",
+      "level": 4,
+      "is_risk": true
+    },
+    {
+      "min": 32,
+      "max": 40,
+      "label": "TOC Extremo",
+      "level": 5,
+      "is_risk": true
+    }
+  ],
+  "positiveCutoff": 16
+}

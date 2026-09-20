@@ -1,0 +1,93 @@
+{
+  "$schema": "../schema-types.ts",
+  "code": "ASSIST",
+  "name": "ASSIST",
+  "fullName": "Alcohol, Smoking and Substance Involvement Screening Test (Lite)",
+  "version": "1.0",
+  "domain": "Álcool, Tabaco e Outras Substâncias",
+  "instructions": "Rastreio de uso de substâncias psicoativas nos últimos 3 meses.",
+  "timeframe": "Últimos 3 meses",
+  "eligibility": {
+    "min_age": 14,
+    "required_symptoms": [
+      "substancias",
+      "drogas",
+      "fumo",
+      "medicamentos"
+    ]
+  },
+  "options": [
+    {
+      "label": "Nunca",
+      "value": 0
+    },
+    {
+      "label": "1 ou 2 vezes",
+      "value": 1
+    },
+    {
+      "label": "Mensalmente",
+      "value": 2
+    },
+    {
+      "label": "Semanalmente",
+      "value": 3
+    },
+    {
+      "label": "Diariamente ou quase diariamente",
+      "value": 4
+    }
+  ],
+  "items": [
+    {
+      "id": "801",
+      "text": "Derivados do tabaco (cigarro, palheiro, charuto, narguilé, vape)"
+    },
+    {
+      "id": "804",
+      "text": "Bebidas alcoólicas (cerveja, vinho, destilados, etc.)"
+    },
+    {
+      "id": "808",
+      "text": "Maconha / Cannabis (baseado, haxixe, prensado, comestíveis)"
+    },
+    {
+      "id": "811",
+      "text": "Cocaína / Crack (pó, pedra, pasta, etc.)"
+    },
+    {
+      "id": "814",
+      "text": "Anfetaminas ou estimulantes (sem prescrição médica)"
+    },
+    {
+      "id": "817",
+      "text": "Inalantes ou solventes (cola, tiner, lança-perfume)"
+    },
+    {
+      "id": "820",
+      "text": "Sedativos ou comprimidos para dormir (sem prescrição médica)"
+    }
+  ],
+  "bands": [
+    {
+      "min": 0,
+      "max": 3,
+      "label": "Baixo Risco",
+      "level": 1
+    },
+    {
+      "min": 4,
+      "max": 15,
+      "label": "Risco Moderado (Intervenção Breve Indicada)",
+      "level": 3
+    },
+    {
+      "min": 16,
+      "max": 40,
+      "label": "Alto Risco (Avaliação Especializada e Tratamento Intensivo)",
+      "level": 4,
+      "is_risk": true
+    }
+  ],
+  "positiveCutoff": 4
+}
