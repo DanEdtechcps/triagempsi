@@ -271,7 +271,7 @@ export function LandingPage({ settings }: { settings?: LandingSettings | null })
             transition={{ delay: 1.05, duration: 0.9, ease: [0.16, 1, 0.3, 1] }}
             className="mt-11 flex flex-wrap items-center justify-center gap-3"
           >
-            <Link to="/$slug" params={{ slug: "padrao" }}>
+            <Link to="/$slug" params={{ slug: "saraiva" }}>
               <MagneticButton>Ver a triagem por dentro</MagneticButton>
             </Link>
             <a href="#planos">
@@ -495,7 +495,7 @@ export function LandingPage({ settings }: { settings?: LandingSettings | null })
             <MagneticButton onClick={() => setDemoOpen(true)}>
               Agendar demonstração
             </MagneticButton>
-            <Link to="/$slug" params={{ slug: "padrao" }}>
+            <Link to="/$slug" params={{ slug: "saraiva" }}>
               <MagneticButton variant="ghost">Experimentar a triagem</MagneticButton>
             </Link>
           </div>

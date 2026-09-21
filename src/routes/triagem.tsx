@@ -8,7 +8,7 @@ export const Route = createFileRoute("/triagem")({
   beforeLoad: ({ search }) => {
     throw redirect({
       to: "/$slug/triagem",
-      params: { slug: "padrao" },
+      params: { slug: "saraiva" },
       search: search.t ? { t: search.t } : {},
     });
   },

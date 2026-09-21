@@ -35,7 +35,7 @@ async function startTriagem(
 ) {
   await mockSubmit(page);
   await page.addInitScript(() => window.localStorage.clear());
-  await page.goto("/padrao/triagem", { waitUntil: "networkidle" });
+  await page.goto("/saraiva/triagem", { waitUntil: "networkidle" });
 
   // Consentimento + início
   // O checkbox fica dentro de um <label>, então clicamos no texto do rótulo.

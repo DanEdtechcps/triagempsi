@@ -156,7 +156,7 @@ export const createWhatsappInvite = createServerFn({ method: "POST" })
       contact_name: contact.name as string,
       phone_e164: contact.phone_e164 as string,
       clinic_name: clinic?.name ?? null,
-      clinic_slug: clinic?.slug ?? "padrao",
+      clinic_slug: clinic?.slug ?? "saraiva",
       expires_at: expires,
     };
   });
@@ -327,7 +327,7 @@ export const resendAssessmentInvite = createServerFn({ method: "POST" })
     }
 
     const clinicName = clinic?.name ?? "sua clínica";
-    const slug = clinic?.slug ?? "padrao";
+    const slug = clinic?.slug ?? "saraiva";
     const body =
       `Olá, ${a.respondent_name}! Aqui é da ${clinicName}. ` +
       `Reenviamos o seu questionário de pré-avaliação. É rápido e confidencial.`;

@@ -159,7 +159,7 @@ export function GatewaySplit() {
           enterFrom={-1}
           delay={0.45}
         >
-          <Link to="/$slug/triagem" params={{ slug: "padrao" }}>
+          <Link to="/$slug/triagem" params={{ slug: "saraiva" }}>
             <MagneticButton>Começar pré-avaliação</MagneticButton>
           </Link>
           <Link
