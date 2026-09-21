@@ -11,9 +11,9 @@
 | Rota | Layout / Tipo | Permissão | Finalidade e Principais Componentes |
 |---|---|---|---|
 | `/` | Pública | Livre | Landing Page institucional luxury com apresentação técnica e chamada de contato. |
-| `/saraiva` | Pública | Livre | Acolhimento institucional da **Saraiva Clínica de Psiquiatria** (alias: `/padrao`). |
+| `/saraiva` | Pública | Livre | Acolhimento institucional da **Saraiva Clínica de Psiquiatria**. (O alias `/padrao` era na verdade uma clínica duplicada com id próprio — mesclada e removida em 2026-09-21.) |
 | `/saraiva/triagem` | Pública | Livre | Jornada adaptativa completa de pré-triagem psiquiátrica do Dr. Saraiva. |
-| `/lumina` | Pública | Livre | Acolhimento institucional do **Instituto Lumina de Saúde Mental** (Dra. Camila Rocha). |
+| `/lumina` | Pública | Livre | Acolhimento institucional do **Instituto Lumina de Saúde Mental & Neurociências** (Dr. Gustavo Mello, admin; Dra. Camila Nogueira, doctor). Slug corrigido em 2026-09-21 (estava `lumina-saude` no banco, causando 404 nesta rota). |
 | `/lumina/triagem` | Pública | Livre | Jornada adaptativa parametrizada para o Instituto Lumina. |
 | `/auth` | Pública | Livre | Login restrito de médicos, staff e administradores via e-mail e senha. |
 | `/entrar` | Pública | Livre | Acesso rápido do paciente por e-mail para consultar suas triagens. |
@@ -76,7 +76,7 @@ Localizado na barra de navegação superior (`PainelShell.tsx`):
 - **Modos de Operação:**
   - *Visão Global / Todas as Clínicas:* Lista triagens de todas as unidades federadas para auditoria técnica.
   - *Saraiva Clínica de Psiquiatria:* Filtra exclusivamente os pacientes e métricas do Dr. Saraiva.
-  - *Instituto Lumina de Saúde Mental:* Filtra exclusivamente os atendimentos da Dra. Camila Rocha.
+  - *Instituto Lumina de Saúde Mental:* Filtra exclusivamente os atendimentos de Dr. Gustavo Mello / Dra. Camila Nogueira.
 - **Persistência Reativa:** Gerenciada pelo [`TenantContext.tsx`](file:///mnt/armazenamento/Projetos/triagem-medica/src/context/TenantContext.tsx) via React Context, atualizando instantaneamente as listagens sem recarregar a página.
 
 ---

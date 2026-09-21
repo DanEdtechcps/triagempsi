@@ -11,7 +11,8 @@
 ### `public.clinics` (Consultórios e Clínicas Federadas)
 Cadastra as unidades médicas atendidas pela plataforma, permitindo isolamento visual e operacional.
 * `id` (`uuid`, PK): Identificador único da clínica.
-* `slug` (`text`, UNIQUE): Identificador amigável de rota (ex: `'saraiva'`, `'padrao'`, `'lumina'`).
+* `slug` (`text`, UNIQUE): Identificador amigável de rota (ex: `'saraiva'`, `'lumina'`). Nota
+  2026-09-21: existia um `'padrao'` duplicando a Saraiva com id próprio — mesclado e removido.
 * `name` (`text`): Nome institucional (ex: `"Saraiva Clínica de Psiquiatria"`, `"Instituto Lumina de Saúde Mental"`).
 * `tagline` (`text`): Lema de acolhimento clínico.
 * `primary_color` (`text`): Hexadecimal da cor primária (ex: `"#1e4d5c"` Saraiva, `"#1e1b4b"` Lumina).
@@ -123,7 +124,8 @@ Pontuação psicométrica de cada instrumento acionado:
 | `20260727173055_...` a `20260813064220_...` | Criação das tabelas base, primeiras 12 escalas e cadastros de consultório. |
 | `20260917200000_unify_roles_and_rls.sql` | Unificação do controle de acesso `app_role` e definição de políticas RLS com suporte a Admin Global (`clinic_id IS NULL`). |
 | `20260917230000_psychoeducation_module.sql` | Criação das 4 tabelas de psicoeducação, carga dos 10 tópicos com conteúdos em Markdown e vínculo com avaliações. |
-| `20260919200000_provision_lumina_saude.sql` | Provisionamento do **Instituto Lumina de Saúde Mental** (`b1a1a1a1-bbbb-cccc-dddd-eeeeeeeeeeee`), cadastro da Dra. Camila Rocha e vinculação estrita de médicos por clínica. |
+| `20260919200000_provision_lumina_saude.sql` | Provisionamento do **Instituto Lumina de Saúde Mental & Neurociências** (`c0000000-0000-4000-8000-000000000002`), cadastro de Dr. Gustavo Mello (admin) e Dra. Camila Nogueira (doctor), vinculação estrita de médicos por clínica. (Corrigido 2026-09-21 — versão anterior desta doc citava uma Dra. Camila Rocha e um id `b1a1a1a1-...` que não batiam com o arquivo de migration real.) |
+| `20260917200000_unify_roles_and_rls.sql` + `20260917230000_psychoeducation_module.sql` | Nunca tinham sido aplicadas em produção até 2026-09-21 — aplicadas nesta data (função `is_global_admin`, tabela `patient_longitudinal_records`, as 4 tabelas de psicoeducação + 10 temas semeados). |
 
 ---
 
@@ -139,32 +141,42 @@ ALTER TABLE public.assessment_psychoeducation ENABLE ROW LEVEL SECURITY;
 
 ### Funções de Apoio com `SECURITY DEFINER`:
 
+> Nota 2026-09-21: as assinaturas abaixo foram corrigidas pra bater com o que está de fato
+> aplicado em produção. A versão anterior desta doc mostrava `is_global_admin()` sem parâmetro
+> e uma função `get_auth_clinic_id()` que nunca existiu — a real é `is_global_admin(_user_id
+> uuid)` (chamada como `is_global_admin(auth.uid())` dentro das policies) e `has_clinic_access
+> (_clinic_id uuid)`. Aceitar `_user_id` como parâmetro deixa a função chamável via RPC público
+> pra checar QUALQUER usuário — por padrão do Postgres/Supabase toda função nova em `public`
+> nasce com EXECUTE liberado pra `anon`. Isso foi descoberto exposto (`anon` conseguia checar
+> se um UUID arbitrário era admin global) e corrigido revogando EXECUTE de `anon` diretamente
+> nessa função. Ainda aceita checar qualquer `_user_id` para usuários `authenticated` — migrar
+> pra uma versão sem parâmetro (usando `auth.uid()` internamente, como a doc original sugeria)
+> fecharia isso de vez, mas exigiria atualizar todas as policies que chamam
+> `is_global_admin(auth.uid())`. Não fizemos essa migração ainda.
+
 ```sql
--- Identifica se o usuário autenticado é Admin Global (irrestrito)
-CREATE OR REPLACE FUNCTION public.is_global_admin()
+-- Versão REAL em produção (não a versão sem parâmetro documentada antes):
+CREATE OR REPLACE FUNCTION public.is_global_admin(_user_id uuid)
 RETURNS boolean
-LANGUAGE sql
-STABLE SECURITY DEFINER
-SET search_path = public
+LANGUAGE sql STABLE SECURITY DEFINER SET search_path = public
+AS $$
+  SELECT EXISTS (
+    SELECT 1 FROM public.user_roles
+    WHERE user_id = _user_id AND role = 'admin'::public.app_role AND clinic_id IS NULL
+  );
+$$;
+-- chamada nas policies como: is_global_admin(auth.uid())
+
+-- Equivalente real ao que a doc chamava de get_auth_clinic_id():
+CREATE OR REPLACE FUNCTION public.has_clinic_access(_clinic_id uuid)
+RETURNS boolean
+LANGUAGE sql STABLE SECURITY DEFINER SET search_path = public
 AS $$
   SELECT EXISTS (
     SELECT 1 FROM public.user_roles
     WHERE user_id = auth.uid()
-      AND role = 'admin'
-      AND clinic_id IS NULL
+      AND ((role = 'admin'::public.app_role AND clinic_id IS NULL) OR clinic_id = _clinic_id)
   );
-$$;
-
--- Obtém a clínica do usuário autenticado (se restrito)
-CREATE OR REPLACE FUNCTION public.get_auth_clinic_id()
-RETURNS uuid
-LANGUAGE sql
-STABLE SECURITY DEFINER
-SET search_path = public
-AS $$
-  SELECT clinic_id FROM public.user_roles
-  WHERE user_id = auth.uid()
-  LIMIT 1;
 $$;
 ```
 

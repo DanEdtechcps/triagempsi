@@ -66,7 +66,7 @@ export const BRANDING: Branding = {
 };
 
 export const LUMINA_BRANDING: Branding = {
-  clinicSlug: "lumina-saude",
+  clinicSlug: "lumina",
   clinicName: "Instituto Lumina de Saúde Mental & Neurociências",
   doctorName: "Dr. Gustavo Mello",
   doctorCredentials: "CRM 198765-SP · Psiquiatria de Adultos & Neurociências",
@@ -104,7 +104,7 @@ export function resolveBranding(
     done_copy: string | null;
   }> | null,
 ): Branding {
-  const base = clinic?.slug === "lumina-saude" ? LUMINA_BRANDING : BRANDING;
+  const base = clinic?.slug === "lumina" ? LUMINA_BRANDING : BRANDING;
   if (!clinic) return base;
   return {
     ...base,

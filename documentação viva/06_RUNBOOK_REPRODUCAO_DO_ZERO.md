@@ -64,7 +64,7 @@ SUPABASE_SERVICE_ROLE_KEY=sb_secret_SEU_SECRET_AQUI
 Execute o script de provisionamento multi-tenant:
 👉 Arquivo: [`supabase/migrations/20260919200000_provision_lumina_saude.sql`](file:///mnt/armazenamento/Projetos/triagem-medica/supabase/migrations/20260919200000_provision_lumina_saude.sql)
 
-Ele cadastra o **Instituto Lumina de Saúde Mental** (`id: b1a1a1a1-bbbb-cccc-dddd-eeeeeeeeeeee`, `slug: lumina`) e a Dra. Camila Rocha.
+Ele cadastra o **Instituto Lumina de Saúde Mental & Neurociências** (`id: c0000000-0000-4000-8000-000000000002`, `slug: lumina`), Dr. Gustavo Mello (admin) e Dra. Camila Nogueira (doctor). (Corrigido 2026-09-21 — id e nomes anteriores nesta doc não batiam com o arquivo de migration real.)
 
 ### Passo 3.3: Configurar o Storage Bucket
 No SQL Editor, garanta que o bucket de mídia existe:

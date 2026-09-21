@@ -1,10 +1,11 @@
 # 📚 Documentação Viva — TriagemPsi & Multi-Tenant Clínico
 
-> **Saraiva Clínica de Psiquiatria** & **Instituto Lumina de Saúde Mental**  
+> **Saraiva Clínica de Psiquiatria** & **Instituto Lumina de Saúde Mental & Neurociências**  
 > **Dr. José Ribamar Fernandes Saraiva Junior** | CRM-RS 29349 · RQE 30038 | Passo Fundo / RS  
-> **Dra. Camila Rocha** | CRM-SP 189420 · RQE 92314 | São Paulo / SP  
+> **Dr. Gustavo Mello** | CRM 198765-SP · Psiquiatria de Adultos & Neurociências | São Paulo / SP  
+> (corpo clínico Lumina também inclui Dra. Camila Nogueira, CRM 234567-SP · Infância & Adolescência)  
 > **Superadministrador da Plataforma:** Daniel Arraes Reino (`coletivoaruatemvoz@gmail.com`)  
-> *Versão de Arquitetura: v1.30.0 (Atualizada em Setembro de 2026)*
+> *Versão de Arquitetura: v1.32.0 (Corrigida em 2026-09-21 — identidade da Lumina alinhada ao banco real)*
 
 Esta documentação foi projetada para ser um **repositório central, vivo, autônomo e resiliente a falhas**. Qualquer desenvolvedor, médico ou assistente de IA (CLI / Agente Autônomo) pode utilizar este conjunto de documentos para compreender, operar, manter ou reproduzir o ecossistema com 100% de exatidão técnica e fidelidade à proposta clínica.
 
@@ -14,7 +15,7 @@ Esta documentação foi projetada para ser um **repositório central, vivo, aut�
 
 * **Clínica Fundadora:** Saraiva Clínica de Psiquiatria (Passo Fundo/RS).
 * **Responsável Técnico:** Dr. José Ribamar Fernandes Saraiva Junior (Médico com formação de base em Medicina de Família, Psiquiatria clínica pela ABP, Terapia Cognitivo-Comportamental - TCC, Dependência Química e Envelhecimento Humano/Geriatria).
-* **Clínica Federada Adicional:** Instituto Lumina de Saúde Mental (São Paulo/SP) — Dra. Camila Rocha.
+* **Clínica Federada Adicional:** Instituto Lumina de Saúde Mental & Neurociências (São Paulo/SP) — Dr. Gustavo Mello (admin) e Dra. Camila Nogueira.
 * **Proposta de Valor:** Transformar a primeira consulta psiquiátrica em uma experiência acolhedora, aprofundada e livre de burocracia, aliando pré-triagem adaptativa com 28 escalas psicométricas validadas, plano de segurança e psicoeducação responsável.
 * **Paletas de Marca Oficiais:**
   * **Saraiva Clínica:** Primary `#1e4d5c` (Azul-petróleo sóbrio), Accent `#3d8b8b` (Verde-azulado clínico).
@@ -44,7 +45,7 @@ Esta documentação foi projetada para ser um **repositório central, vivo, aut�
 
 * **Produção Global (Cloudflare Workers):** `https://triagempsi.pontocomumtus.workers.dev`
 * **Triagem Saraiva Clínica:** `https://triagempsi.pontocomumtus.workers.dev/saraiva/triagem` (alias: `/padrao/triagem`)
-* **Triagem Instituto Lumina:** `https://triagempsi.pontocomumtus.workers.dev/lumina/triagem`
+* **Triagem Instituto Lumina:** `https://triagempsi.pontocomumtus.workers.dev/lumina/triagem` (corrigido em 2026-09-21 — o slug real no banco era `lumina-saude`, causando 404; renomeado para `lumina` pra bater com este link documentado)
 * **Portal do Paciente:** `https://triagempsi.pontocomumtus.workers.dev/portal`
 * **Cockpit de Psicoeducação:** `https://triagempsi.pontocomumtus.workers.dev/materiais`
 * **Acesso Médico & Equipe:** `https://triagempsi.pontocomumtus.workers.dev/auth`

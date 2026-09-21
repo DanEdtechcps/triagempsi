@@ -44,17 +44,16 @@ O sistema deve sempre refletir a autoridade humanizada, científica e integrativ
 
 ---
 
-## 3. Regras de Preservação e Integração Lovable
+## 3. Histórico: migração para fora do Lovable
 
-```markdown
-<!-- LOVABLE:BEGIN -->
-> [!IMPORTANT]
-> Este projeto possui sincronização com a plataforma Lovable.
-> NUNCA reescreva o histórico git publicado (evite expressamente git push --force, rebase ou squash de commits que já foram enviados para o repositório remoto).
-> Reescrever histórico destrói a trilha de versões no editor visual do Lovable.
-> Mantenha a branch main sempre em estado compilável e funcional (verde).
-<!-- LOVABLE:END -->
-```
+> [!NOTE]
+> Este projeto foi originalmente prototipado no Lovable. Em setembro de 2026 o Daniel fez
+> backup e migrou o desenvolvimento pra fora da plataforma — **não há mais sincronização
+> ativa com o Lovable**. Esta seção existia antes com um aviso de preservação de histórico
+> git por causa dessa integração; foi removida em 2026-09-21 por estar desatualizada
+> (achado durante uma sessão de correção de bugs multi-tenant, confirmado diretamente
+> pelo Daniel). Mantenha a branch `main` sempre em estado compilável e funcional (verde)
+> por boa prática geral, não por causa do Lovable.
 
 ---
 

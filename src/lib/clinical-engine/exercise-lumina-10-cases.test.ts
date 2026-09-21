@@ -6,14 +6,14 @@ import { LUMINA_BRANDING } from "@/config/branding";
 import type { ScaleResult } from "./types";
 
 describe("Instituto Lumina de Saúde Mental — Simulação dos 10 Casos Clínicos Homologados", () => {
-  const luminaContext = resolveTenantContext("lumina-saude", {
+  const luminaContext = resolveTenantContext("lumina", {
     clinic_id: "c0000000-0000-4000-8000-000000000002",
     clinic_name: "Instituto Lumina de Saúde Mental & Neurociências",
   });
 
   describe("Provisionamento Institucional e Contexto Multi-Tenant da Lumina", () => {
     it("valida o branding institucional da Lumina (Púrpura #4c1d95 e Violeta #8b5cf6)", () => {
-      expect(LUMINA_BRANDING.clinicSlug).toBe("lumina-saude");
+      expect(LUMINA_BRANDING.clinicSlug).toBe("lumina");
       expect(LUMINA_BRANDING.primaryColor).toBe("#4c1d95");
       expect(LUMINA_BRANDING.accentColor).toBe("#8b5cf6");
       expect(LUMINA_BRANDING.doctorName).toBe("Dr. Gustavo Mello");
@@ -36,7 +36,7 @@ describe("Instituto Lumina de Saúde Mental — Simulação dos 10 Casos Clínic
 
       const sealed = bindTenantToAssessmentPayload(
         {
-          clinic_slug: "lumina-saude",
+          clinic_slug: "lumina",
           respondent_name: c.patient_name,
           respondent_email: c.patient_email,
           respondent_phone: "11988881111",

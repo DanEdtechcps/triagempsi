@@ -94,7 +94,10 @@ Ao operar ferramentas de execução de comandos (`run_command`), compilação ou
    - Nunca disparar builds longos antes de garantir que os arquivos editados foram gravados em disco.
 3. **Commit Frequente com Mensagens Semânticas:**
    - Realizar commits incrementais a cada marco concluído (`docs:`, `feat:`, `fix:`, `test:`).
-   - Enviar com `git push origin main` logo em seguida, respeitando a integração do Lovable (sem force-push).
+   - Enviar com `git push origin main` logo em seguida. (Nota 2026-09-21: o projeto não está
+     mais sincronizado com o Lovable — a menção anterior a essa integração foi removida por
+     estar desatualizada. Push continua recomendado como prática de persistência, só não por
+     causa do Lovable.)
 
 ---
 

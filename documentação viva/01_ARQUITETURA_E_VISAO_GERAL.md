@@ -38,20 +38,27 @@ A plataforma opera com governança baseada em papéis federados (`user_roles`), 
                          │                                                        │
                          ▼                                                        ▼
        ┌──────────────────────────────────────┐                ┌──────────────────────────────────────┐
-       │   SARAIVA CLÍNICA DE PSIQUIATRIA    │                │   INSTITUTO LUMINA SAÚDE MENTAL      │
-       │   ID: 0da5f2ec-c592-429a-af9c-       │                │   ID: b1a1a1a1-bbbb-cccc-            │
-       │       0da5f2ec-c592-429a-af9c-       │                │       dddd-eeeeeeeeeeee              │
-       │   Slug: /saraiva (alias /padrao)     │                │   Slug: /lumina                      │
-       │   Médico: Dr. José R. F. Saraiva Jr  │                │   Médica: Dra. Camila Rocha          │
-       │   Email: joserfsaraivajr@gmail.com   │                │   Email: lumina.diretoria@gmail.com  │
-       │   Cor: #1e4d5c / #3d8b8b             │                │   Cor: #1e1b4b / #6366f1             │
+       │   SARAIVA CLÍNICA DE PSIQUIATRIA     │                │   INSTITUTO LUMINA SAÚDE MENTAL      │
+       │   ID: 0da5f2ec-c592-429a-af9c-       │                │   ID: c0000000-0000-4000-8000-       │
+       │       e4c7eb4e952b                   │                │       000000000002                   │
+       │   Slug: /saraiva                     │                │   Slug: /lumina                      │
+       │   Médico: Dr. José R. F. Saraiva Jr  │                │   Admin: Dr. Gustavo Mello            │
+       │                                       │                │   Doctor: Dra. Camila Nogueira        │
+       │                                       │                │   Email: dr.gustavo@lumina.med.br    │
+       │   Cor: #1e4d5c / #3d8b8b             │                │   Cor: #4c1d95 / #8b5cf6              │
        └──────────────────────────────────────┘                └──────────────────────────────────────┘
 ```
+
+> Nota 2026-09-21: esta seção continha antes a slug `/padrao` como alias de `/saraiva` (era na
+> verdade uma clínica DUPLICADA com id próprio, não um alias de verdade — foi mesclada e
+> apagada) e uma identidade diferente pra Lumina (`Dra. Camila Rocha`, id `b1a1a1a1-...`, slug
+> já correto em `/lumina` mas o banco real usava `lumina-saude` até então). Corrigido pra
+> refletir o que está de fato em produção.
 
 ### Regras do Multi-Tenant:
 - **`coletivoaruatemvoz@gmail.com`**: Único usuário com `role: 'admin'` e `clinic_id: null`. Possui o componente `TenantSwitcher` ativo na barra de navegação superior do painel clínico, permitindo filtrar triagens por clínica ou inspecionar a base global consolidada.
 - **`joserfsaraivajr@gmail.com`**: Usuário associado estritamente à Saraiva Clínica (`clinic_id: '0da5f2ec-c592-429a-af9c-e4c7eb4e952b'`). O RLS e o middleware bloqueiam qualquer tentativa de ler ou alterar triagens de terceiros.
-- **`lumina.diretoria@gmail.com`**: Usuário associado estritamente ao Instituto Lumina (`clinic_id: 'b1a1a1a1-bbbb-cccc-dddd-eeeeeeeeeeee'`).
+- **`dr.gustavo@lumina.med.br`** (admin) e **`dra.camila@lumina.med.br`** (doctor): associados estritamente ao Instituto Lumina (`clinic_id: 'c0000000-0000-4000-8000-000000000002'`).
 
 ---
 

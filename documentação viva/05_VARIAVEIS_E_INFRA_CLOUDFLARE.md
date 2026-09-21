@@ -118,7 +118,7 @@ Isso impede que logs do Cloudflare Workers (Tail Logs / Logpush) contenham dados
 ## 6. Endpoints de Produção Ativos
 
 * **Ambiente Principal:** `https://triagempsi.pontocomumtus.workers.dev`
-* **Triagem Saraiva Clínica:** `/saraiva/triagem` (alias: `/padrao/triagem`)
+* **Triagem Saraiva Clínica:** `/saraiva/triagem` (o alias `/padrao/triagem` era na verdade uma clínica duplicada — mesclada e removida em 2026-09-21)
 * **Triagem Instituto Lumina:** `/lumina/triagem`
 * **Portal do Paciente:** `/portal`
 * **Painel Clínico:** `/painel`
