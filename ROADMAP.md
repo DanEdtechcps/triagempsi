@@ -33,6 +33,19 @@ Legenda de status:
 
 ---
 
+## 🏗️ 1b. Pipeline SaaS & Simulação Clínica (OpenMAIC)
+
+- [X] **Onboarding Genérico de Clínicas SaaS**
+  - [X] Stored procedure `provision_new_clinic()` idempotente, auditada, com REVOKE/GRANT estrito (`service_role` apenas) — provisiona assinatura Starter e vincula os 10 temas base de psicoeducação automaticamente.
+- [X] **Módulo OpenMAIC de Simulação Clínica** ([`src/lib/openmaic/`](file:///mnt/armazenamento/Projetos/triagem-medica/src/lib/openmaic/))
+  - [X] DSL de simulação de agentes clínicos (`AgentRole`, `SimulationFlow`, `SimulationContext`).
+  - [X] 5 cenários: 3 casos clínicos autorais do Dr. Saraiva + 2 de redução de danos (Caminhos Campinas).
+  - [X] Orquestrador com regras éticas globais e suíte de testes dedicada.
+- [X] **Pipeline de Infraestrutura como Código** ([`scripts/pipeline/`](file:///mnt/armazenamento/Projetos/triagem-medica/scripts/pipeline/))
+  - [X] Validação, upload em lote e centralização de variáveis sem caminhos absolutos.
+
+---
+
 ## 🩺 2. Experiência Clínica, Psicoeducação & Prontuário
 
 - [X] **Cockpit de Psicoeducação Clínica (`/materiais`)**

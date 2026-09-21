@@ -17,7 +17,7 @@ export type ManualSection = {
   blocks: ManualBlock[];
 };
 
-export const MANUAL_VERSION = "1.0 — Agosto/2026";
+export const MANUAL_VERSION = "1.1 — Setembro/2026";
 
 export const MANUAL_SECTIONS: ManualSection[] = [
   {
@@ -146,8 +146,51 @@ export const MANUAL_SECTIONS: ManualSection[] = [
     ],
   },
   {
+    id: "psicoeducacao",
+    title: "6. Cockpit de Psicoeducação (Materiais)",
+    summary: "Devolutiva estruturada e biblioteca clínica para o paciente.",
+    blocks: [
+      {
+        kind: "p",
+        text: "A página “Materiais” reúne 10 temas clínicos essenciais (humor, ansiedade, crise, sono, TDAH, oscilações de humor, substâncias, trauma, esgotamento e bem-estar), cada um com uma versão resumida para o paciente e uma versão completa de apoio técnico.",
+      },
+      {
+        kind: "list",
+        items: [
+          "Busca em tempo real e filtros por tema ou tags clínicas.",
+          "Leitura em modal com formatação médica, impressão e botão “Copiar para WhatsApp”.",
+          "Materiais são sugeridos automaticamente conforme os escores da triagem (ex.: escore alto em ansiedade sugere o tema correspondente) e também podem ser liberados manualmente pelo profissional no prontuário.",
+          "O paciente acompanha os materiais recebidos pelo Portal, e o médico vê no prontuário quais já foram lidos.",
+        ],
+      },
+      {
+        kind: "alert",
+        text: "O tema “Crise emocional e ideação suicida” é sempre priorizado quando há sinal de risco, com os canais CVV 188 e SAMU 192 em destaque.",
+      },
+    ],
+  },
+  {
+    id: "multi-clinica",
+    title: "7. Múltiplas clínicas (para administração)",
+    summary: "Como funciona o atendimento federado a mais de um consultório.",
+    blocks: [
+      {
+        kind: "p",
+        text: "A plataforma atende mais de uma clínica de forma isolada: cada consultório tem sua própria marca, cores, equipe e base de triagens, sem que uma clínica veja dados da outra.",
+      },
+      {
+        kind: "list",
+        items: [
+          "Médicos e equipe só enxergam a clínica à qual estão vinculados.",
+          "O Administrador Geral da plataforma tem um seletor de clínica (“TenantSwitcher”) no topo do painel, permitindo alternar entre “Todas as Clínicas” (visão consolidada) e cada consultório individualmente.",
+          "Cada clínica tem seu próprio link público de triagem (ex.: “/saraiva/triagem”, “/lumina/triagem”).",
+        ],
+      },
+    ],
+  },
+  {
     id: "painel",
-    title: "6. Recursos do painel",
+    title: "8. Recursos do painel",
     summary: "Onde encontrar cada função.",
     blocks: [
       {
@@ -160,7 +203,7 @@ export const MANUAL_SECTIONS: ManualSection[] = [
           ["Contatos", "Cadastro e envio de convites por WhatsApp"],
           ["E-mails", "Status de entrega, pré-visualização e reenvio"],
           ["Auditoria", "Quem acessou, alterou ou enviou, e quando"],
-          ["Materiais", "Psicoeducação e documentos de apoio"],
+          ["Materiais", "Cockpit de Psicoeducação — biblioteca clínica para o paciente e a equipe"],
           ["Ajuda", "Este manual, online e em PDF"],
         ],
       },
@@ -168,7 +211,7 @@ export const MANUAL_SECTIONS: ManualSection[] = [
   },
   {
     id: "privacidade",
-    title: "7. Privacidade e LGPD",
+    title: "9. Privacidade e LGPD",
     summary: "Boas práticas obrigatórias no uso dos dados.",
     blocks: [
       {
@@ -184,7 +227,7 @@ export const MANUAL_SECTIONS: ManualSection[] = [
   },
   {
     id: "problemas",
-    title: "8. Problemas comuns",
+    title: "10. Problemas comuns",
     summary: "Soluções rápidas antes de acionar o suporte.",
     blocks: [
       {
@@ -227,7 +270,7 @@ export const ROADMAP_STATUS_LABEL: Record<RoadmapStatus, string> = {
   ideia: "Oportunidade",
 };
 
-export const ROADMAP_VERSION = "Revisão de Agosto/2026";
+export const ROADMAP_VERSION = "Revisão de Setembro/2026";
 
 export const ROADMAP: RoadmapPhase[] = [
   {
@@ -260,9 +303,10 @@ export const ROADMAP: RoadmapPhase[] = [
           "Paciente x familiar/responsável, com ajuste de sensibilidade nas escalas internalizantes e destaque no relatório.",
       },
       {
-        title: "White label multi-clínica",
+        title: "White label multi-clínica federada",
         status: "pronto",
-        detail: "Marca, cores, textos e isolamento de dados por clínica.",
+        detail:
+          "Marca, cores, textos e isolamento de dados por clínica. Hoje atende Saraiva Clínica de Psiquiatria e Instituto Lumina de Saúde Mental & Neurociências, com seletor de clínica para o Administrador Geral.",
       },
     ],
   },
@@ -298,6 +342,12 @@ export const ROADMAP: RoadmapPhase[] = [
         title: "Métricas de informante",
         status: "pronto",
         detail: "Proporção paciente x familiar por período.",
+      },
+      {
+        title: "Cockpit de Psicoeducação",
+        status: "pronto",
+        detail:
+          "Biblioteca de 10 temas clínicos com sugestão automática por escore, liberação manual pelo médico e acompanhamento de leitura pelo paciente no Portal.",
       },
       {
         title: "Micro-interações e atalhos de teclado",

@@ -6,6 +6,42 @@ O formato baseia-se no [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0
 
 ---
 
+## [v1.33.0] - 2026-09-21
+### 🧹 Correção de Bugs Multi-Tenant, Hardening de Função Exposta & Sincronização de Documentação
+- **Clínica duplicada (`padrao`) mesclada em `saraiva`:**
+  - `clinics` tinha duas linhas para o mesmo consultório do Dr. Saraiva (`saraiva` e `padrao`, id diferente). A home e os botões de entrada usavam `padrao` como default, enquanto o login do Dr. Saraiva só enxergava `saraiva` — triagens vindas da home ficariam invisíveis pra ele.
+  - Dados órfãos reatribuídos (0 linhas afetadas — nenhuma triagem real tinha sido perdida) e a linha `padrao` removida do banco. 5 referências de código trocadas para `saraiva`.
+- **Slug da Lumina corrigido (`lumina-saude` → `lumina`):**
+  - A rota pública `/lumina/triagem` dava 404 porque o slug real no banco era `lumina-saude`, não `lumina` como a documentação e os links institucionais sempre descreveram. Renomeado em produção; sincronizado [`branding.ts`](file:///mnt/armazenamento/Projetos/triagem-medica/src/config/branding.ts) e o teste dos 10 casos clínicos homologados.
+- **Migrations de psicoeducação e RLS unificado, aplicadas em produção pela primeira vez:**
+  - `20260917200000_unify_roles_and_rls.sql` (função `is_global_admin`, tabela `patient_longitudinal_records`) e `20260917230000_psychoeducation_module.sql` (4 tabelas de psicoeducação + 10 temas semeados) existiam no repo desde 17/09 mas nunca tinham sido aplicadas no banco real — causa raiz de erros 500 em `releaseManualPsychoeducation`/`markPsychoeducationViewed`.
+- **Falha de segurança corrigida — função `is_global_admin` exposta publicamente:**
+  - Toda função nova em `public` no Supabase nasce com `EXECUTE` liberado por padrão pra `anon`. A função `is_global_admin(_user_id uuid)` (recém-criada) ficou temporariamente chamável via RPC público, permitindo checar se um UUID arbitrário era admin global. Corrigido revogando `EXECUTE` de `anon` diretamente na função.
+- **Documentação viva sincronizada com o estado real do banco:**
+  - Identidade da Lumina corrigida (Dr. Gustavo Mello + Dra. Camila Nogueira, não a "Dra. Camila Rocha" que constava antes), assinatura real de `is_global_admin()`, e remoção do aviso de integração com Lovable (projeto não usa mais a plataforma).
+- **Testes:** 215/215 aprovados em 18 suítes. Typecheck limpo.
+
+---
+
+## [v1.32.0] - 2026-09-20
+### 🏗️ Pipeline IaC, Módulo OpenMAIC de Simulação Clínica & Onboarding SaaS
+- **Pipeline de Infraestrutura como Código (`scripts/pipeline/`):**
+  - [`env.ts`](file:///mnt/armazenamento/Projetos/triagem-medica/scripts/pipeline/env.ts): centralização de variáveis sem caminhos absolutos.
+  - [`validate-psychoeducation.ts`](file:///mnt/armazenamento/Projetos/triagem-medica/scripts/pipeline/validate-psychoeducation.ts): validador JSON pré-upload de conteúdo clínico.
+  - [`batch-upload-topics.ts`](file:///mnt/armazenamento/Projetos/triagem-medica/scripts/pipeline/batch-upload-topics.ts): upload em lote com dry-run e chunks.
+- **Módulo OpenMAIC (`src/lib/openmaic/`):**
+  - DSL completa de simulação de agentes clínicos (`AgentRole`, `SimulationFlow`, `SimulationContext`).
+  - 5 cenários pré-configurados: 3 casos clínicos autorais do Dr. Saraiva (depressão maior no idoso, transtorno do pânico, risco de suicídio em adolescente) e 2 de redução de danos (crack em situação de rua, desescalada em crise por álcool).
+  - Orquestrador com ciclo de vida completo e regras éticas globais.
+  - Suíte de testes dedicada (7 testes cobrindo isolamento e regras éticas).
+- **Onboarding genérico de clínicas SaaS:**
+  - Stored procedure `provision_new_clinic()` idempotente (`ON CONFLICT`), auditada, com REVOKE/GRANT estrito (`service_role` apenas) — provisiona assinatura Starter e vincula os 10 temas base de psicoeducação automaticamente.
+- **Acervo clínico do Dr. Saraiva:**
+  - 10 temas clínicos chancelados adicionais e guia mestre de desmame de benzodiazepínicos com TCC-I (5 questões TRI, 10 flashcards FSRS, pipeline de geração multimídia em `public/conteudo-saraiva/`).
+- **Testes:** 215/215 aprovados em 18 suítes.
+
+---
+
 ## [v1.31.0] - 2026-09-20
 ### 🛡️ Edge Security Hardening (Cloudflare), Multi-Tenant RLS & Sanitização LGPD
 - **Cabeçalhos de Segurança na Borda Cloudflare (`public/_headers` e SSR):**
