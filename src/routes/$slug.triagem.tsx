@@ -839,9 +839,11 @@ function DadosBasicos({
       </p>
 
       {/* Escolha do profissional (opcional) */}
-      <div className="mt-6">
-        <Label>Com qual profissional você quer consultar? (opcional)</Label>
-        <div className="mt-2 grid gap-2 sm:grid-cols-2">
+      <fieldset className="mt-6">
+        <legend className="text-sm font-medium leading-none">
+          Com qual profissional você quer consultar? (opcional)
+        </legend>
+        <div className="mt-2 grid gap-2 sm:grid-cols-2" role="radiogroup" aria-label="Profissional">
           {(doctors.length > 0
             ? doctors
             : [
@@ -851,25 +853,33 @@ function DadosBasicos({
                   specialty: "Psiquiatria Clínica · RQE 30038",
                 },
               ]
-          ).map((d) => (
-            <button
-              key={d.id}
-              type="button"
-              onClick={() => set("doctor_id", d.id === "saraiva-titular" ? null : d.id)}
-              className={`min-h-12 rounded-xl border px-4 py-3 text-left transition-colors ${
-                data.doctor_id === d.id || (d.id === "saraiva-titular" && data.doctor_id === null)
-                  ? "border-primary bg-primary/10"
-                  : "border-border bg-background hover:border-primary/50"
-              }`}
-            >
-              <span className="block text-base font-medium text-foreground">{d.display_name}</span>
-              <span className="mt-0.5 block text-xs text-muted-foreground">
-                {d.specialty || "Psiquiatria Clínica · RQE 30038"}
-              </span>
-            </button>
-          ))}
+          ).map((d) => {
+            const isSelected =
+              data.doctor_id === d.id || (d.id === "saraiva-titular" && data.doctor_id === null);
+            return (
+              <button
+                key={d.id}
+                type="button"
+                role="radio"
+                aria-checked={isSelected}
+                onClick={() => set("doctor_id", d.id === "saraiva-titular" ? null : d.id)}
+                className={`min-h-12 rounded-xl border px-4 py-3 text-left transition-colors ${
+                  isSelected
+                    ? "border-primary bg-primary/10"
+                    : "border-border bg-background hover:border-primary/50"
+                }`}
+              >
+                <span className="block text-base font-medium text-foreground">{d.display_name}</span>
+                <span className="mt-0.5 block text-xs text-muted-foreground">
+                  {d.specialty || "Psiquiatria Clínica · RQE 30038"}
+                </span>
+              </button>
+            );
+          })}
           <button
             type="button"
+            role="radio"
+            aria-checked={data.doctor_id === null}
             onClick={() => set("doctor_id", null)}
             className={`min-h-12 rounded-xl border px-4 py-3 text-left text-base transition-colors ${
               data.doctor_id === null
@@ -884,16 +894,24 @@ function DadosBasicos({
           Sua pré-avaliação fica destacada para o profissional escolhido, e toda a equipe do
           consultório pode acompanhar.
         </p>
-      </div>
+      </fieldset>
 
       <div className="mt-6 grid gap-4 sm:grid-cols-2">
-        <div className="sm:col-span-2">
-          <Label>Quem está preenchendo este questionário? *</Label>
-          <div className="mt-2 grid gap-2 sm:grid-cols-2">
+        <fieldset className="sm:col-span-2">
+          <legend className="text-sm font-medium leading-none">
+            Quem está preenchendo este questionário? *
+          </legend>
+          <div
+            className="mt-2 grid gap-2 sm:grid-cols-2"
+            role="radiogroup"
+            aria-label="Quem está preenchendo este questionário"
+          >
             {(["paciente", "familiar"] as const).map((opt) => (
               <button
                 key={opt}
                 type="button"
+                role="radio"
+                aria-checked={data.respondent_type === opt}
                 onClick={() => set("respondent_type", opt)}
                 className={`min-h-12 rounded-xl border px-4 py-3 text-left text-base transition-colors ${
                   data.respondent_type === opt
@@ -909,7 +927,7 @@ function DadosBasicos({
             Os nomes e a data de nascimento pedidos abaixo são sempre os do paciente. Essa
             informação muda a forma como o médico interpreta os resultados.
           </p>
-        </div>
+        </fieldset>
 
         {data.respondent_type === "familiar" && (
           <>

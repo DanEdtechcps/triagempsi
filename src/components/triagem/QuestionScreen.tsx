@@ -49,13 +49,15 @@ export function QuestionScreen({
             {groupLabel}
           </div>
         )}
-        <h2 className="mt-4 text-xl font-semibold leading-snug text-foreground sm:text-2xl">
+        <h2 id={`pergunta-${item.id}`} className="mt-4 text-xl font-semibold leading-snug text-foreground sm:text-2xl">
           {item.text}
         </h2>
       </div>
 
       <motion.div
         className="grid gap-3"
+        role="radiogroup"
+        aria-labelledby={`pergunta-${item.id}`}
         initial="hidden"
         animate="show"
         variants={{
@@ -69,6 +71,8 @@ export function QuestionScreen({
             <motion.button
               key={opt.value}
               type="button"
+              role="radio"
+              aria-checked={selected}
               onClick={() => onAnswer(opt.value)}
               variants={{
                 hidden: { opacity: 0, y: reduce ? 0 : 6 },
