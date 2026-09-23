@@ -311,7 +311,12 @@ export const CRAFFT: Scale = {
     { min: 2, max: 6, label: "Risco significativo — investigar transtorno por uso de substâncias", level: 3 },
   ],
   positiveCutoff: 2,
-  riskItems: ["1", "6"],
+  // Item 1 (ser passageiro de carona com alguém sob efeito) sozinho estava
+  // disparando o protocolo completo de crise de suicídio (CVV/SAMU) — está
+  // abaixo do corte oficial do CRAFFT (≥2) e é uma pergunta de segurança de
+  // trânsito, não um sinal de risco de vida. Item 6 (se meter em problemas
+  // usando substância) fica como sinal de risco isolado.
+  riskItems: ["6"],
 };
 
 /* ------------------------------------------------------------------ */
