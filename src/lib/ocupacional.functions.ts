@@ -123,18 +123,24 @@ export const getOcupacionalReport = createServerFn({ method: "GET" })
 
       const assedio = g.respostas.filter((r) => Number(r.answers["14"] ?? 0) >= 2).length;
 
+      // Abaixo de MIN_N respondentes, média/distribuição/domínios/percentual
+      // de assédio expõem dado quase-identificável de indivíduo — só o
+      // contador bruto (respondentes) e o flag `suficiente` ficam visíveis
+      // pra um grupo pequeno, igual já era feito pra dominios/assedioPercentual.
       out.push({
         clinic_id: clinicId,
         clinic_name: g.nome,
         respondentes: n,
         suficiente,
         minN: MIN_N,
-        mediaGeral: n
+        mediaGeral: suficiente && n
           ? Number((g.respostas.reduce((a, r) => a + r.score, 0) / n).toFixed(1))
           : 0,
-        distribuicao: [...distMap.values()]
-          .sort((a, b) => b.level - a.level)
-          .map((d) => ({ ...d, percentual: n ? Math.round((d.quantidade / n) * 100) : 0 })),
+        distribuicao: suficiente
+          ? [...distMap.values()]
+              .sort((a, b) => b.level - a.level)
+              .map((d) => ({ ...d, percentual: n ? Math.round((d.quantidade / n) * 100) : 0 }))
+          : [],
         dominios: suficiente ? dominios : [],
         assedioPercentual: suficiente && n ? Math.round((assedio / n) * 100) : 0,
         atualizadoEm: g.ultima,
