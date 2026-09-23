@@ -40,7 +40,8 @@ export const PSYCHOEDUCATION_TRIGGER_SPECS: PsychoTriggerSpec[] = [
     scales: ["PHQ-9 (Item 9)", "C-SSRS", "RISK-COMPOSITE"],
     criterion: "PHQ-9 item 9 ≥ 1, C-SSRS positivo ou via de risco clínico",
     priority: "urgente",
-    description: "Aciona acolhimento de emergência, canais CVV 188 / SAMU 192 e plano de segurança.",
+    description:
+      "Aciona acolhimento de emergência, canais CVV 188 / SAMU 192 e plano de segurança.",
   },
   {
     topicSlug: "depressao-humor",
@@ -96,7 +97,8 @@ export const PSYCHOEDUCATION_TRIGGER_SPECS: PsychoTriggerSpec[] = [
     scales: ["PCL-5"],
     criterion: "PCL-5 ≥ 31 (rastreio provável de TEPT)",
     priority: "rotina",
-    description: "Psicoeducação sobre intrusão/hiperativação e caminhos de restabelecimento seguro.",
+    description:
+      "Psicoeducação sobre intrusão/hiperativação e caminhos de restabelecimento seguro.",
   },
   {
     topicSlug: "burnout-esgotamento",
@@ -198,9 +200,10 @@ export function evaluatePsychoeducationTriggers(
   // 2. Depressão e humor baixo
   const phq2 = mapResults.get("PHQ-2");
   if ((phq9 && (phq9.score ?? 0) >= 10) || (phq2 && (phq2.score ?? 0) >= 3)) {
-    const rReason = (phq9 && (phq9.score ?? 0) >= 10)
-      ? `PHQ-9 escore ${phq9.score} (${phq9.band ?? "moderado a grave"})`
-      : `PHQ-2 rastreio inicial ${phq2?.score}`;
+    const rReason =
+      phq9 && (phq9.score ?? 0) >= 10
+        ? `PHQ-9 escore ${phq9.score} (${phq9.band ?? "moderado a grave"})`
+        : `PHQ-2 rastreio inicial ${phq2?.score}`;
     addTopic("depressao-humor", rReason, 2);
   }
 
@@ -208,9 +211,10 @@ export function evaluatePsychoeducationTriggers(
   const gad7 = mapResults.get("GAD-7");
   const gad2 = mapResults.get("GAD-2");
   if ((gad7 && (gad7.score ?? 0) >= 10) || (gad2 && (gad2.score ?? 0) >= 3)) {
-    const rReason = (gad7 && (gad7.score ?? 0) >= 10)
-      ? `GAD-7 escore ${gad7.score} (${gad7.band ?? "moderado a grave"})`
-      : `GAD-2 rastreio inicial ${gad2?.score}`;
+    const rReason =
+      gad7 && (gad7.score ?? 0) >= 10
+        ? `GAD-7 escore ${gad7.score} (${gad7.band ?? "moderado a grave"})`
+        : `GAD-2 rastreio inicial ${gad2?.score}`;
     addTopic("ansiedade-preocupacao", rReason, 2);
   }
 
@@ -222,7 +226,10 @@ export function evaluatePsychoeducationTriggers(
 
   // 5. TDAH em adultos
   const asrs = mapResults.get("ASRS-18");
-  if (asrs && ((asrs.band_level ?? 0) >= 2 || (asrs.band ?? "").toLowerCase().includes("positivo"))) {
+  if (
+    asrs &&
+    ((asrs.band_level ?? 0) >= 2 || (asrs.band ?? "").toLowerCase().includes("positivo"))
+  ) {
     addTopic("tdah-adultos", `ASRS-18 rastreio positivo de sintomas (${asrs.band})`, 4);
   }
 
@@ -258,7 +265,8 @@ export function evaluatePsychoeducationTriggers(
   const mbi = mapResults.get("MBI-HSS");
   const pss = mapResults.get("PSS-10");
   if ((mbi && (mbi.score ?? 0) >= 28) || (pss && (pss.score ?? 0) >= 27)) {
-    const reason = mbi && (mbi.score ?? 0) >= 28 ? `MBI-HSS escore ${mbi.score}` : `PSS-10 escore ${pss?.score}`;
+    const reason =
+      mbi && (mbi.score ?? 0) >= 28 ? `MBI-HSS escore ${mbi.score}` : `PSS-10 escore ${pss?.score}`;
     addTopic("burnout-esgotamento", `Sobrecarga e estresse elevado (${reason})`, 5);
   }
 
@@ -268,7 +276,11 @@ export function evaluatePsychoeducationTriggers(
     addTopic("bem-estar-prevencao", `WHO-5 escore ${who5.score} (baixo índice de bem-estar)`, 6);
   } else if (triggered.length === 0) {
     // Se nenhum tema patológico foi acionado, oferece o guia preventivo de saúde mental e hábitos diários
-    addTopic("bem-estar-prevencao", "Orientações gerais de prevenção e promoção de saúde mental", 10);
+    addTopic(
+      "bem-estar-prevencao",
+      "Orientações gerais de prevenção e promoção de saúde mental",
+      10,
+    );
   }
 
   // Tópicos manuais liberados pelo médico (override)

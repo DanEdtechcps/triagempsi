@@ -871,7 +871,9 @@ function DadosBasicos({
                     : "border-border bg-background hover:border-primary/50"
                 }`}
               >
-                <span className="block text-base font-medium text-foreground">{d.display_name}</span>
+                <span className="block text-base font-medium text-foreground">
+                  {d.display_name}
+                </span>
                 <span className="mt-0.5 block text-xs text-muted-foreground">
                   {d.specialty || "Psiquiatria Clínica · RQE 30038"}
                 </span>

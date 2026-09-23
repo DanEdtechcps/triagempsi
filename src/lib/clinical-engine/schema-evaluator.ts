@@ -14,16 +14,13 @@ import { isMaleSex } from "./triage-tree";
 
 /**
  * Avalia se uma escala atende aos critérios de elegibilidade do paciente.
- * 
+ *
  * Regras:
  * 1. Sexo: Se o sexo for masculino e a escala possuir 'masculino' em 'sex_exclude', retorna false.
  * 2. Idade: Se a idade do paciente estiver fora de [min_age, max_age], retorna false.
  * 3. Sintomas: Se a escala exigir sintomas ('required_symptoms') e nenhum deles estiver presente, retorna false.
  */
-export function evaluateScaleEligibility(
-  schema: ScaleSchema,
-  context: EvaluationContext,
-): boolean {
+export function evaluateScaleEligibility(schema: ScaleSchema, context: EvaluationContext): boolean {
   const { sex, age, symptoms = [] } = context;
   const elig = schema.eligibility;
 
@@ -74,9 +71,7 @@ export function evaluateScaleEligibility(
 
   // 3. Verificação de Sintomas Obrigatórios
   if (elig.required_symptoms && elig.required_symptoms.length > 0) {
-    const hasRequiredSymptom = elig.required_symptoms.some((req) =>
-      symptoms.includes(req),
-    );
+    const hasRequiredSymptom = elig.required_symptoms.some((req) => symptoms.includes(req));
     if (!hasRequiredSymptom) {
       return false;
     }
@@ -99,9 +94,7 @@ export function scoreSchemaScale(
 
   schema.items.forEach((item, index) => {
     const itemOptions = item.options ?? schema.options ?? [];
-    const maxItemVal = itemOptions.length > 0
-      ? Math.max(...itemOptions.map((o) => o.value))
-      : 0;
+    const maxItemVal = itemOptions.length > 0 ? Math.max(...itemOptions.map((o) => o.value)) : 0;
     maxScore += maxItemVal;
 
     const val = answers[item.id] ?? 0;
@@ -109,10 +102,7 @@ export function scoreSchemaScale(
     if (val > 0) highestEndorsedItemNumber = index + 1;
 
     // Checagem de itens de risco
-    const isRiskItem =
-      item.is_risk ||
-      schema.riskItems?.includes(item.id) ||
-      false;
+    const isRiskItem = item.is_risk || schema.riskItems?.includes(item.id) || false;
 
     if (isRiskItem && val > 0) {
       riskItemsTriggered.push(item.id);
@@ -122,8 +112,7 @@ export function scoreSchemaScale(
   // Encontra a faixa (band) correspondente. Instrumentos hierárquicos
   // (scoringMethod: "highest_item_band") usam o item de maior severidade
   // respondido positivamente em vez da soma — ver schema-types.ts.
-  const bandKey =
-    schema.scoringMethod === "highest_item_band" ? highestEndorsedItemNumber : score;
+  const bandKey = schema.scoringMethod === "highest_item_band" ? highestEndorsedItemNumber : score;
   let matchedBand: ScoringBand | null = null;
   for (const band of schema.bands) {
     if (bandKey >= band.min && bandKey <= band.max) {
@@ -132,13 +121,12 @@ export function scoreSchemaScale(
     }
   }
 
-  const isPositive = schema.positiveCutoff !== undefined
-    ? score >= schema.positiveCutoff
-    : (matchedBand?.level ?? 0) >= 2;
+  const isPositive =
+    schema.positiveCutoff !== undefined
+      ? score >= schema.positiveCutoff
+      : (matchedBand?.level ?? 0) >= 2;
 
-  const isRisk =
-    riskItemsTriggered.length > 0 ||
-    (matchedBand?.is_risk ?? false);
+  const isRisk = riskItemsTriggered.length > 0 || (matchedBand?.is_risk ?? false);
 
   return {
     scale_code: schema.code,

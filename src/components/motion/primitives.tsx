@@ -1,10 +1,5 @@
 import { useEffect, useRef, type ReactNode } from "react";
-import {
-  AnimatePresence,
-  motion,
-  useReducedMotion,
-  type Transition,
-} from "motion/react";
+import { AnimatePresence, motion, useReducedMotion, type Transition } from "motion/react";
 
 const EASE: Transition = { duration: 0.24, ease: [0.22, 1, 0.36, 1] };
 
@@ -104,13 +99,7 @@ export function StaggerGroup({
   );
 }
 
-export function StaggerItem({
-  children,
-  className,
-}: {
-  children: ReactNode;
-  className?: string;
-}) {
+export function StaggerItem({ children, className }: { children: ReactNode; className?: string }) {
   const reduce = useReducedMotion();
   return (
     <motion.div

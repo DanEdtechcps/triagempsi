@@ -99,14 +99,28 @@ describe("Clinical Engine — Avaliador de Schemas Declarativos (DSL)", () => {
       expect(resMod.isRisk).toBe(false);
 
       // Moderadamente grave (15-19)
-      const resModGrav = scoreSchemaScale(phq9Schema, { "1": 3, "2": 3, "3": 3, "4": 3, "5": 2, "6": 2 });
+      const resModGrav = scoreSchemaScale(phq9Schema, {
+        "1": 3,
+        "2": 3,
+        "3": 3,
+        "4": 3,
+        "5": 2,
+        "6": 2,
+      });
       expect(resModGrav.score).toBe(16);
       expect(resModGrav.band?.label).toBe("Moderadamente grave");
       expect(resModGrav.isPositive).toBe(true);
 
       // Grave (20-27)
       const resGrave = scoreSchemaScale(phq9Schema, {
-        "1": 3, "2": 3, "3": 3, "4": 3, "5": 3, "6": 3, "7": 3, "8": 2
+        "1": 3,
+        "2": 3,
+        "3": 3,
+        "4": 3,
+        "5": 3,
+        "6": 3,
+        "7": 3,
+        "8": 2,
       });
       expect(resGrave.score).toBe(23);
       expect(resGrave.band?.label).toBe("Grave");
@@ -145,7 +159,11 @@ describe("Clinical Engine — Avaliador de Schemas Declarativos (DSL)", () => {
       expect(res.riskItemsTriggered).toContain("10");
 
       const resAltaGravidade = scoreSchemaScale(epdsSchema, {
-        "3": 3, "4": 3, "5": 3, "6": 3, "7": 3,
+        "3": 3,
+        "4": 3,
+        "5": 3,
+        "6": 3,
+        "7": 3,
       });
       expect(resAltaGravidade.score).toBe(15);
       expect(resAltaGravidade.isPositive).toBe(true);

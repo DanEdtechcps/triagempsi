@@ -37,8 +37,7 @@ export function QuestionScreen({
     <div className="space-y-6">
       <div>
         <div className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
-          {scale.name} · pergunta {position ?? itemIndex + 1} de{" "}
-          {total ?? scale.items.length}
+          {scale.name} · pergunta {position ?? itemIndex + 1} de {total ?? scale.items.length}
         </div>
         <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
           {scale.instructions}
@@ -49,7 +48,10 @@ export function QuestionScreen({
             {groupLabel}
           </div>
         )}
-        <h2 id={`pergunta-${item.id}`} className="mt-4 text-xl font-semibold leading-snug text-foreground sm:text-2xl">
+        <h2
+          id={`pergunta-${item.id}`}
+          className="mt-4 text-xl font-semibold leading-snug text-foreground sm:text-2xl"
+        >
           {item.text}
         </h2>
       </div>
@@ -94,7 +96,6 @@ export function QuestionScreen({
           );
         })}
       </motion.div>
-
 
       {onBack && (
         <button
