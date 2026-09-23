@@ -14,7 +14,7 @@ Plataforma SaaS Multi-Tenant de pré-triagem psiquiátrica adaptativa, fundament
 * **Saraiva Clínica de Psiquiatria (`/saraiva`):**
   * **Responsável Técnico:** Dr. José Ribamar Fernandes Saraiva Junior (ABP).
   * **Identidade Visual:** Primary `#1e4d5c` (Azul-petróleo sóbrio), Accent `#3d8b8b` (Verde-azulado suave).
-* **Instituto Lumina de Saúde Mental & Neurociências (`/lumina-saude`):**
+* **Instituto Lumina de Saúde Mental & Neurociências (`/lumina`):**
   * **Responsável Técnico:** Dr. Gustavo Mello (CRM 198765-SP) & Dra. Camila Nogueira (CRM 234567-SP).
   * **Identidade Visual:** Primary `#4c1d95` (Púrpura Nobre), Accent `#8b5cf6` (Violeta Clínico).
   * **Plano:** Enterprise (5 profissionais, telemetria avançada de dwell-time).
@@ -76,7 +76,7 @@ bun x wrangler deploy
 
 * **Produção:** [https://triagempsi.pontocomumtus.workers.dev](https://triagempsi.pontocomumtus.workers.dev)
 * **Triagem Saraiva Clínica:** [https://triagempsi.pontocomumtus.workers.dev/saraiva/triagem](https://triagempsi.pontocomumtus.workers.dev/saraiva/triagem)
-* **Triagem Instituto Lumina:** [https://triagempsi.pontocomumtus.workers.dev/lumina-saude/triagem](https://triagempsi.pontocomumtus.workers.dev/lumina-saude/triagem)
+* **Triagem Instituto Lumina:** [https://triagempsi.pontocomumtus.workers.dev/lumina/triagem](https://triagempsi.pontocomumtus.workers.dev/lumina/triagem)
 * **Cockpit de Psicoeducação:** [https://triagempsi.pontocomumtus.workers.dev/materiais](https://triagempsi.pontocomumtus.workers.dev/materiais)
 * **Portal do Paciente:** [https://triagempsi.pontocomumtus.workers.dev/portal](https://triagempsi.pontocomumtus.workers.dev/portal)
 * **Acesso Médico & Painel:** [https://triagempsi.pontocomumtus.workers.dev/painel](https://triagempsi.pontocomumtus.workers.dev/painel)
