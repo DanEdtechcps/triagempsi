@@ -79,12 +79,14 @@ export const listStaffAdmin = createServerFn({ method: "GET" })
       ]),
     );
 
-    return ((roles ?? []) as {
-      user_id: string;
-      role: string;
-      clinic_id: string | null;
-      created_at: string;
-    }[]).map((r) => ({
+    return (
+      (roles ?? []) as {
+        user_id: string;
+        role: string;
+        clinic_id: string | null;
+        created_at: string;
+      }[]
+    ).map((r) => ({
       user_id: r.user_id,
       role: r.role,
       clinic_id: r.clinic_id,
@@ -143,7 +145,8 @@ export const createClinicAdmin = createServerFn({ method: "POST" })
       .single();
 
     if (error) {
-      if (error.code === "23505") throw new Error("Já existe um consultório com esse endereço (slug).");
+      if (error.code === "23505")
+        throw new Error("Já existe um consultório com esse endereço (slug).");
       console.error("createClinicAdmin", error);
       throw new Error("Não foi possível criar o consultório.");
     }
@@ -224,8 +227,7 @@ export const addStaffAdmin = createServerFn({ method: "POST" })
         );
       }
       const limit =
-        (sub?.plans as { max_professionals: number | null } | null)
-          ?.max_professionals ?? null;
+        (sub?.plans as { max_professionals: number | null } | null)?.max_professionals ?? null;
       if (sub && limit != null && sub.status !== "cancelada") {
         const { data: staffRows } = await supabaseAdmin
           .from("user_roles")
@@ -243,9 +245,7 @@ export const addStaffAdmin = createServerFn({ method: "POST" })
     }
 
     const list = await supabaseAdmin.auth.admin.listUsers({ page: 1, perPage: 1000 });
-    let user = (list.data?.users ?? []).find(
-      (u) => (u.email ?? "").toLowerCase() === email,
-    );
+    let user = (list.data?.users ?? []).find((u) => (u.email ?? "").toLowerCase() === email);
     let created = false;
 
     if (!user) {
@@ -290,7 +290,11 @@ export const removeStaffAdmin = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((raw: unknown) =>
     z
-      .object({ user_id: z.string().uuid(), clinic_id: z.string().uuid().nullable(), role: z.enum(["admin", "doctor", "staff"]) })
+      .object({
+        user_id: z.string().uuid(),
+        clinic_id: z.string().uuid().nullable(),
+        role: z.enum(["admin", "doctor", "staff"]),
+      })
       .parse(raw),
   )
   .handler(async ({ data, context }) => {
@@ -339,23 +343,20 @@ export const listDoctorProfilesAdmin = createServerFn({ method: "GET" })
     await requireGlobalAdmin(context.supabase, context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    const [{ data: profiles, error }, { data: clinics }, users] =
-      await Promise.all([
-        supabaseAdmin
-          .from("doctor_profiles")
-          .select("id, clinic_id, user_id, display_name, specialty, is_listed")
-          .order("display_name", { ascending: true }),
-        supabaseAdmin.from("clinics").select("id, name"),
-        supabaseAdmin.auth.admin.listUsers({ page: 1, perPage: 1000 }),
-      ]);
+    const [{ data: profiles, error }, { data: clinics }, users] = await Promise.all([
+      supabaseAdmin
+        .from("doctor_profiles")
+        .select("id, clinic_id, user_id, display_name, specialty, is_listed")
+        .order("display_name", { ascending: true }),
+      supabaseAdmin.from("clinics").select("id, name"),
+      supabaseAdmin.auth.admin.listUsers({ page: 1, perPage: 1000 }),
+    ]);
     if (error) throw new Error("Não foi possível carregar os perfis de médicos.");
 
     const clinicName = new Map(
       ((clinics ?? []) as { id: string; name: string }[]).map((c) => [c.id, c.name]),
     );
-    const emailById = new Map(
-      (users.data?.users ?? []).map((u) => [u.id, u.email ?? null]),
-    );
+    const emailById = new Map((users.data?.users ?? []).map((u) => [u.id, u.email ?? null]));
 
     return (
       (profiles ?? []) as {
@@ -432,9 +433,7 @@ export const upsertDoctorProfileAdmin = createServerFn({ method: "POST" })
 /** Remove o perfil público (o médico some da lista de escolha da triagem). */
 export const removeDoctorProfileAdmin = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((raw: unknown) =>
-    z.object({ id: z.string().uuid() }).parse(raw),
-  )
+  .inputValidator((raw: unknown) => z.object({ id: z.string().uuid() }).parse(raw))
   .handler(async ({ data, context }) => {
     await requireGlobalAdmin(context.supabase, context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");

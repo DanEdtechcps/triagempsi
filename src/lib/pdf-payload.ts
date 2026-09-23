@@ -31,8 +31,7 @@ export function buildPdfPayload(
     respondent_age: (a.respondent_age as number | null) ?? null,
     birth_date: (a.birth_date as string | null) ?? null,
     respondent_sex: (a.respondent_sex as string | null) ?? null,
-    respondent_type:
-      (a.respondent_type as "paciente" | "familiar" | null) ?? "paciente",
+    respondent_type: (a.respondent_type as "paciente" | "familiar" | null) ?? "paciente",
     informant_name: (a.informant_name as string | null) ?? null,
     informant_relation: (a.informant_relation as string | null) ?? null,
     respondent_email: (a.respondent_email as string | null) ?? null,
@@ -55,5 +54,4 @@ export function buildPdfPayload(
     indicated: summary.indicated_scales ?? [],
     ageBand: summary.age_band ?? null,
   };
-
 }

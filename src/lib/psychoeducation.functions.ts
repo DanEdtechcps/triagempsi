@@ -6,10 +6,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import {
-  OFFICIAL_PSYCHOEDUCATION_TOPICS,
-  PSYCHO_TOPIC_BY_SLUG,
-} from "./psychoeducation-data";
+import { OFFICIAL_PSYCHOEDUCATION_TOPICS, PSYCHO_TOPIC_BY_SLUG } from "./psychoeducation-data";
 import { evaluatePsychoeducationTriggers } from "./psychoeducation";
 
 export type AssessmentPsychoItem = {
@@ -34,9 +31,7 @@ export type AssessmentPsychoItem = {
  */
 export const getAssessmentPsychoeducation = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((raw: unknown) =>
-    z.object({ assessment_id: z.string().uuid() }).parse(raw),
-  )
+  .inputValidator((raw: unknown) => z.object({ assessment_id: z.string().uuid() }).parse(raw))
   .handler(async ({ data, context }): Promise<AssessmentPsychoItem[]> => {
     // 1. Validação estrita de barreira multi-tenant via RLS do PostgreSQL
     const { data: assessment, error: aErr } = await context.supabase
@@ -47,7 +42,9 @@ export const getAssessmentPsychoeducation = createServerFn({ method: "GET" })
 
     if (aErr || !assessment) {
       const { accessDeniedError } = await import("@/lib/access-error");
-      throw accessDeniedError("Avaliação não encontrada ou sem permissão de acesso para o seu perfil.");
+      throw accessDeniedError(
+        "Avaliação não encontrada ou sem permissão de acesso para o seu perfil.",
+      );
     }
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -153,7 +150,9 @@ export const releaseManualPsychoeducation = createServerFn({ method: "POST" })
 
     if (aErr || !assessment) {
       const { accessDeniedError } = await import("@/lib/access-error");
-      throw accessDeniedError("Avaliação não encontrada ou sem permissão de acesso para o seu perfil.");
+      throw accessDeniedError(
+        "Avaliação não encontrada ou sem permissão de acesso para o seu perfil.",
+      );
     }
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -169,17 +168,15 @@ export const releaseManualPsychoeducation = createServerFn({ method: "POST" })
       throw new Error("Tema de psicoeducação não encontrado.");
     }
 
-    const { error: insertErr } = await supabaseAdmin
-      .from("assessment_psychoeducation")
-      .upsert(
-        {
-          assessment_id: data.assessment_id,
-          topic_id: topic.id,
-          trigger_reason: data.custom_note || "Liberado manualmente pelo profissional",
-          is_manual: true,
-        },
-        { onConflict: "assessment_id, topic_id" },
-      );
+    const { error: insertErr } = await supabaseAdmin.from("assessment_psychoeducation").upsert(
+      {
+        assessment_id: data.assessment_id,
+        topic_id: topic.id,
+        trigger_reason: data.custom_note || "Liberado manualmente pelo profissional",
+        is_manual: true,
+      },
+      { onConflict: "assessment_id, topic_id" },
+    );
 
     if (insertErr) {
       console.error("releaseManualPsychoeducation", insertErr);
@@ -213,7 +210,9 @@ export const markPsychoeducationViewed = createServerFn({ method: "POST" })
 
     if (aErr || !assessment) {
       const { accessDeniedError } = await import("@/lib/access-error");
-      throw accessDeniedError("Avaliação não encontrada ou sem permissão de acesso para o seu perfil.");
+      throw accessDeniedError(
+        "Avaliação não encontrada ou sem permissão de acesso para o seu perfil.",
+      );
     }
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");

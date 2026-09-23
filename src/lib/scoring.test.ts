@@ -23,7 +23,13 @@ describe("mergeAuditScore", () => {
   it("marca risk quando o total somado dos 10 itens atinge 20", () => {
     const auditC = scoreScale("AUDIT-C", { "1": 4, "2": 4, "3": 4 });
     const audit = scoreScale("AUDIT", {
-      "4": 4, "5": 4, "6": 0, "7": 0, "8": 0, "9": 0, "10": 0,
+      "4": 4,
+      "5": 4,
+      "6": 0,
+      "7": 0,
+      "8": 0,
+      "9": 0,
+      "10": 0,
     });
     const [, merged] = mergeAuditScore([auditC, audit]);
     expect(merged.score).toBe(20);
@@ -45,9 +51,7 @@ describe("pontuação e bandas", () => {
       const sorted = [...scale.bands].sort((a, b) => a.min - b.min);
       expect(sorted[0].min, `${scale.code} começa em 0`).toBe(0);
       for (let i = 1; i < sorted.length; i++) {
-        expect(sorted[i].min, `${scale.code} banda ${i} contígua`).toBe(
-          sorted[i - 1].max + 1,
-        );
+        expect(sorted[i].min, `${scale.code} banda ${i} contígua`).toBe(sorted[i - 1].max + 1);
       }
     }
   });
@@ -96,15 +100,28 @@ describe("pontuação e bandas", () => {
 
 describe("subescores do ASSIST-Lite", () => {
   it("tudo negativo: baixo risco em todas as substâncias", () => {
-    const r = scoreScale("ASSIST", { "801": 0, "804": 0, "808": 0, "811": 0, "814": 0, "817": 0, "820": 0 });
+    const r = scoreScale("ASSIST", {
+      "801": 0,
+      "804": 0,
+      "808": 0,
+      "811": 0,
+      "814": 0,
+      "817": 0,
+      "820": 0,
+    });
     expect(r.band).toBe("Baixo risco em todas as substâncias");
     expect(r.band_level).toBe(0);
     expect(r.subscores).toHaveLength(7);
   });
 
   it("álcool segue faixas próprias: 0-1 baixo, 2 moderado, ≥3 alto", () => {
-    expect(scoreScale("ASSIST", { "804": 1 }).subscores?.find((s) => s.key === "ASSIST_ALCOOL")?.band).toBe("Baixo risco");
-    expect(scoreScale("ASSIST", { "804": 1, "805": 1 }).subscores?.find((s) => s.key === "ASSIST_ALCOOL")?.band).toBe("Risco moderado");
+    expect(
+      scoreScale("ASSIST", { "804": 1 }).subscores?.find((s) => s.key === "ASSIST_ALCOOL")?.band,
+    ).toBe("Baixo risco");
+    expect(
+      scoreScale("ASSIST", { "804": 1, "805": 1 }).subscores?.find((s) => s.key === "ASSIST_ALCOOL")
+        ?.band,
+    ).toBe("Risco moderado");
     const alto = scoreScale("ASSIST", { "804": 1, "805": 1, "806": 1 });
     expect(alto.subscores?.find((s) => s.key === "ASSIST_ALCOOL")?.band).toBe("Alto risco");
     expect(alto.band).toContain("Alto risco");
@@ -113,7 +130,15 @@ describe("subescores do ASSIST-Lite", () => {
   });
 
   it("tabaco com 1 ponto já é risco moderado e aparece na faixa da escala", () => {
-    const r = scoreScale("ASSIST", { "801": 1, "804": 0, "808": 0, "811": 0, "814": 0, "817": 0, "820": 0 });
+    const r = scoreScale("ASSIST", {
+      "801": 1,
+      "804": 0,
+      "808": 0,
+      "811": 0,
+      "814": 0,
+      "817": 0,
+      "820": 0,
+    });
     expect(r.band).toBe("Risco moderado — Tabaco");
     expect(r.band_level).toBe(2);
   });
@@ -134,10 +159,7 @@ describe("subescores do ASSIST-Lite", () => {
 
 describe("resumo da triagem", () => {
   it("consolida risco, decisões e faixa etária", () => {
-    const resultados = [
-      resultWithScore("PHQ-2", 5),
-      resultWithScore("PHQ-9", 20, { "9": 3 }),
-    ];
+    const resultados = [resultWithScore("PHQ-2", 5), resultWithScore("PHQ-9", 20, { "9": 3 })];
     const resumo = summarize(resultados, {
       symptoms: ["tristeza"],
       riskPathway: true,

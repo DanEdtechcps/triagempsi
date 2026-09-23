@@ -38,7 +38,8 @@ export function CardsPsicoeducacao({ items }: CardsPsicoeducacaoProps) {
           </h2>
         </div>
         <p className="mt-1 text-xs text-muted-foreground">
-          Com base nas áreas avaliadas, separamos materiais educativos e estratégias práticas elaboradas pela nossa equipe clínica.
+          Com base nas áreas avaliadas, separamos materiais educativos e estratégias práticas
+          elaboradas pela nossa equipe clínica.
         </p>
       </div>
 
@@ -59,9 +60,7 @@ export function CardsPsicoeducacao({ items }: CardsPsicoeducacaoProps) {
               <div className="flex items-start gap-3">
                 <div
                   className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${
-                    isCrise
-                      ? "bg-destructive/15 text-destructive"
-                      : "bg-primary/10 text-primary"
+                    isCrise ? "bg-destructive/15 text-destructive" : "bg-primary/10 text-primary"
                   }`}
                 >
                   <PsychoIcon name={item.topic.icon} isCrise={isCrise} />
@@ -125,12 +124,14 @@ export function CardsPsicoeducacao({ items }: CardsPsicoeducacaoProps) {
                       size="sm"
                       aria-expanded={isExpanded}
                       aria-controls={`psicoeducacao-detalhes-${item.topic.slug}`}
-                      onClick={() =>
-                        setExpandedSlug(isExpanded ? null : item.topic.slug)
-                      }
+                      onClick={() => setExpandedSlug(isExpanded ? null : item.topic.slug)}
                       className="h-8 gap-1 text-xs text-primary hover:text-primary"
                     >
-                      {isExpanded ? "Ocultar detalhes" : isCrise ? "Ver Plano de Segurança Completo" : "Ler orientações completas"}
+                      {isExpanded
+                        ? "Ocultar detalhes"
+                        : isCrise
+                          ? "Ver Plano de Segurança Completo"
+                          : "Ler orientações completas"}
                       {isExpanded ? (
                         <ChevronUp className="h-3.5 w-3.5" />
                       ) : (
@@ -148,7 +149,12 @@ export function CardsPsicoeducacao({ items }: CardsPsicoeducacaoProps) {
                         {item.topic.body_md}
                       </div>
                       <div className="mt-4 border-t border-border pt-3 text-[11px] text-muted-foreground">
-                        ⚠️ <em>Aviso importante: Este material tem finalidade puramente psicoeducativa e não substitui a consulta clínica individualizada com o seu médico ou terapeuta.</em>
+                        ⚠️{" "}
+                        <em>
+                          Aviso importante: Este material tem finalidade puramente psicoeducativa e
+                          não substitui a consulta clínica individualizada com o seu médico ou
+                          terapeuta.
+                        </em>
                       </div>
                     </div>
                   )}

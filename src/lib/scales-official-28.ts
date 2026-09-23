@@ -39,7 +39,10 @@ export const DAST10: Scale = {
     { id: "7", text: "Você já negligenciou a família ou o trabalho por causa de drogas?" },
     { id: "8", text: "Você já se envolveu em atividades ilegais para obter drogas?" },
     { id: "9", text: "Você já sentiu sintomas de abstinência (mal-estar físico ao parar)?" },
-    { id: "10", text: "Você já teve problemas de saúde por causa do uso (ex.: overdose, hepatite)?" },
+    {
+      id: "10",
+      text: "Você já teve problemas de saúde por causa do uso (ex.: overdose, hepatite)?",
+    },
   ],
   bands: [
     { min: 0, max: 0, label: "Sem problemas relatados", level: 0 },
@@ -70,14 +73,25 @@ export const CSSRS: Scale = {
     { id: "2", text: "Você já teve pensamentos sobre se matar de forma geral?" },
     { id: "3", text: "Você pensou em como poderia fazer isso (pensou em algum método)?" },
     { id: "4", text: "Você teve esses pensamentos e alguma intenção de colocá-los em prática?" },
-    { id: "5", text: "Você já começou a elaborar ou elaborou os detalhes de como se matar com intenção de agir?" },
-    { id: "6", text: "Você já fez algo, começou a fazer ou se preparou para tentar tirar a própria vida?" },
+    {
+      id: "5",
+      text: "Você já começou a elaborar ou elaborou os detalhes de como se matar com intenção de agir?",
+    },
+    {
+      id: "6",
+      text: "Você já fez algo, começou a fazer ou se preparou para tentar tirar a própria vida?",
+    },
   ],
   bands: [
     { min: 0, max: 0, label: "Sem risco identificado no rastreio", level: 0 },
     { min: 1, max: 2, label: "Risco baixo — ideação passiva sem método", level: 2 },
     { min: 3, max: 3, label: "Risco moderado — ideação com métodos considerados", level: 3 },
-    { min: 4, max: 6, label: "Risco alto / iminente — intenção, plano ou comportamento recente", level: 4 },
+    {
+      min: 4,
+      max: 6,
+      label: "Risco alto / iminente — intenção, plano ou comportamento recente",
+      level: 4,
+    },
   ],
   positiveCutoff: 1,
   riskItems: ["1", "2", "3", "4", "5", "6"],
@@ -93,7 +107,8 @@ export const YBOCS: Scale = {
   domain: "obsessivo",
   status: "ativa",
   minAge: 14,
-  instructions: "Avalie o tempo, a angústia e o controle sobre seus pensamentos repetitivos e manias na última semana.",
+  instructions:
+    "Avalie o tempo, a angústia e o controle sobre seus pensamentos repetitivos e manias na última semana.",
   timeframe: "Última semana",
   options: [
     { label: "Nenhum", value: 0 },
@@ -176,17 +191,27 @@ export const PDSS_SR: Scale = {
   domain: "ansiedade",
   status: "ativa",
   minAge: 14,
-  instructions: "Responda às questões abaixo pensando na última semana e nos ataques ou sensações de pânico.",
+  instructions:
+    "Responda às questões abaixo pensando na última semana e nos ataques ou sensações de pânico.",
   timeframe: "Última semana",
   options: OPTS_0_4,
   items: [
     { id: "1", text: "Quantos episódios de pânico ou crises súbitas de ansiedade você teve?" },
     { id: "2", text: "Quão angustiantes ou intensos foram esses episódios de pânico?" },
     { id: "3", text: "Quanto você se preocupou com a possibilidade de ter novos ataques?" },
-    { id: "4", text: "Quanto você evitou lugares ou situações por medo de ter um ataque de pânico?" },
-    { id: "5", text: "Quanto você evitou sensações corporais (ex.: café, exercício, calor) por medo de pânico?" },
+    {
+      id: "4",
+      text: "Quanto você evitou lugares ou situações por medo de ter um ataque de pânico?",
+    },
+    {
+      id: "5",
+      text: "Quanto você evitou sensações corporais (ex.: café, exercício, calor) por medo de pânico?",
+    },
     { id: "6", text: "Quanto os sintomas de pânico atrapalharam seu trabalho ou estudos?" },
-    { id: "7", text: "Quanto os sintomas de pânico atrapalharam sua vida social e seus relacionamentos?" },
+    {
+      id: "7",
+      text: "Quanto os sintomas de pânico atrapalharam sua vida social e seus relacionamentos?",
+    },
   ],
   bands: [
     { min: 0, max: 3, label: "Normal / Sintomas subclínicos de pânico", level: 0 },
@@ -208,7 +233,8 @@ export const BES: Scale = {
   domain: "alimentar",
   status: "ativa",
   minAge: 15,
-  instructions: "Selecione o grupo de afirmações que melhor descreve seus hábitos alimentares e sentimentos.",
+  instructions:
+    "Selecione o grupo de afirmações que melhor descreve seus hábitos alimentares e sentimentos.",
   timeframe: "Últimos meses",
   options: [
     { label: "Ausente / Sem descontrole", value: 0 },
@@ -253,7 +279,8 @@ export const MBI_HSS: Scale = {
   status: "ativa",
   minAge: 18,
   quietIfOutOfRange: true,
-  instructions: "Pensando no seu trabalho habitual, com que frequência você vivencia cada uma destas sensações?",
+  instructions:
+    "Pensando no seu trabalho habitual, com que frequência você vivencia cada uma destas sensações?",
   timeframe: "No trabalho atual",
   options: [
     { label: "Nunca", value: 0 },
@@ -269,7 +296,10 @@ export const MBI_HSS: Scale = {
     { id: "2", text: "Sinto-me consumido(a) e no limite das minhas forças ao fim do dia" },
     { id: "3", text: "Acordo cansado(a) só de pensar em encarar outro dia de trabalho" },
     { id: "4", text: "Sinto que estou me tornando mais insensível e frio(a) com as pessoas" },
-    { id: "5", text: "Preocupo-me com o fato de este trabalho estar me endurecendo emocionalmente" },
+    {
+      id: "5",
+      text: "Preocupo-me com o fato de este trabalho estar me endurecendo emocionalmente",
+    },
     { id: "6", text: "Não me importo realmente com o que acontece com algumas pessoas no serviço" },
     { id: "7", text: "Sinto que não estou alcançando realizações que realmente valham a pena" },
     { id: "8", text: "Tenho dificuldade em me entusiasmar com novos projetos profissionais" },
@@ -299,16 +329,33 @@ export const CRAFFT: Scale = {
   timeframe: "Últimos 12 meses",
   options: OPTS_0_1_SIM_NAO,
   items: [
-    { id: "1", text: "Você já andou em um CARRO dirigido por alguém (inclusive você) que estava sob efeito de álcool ou drogas?" },
-    { id: "2", text: "Você já usou álcool ou drogas para RELAXAR, se sentir melhor consigo mesmo(a) ou se enturmar?" },
+    {
+      id: "1",
+      text: "Você já andou em um CARRO dirigido por alguém (inclusive você) que estava sob efeito de álcool ou drogas?",
+    },
+    {
+      id: "2",
+      text: "Você já usou álcool ou drogas para RELAXAR, se sentir melhor consigo mesmo(a) ou se enturmar?",
+    },
     { id: "3", text: "Você já usou álcool ou drogas quando estava SOZINHO(A) (ALONE)?" },
     { id: "4", text: "Você já ESQUECEU (FORGET) coisas que fez enquanto usava álcool ou drogas?" },
-    { id: "5", text: "Sua FAMÍLIA ou AMIGOS já disseram que você deveria diminuir o uso de bebidas ou drogas?" },
-    { id: "6", text: "Você já se meteu em PROBLEMAS (TROUBLE) enquanto estava usando álcool ou drogas?" },
+    {
+      id: "5",
+      text: "Sua FAMÍLIA ou AMIGOS já disseram que você deveria diminuir o uso de bebidas ou drogas?",
+    },
+    {
+      id: "6",
+      text: "Você já se meteu em PROBLEMAS (TROUBLE) enquanto estava usando álcool ou drogas?",
+    },
   ],
   bands: [
     { min: 0, max: 1, label: "Baixo risco — aconselhamento preventivo", level: 0 },
-    { min: 2, max: 6, label: "Risco significativo — investigar transtorno por uso de substâncias", level: 3 },
+    {
+      min: 2,
+      max: 6,
+      label: "Risco significativo — investigar transtorno por uso de substâncias",
+      level: 3,
+    },
   ],
   positiveCutoff: 2,
   // Item 1 (ser passageiro de carona com alguém sob efeito) sozinho estava
@@ -334,17 +381,32 @@ export const HADS: Scale = {
   options: OPTS_0_3,
   items: [
     { id: "1", text: "Eu me sinto tenso(a) ou contraído(a) (Ansiedade)" },
-    { id: "2", text: "Eu ainda sinto prazer nas coisas que costumava gostar (Depressão - Invertido)" },
-    { id: "3", text: "Eu sinto uma espécie de medo, como se algo ruim fosse acontecer (Ansiedade)" },
-    { id: "4", text: "Dou risada e consigo ver o lado divertido das coisas (Depressão - Invertido)" },
+    {
+      id: "2",
+      text: "Eu ainda sinto prazer nas coisas que costumava gostar (Depressão - Invertido)",
+    },
+    {
+      id: "3",
+      text: "Eu sinto uma espécie de medo, como se algo ruim fosse acontecer (Ansiedade)",
+    },
+    {
+      id: "4",
+      text: "Dou risada e consigo ver o lado divertido das coisas (Depressão - Invertido)",
+    },
     { id: "5", text: "Tenho a cabeça cheia de preocupações (Ansiedade)" },
     { id: "6", text: "Sinto-me alegre (Depressão - Invertido)" },
-    { id: "7", text: "Consigo ficar sentado(a) à vontade e me sentir relaxado(a) (Ansiedade - Invertido)" },
+    {
+      id: "7",
+      text: "Consigo ficar sentado(a) à vontade e me sentir relaxado(a) (Ansiedade - Invertido)",
+    },
     { id: "8", text: "Sinto-me lento(a), como se fizesse as coisas devagar (Depressão)" },
     { id: "9", text: "Sinto uma sensação ruim de frio no estômago ou aperto (Ansiedade)" },
     { id: "10", text: "Perdi o interesse em cuidar da minha aparência (Depressão)" },
     { id: "11", text: "Fico inquieto(a), como se precisasse estar sempre me mexendo (Ansiedade)" },
-    { id: "12", text: "Fico esperando com prazer as coisas que estão por vir (Depressão - Invertido)" },
+    {
+      id: "12",
+      text: "Fico esperando com prazer as coisas que estão por vir (Depressão - Invertido)",
+    },
     { id: "13", text: "Tenho crises repentinas de pânico (Ansiedade)" },
     { id: "14", text: "Consigo apreciar um bom livro ou programa de TV (Depressão - Invertido)" },
   ],
@@ -388,13 +450,24 @@ export const PSS10: Scale = {
     { id: "1", text: "Ficou chateado(a) por causa de algo que aconteceu inesperadamente?" },
     { id: "2", text: "Sentiu que não conseguia controlar as coisas importantes da sua vida?" },
     { id: "3", text: "Sentiu-se nervoso(a) e estressado(a)?" },
-    { id: "4", text: "Sentiu-se confiante na sua habilidade de lidar com seus problemas pessoais?", options: PSS_INV },
-    { id: "5", text: "Sentiu que as coisas estavam acontecendo de acordo com a sua vontade?", options: PSS_INV },
+    {
+      id: "4",
+      text: "Sentiu-se confiante na sua habilidade de lidar com seus problemas pessoais?",
+      options: PSS_INV,
+    },
+    {
+      id: "5",
+      text: "Sentiu que as coisas estavam acontecendo de acordo com a sua vontade?",
+      options: PSS_INV,
+    },
     { id: "6", text: "Sentiu que não conseguia lidar com todas as coisas que tinha que fazer?" },
     { id: "7", text: "Conseguiu controlar as irritações na sua vida?", options: PSS_INV },
     { id: "8", text: "Sentiu que estava no controle de tudo?", options: PSS_INV },
     { id: "9", text: "Ficou irritado(a) porque as coisas saíram do seu controle?" },
-    { id: "10", text: "Sentiu que as dificuldades estavam se acumulando a ponto de você não poder superá-las?" },
+    {
+      id: "10",
+      text: "Sentiu que as dificuldades estavam se acumulando a ponto de você não poder superá-las?",
+    },
   ],
   bands: [
     { min: 0, max: 13, label: "Baixo estresse percebido", level: 0 },
@@ -414,8 +487,7 @@ export const WHO5: Scale = {
   domain: "geral",
   status: "ativa",
   minAge: 10,
-  instructions:
-    "Nas últimas duas semanas, com que frequência você se sentiu como descrito abaixo?",
+  instructions: "Nas últimas duas semanas, com que frequência você se sentiu como descrito abaixo?",
   timeframe: "Últimas 2 semanas",
   options: [
     { label: "Nunca (0)", value: 0 },
@@ -452,7 +524,8 @@ export const ASRS_C: Scale = {
   maxAge: 17,
   quietIfOutOfRange: true,
   informantMode: "ambos",
-  instructions: "Avalie a frequência com que a criança/adolescente apresenta os seguintes comportamentos.",
+  instructions:
+    "Avalie a frequência com que a criança/adolescente apresenta os seguintes comportamentos.",
   timeframe: "Últimos 6 meses",
   options: OPTS_0_3,
   items: [
@@ -460,14 +533,23 @@ export const ASRS_C: Scale = {
     { id: "2", text: "Parece não escutar quando se fala diretamente com ela" },
     { id: "3", text: "Não segue instruções e não termina deveres ou tarefas" },
     { id: "4", text: "Dificuldade para organizar tarefas e atividades" },
-    { id: "5", text: "Evita ou reluta em se envolver em tarefas que exijam esforço mental constante" },
+    {
+      id: "5",
+      text: "Evita ou reluta em se envolver em tarefas que exijam esforço mental constante",
+    },
     { id: "6", text: "Perde coisas necessárias para as atividades (livros, lápis, brinquedos)" },
     { id: "7", text: "Distrai-se facilmente com estímulos externos" },
     { id: "8", text: "Esquece de atividades do dia a dia" },
     { id: "9", text: "Mexe com as mãos ou os pés, ou se remexe na cadeira" },
-    { id: "10", text: "Levanta-se da cadeira em sala de aula ou em outras situações onde se espera que fique sentada" },
+    {
+      id: "10",
+      text: "Levanta-se da cadeira em sala de aula ou em outras situações onde se espera que fique sentada",
+    },
     { id: "11", text: "Corre ou sobe nas coisas em situações inapropriadas" },
-    { id: "12", text: "Dificuldade em brincar ou se envolver silenciosamente em atividades de lazer" },
+    {
+      id: "12",
+      text: "Dificuldade em brincar ou se envolver silenciosamente em atividades de lazer",
+    },
     { id: "13", text: "Parece estar a mil por hora ou movida por um motor" },
     { id: "14", text: "Fala em excesso" },
     { id: "15", text: "Dá respostas precipitadas antes de as perguntas terem sido concluídas" },
@@ -491,7 +573,8 @@ export const CGI_S: Scale = {
   domain: "geral",
   status: "ativa",
   minAge: 12,
-  instructions: "Considerando sua experiência geral com suas queixas emocionais no momento presente, como você se avalia?",
+  instructions:
+    "Considerando sua experiência geral com suas queixas emocionais no momento presente, como você se avalia?",
   timeframe: "Momento atual",
   options: [
     { label: "0 - Sem sintomas / Normal", value: 0 },
@@ -503,9 +586,7 @@ export const CGI_S: Scale = {
     { label: "6 - Gravemente doente / impacto forte no dia a dia", value: 6 },
     { label: "7 - Entre os mais extremamente doentes / sofrimento insuportável", value: 7 },
   ],
-  items: [
-    { id: "1", text: "Gravidade global percebida do seu sofrimento psíquico atual" },
-  ],
+  items: [{ id: "1", text: "Gravidade global percebida do seu sofrimento psíquico atual" }],
   bands: [
     { min: 0, max: 2, label: "Normal / Limítrofe", level: 0 },
     { min: 3, max: 3, label: "Sintomas leves", level: 1 },
@@ -526,7 +607,8 @@ export const WSAS: Scale = {
   domain: "geral",
   status: "ativa",
   minAge: 14,
-  instructions: "Por causa do seu problema de saúde mental, quanto a sua capacidade de realizar o seguinte é afetada?",
+  instructions:
+    "Por causa do seu problema de saúde mental, quanto a sua capacidade de realizar o seguinte é afetada?",
   timeframe: "Momento atual",
   options: [
     { label: "0 - Nada afetada", value: 0 },

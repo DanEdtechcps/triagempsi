@@ -6,11 +6,7 @@ import { PainelShell, BandBadge } from "@/components/painel/PainelShell";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { downloadFhirBundle, type FhirAssessment, type FhirScaleRow } from "@/lib/fhir";
-import {
-  getItemOptions,
-  resolveScaleForAnswers,
-  skippedItemIds,
-} from "@/lib/scales-data";
+import { getItemOptions, resolveScaleForAnswers, skippedItemIds } from "@/lib/scales-data";
 import { computeSubscores } from "@/lib/scoring";
 import { DecisionTrail } from "@/components/painel/DecisionTrail";
 import { BRANDING } from "@/config/branding";
@@ -31,16 +27,13 @@ import { AcessoNegado } from "@/components/painel/AcessoNegado";
 import type { ItemDwellRecord } from "@/lib/clinical-engine/dwell-time";
 import { isAccessDenied, accessDeniedMessage } from "@/lib/access-error";
 
-
-
 export const Route = createFileRoute("/_authenticated/painel/$id")({
   head: () => ({
     meta: [
       { title: "Detalhe da triagem — Painel do profissional" },
       {
         name: "description",
-        content:
-          "Respostas item a item, escores e caminho de sintomas de uma pré-triagem.",
+        content: "Respostas item a item, escores e caminho de sintomas de uma pré-triagem.",
       },
       { property: "og:title", content: "Detalhe da triagem" },
       { property: "og:description", content: "Painel do profissional." },
@@ -63,9 +56,6 @@ type ScaleRow = {
   notes?: string | null;
 };
 
-
-
-
 function PainelDetalhe() {
   const { id } = Route.useParams();
   const fetchOne = useServerFn(getAssessment);
@@ -78,10 +68,7 @@ function PainelDetalhe() {
     queryFn: () => fetchOne({ data: { id } }),
   });
 
-  const a = data as
-    | (Record<string, unknown> & { scale_results: ScaleRow[] })
-    | null
-    | undefined;
+  const a = data as (Record<string, unknown> & { scale_results: ScaleRow[] }) | null | undefined;
   // Espelha o shape real de summarize() (scoring.ts) + os campos que
   // submitAssessment adiciona por cima (preferred_name/pronouns) — extendido
   // pra cobrir os campos que antes eram lidos via `as any` mais abaixo no
@@ -102,11 +89,12 @@ function PainelDetalhe() {
   const riskFlags = (a?.risk_flags as string[]) ?? [];
   const risco = riskFlags.length > 0 || summary.risk_pathway;
   const medico =
-    (a as
-      | { doctor_profiles?: { display_name: string; specialty: string | null } | null }
-      | null
-      | undefined)?.doctor_profiles ?? null;
-
+    (
+      a as
+        | { doctor_profiles?: { display_name: string; specialty: string | null } | null }
+        | null
+        | undefined
+    )?.doctor_profiles ?? null;
 
   function baixarPdf(tipo: "clinico" | "paciente") {
     if (!a) return;
@@ -115,7 +103,6 @@ function PainelDetalhe() {
     else downloadPatientPdf(payload);
     void logExport({ data: { assessment_id: id, kind: tipo } }).catch(() => {});
   }
-
 
   function baixarFhir() {
     if (!a) return;
@@ -151,12 +138,7 @@ function PainelDetalhe() {
       title="Detalhe da triagem"
       action={
         <div className="flex flex-wrap items-center gap-2 print:hidden">
-          <Button
-            variant="outline"
-            size="sm"
-            disabled={!a}
-            onClick={() => baixarPdf("paciente")}
-          >
+          <Button variant="outline" size="sm" disabled={!a} onClick={() => baixarPdf("paciente")}>
             PDF do paciente
           </Button>
           <Button size="sm" disabled={!a} onClick={() => baixarPdf("clinico")}>
@@ -194,7 +176,6 @@ function PainelDetalhe() {
         ← Voltar à lista
       </Link>
 
-
       {isLoading && (
         <div className="space-y-4" aria-busy="true" aria-label="Carregando detalhes da triagem">
           <div className="h-28 w-full animate-pulse rounded-xl bg-muted/60" />
@@ -223,9 +204,8 @@ function PainelDetalhe() {
               </div>
               <p className="mt-1 text-sm text-foreground/80">
                 O paciente sinalizou pensamentos de morte ou autolesão. Sinalizadores:{" "}
-                {riskFlags.join(", ") || "via de sintomas"}. Orientação de emergência
-                exibida ao paciente ({BRANDING.emergency.cvvLabel} —{" "}
-                {BRANDING.emergency.cvvPhone}).
+                {riskFlags.join(", ") || "via de sintomas"}. Orientação de emergência exibida ao
+                paciente ({BRANDING.emergency.cvvLabel} — {BRANDING.emergency.cvvPhone}).
               </p>
             </Card>
           )}
@@ -248,9 +228,7 @@ function PainelDetalhe() {
                       value={preferredName}
                     />
                   )}
-                  {pronouns && (
-                    <Field label="Pronomes de tratamento" value={pronouns} />
-                  )}
+                  {pronouns && <Field label="Pronomes de tratamento" value={pronouns} />}
                   <Field
                     label="Idade"
                     value={a.respondent_age != null ? `${a.respondent_age} anos` : "—"}
@@ -259,7 +237,10 @@ function PainelDetalhe() {
                     label="Nascimento"
                     value={formatDateBR(a.birth_date ? String(a.birth_date) : null)}
                   />
-                  <Field label="Sexo / Identidade de gênero" value={String(a.respondent_sex ?? "—")} />
+                  <Field
+                    label="Sexo / Identidade de gênero"
+                    value={String(a.respondent_sex ?? "—")}
+                  />
                   <Field
                     label="Quem respondeu"
                     value={
@@ -330,8 +311,8 @@ function PainelDetalhe() {
               Por que estas escalas foram aplicadas
             </h2>
             <p className="mt-1 text-sm text-muted-foreground">
-              Da característica relatada ao encaminhamento final, com o critério
-              objetivo de cada decisão.
+              Da característica relatada ao encaminhamento final, com o critério objetivo de cada
+              decisão.
             </p>
             <div className="mt-4">
               <DecisionTrail
@@ -365,17 +346,12 @@ function PainelDetalhe() {
           />
 
           {(a.scale_results ?? []).map((r) => {
-
             // resolveScaleForAnswers cobre registros antigos cuja definição
             // da escala foi substituída (ex.: ASSIST → ASSIST-Lite).
             const scale = resolveScaleForAnswers(r.scale_code, r.answers);
             const riskItems = scale?.riskItems ?? [];
-            const skipped = scale
-              ? skippedItemIds(scale, r.answers ?? {})
-              : new Set<string>();
-            const subscores = scale
-              ? (computeSubscores(scale, r.answers ?? {}) ?? null)
-              : null;
+            const skipped = scale ? skippedItemIds(scale, r.answers ?? {}) : new Set<string>();
+            const subscores = scale ? (computeSubscores(scale, r.answers ?? {}) ?? null) : null;
             const estimatedIds = new Set(
               (r as { estimated_items?: string[] }).estimated_items ?? [],
             );
@@ -386,9 +362,7 @@ function PainelDetalhe() {
               >
                 <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-3">
                   <div className="min-w-0">
-                    <h2 className="font-serif text-lg font-semibold">
-                      {r.scale_code}
-                    </h2>
+                    <h2 className="font-serif text-lg font-semibold">{r.scale_code}</h2>
                     <p className="text-sm text-muted-foreground">{r.scale_name}</p>
                     {r.notes && (
                       <p className="mt-2 rounded-lg border border-border bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
@@ -440,9 +414,7 @@ function PainelDetalhe() {
                   {scale?.items.map((item, idx) => {
                     const val = r.answers?.[item.id];
                     const isSkipped = skipped.has(item.id);
-                    const opt = getItemOptions(scale, item.id).find(
-                      (o) => o.value === val,
-                    );
+                    const opt = getItemOptions(scale, item.id).find((o) => o.value === val);
                     const itemRisk =
                       riskItems.includes(item.id) && typeof val === "number" && val > 0;
                     return (
@@ -488,9 +460,7 @@ function PainelDetalhe() {
 function Field({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <dt className="text-xs uppercase tracking-wide text-muted-foreground">
-        {label}
-      </dt>
+      <dt className="text-xs uppercase tracking-wide text-muted-foreground">{label}</dt>
       <dd className="text-foreground/90">{value}</dd>
     </div>
   );

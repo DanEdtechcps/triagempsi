@@ -65,7 +65,16 @@ export const getOcupacionalReport = createServerFn({ method: "GET" })
 
     const grupos = new Map<
       string,
-      { nome: string | null; ultima: string; respostas: { score: number; band: string; level: number; answers: Record<string, number> }[] }
+      {
+        nome: string | null;
+        ultima: string;
+        respostas: {
+          score: number;
+          band: string;
+          level: number;
+          answers: Record<string, number>;
+        }[];
+      }
     >();
 
     for (const a of (data ?? []) as unknown as Row[]) {
@@ -133,9 +142,10 @@ export const getOcupacionalReport = createServerFn({ method: "GET" })
         respondentes: n,
         suficiente,
         minN: MIN_N,
-        mediaGeral: suficiente && n
-          ? Number((g.respostas.reduce((a, r) => a + r.score, 0) / n).toFixed(1))
-          : 0,
+        mediaGeral:
+          suficiente && n
+            ? Number((g.respostas.reduce((a, r) => a + r.score, 0) / n).toFixed(1))
+            : 0,
         distribuicao: suficiente
           ? [...distMap.values()]
               .sort((a, b) => b.level - a.level)

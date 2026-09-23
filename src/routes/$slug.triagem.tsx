@@ -1,9 +1,4 @@
-import {
-  createFileRoute,
-  useSearch,
-  getRouteApi,
-  Link,
-} from "@tanstack/react-router";
+import { createFileRoute, useSearch, getRouteApi, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { z } from "zod";
 import { useQuery } from "@tanstack/react-query";
@@ -24,11 +19,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { GENDER_OPTIONS, PRONOUN_OPTIONS } from "@/config/gender-options";
-import {
-  maskPhoneBR,
-  isValidPhoneBR,
-  isValidEmail,
-} from "@/lib/masks";
+import { maskPhoneBR, isValidPhoneBR, isValidEmail } from "@/lib/masks";
 
 import {
   SCALE_BY_CODE,
@@ -67,7 +58,6 @@ import {
   type TriagePlan,
 } from "@/lib/clinical-engine";
 
-
 const parentApi = getRouteApi("/$slug");
 
 const searchSchema = z.object({
@@ -80,14 +70,7 @@ export const Route = createFileRoute("/$slug/triagem")({
   component: TriagemPage,
 });
 
-type Phase =
-  | "boas-vindas"
-  | "dados"
-  | "sintomas"
-  | "escalas"
-  | "risco"
-  | "fim"
-  | "erro";
+type Phase = "boas-vindas" | "dados" | "sintomas" | "escalas" | "risco" | "fim" | "erro";
 
 type RespondentData = {
   respondent_type: Informant;
@@ -283,31 +266,23 @@ function TriagemPage() {
   ]);
 
   const todayISO = useMemo(() => new Date().toISOString().split("T")[0], []);
-  const isFutureBirth = Boolean(
-    respondent.birth_date && respondent.birth_date > todayISO,
-  );
+  const isFutureBirth = Boolean(respondent.birth_date && respondent.birth_date > todayISO);
 
   const dadosValidos = useMemo(
     () =>
       respondent.respondent_name.trim().length >= 2 &&
       isValidEmail(respondent.respondent_email) &&
-      Boolean(
-        respondent.respondent_sex &&
-          respondent.respondent_sex.trim().length > 0,
-      ) &&
+      Boolean(respondent.respondent_sex && respondent.respondent_sex.trim().length > 0) &&
       age != null &&
       age >= 5 &&
       age <= 125 &&
       !isFutureBirth &&
       isValidPhoneBR(respondent.respondent_phone, false) &&
-      (respondent.respondent_type === "paciente" ||
-        respondent.informant_name.trim().length >= 2),
+      (respondent.respondent_type === "paciente" || respondent.informant_name.trim().length >= 2),
     [respondent, age, isFutureBirth],
   );
 
-  const currentScale = plan?.flow[scaleIndex]
-    ? SCALE_BY_CODE[plan.flow[scaleIndex]]
-    : null;
+  const currentScale = plan?.flow[scaleIndex] ? SCALE_BY_CODE[plan.flow[scaleIndex]] : null;
 
   // Se o item atual ficou pulado pela ramificação (sessão restaurada ou
   // pergunta-porta alterada no caminho de volta), ajusta para um item visível.
@@ -335,19 +310,13 @@ function TriagemPage() {
     [plan, answers],
   );
   const answeredQuestions = useMemo(
-    () =>
-      Object.values(answers).reduce((acc, a) => acc + Object.keys(a).length, 0),
+    () => Object.values(answers).reduce((acc, a) => acc + Object.keys(a).length, 0),
     [answers],
   );
-  const progress =
-    totalQuestions > 0
-      ? Math.round((answeredQuestions / totalQuestions) * 100)
-      : 0;
+  const progress = totalQuestions > 0 ? Math.round((answeredQuestions / totalQuestions) * 100) : 0;
 
   function startFlow(selected: string[]) {
-    const cleanedSelected = isMale
-      ? selected.filter((s) => s !== "perinatal")
-      : selected;
+    const cleanedSelected = isMale ? selected.filter((s) => s !== "perinatal") : selected;
     const p = buildTriagePlan(cleanedSelected, age, respondent.respondent_sex);
     setPlan(p);
     setSymptoms(cleanedSelected);
@@ -362,11 +331,7 @@ function TriagemPage() {
     }
   }
 
-  async function finalize(
-    allResults: ScaleResult[],
-    usedPlan: TriagePlan,
-    usedSymptoms: string[],
-  ) {
+  async function finalize(allResults: ScaleResult[], usedPlan: TriagePlan, usedSymptoms: string[]) {
     // Impede gravação duplicada por clique repetido / reentrada.
     if (submittingRef.current) return;
     submittingRef.current = true;
@@ -379,8 +344,7 @@ function TriagemPage() {
     const mergedResults = mergeAuditScore(allResults);
     setResults(mergedResults);
 
-    const riskPathway =
-      usedPlan.riskPathway || mergedResults.some((r) => r.risk);
+    const riskPathway = usedPlan.riskPathway || mergedResults.some((r) => r.risk);
 
     // Regra de segurança inviolável: a tela de crise (CVV 188 / SAMU 192)
     // não pode depender do envio ao servidor ter dado certo. O risco já é
@@ -443,9 +407,7 @@ function TriagemPage() {
         );
       } else {
         setErrorMsg(
-          e instanceof Error
-            ? e.message
-            : "Não foi possível enviar sua triagem. Tente novamente.",
+          e instanceof Error ? e.message : "Não foi possível enviar sua triagem. Tente novamente.",
         );
         setPhase("erro");
       }
@@ -498,8 +460,6 @@ function TriagemPage() {
       branding,
     );
   }
-
-
 
   function handleAnswer(value: number) {
     if (!currentScale || !plan) return;
@@ -575,16 +535,11 @@ function TriagemPage() {
     }
   }
 
-
   function handleBack() {
     // Volta para o item visível anterior (itens pulados pela ramificação
     // não aparecem no caminho de volta).
     if (currentScale && itemIndex > 0) {
-      const prev = prevItemIndex(
-        currentScale,
-        itemIndex,
-        answers[currentScale.code] ?? {},
-      );
+      const prev = prevItemIndex(currentScale, itemIndex, answers[currentScale.code] ?? {});
       if (prev !== -1) {
         setItemIndex(prev);
         return;
@@ -610,15 +565,7 @@ function TriagemPage() {
   }
 
   // Direção da transição: avança para a direita, volta para a esquerda.
-  const PHASE_ORDER = [
-    "boas-vindas",
-    "dados",
-    "sintomas",
-    "escalas",
-    "risco",
-    "fim",
-    "erro",
-  ];
+  const PHASE_ORDER = ["boas-vindas", "dados", "sintomas", "escalas", "risco", "fim", "erro"];
   const stepPosition = PHASE_ORDER.indexOf(phase) * 1000 + itemIndex;
   const prevStepRef = useRef(stepPosition);
   const stepDirection: "forward" | "backward" =
@@ -662,9 +609,7 @@ function TriagemPage() {
             </Link>
           </div>
         </div>
-        {phase === "escalas" && (
-          <Progress value={progress} className="h-1 rounded-none" />
-        )}
+        {phase === "escalas" && <Progress value={progress} className="h-1 rounded-none" />}
       </header>
 
       <main className="mx-auto max-w-2xl px-4 py-6 sm:px-6 sm:py-10">
@@ -707,28 +652,17 @@ function TriagemPage() {
                 scale={currentScale}
                 itemIndex={itemIndex}
                 position={
-                  visibleProgress(
-                    currentScale,
-                    itemIndex,
-                    answers[currentScale.code] ?? {},
-                  ).position
+                  visibleProgress(currentScale, itemIndex, answers[currentScale.code] ?? {})
+                    .position
                 }
                 total={
-                  visibleProgress(
-                    currentScale,
-                    itemIndex,
-                    answers[currentScale.code] ?? {},
-                  ).total
+                  visibleProgress(currentScale, itemIndex, answers[currentScale.code] ?? {}).total
                 }
                 groupLabel={
-                  groupLabelForItem(
-                    currentScale,
-                    currentScale.items[itemIndex]?.id ?? "",
-                  ) ?? undefined
+                  groupLabelForItem(currentScale, currentScale.items[itemIndex]?.id ?? "") ??
+                  undefined
                 }
-                value={
-                  answers[currentScale.code]?.[currentScale.items[itemIndex].id]
-                }
+                value={answers[currentScale.code]?.[currentScale.items[itemIndex].id]}
                 onAnswer={handleAnswer}
                 onBack={handleBack}
               />
@@ -759,9 +693,7 @@ function TriagemPage() {
 
           {phase === "erro" && (
             <Card className="p-6 text-center sm:p-8">
-              <h2 className="text-xl font-semibold text-destructive">
-                Não foi possível enviar
-              </h2>
+              <h2 className="text-xl font-semibold text-destructive">Não foi possível enviar</h2>
               <p className="mt-2 text-sm text-muted-foreground">
                 {errorMsg ?? "Não foi possível salvar sua triagem. Tente novamente."}
               </p>
@@ -772,7 +704,6 @@ function TriagemPage() {
           )}
         </StepTransition>
       </main>
-
 
       <footer className="mx-auto max-w-2xl px-4 py-8 text-center text-xs text-muted-foreground sm:px-6">
         {branding.disclaimer}
@@ -799,16 +730,17 @@ function BoasVindas({
       <h1 className="font-serif text-2xl font-semibold text-foreground sm:text-3xl">
         Pré-avaliação clínica
       </h1>
-      <p className="mt-4 text-base leading-relaxed text-foreground/80">
-        {branding.introCopy}
-      </p>
+      <p className="mt-4 text-base leading-relaxed text-foreground/80">{branding.introCopy}</p>
       <ul className="mt-6 space-y-2 text-sm text-foreground/80">
         <li>• Tempo estimado: Leve cerca de 10 minutos e pode ser feito pelo celular.</li>
         <li>• Salvamento automático: Se você fechar a página, retomamos de onde parou.</li>
-        <li>• Confidencialidade: Suas respostas são confidenciais e vistas só pela equipe clínica.</li>
+        <li>
+          • Confidencialidade: Suas respostas são confidenciais e vistas só pela equipe clínica.
+        </li>
       </ul>
       <div className="mt-6 rounded-lg border border-border bg-muted/40 p-4 text-sm text-foreground/80">
-        Esta pré-avaliação organiza seus sintomas e direciona a conversa médica inicial, mas não constitui diagnóstico clínico nem prescrição de tratamento.
+        Esta pré-avaliação organiza seus sintomas e direciona a conversa médica inicial, mas não
+        constitui diagnóstico clínico nem prescrição de tratamento.
       </div>
 
       <label className="mt-6 flex cursor-pointer items-start gap-3 rounded-lg border border-border p-4 text-sm">
@@ -867,21 +799,21 @@ function DadosBasicos({
   const genderSelectValue = knownMatch
     ? knownMatch.value
     : isOtherPrefix
-    ? "Outra identidade"
-    : undefined;
+      ? "Outra identidade"
+      : undefined;
   const customGenderText = currentSex.startsWith("Outra: ")
     ? currentSex.slice(7)
     : !knownMatch && currentSex !== "Outra identidade"
-    ? currentSex
-    : "";
+      ? currentSex
+      : "";
 
   const todayISO = useMemo(() => new Date().toISOString().split("T")[0], []);
   const isFutureBirth = Boolean(data.birth_date && data.birth_date > todayISO);
   const birthError = isFutureBirth
     ? "A data de nascimento não pode estar no futuro."
     : data.birth_date && age != null && age < 5
-    ? "A idade mínima para esta pré-avaliação é de 5 anos."
-    : null;
+      ? "A idade mínima para esta pré-avaliação é de 5 anos."
+      : null;
 
   const emailTouched = Boolean(data.respondent_email);
   const emailInvalid = emailTouched && !isValidEmail(data.respondent_email);
@@ -889,12 +821,15 @@ function DadosBasicos({
 
   const phoneTouched = Boolean(data.respondent_phone);
   const phoneInvalid = phoneTouched && !isValidPhoneBR(data.respondent_phone, false);
-  const phoneError = phoneInvalid ? "Telefone incompleto (informe DDD + número de 10 ou 11 dígitos)." : null;
+  const phoneError = phoneInvalid
+    ? "Telefone incompleto (informe DDD + número de 10 ou 11 dígitos)."
+    : null;
 
   const nameTouched = Boolean(data.respondent_name);
-  const nameError = nameTouched && data.respondent_name.trim().length < 2
-    ? "Informe o nome completo do paciente."
-    : null;
+  const nameError =
+    nameTouched && data.respondent_name.trim().length < 2
+      ? "Informe o nome completo do paciente."
+      : null;
 
   return (
     <Card className="border-border bg-card p-6 sm:p-8">
@@ -927,9 +862,7 @@ function DadosBasicos({
                   : "border-border bg-background hover:border-primary/50"
               }`}
             >
-              <span className="block text-base font-medium text-foreground">
-                {d.display_name}
-              </span>
+              <span className="block text-base font-medium text-foreground">{d.display_name}</span>
               <span className="mt-0.5 block text-xs text-muted-foreground">
                 {d.specialty || "Psiquiatria Clínica · RQE 30038"}
               </span>
@@ -948,7 +881,8 @@ function DadosBasicos({
           </button>
         </div>
         <p className="mt-2 text-xs text-muted-foreground">
-          Sua pré-avaliação fica destacada para o profissional escolhido, e toda a equipe do consultório pode acompanhar.
+          Sua pré-avaliação fica destacada para o profissional escolhido, e toda a equipe do
+          consultório pode acompanhar.
         </p>
       </div>
 
@@ -972,9 +906,8 @@ function DadosBasicos({
             ))}
           </div>
           <p className="mt-2 text-xs text-muted-foreground">
-            Os nomes e a data de nascimento pedidos abaixo são sempre os do
-            paciente. Essa informação muda a forma como o médico interpreta os
-            resultados.
+            Os nomes e a data de nascimento pedidos abaixo são sempre os do paciente. Essa
+            informação muda a forma como o médico interpreta os resultados.
           </p>
         </div>
 
@@ -1014,14 +947,13 @@ function DadosBasicos({
             placeholder="Nome e sobrenome"
             className="h-12 text-base"
           />
-          {nameError && (
-            <p className="mt-1 text-xs text-destructive">{nameError}</p>
-          )}
+          {nameError && <p className="mt-1 text-xs text-destructive">{nameError}</p>}
         </div>
 
         <div>
           <Label htmlFor="preferred-name">
-            Nome social / Como prefere ser chamado(a) <span className="text-xs text-muted-foreground font-normal">(opcional)</span>
+            Nome social / Como prefere ser chamado(a){" "}
+            <span className="text-xs text-muted-foreground font-normal">(opcional)</span>
           </Label>
           <Input
             id="preferred-name"
@@ -1035,12 +967,10 @@ function DadosBasicos({
 
         <div>
           <Label htmlFor="pronouns">
-            Pronomes de tratamento <span className="text-xs text-muted-foreground font-normal">(opcional)</span>
+            Pronomes de tratamento{" "}
+            <span className="text-xs text-muted-foreground font-normal">(opcional)</span>
           </Label>
-          <Select
-            value={data.pronouns || undefined}
-            onValueChange={(val) => set("pronouns", val)}
-          >
+          <Select value={data.pronouns || undefined} onValueChange={(val) => set("pronouns", val)}>
             <SelectTrigger id="pronouns" className="h-12 text-base bg-background">
               <SelectValue placeholder="Selecione seus pronomes" />
             </SelectTrigger>
@@ -1126,14 +1056,13 @@ function DadosBasicos({
             placeholder="seu.email@exemplo.com"
             className="h-12 text-base"
           />
-          {emailError && (
-            <p className="mt-1 text-xs text-destructive">{emailError}</p>
-          )}
+          {emailError && <p className="mt-1 text-xs text-destructive">{emailError}</p>}
         </div>
 
         <div>
           <Label htmlFor="phone">
-            Telefone / WhatsApp <span className="text-xs text-muted-foreground font-normal">(opcional)</span>
+            Telefone / WhatsApp{" "}
+            <span className="text-xs text-muted-foreground font-normal">(opcional)</span>
           </Label>
           <Input
             id="phone"
@@ -1156,9 +1085,7 @@ function DadosBasicos({
         </div>
 
         <div className="sm:col-span-2">
-          <Label htmlFor="complaint">
-            O que motiva sua busca por atendimento? (opcional)
-          </Label>
+          <Label htmlFor="complaint">O que motiva sua busca por atendimento? (opcional)</Label>
           <Textarea
             id="complaint"
             rows={4}
@@ -1210,19 +1137,13 @@ function Sintomas({
   }, [isMale, selected, onChange]);
 
   function toggle(id: string) {
-    onChange(
-      selected.includes(id) ? selected.filter((s) => s !== id) : [...selected, id],
-    );
+    onChange(selected.includes(id) ? selected.filter((s) => s !== id) : [...selected, id]);
   }
 
   return (
     <Card className="border-border bg-card p-6 sm:p-8">
-      <h1 className="font-serif text-xl font-semibold sm:text-2xl">
-        {SYMPTOM_QUESTION.title}
-      </h1>
-      <p className="mt-2 text-sm text-muted-foreground">
-        {SYMPTOM_QUESTION.subtitle}
-      </p>
+      <h1 className="font-serif text-xl font-semibold sm:text-2xl">{SYMPTOM_QUESTION.title}</h1>
+      <p className="mt-2 text-sm text-muted-foreground">{SYMPTOM_QUESTION.subtitle}</p>
       <div className="mt-6 grid gap-3">
         {visibleOptions.map((opt) => {
           const on = selected.includes(opt.id);
@@ -1239,9 +1160,7 @@ function Sintomas({
             >
               <span className="font-medium">{opt.label}</span>
               {opt.hint && (
-                <span className="mt-1 block text-xs text-muted-foreground">
-                  {opt.hint}
-                </span>
+                <span className="mt-1 block text-xs text-muted-foreground">{opt.hint}</span>
               )}
             </button>
           );
@@ -1283,9 +1202,7 @@ function TelaRisco({
             href={`tel:${branding.emergency.cvvPhone}`}
             className="flex min-h-14 items-center justify-between rounded-xl border border-destructive/40 bg-background px-4 py-3"
           >
-            <span className="text-sm font-medium">
-              {branding.emergency.cvvLabel}
-            </span>
+            <span className="text-sm font-medium">{branding.emergency.cvvLabel}</span>
             <span className="text-lg font-semibold text-destructive">
               {branding.emergency.cvvPhone}
             </span>
@@ -1295,21 +1212,18 @@ function TelaRisco({
             className="flex min-h-14 items-center justify-between rounded-xl border border-border bg-background px-4 py-3"
           >
             <span className="text-sm font-medium">SAMU — emergência médica</span>
-            <span className="text-lg font-semibold">
-              {branding.emergency.samuPhone}
-            </span>
+            <span className="text-lg font-semibold">{branding.emergency.samuPhone}</span>
           </a>
         </div>
         <p className="mt-6 text-sm text-foreground/80">
-          Procure atendimento imediato em um pronto-socorro ou CAPS mais próximo se
-          o sofrimento estiver intenso agora.
+          Procure atendimento imediato em um pronto-socorro ou CAPS mais próximo se o sofrimento
+          estiver intenso agora.
         </p>
       </Card>
 
       <Card className="p-6">
         <p className="text-sm text-foreground/80">
-          Suas respostas foram enviadas e a equipe clínica será avisada com
-          prioridade.
+          Suas respostas foram enviadas e a equipe clínica será avisada com prioridade.
         </p>
         <Button variant="outline" onClick={onDownload} className="mt-4 w-full sm:w-auto">
           Baixar meu resumo em PDF
@@ -1350,9 +1264,7 @@ function TelaFinal({
             <polyline points="20 6 9 17 4 12" />
           </svg>
         </div>
-        <h1 className="mt-5 font-serif text-2xl font-semibold">
-          Pré-avaliação concluída
-        </h1>
+        <h1 className="mt-5 font-serif text-2xl font-semibold">Pré-avaliação concluída</h1>
         <p className="mt-3 text-sm text-muted-foreground">{branding.doneCopy}</p>
         {email && (
           <p className="mt-2 text-sm text-muted-foreground">

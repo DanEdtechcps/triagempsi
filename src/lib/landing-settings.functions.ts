@@ -50,7 +50,6 @@ export const getLandingSettings = createServerFn({ method: "GET" }).handler(
   },
 );
 
-
 const settingsSchema = z.object({
   eyebrow: z.string().trim().min(1).max(120),
   headline_line1: z.string().trim().min(1).max(120),
@@ -63,11 +62,7 @@ const settingsSchema = z.object({
 
 async function currentRowId() {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  const { data } = await supabaseAdmin
-    .from("landing_settings")
-    .select("id")
-    .limit(1)
-    .maybeSingle();
+  const { data } = await supabaseAdmin.from("landing_settings").select("id").limit(1).maybeSingle();
   if (data?.id) return data.id as string;
   const { data: created, error } = await supabaseAdmin
     .from("landing_settings")
@@ -117,11 +112,7 @@ export const uploadLandingImage = createServerFn({ method: "POST" })
       throw new Error("A imagem precisa ter no máximo 5 MB.");
     }
     const ext =
-      data.contentType === "image/png"
-        ? "png"
-        : data.contentType === "image/webp"
-          ? "webp"
-          : "jpg";
+      data.contentType === "image/png" ? "png" : data.contentType === "image/webp" ? "webp" : "jpg";
     const path = `og/landing-${Date.now()}.${ext}`;
 
     const { error } = await supabaseAdmin.storage

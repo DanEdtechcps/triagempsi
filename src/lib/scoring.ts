@@ -65,8 +65,7 @@ export type SubscoreResult = {
 
 function bandFor(scale: { bands: ScaleBand[] }, score: number): ScaleBand {
   return (
-    scale.bands.find((b) => score >= b.min && score <= b.max) ??
-    scale.bands[scale.bands.length - 1]
+    scale.bands.find((b) => score >= b.min && score <= b.max) ?? scale.bands[scale.bands.length - 1]
   );
 }
 
@@ -81,10 +80,7 @@ export function computeSubscores(
 ): SubscoreResult[] | undefined {
   if (!scale.subscales?.length) return undefined;
   return scale.subscales.map((sub) => {
-    const score = sub.items.reduce(
-      (acc, id) => acc + (Number(answers[id]) || 0),
-      0,
-    );
+    const score = sub.items.reduce((acc, id) => acc + (Number(answers[id]) || 0), 0);
     const band = bandFor({ bands: sub.bands }, score) as (typeof sub.bands)[number];
     return {
       key: sub.key,
@@ -167,7 +163,8 @@ export function scoreScale(
       bandLevel = 0;
     }
   } else if (scaleCode === "C-SSRS") {
-    const hasCritical = (answers["4"] ?? 0) > 0 || (answers["5"] ?? 0) > 0 || (answers["6"] ?? 0) > 0;
+    const hasCritical =
+      (answers["4"] ?? 0) > 0 || (answers["5"] ?? 0) > 0 || (answers["6"] ?? 0) > 0;
     if (hasCritical) {
       bandLabel = "Risco alto / iminente — intenção, plano ou comportamento recente";
       bandLevel = 4;
@@ -263,7 +260,6 @@ export function summarize(
     informant?: Informant;
   },
 ) {
-
   const byDomain: Record<string, ScaleResult> = {};
   for (const r of results) {
     const s = SCALE_BY_CODE[r.scale_code];
@@ -297,4 +293,3 @@ export function summarize(
     risk_flags: riskFlags,
   };
 }
-

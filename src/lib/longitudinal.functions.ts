@@ -11,7 +11,14 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 export type SeriePonto = {
   assessment_id: string;
   submitted_at: string;
-  scales: { code: string; name: string; score: number | null; band: string | null; level: number | null; risk: boolean }[];
+  scales: {
+    code: string;
+    name: string;
+    score: number | null;
+    band: string | null;
+    level: number | null;
+    risk: boolean;
+  }[];
   risk_flags: string[];
 };
 
@@ -134,10 +141,7 @@ export const getSerieForAssessment = createServerFn({ method: "GET" })
     // busca — sem isso, "_" (válido na parte local de um e-mail) casa com
     // "qualquer caractere" e mistura o histórico longitudinal de pacientes
     // diferentes da mesma clínica. Mesmo padrão de portal.functions.ts.
-    const email = (base?.respondent_email ?? "")
-      .trim()
-      .toLowerCase()
-      .replace(/[%_]/g, "");
+    const email = (base?.respondent_email ?? "").trim().toLowerCase().replace(/[%_]/g, "");
     if (!base || !email) return null;
 
     const { data: rows, error } = await context.supabase
