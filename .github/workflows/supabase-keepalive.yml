@@ -16,7 +16,11 @@ jobs:
           SUPABASE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: |
           echo "Pinging Supabase REST API and Postgres database at https://ffyjjkouscnabyxjxexu.supabase.co..."
-          KEY="${SUPABASE_KEY:-sb_secret_w5ruUZ9avOSTyUdlZvcgOA_OxifLNtV}"
+          if [ -z "$SUPABASE_KEY" ]; then
+            echo "SUPABASE_SERVICE_ROLE_KEY secret is not set. Refusing to run without it."
+            exit 1
+          fi
+          KEY="$SUPABASE_KEY"
           HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
             -H "apikey: $KEY" \
             -H "Authorization: Bearer $KEY" \
