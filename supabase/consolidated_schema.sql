@@ -13,7 +13,7 @@ GRANT SELECT ON public.user_roles TO authenticated;
 GRANT ALL ON public.user_roles TO service_role;
 ALTER TABLE public.user_roles ENABLE ROW LEVEL SECURITY;
 
-CREATE OR REPLACE FUNCTION public.is_global_admin(_user_id uuid)
+CREATE OR REPLACE FUNCTION public.is_global_admin()
 RETURNS boolean
 LANGUAGE sql
 STABLE
@@ -22,9 +22,13 @@ SET search_path = public
 AS $$
   SELECT EXISTS (
     SELECT 1 FROM public.user_roles
-    WHERE user_id = _user_id AND role = 'admin'::public.app_role AND clinic_id IS NULL
+    WHERE user_id = auth.uid() AND role = 'admin'::public.app_role AND clinic_id IS NULL
   );
 $$;
+
+REVOKE EXECUTE ON FUNCTION public.is_global_admin() FROM PUBLIC;
+REVOKE EXECUTE ON FUNCTION public.is_global_admin() FROM anon;
+GRANT EXECUTE ON FUNCTION public.is_global_admin() TO authenticated;
 
 CREATE OR REPLACE FUNCTION public.has_role(_user_id uuid, _role app_role)
 RETURNS boolean
@@ -789,8 +793,8 @@ CREATE POLICY "clinic_subscriptions_team_read" ON public.clinic_subscriptions
 
 CREATE POLICY "clinic_subscriptions_admin_write" ON public.clinic_subscriptions
   FOR ALL TO authenticated
-  USING (public.is_global_admin(auth.uid()))
-  WITH CHECK (public.is_global_admin(auth.uid()));
+  USING (public.is_global_admin())
+  WITH CHECK (public.is_global_admin());
 
 CREATE TRIGGER clinic_subscriptions_updated_at BEFORE UPDATE ON public.clinic_subscriptions
   FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
@@ -933,14 +937,14 @@ CREATE POLICY "psycho_contents_read" ON public.psychoeducation_contents
 DROP POLICY IF EXISTS "clinic_psycho_select" ON public.clinic_psychoeducation_settings;
 CREATE POLICY "clinic_psycho_select" ON public.clinic_psychoeducation_settings
   FOR SELECT USING (
-    public.is_global_admin(auth.uid()) 
+    public.is_global_admin()
     OR public.has_clinic_access(clinic_id)
   );
 
 DROP POLICY IF EXISTS "clinic_psycho_manage" ON public.clinic_psychoeducation_settings;
 CREATE POLICY "clinic_psycho_manage" ON public.clinic_psychoeducation_settings
   FOR ALL USING (
-    public.is_global_admin(auth.uid()) 
+    public.is_global_admin()
     OR (public.has_clinic_access(clinic_id) AND public.has_role(auth.uid(), 'admin'))
   );
 
@@ -948,7 +952,7 @@ CREATE POLICY "clinic_psycho_manage" ON public.clinic_psychoeducation_settings
 DROP POLICY IF EXISTS "assessment_psycho_select" ON public.assessment_psychoeducation;
 CREATE POLICY "assessment_psycho_select" ON public.assessment_psychoeducation
   FOR SELECT USING (
-    public.is_global_admin(auth.uid())
+    public.is_global_admin()
     OR EXISTS (
       SELECT 1 FROM public.assessments a
       WHERE a.id = assessment_id
@@ -962,7 +966,7 @@ CREATE POLICY "assessment_psycho_select" ON public.assessment_psychoeducation
 DROP POLICY IF EXISTS "assessment_psycho_insert" ON public.assessment_psychoeducation;
 CREATE POLICY "assessment_psycho_insert" ON public.assessment_psychoeducation
   FOR INSERT WITH CHECK (
-    public.is_global_admin(auth.uid())
+    public.is_global_admin()
     OR public.has_clinic_access(
       (SELECT clinic_id FROM public.assessments WHERE id = assessment_id)
     )
@@ -971,7 +975,7 @@ CREATE POLICY "assessment_psycho_insert" ON public.assessment_psychoeducation
 DROP POLICY IF EXISTS "assessment_psycho_update" ON public.assessment_psychoeducation;
 CREATE POLICY "assessment_psycho_update" ON public.assessment_psychoeducation
   FOR UPDATE USING (
-    public.is_global_admin(auth.uid())
+    public.is_global_admin()
     OR EXISTS (
       SELECT 1 FROM public.assessments a
       WHERE a.id = assessment_id
