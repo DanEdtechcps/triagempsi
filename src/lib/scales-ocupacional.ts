@@ -13,6 +13,13 @@
 
 import { OPTS_0_4, type Scale } from "./scale-types";
 
+// ATENÇÃO CLÍNICA (achado #33 da auditoria): soma os 16 itens de domínios
+// psicossociais distintos (demandas, controle, apoio etc.) num único
+// escore/banda; o COPSOQ original é multidimensional, com subescala e
+// corte próprios por domínio. Mesma pendência de revisão clínica já
+// registrada pro MBI-HSS (achado #29, scales-official-28.ts) — o
+// `licenseNote` abaixo já deixa claro que isto não é o COPSOQ III
+// licenciado; não alterar a agregação/cortes sem aval de um profissional.
 export const COPSOQ_BR: Scale = {
   code: "COPSOQ-BR",
   name: "COPSOQ-BR (NR-01)",

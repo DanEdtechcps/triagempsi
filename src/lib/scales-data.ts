@@ -163,6 +163,13 @@ export const ASQ: Scale = {
   positiveCutoff: 1,
 };
 
+// ATENÇÃO CLÍNICA (achado #32 da auditoria, não resolvido em código): o
+// corte usual do AUDIT-C na literatura (NIAAA/USPSTF) é diferenciado por
+// sexo (tipicamente ≥4 homens / ≥3 mulheres). Aqui `positiveCutoff` é
+// único (≥3) pra todo mundo, o que super-inclui homens no AUDIT completo.
+// Pode ser uma escolha deliberada de errar pro lado cauteloso numa pré-
+// triagem — mas não está documentada como decisão. Não alterar sem
+// confirmar com um profissional clínico se é intencional.
 export const AUDIT_C: Scale = {
   code: "AUDIT-C",
   name: "AUDIT-C",

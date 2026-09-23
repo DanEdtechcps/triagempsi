@@ -20,6 +20,18 @@ const SIM0_NAO1: LikertOption[] = [
 /* MDQ — rastreio de bipolaridade                                      */
 /* ------------------------------------------------------------------ */
 
+// ATENÇÃO CLÍNICA (achado #31 da auditoria, não resolvido em código): o
+// MDQ validado exige 3 critérios simultâneos — (1) ≥7 dos 13 itens
+// positivos, (2) os sintomas terem ocorrido no mesmo período (clustering),
+// e (3) terem causado ao menos prejuízo moderado de funcionamento. Esta
+// implementação só tem os 13 itens de sintoma e marca positivo pela
+// contagem ≥7 (critério 1), sem os critérios 2 e 3 — taxa de falso-
+// positivo mais alta que o instrumento validado, achado documentado na
+// literatura de triagem de bipolaridade. `licenseNote` abaixo já avisa
+// isso em texto, mas o código não EXIGE clustering/impacto pra marcar
+// positivo. Clinicamente ativo hoje: PHQ-9≥10 dispara este MDQ e MDQ≥7
+// dispara PHQ-2+ASQ (ver clinical-engine/triage-tree.ts). Não alterar os
+// critérios/cutoff sem aval de um profissional clínico.
 export const MDQ: Scale = {
   code: "MDQ",
   name: "MDQ",
