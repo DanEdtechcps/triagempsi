@@ -15,13 +15,7 @@ import { SCALES_OCUPACIONAL } from "./scales-ocupacional";
 import { OFFICIAL_28_EXTRA_SCALES } from "./scales-official-28";
 export * from "./scales-official-28";
 
-export type {
-  LikertOption,
-  Scale,
-  ScaleItem,
-  ScaleBand,
-  ScaleDomain,
-} from "./scale-types";
+export type { LikertOption, Scale, ScaleItem, ScaleBand, ScaleDomain } from "./scale-types";
 export {
   isScaleAllowedForAge,
   skippedItemIds,
@@ -58,8 +52,7 @@ export const PHQ9: Scale = {
   name: "PHQ-9",
   fullName: "Gravidade de sintomas depressivos",
   domain: "depressao",
-  instructions:
-    "Nas últimas duas semanas, com que frequência você foi incomodado(a) por:",
+  instructions: "Nas últimas duas semanas, com que frequência você foi incomodado(a) por:",
   timeframe: "Últimas 2 semanas",
   options: OPTS_0_3,
   items: [
@@ -96,8 +89,7 @@ export const GAD2: Scale = {
   name: "GAD-2",
   fullName: "Rastreio breve de ansiedade",
   domain: "ansiedade",
-  instructions:
-    "Nas últimas duas semanas, com que frequência você foi incomodado(a) por:",
+  instructions: "Nas últimas duas semanas, com que frequência você foi incomodado(a) por:",
   timeframe: "Últimas 2 semanas",
   options: OPTS_0_3,
   items: [
@@ -117,8 +109,7 @@ export const GAD7: Scale = {
   name: "GAD-7",
   fullName: "Gravidade de sintomas ansiosos",
   domain: "ansiedade",
-  instructions:
-    "Nas últimas duas semanas, com que frequência você foi incomodado(a) por:",
+  instructions: "Nas últimas duas semanas, com que frequência você foi incomodado(a) por:",
   timeframe: "Últimas 2 semanas",
   options: OPTS_0_3,
   items: [
@@ -290,7 +281,10 @@ export const PC_PTSD5: Scale = {
       text: "Tentou muito não pensar nele ou evitou situações que o lembrassem?",
     },
     { id: "3", text: "Ficou constantemente em alerta, vigilante ou facilmente assustado(a)?" },
-    { id: "4", text: "Sentiu-se distante, entorpecido(a) ou desligado(a) das pessoas e do ambiente?" },
+    {
+      id: "4",
+      text: "Sentiu-se distante, entorpecido(a) ou desligado(a) das pessoas e do ambiente?",
+    },
     {
       id: "5",
       text: "Sentiu-se culpado(a) ou não conseguiu parar de se culpar por esse evento ou pelos problemas dele decorrentes?",
@@ -309,8 +303,7 @@ export const PHQ15: Scale = {
   name: "PHQ-15",
   fullName: "Carga de sintomas somáticos",
   domain: "somatico",
-  instructions:
-    "Nas últimas quatro semanas, quanto você foi incomodado(a) por cada problema?",
+  instructions: "Nas últimas quatro semanas, quanto você foi incomodado(a) por cada problema?",
   timeframe: "Últimas 4 semanas",
   options: OPTS_0_2,
   items: [
@@ -376,18 +369,7 @@ export const PCL5: Scale = {
   positiveCutoff: 31,
 };
 
-const BASE_SCALES: Scale[] = [
-  PHQ2,
-  PHQ9,
-  GAD2,
-  GAD7,
-  ASQ,
-  PC_PTSD5,
-  PCL5,
-  AUDIT_C,
-  AUDIT,
-  PHQ15,
-];
+const BASE_SCALES: Scale[] = [PHQ2, PHQ9, GAD2, GAD7, ASQ, PC_PTSD5, PCL5, AUDIT_C, AUDIT, PHQ15];
 
 // Metadados de faixa etária / status aplicados às escalas já existentes.
 const BASE_META: Record<string, Partial<Scale>> = {
@@ -412,9 +394,10 @@ export const ALL_SCALES: Scale[] = [
   ...OFFICIAL_28_EXTRA_SCALES,
 ];
 
-export const SCALE_BY_CODE = Object.fromEntries(
-  ALL_SCALES.map((s) => [s.code, s]),
-) as Record<string, Scale>;
+export const SCALE_BY_CODE = Object.fromEntries(ALL_SCALES.map((s) => [s.code, s])) as Record<
+  string,
+  Scale
+>;
 
 /**
  * Definições substituídas, mantidas só para ler registros antigos do

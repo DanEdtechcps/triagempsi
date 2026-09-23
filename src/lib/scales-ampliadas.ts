@@ -45,18 +45,36 @@ export const MDQ: Scale = {
   timeframe: "Ao longo da vida",
   options: SIM1_NAO0,
   items: [
-    { id: "1", text: "Você se sentiu tão bem ou tão elétrico(a) que outras pessoas acharam que você não estava normal, ou ficou tão elétrico(a) que se meteu em confusão?" },
-    { id: "2", text: "Você ficou tão irritado(a) que gritou com as pessoas ou começou brigas e discussões?" },
+    {
+      id: "1",
+      text: "Você se sentiu tão bem ou tão elétrico(a) que outras pessoas acharam que você não estava normal, ou ficou tão elétrico(a) que se meteu em confusão?",
+    },
+    {
+      id: "2",
+      text: "Você ficou tão irritado(a) que gritou com as pessoas ou começou brigas e discussões?",
+    },
     { id: "3", text: "Você se sentiu muito mais autoconfiante do que de costume?" },
     { id: "4", text: "Você dormiu muito menos que de costume e não sentiu falta do sono?" },
     { id: "5", text: "Você falou muito mais ou muito mais rápido do que de costume?" },
-    { id: "6", text: "Os pensamentos corriam pela sua cabeça sem parar ou você não conseguia diminuir o ritmo deles?" },
-    { id: "7", text: "Você se distraiu com tanta facilidade com coisas ao redor que teve dificuldade de se concentrar ou de manter o rumo?" },
+    {
+      id: "6",
+      text: "Os pensamentos corriam pela sua cabeça sem parar ou você não conseguia diminuir o ritmo deles?",
+    },
+    {
+      id: "7",
+      text: "Você se distraiu com tanta facilidade com coisas ao redor que teve dificuldade de se concentrar ou de manter o rumo?",
+    },
     { id: "8", text: "Você teve muito mais energia do que de costume?" },
     { id: "9", text: "Você ficou muito mais ativo(a) ou fez muito mais coisas do que de costume?" },
-    { id: "10", text: "Você ficou muito mais sociável ou extrovertido(a), por exemplo, telefonando para amigos no meio da noite?" },
+    {
+      id: "10",
+      text: "Você ficou muito mais sociável ou extrovertido(a), por exemplo, telefonando para amigos no meio da noite?",
+    },
     { id: "11", text: "Você teve muito mais interesse por sexo do que de costume?" },
-    { id: "12", text: "Você fez coisas incomuns para você, que outras pessoas acharam excessivas, tolas ou arriscadas?" },
+    {
+      id: "12",
+      text: "Você fez coisas incomuns para você, que outras pessoas acharam excessivas, tolas ou arriscadas?",
+    },
     { id: "13", text: "Gastar dinheiro trouxe problemas para você ou para sua família?" },
   ],
   bands: [
@@ -205,7 +223,10 @@ export const SCOFF: Scale = {
     { id: "1", text: "Você provoca vômito por se sentir desconfortavelmente cheio(a)?" },
     { id: "2", text: "Você se preocupa por ter perdido o controle sobre o quanto come?" },
     { id: "3", text: "Você perdeu mais de 6 kg em um período de três meses?" },
-    { id: "4", text: "Você acredita estar gordo(a) mesmo quando os outros dizem que está magro(a)?" },
+    {
+      id: "4",
+      text: "Você acredita estar gordo(a) mesmo quando os outros dizem que está magro(a)?",
+    },
     { id: "5", text: "Você diria que a comida domina a sua vida?" },
   ],
   bands: [
@@ -256,9 +277,21 @@ export const ISI: Scale = {
     { id: "2", text: "Dificuldade para permanecer dormindo" },
     { id: "3", text: "Despertar muito cedo e não conseguir voltar a dormir" },
     { id: "4", text: "Quão satisfeito(a) você está com o seu sono atual?", options: ISI_SAT },
-    { id: "5", text: "O seu problema de sono é perceptível para as outras pessoas?", options: ISI_GRAU },
-    { id: "6", text: "Quanto você está preocupado(a) com o seu problema de sono?", options: ISI_GRAU },
-    { id: "7", text: "Quanto o sono atrapalha o seu dia a dia (energia, humor, trabalho, concentração)?", options: ISI_GRAU },
+    {
+      id: "5",
+      text: "O seu problema de sono é perceptível para as outras pessoas?",
+      options: ISI_GRAU,
+    },
+    {
+      id: "6",
+      text: "Quanto você está preocupado(a) com o seu problema de sono?",
+      options: ISI_GRAU,
+    },
+    {
+      id: "7",
+      text: "Quanto o sono atrapalha o seu dia a dia (energia, humor, trabalho, concentração)?",
+      options: ISI_GRAU,
+    },
   ],
   bands: [
     { min: 0, max: 7, label: "Sem insônia clinicamente significativa", level: 0 },
@@ -296,14 +329,42 @@ export const AQ10: Scale = {
   options: AQ_CONC,
   items: [
     { id: "1", text: "Costumo perceber sons discretos que os outros não notam.", options: AQ_CONC },
-    { id: "2", text: "Costumo me concentrar mais no quadro geral do que nos pequenos detalhes.", options: AQ_DISC },
+    {
+      id: "2",
+      text: "Costumo me concentrar mais no quadro geral do que nos pequenos detalhes.",
+      options: AQ_DISC,
+    },
     { id: "3", text: "Acho fácil fazer mais de uma coisa ao mesmo tempo.", options: AQ_DISC },
-    { id: "4", text: "Quando sou interrompido(a), consigo voltar rapidamente ao que estava fazendo.", options: AQ_DISC },
-    { id: "5", text: "Acho fácil 'ler nas entrelinhas' quando alguém fala comigo.", options: AQ_DISC },
-    { id: "6", text: "Sei perceber quando a pessoa que me escuta está ficando entediada.", options: AQ_DISC },
-    { id: "7", text: "Quando leio uma história, acho difícil entender as intenções dos personagens.", options: AQ_CONC },
-    { id: "8", text: "Gosto de reunir informações sobre categorias de coisas (carros, pássaros, trens, plantas).", options: AQ_CONC },
-    { id: "9", text: "Acho fácil saber o que a outra pessoa está sentindo só de olhar para o rosto dela.", options: AQ_DISC },
+    {
+      id: "4",
+      text: "Quando sou interrompido(a), consigo voltar rapidamente ao que estava fazendo.",
+      options: AQ_DISC,
+    },
+    {
+      id: "5",
+      text: "Acho fácil 'ler nas entrelinhas' quando alguém fala comigo.",
+      options: AQ_DISC,
+    },
+    {
+      id: "6",
+      text: "Sei perceber quando a pessoa que me escuta está ficando entediada.",
+      options: AQ_DISC,
+    },
+    {
+      id: "7",
+      text: "Quando leio uma história, acho difícil entender as intenções dos personagens.",
+      options: AQ_CONC,
+    },
+    {
+      id: "8",
+      text: "Gosto de reunir informações sobre categorias de coisas (carros, pássaros, trens, plantas).",
+      options: AQ_CONC,
+    },
+    {
+      id: "9",
+      text: "Acho fácil saber o que a outra pessoa está sentindo só de olhar para o rosto dela.",
+      options: AQ_DISC,
+    },
     { id: "10", text: "Acho difícil entender as intenções das pessoas.", options: AQ_CONC },
   ],
   bands: [
@@ -333,7 +394,10 @@ export const AD8: Scale = {
   timeframe: "Mudança nos últimos anos",
   options: SIM0_NAO1,
   items: [
-    { id: "1", text: "Problemas de julgamento (por exemplo, cair em golpes, decisões financeiras ruins)." },
+    {
+      id: "1",
+      text: "Problemas de julgamento (por exemplo, cair em golpes, decisões financeiras ruins).",
+    },
     { id: "2", text: "Redução do interesse por passatempos e atividades." },
     { id: "3", text: "Repete as mesmas perguntas, histórias ou frases." },
     { id: "4", text: "Dificuldade em aprender a usar aparelhos, ferramentas ou eletrodomésticos." },
