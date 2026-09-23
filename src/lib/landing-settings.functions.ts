@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { requireGlobalAdmin } from "@/lib/admin-guard.server";
 
 export type LandingSettings = {
   eyebrow: string;
@@ -49,22 +50,6 @@ export const getLandingSettings = createServerFn({ method: "GET" }).handler(
   },
 );
 
-/** Só o administrador geral (papel admin sem clínica) edita a landing. */
-async function requireGlobalAdmin(supabase: any, userId: string) {
-  const { data, error } = await supabase
-    .from("user_roles")
-    .select("role, clinic_id")
-    .eq("user_id", userId);
-  if (error) throw new Error("Não foi possível verificar seu acesso.");
-  const ok = (data ?? []).some(
-    (r: { role: string; clinic_id: string | null }) =>
-      r.role === "admin" && r.clinic_id === null,
-  );
-  if (!ok) {
-    const { accessDeniedError } = await import("@/lib/access-error");
-    throw accessDeniedError("Somente o administrador geral pode editar a landing.");
-  }
-}
 
 const settingsSchema = z.object({
   eyebrow: z.string().trim().min(1).max(120),
