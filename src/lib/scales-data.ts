@@ -438,6 +438,15 @@ export const INITIAL_ADULT_FLOW: string[] = [
 ];
 
 export function getItemOptions(scale: Scale, itemId: string): LikertOption[] {
+  // Opções declaradas no próprio item (ScaleItem.options) são a fonte de
+  // verdade quando existem — usadas por itens de pontuação reversa (ex.:
+  // EPDS itens 1-2, GDS-15/AQ-10/PSS-10 vários itens, FTND itens 1/3/4).
+  // Checar isso ANTES do fallback de scale.options é essencial: sem essa
+  // prioridade, um item reverso herdava silenciosamente as opções do
+  // resto da escala — rótulo e/ou polaridade errados, invertendo a
+  // pontuação clínica desses itens (achado #34 da auditoria).
+  const item = scale.items.find((i) => i.id === itemId);
+  if (item?.options) return item.options;
   if (scale.code === "AUDIT-C") return AUDIT_C_OPTIONS[itemId] ?? scale.options;
   if (scale.code === "AUDIT") return AUDIT_OPTIONS[itemId] ?? scale.options;
   return scale.options;
