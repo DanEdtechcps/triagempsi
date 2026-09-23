@@ -1,5 +1,6 @@
 import { createFileRoute, useSearch, getRouteApi, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useReducedMotion } from "motion/react";
 import { z } from "zod";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
@@ -136,6 +137,7 @@ function TriagemPage() {
   const submittingRef = useRef(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [restored, setRestored] = useState(false);
+  const reduceMotion = useReducedMotion();
 
   const submit = useServerFn(submitAssessment);
   const fetchDoctors = useServerFn(listClinicDoctors);
@@ -479,7 +481,7 @@ function TriagemPage() {
 
     if (nextIdx !== -1 && !adaptive.stop) {
       setItemIndex(nextIdx);
-      window.scrollTo({ top: 0, behavior: "smooth" });
+      window.scrollTo({ top: 0, behavior: reduceMotion ? "auto" : "smooth" });
       return;
     }
 
@@ -531,7 +533,7 @@ function TriagemPage() {
     } else {
       setScaleIndex(scaleIndex + 1);
       setItemIndex(0);
-      window.scrollTo({ top: 0, behavior: "smooth" });
+      window.scrollTo({ top: 0, behavior: reduceMotion ? "auto" : "smooth" });
     }
   }
 
