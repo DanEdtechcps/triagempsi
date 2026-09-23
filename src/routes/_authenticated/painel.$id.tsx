@@ -101,13 +101,17 @@ function PainelDetalhe() {
     const payload = buildPdfPayload(a);
     if (tipo === "clinico") downloadClinicianPdf(payload);
     else downloadPatientPdf(payload);
-    void logExport({ data: { assessment_id: id, kind: tipo } }).catch(() => {});
+    void logExport({ data: { assessment_id: id, kind: tipo } }).catch((err) =>
+      console.error("baixarPdf: falha ao registrar auditoria de exportação (não bloqueia)", err),
+    );
   }
 
   function baixarFhir() {
     if (!a) return;
     downloadFhirBundle(a as unknown as FhirAssessment, (a.scale_results ?? []) as FhirScaleRow[]);
-    void logExport({ data: { assessment_id: id, kind: "fhir" } }).catch(() => {});
+    void logExport({ data: { assessment_id: id, kind: "fhir" } }).catch((err) =>
+      console.error("baixarFhir: falha ao registrar auditoria de exportação (não bloqueia)", err),
+    );
   }
 
   async function reenviarWhatsapp() {
