@@ -91,6 +91,14 @@ export const getAssessmentPsychoeducation = createServerFn({ method: "GET" })
       .select("scale_code, score, band, band_level, risk, answers")
       .eq("assessment_id", data.assessment_id);
 
+    // Recomputa riskPathway a partir do próprio `risk` de cada escala já
+    // persistida (inclui ASQ e qualquer outro instrumento de risco do fluxo
+    // automático, não só PHQ-9/C-SSRS/RISK-COMPOSITE) — sem isso, um
+    // paciente com triagem positiva de risco podia não ver nenhum aviso de
+    // crise neste fallback quando a gravação original de psicoeducação
+    // falhava.
+    const riskPathway = (scaleResults ?? []).some((r) => r.risk);
+
     const evaluated = evaluatePsychoeducationTriggers(
       (scaleResults ?? []).map((r) => ({
         scale_code: r.scale_code,
@@ -100,6 +108,7 @@ export const getAssessmentPsychoeducation = createServerFn({ method: "GET" })
         risk: r.risk,
         answers: r.answers as Record<string, number>,
       })),
+      { riskPathway },
     );
 
     return evaluated.map((e) => ({
