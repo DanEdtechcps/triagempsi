@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { useEffect, useRef, type ReactNode } from "react";
 import {
   AnimatePresence,
   motion,
@@ -23,11 +23,27 @@ export function StepTransition({
 }) {
   const reduce = useReducedMotion();
   const offset = reduce ? 0 : direction === "backward" ? -16 : 16;
+  const panelRef = useRef<HTMLDivElement>(null);
+
+  // Cada troca de etapa desmonta o botão que tinha o foco (Continuar,
+  // opção de resposta) sem nenhum elemento assumir o foco no lugar — o
+  // foco cai pro <body> e usuários de teclado/leitor de tela perdem a
+  // posição e não são avisados que uma nova tela apareceu. Move o foco
+  // pro contêiner da nova etapa (tabIndex=-1: focável via script, fora
+  // da ordem de tab normal).
+  useEffect(() => {
+    panelRef.current?.focus();
+  }, [stepKey]);
 
   return (
     <AnimatePresence mode="wait" initial={false}>
       <motion.div
         key={stepKey}
+        ref={panelRef}
+        tabIndex={-1}
+        role="group"
+        aria-live="polite"
+        className="outline-none"
         initial={{ opacity: 0, x: offset }}
         animate={{ opacity: 1, x: 0 }}
         exit={{ opacity: 0, x: -offset }}
