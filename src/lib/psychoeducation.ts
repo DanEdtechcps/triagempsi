@@ -9,6 +9,7 @@ import {
   type PsychoTopicDefinition,
 } from "./psychoeducation-data";
 import type { ScaleResult } from "./scoring";
+import { isSafetyPlanTriggered } from "./safety-plan";
 
 export type PsychoTriggerResult = {
   topic: PsychoTopicDefinition;
@@ -172,6 +173,11 @@ export function evaluatePsychoeducationTriggers(
   };
 
   // 1. Crise emocional e ideação suicida (PRIORIDADE 1)
+  // A decisão de disparo usa isSafetyPlanTriggered (safety-plan.ts) — única
+  // fonte de verdade pra essa checagem, em vez de reimplementá-la aqui e
+  // arriscar as duas divergirem (era exatamente esse o caso: esta função
+  // reimplementava a mesma lógica de isSafetyPlanTriggered, que ficava sem
+  // nenhum chamador real fora dos próprios testes).
   const phq9 = mapResults.get("PHQ-9");
   const cssrs = mapResults.get("C-SSRS");
   const riskComp = mapResults.get("RISK-COMPOSITE");
@@ -179,7 +185,7 @@ export function evaluatePsychoeducationTriggers(
   const hasCssrsRisk = cssrs && (cssrs.risk || (cssrs.score ?? 0) >= 1);
   const hasCompositeRisk = riskComp && (riskComp.risk || (riskComp.score ?? 0) >= 1);
 
-  if (options?.riskPathway || hasItem9 || hasCssrsRisk || hasCompositeRisk) {
+  if (isSafetyPlanTriggered({ scaleResults, riskPathway: options?.riskPathway })) {
     const reasons: string[] = [];
     if (hasItem9) reasons.push("PHQ-9 item 9 positivo");
     if (hasCssrsRisk) reasons.push(`C-SSRS escore ${cssrs?.score ?? "positivo"}`);
