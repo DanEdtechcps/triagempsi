@@ -18,6 +18,20 @@ async function getServerEntry(): Promise<ServerEntry> {
   return serverEntryPromise;
 }
 
+// Host do Supabase (mesma ordem de precedência usada em
+// integrations/supabase/client.server.ts) — nunca hardcoded aqui, senão a
+// CSP continua apontando pro projeto antigo silenciosamente depois de uma
+// migração de projeto/ambiente.
+function supabaseHost(): string | undefined {
+  const url = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
+  if (!url) return undefined;
+  try {
+    return new URL(url).host;
+  } catch {
+    return undefined;
+  }
+}
+
 // Injeta cabeçalhos de segurança de borda (Edge Security Headers)
 export function applyEdgeSecurityHeaders(response: Response): Response {
   const headers = new Headers(response.headers);
@@ -26,9 +40,19 @@ export function applyEdgeSecurityHeaders(response: Response): Response {
   headers.set("Strict-Transport-Security", "max-age=31536000; includeSubDomains; preload");
   headers.set("Referrer-Policy", "strict-origin-when-cross-origin");
   headers.set("Permissions-Policy", "camera=(), microphone=(), geolocation=(), interest-cohort=()");
+
+  const host = supabaseHost();
+  const supabaseHttps = host ? `https://${host}` : "";
+  const supabaseWss = host ? `wss://${host}` : "";
   headers.set(
     "Content-Security-Policy",
-    "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://ffyjjkouscnabyxjxexu.supabase.co; connect-src 'self' https://ffyjjkouscnabyxjxexu.supabase.co wss://ffyjjkouscnabyxjxexu.supabase.co; img-src 'self' data: blob: https:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; frame-ancestors 'self';",
+    // 'unsafe-eval' removido: nada no build de producao (React 19 + Vite +
+    // TanStack Start) precisa de eval/Function em runtime. 'unsafe-inline'
+    // em script-src permaneceu — TanStack Start injeta o payload de
+    // hidratacao SSR como <script> inline sem nonce hoje; migrar pra CSP
+    // por nonce exigiria plumbing de nonce por requisicao no pipeline SSR
+    // do Nitro/Cloudflare Worker (fora do escopo deste hardening pontual).
+    `default-src 'self'; script-src 'self' 'unsafe-inline' ${supabaseHttps}; connect-src 'self' ${supabaseHttps} ${supabaseWss}; img-src 'self' data: blob: https:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; frame-ancestors 'self';`,
   );
 
   return new Response(response.body, {
