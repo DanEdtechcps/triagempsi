@@ -31,10 +31,14 @@ function createSupabaseFetch(supabaseKey: string): typeof fetch {
 
 function createSupabaseAdminClient() {
   const SUPABASE_URL = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL;
-  const SUPABASE_SERVICE_ROLE_KEY =
-    process.env.SUPABASE_SERVICE_ROLE_KEY ||
-    process.env.SUPABASE_PUBLISHABLE_KEY ||
-    process.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+  // Nunca cai pro anon/publishable key: supabaseAdmin existe especificamente
+  // pra ignorar RLS em operacoes privilegiadas do servidor. Um fallback
+  // silencioso pra chave publica faria esse cliente autenticar como anon
+  // sem nenhum erro visivel — as operacoes que dependem de bypass de RLS
+  // falhariam (ou pior, se alguma policy de RLS for ampla demais pra anon)
+  // de um jeito dificil de diagnosticar, em vez de falhar alto e claro no
+  // boot como as outras variaveis obrigatorias abaixo.
+  const SUPABASE_SERVICE_ROLE_KEY = process.env.SUPABASE_SERVICE_ROLE_KEY;
 
   if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE_KEY) {
     const missing = [
