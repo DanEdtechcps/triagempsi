@@ -50,7 +50,12 @@ BEGIN
     is_active = true,
     updated_at = now();
 
-  -- 2. Provisionar Assinatura Comercial Enterprise (R$ 2.400/mês)
+  -- 2. Provisionar assinatura no plano Clínica (R$ 2.400/mês) — corrigido
+  -- em 2026-09-23: 'enterprise' e 'active' não são valores válidos de
+  -- plan_code (FK pra public.plans.code) nem de status (CHECK), essa
+  -- migração nunca rodou com sucesso como escrita originalmente — produção
+  -- foi provisionada na mão. 'clinica' é o plano que já bate exatamente com
+  -- o preço (R$2.400) e o público (até 6 unidades) descritos aqui.
   INSERT INTO public.clinic_subscriptions (
     id,
     clinic_id,
@@ -61,10 +66,11 @@ BEGIN
     started_at,
     current_period_end
   ) VALUES (
-    's0000000-0000-4000-8000-000000000002'::UUID,
+    -- 's0000000...' não é hexadecimal válido para UUID (corrigido 2026-09-23)
+    '50000000-0000-4000-8000-000000000002'::UUID,
     v_clinic_id,
-    'enterprise',
-    'active',
+    'clinica',
+    'ativa',
     240000, -- R$ 2.400,00 em centavos
     'Plano Cockpit Enterprise contratado para até 5 médicos e auditoria contínua de IA',
     now(),
@@ -221,6 +227,12 @@ BEGIN
     (v_user_gustavo_id, v_clinic_id, 'admin'::public.app_role),
     (v_user_camila_id, v_clinic_id, 'doctor'::public.app_role),
     (v_user_recepcao_id, v_clinic_id, 'staff'::public.app_role)
-  ON CONFLICT (user_id, role, clinic_id) DO NOTHING;
+  -- O índice único real é a expressão user_roles_user_role_clinic_uniq
+  -- (user_id, role, COALESCE(clinic_id, '00000...'::uuid)), não um
+  -- constraint simples em (user_id, role, clinic_id) — o ON CONFLICT
+  -- precisa bater com a expressão exata pra Postgres conseguir inferir o
+  -- índice, senão "there is no unique or exclusion constraint matching".
+  ON CONFLICT (user_id, role, (COALESCE(clinic_id, '00000000-0000-0000-0000-000000000000'::uuid)))
+  DO NOTHING;
 
 END $$;
