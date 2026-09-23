@@ -14,7 +14,9 @@ test.describe("TriagemPsi — Matriz Completa de Viewports & Responsividade", ()
     await page.addInitScript(() => window.localStorage.clear());
   });
 
-  test("deve garantir contenção de largura e ausência total de scroll horizontal (overflow-x: 0)", async ({ page }) => {
+  test("deve garantir contenção de largura e ausência total de scroll horizontal (overflow-x: 0)", async ({
+    page,
+  }) => {
     await page.goto("/saraiva/triagem", { waitUntil: "networkidle" });
 
     // Avalia no DOM se o scrollWidth excede o innerWidth (qualquer estouro lateral)
@@ -52,7 +54,9 @@ test.describe("TriagemPsi — Matriz Completa de Viewports & Responsividade", ()
     await expect(footer).toContainText("188 (CVV)");
   });
 
-  test("formulário de identificação: prevenção de zoom no iOS (font-size >= 16px) e adaptação de layout", async ({ page }) => {
+  test("formulário de identificação: prevenção de zoom no iOS (font-size >= 16px) e adaptação de layout", async ({
+    page,
+  }) => {
     await page.goto("/saraiva/triagem", { waitUntil: "networkidle" });
 
     // Aceita LGPD e clica Começar
@@ -100,7 +104,9 @@ test.describe("TriagemPsi — Matriz Completa de Viewports & Responsividade", ()
     }
   });
 
-  test("seleção de sintomas: touch targets amplos (>= 48px) e leitura limpa em cards", async ({ page }) => {
+  test("seleção de sintomas: touch targets amplos (>= 48px) e leitura limpa em cards", async ({
+    page,
+  }) => {
     await page.goto("/saraiva/triagem", { waitUntil: "networkidle" });
 
     // Consentimento

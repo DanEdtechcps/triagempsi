@@ -28,9 +28,7 @@ interface PortalPsychoeducationCardProps {
   assessmentId: string;
 }
 
-export function PortalPsychoeducationCard({
-  assessmentId,
-}: PortalPsychoeducationCardProps) {
+export function PortalPsychoeducationCard({ assessmentId }: PortalPsychoeducationCardProps) {
   const fetchItems = useServerFn(getAssessmentPsychoeducation);
   const markViewed = useServerFn(markPsychoeducationViewed);
 
@@ -40,7 +38,11 @@ export function PortalPsychoeducationCard({
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const [filterReadStatus, setFilterReadStatus] = useState<"todos" | "novos" | "lidos">("todos");
 
-  const { data: items, isLoading, refetch } = useQuery({
+  const {
+    data: items,
+    isLoading,
+    refetch,
+  } = useQuery({
     queryKey: ["portal-psycho", assessmentId],
     queryFn: () => fetchItems({ data: { assessment_id: assessmentId } }),
   });
@@ -164,9 +166,7 @@ export function PortalPsychoeducationCard({
             {list.length} temas
           </span>
         </div>
-        <span className="text-[11px] text-muted-foreground">
-          Versão v1 (2026.1)
-        </span>
+        <span className="text-[11px] text-muted-foreground">Versão v1 (2026.1)</span>
       </div>
       <p className="mt-1 text-xs text-muted-foreground">
         Materiais educativos, exercícios práticos e autorregulação selecionados para você:
@@ -377,13 +377,12 @@ export function PortalPsychoeducationCard({
 
               {/* Contatos 24h */}
               <div>
-                <h4 className="font-semibold text-foreground">Canais Gratuitos de Emergência 24h:</h4>
+                <h4 className="font-semibold text-foreground">
+                  Canais Gratuitos de Emergência 24h:
+                </h4>
                 <div className="mt-2 grid gap-2 sm:grid-cols-2">
                   {OFFICIAL_SAFETY_PLAN.contatos_emergencia.map((c) => (
-                    <div
-                      key={c.nome}
-                      className="rounded-lg border border-border bg-muted/40 p-3"
-                    >
+                    <div key={c.nome} className="rounded-lg border border-border bg-muted/40 p-3">
                       <div className="flex items-center justify-between">
                         <span className="font-semibold text-foreground">{c.nome}</span>
                         <span className="rounded bg-primary/10 px-1.5 py-0.5 text-[10px] text-primary">
@@ -411,8 +410,12 @@ export function PortalPsychoeducationCard({
 
               {/* Rede de Apoio */}
               <div className="rounded-lg border border-border bg-muted/30 p-3.5">
-                <h4 className="font-semibold text-foreground">{OFFICIAL_SAFETY_PLAN.rede_apoio.titulo}</h4>
-                <p className="mt-1 text-muted-foreground">{OFFICIAL_SAFETY_PLAN.rede_apoio.orientacao}</p>
+                <h4 className="font-semibold text-foreground">
+                  {OFFICIAL_SAFETY_PLAN.rede_apoio.titulo}
+                </h4>
+                <p className="mt-1 text-muted-foreground">
+                  {OFFICIAL_SAFETY_PLAN.rede_apoio.orientacao}
+                </p>
                 <div className="mt-2 rounded-md border border-border bg-background p-2.5 italic text-foreground">
                   "{OFFICIAL_SAFETY_PLAN.rede_apoio.mensagem_modelo}"
                 </div>
@@ -420,9 +423,14 @@ export function PortalPsychoeducationCard({
 
               {/* Técnicas de Distração */}
               <div className="space-y-2">
-                <h4 className="font-semibold text-foreground">Estratégias Imediatas de Distração e Descompressão:</h4>
+                <h4 className="font-semibold text-foreground">
+                  Estratégias Imediatas de Distração e Descompressão:
+                </h4>
                 {OFFICIAL_SAFETY_PLAN.estrategias_distracao.map((strat) => (
-                  <div key={strat.titulo} className="rounded-lg border border-border bg-muted/20 p-3">
+                  <div
+                    key={strat.titulo}
+                    className="rounded-lg border border-border bg-muted/20 p-3"
+                  >
                     <div className="font-medium text-primary">{strat.titulo}</div>
                     <ul className="mt-1.5 list-inside list-disc space-y-1 text-muted-foreground">
                       {strat.passos.map((p, idx) => (
@@ -435,7 +443,9 @@ export function PortalPsychoeducationCard({
 
               {/* Segurança do Ambiente */}
               <div className="rounded-lg border border-border bg-muted/30 p-3.5">
-                <h4 className="font-semibold text-foreground">{OFFICIAL_SAFETY_PLAN.seguranca_ambiente.titulo}</h4>
+                <h4 className="font-semibold text-foreground">
+                  {OFFICIAL_SAFETY_PLAN.seguranca_ambiente.titulo}
+                </h4>
                 <ul className="mt-1.5 list-inside list-disc space-y-1 text-muted-foreground">
                   {OFFICIAL_SAFETY_PLAN.seguranca_ambiente.orientacoes.map((o, idx) => (
                     <li key={idx}>{o}</li>
@@ -445,9 +455,7 @@ export function PortalPsychoeducationCard({
             </div>
 
             <div className="mt-6 flex justify-end">
-              <Button onClick={() => setShowSafetyModal(false)}>
-                Entendi e fechar
-              </Button>
+              <Button onClick={() => setShowSafetyModal(false)}>Entendi e fechar</Button>
             </div>
           </Card>
         </div>
@@ -501,7 +509,9 @@ export function PortalPsychoeducationCard({
                   Nota sobre o conteúdo:
                 </div>
                 <p className="mt-0.5">
-                  Este material foi elaborado com base nas melhores evidências em saúde mental e TCC. Ele tem propósito exclusivamente informativo e não substitui a consulta médica. Converse com seu médico para um plano personalizado.
+                  Este material foi elaborado com base nas melhores evidências em saúde mental e
+                  TCC. Ele tem propósito exclusivamente informativo e não substitui a consulta
+                  médica. Converse com seu médico para um plano personalizado.
                 </p>
               </div>
             </div>

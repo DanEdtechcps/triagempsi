@@ -141,7 +141,9 @@ describe("filtro clínico de sexo / gênero para EPDS", () => {
     expect(isMalePatient({ respondent_sex: "Homem" })).toBe(true);
     expect(isMalePatient({ pronouns: "Ele / Dele" })).toBe(true);
     expect(isMalePatient({ respondent_sex: "", pronouns: "Ele / Dele" })).toBe(true);
-    expect(isMalePatient({ respondent_sex: "Feminino (cisgênero)", pronouns: "Ele / Dele" })).toBe(false);
+    expect(isMalePatient({ respondent_sex: "Feminino (cisgênero)", pronouns: "Ele / Dele" })).toBe(
+      false,
+    );
     expect(isMalePatient({ respondent_sex: "Feminino (cisgênero)" })).toBe(false);
     expect(isMalePatient(null)).toBe(false);
     expect(isMalePatient(undefined)).toBe(false);
@@ -179,7 +181,14 @@ describe("filtro clínico de sexo / gênero para EPDS", () => {
   it("applyEscalations nunca adiciona EPDS para paciente masculino", () => {
     const initialPlan = buildTriagePlan(["ansiedade"], 30, "Masculino (cisgênero)");
     const mockResult = scoreScale("FTND", { "1": 3, "2": 3 }); // FTND alto
-    const escalated = applyEscalations(initialPlan, mockResult, 30, ["FTND"], 0, "Masculino (cisgênero)");
+    const escalated = applyEscalations(
+      initialPlan,
+      mockResult,
+      30,
+      ["FTND"],
+      0,
+      "Masculino (cisgênero)",
+    );
     expect(escalated.flow).not.toContain("EPDS");
   });
 });
@@ -279,4 +288,3 @@ describe("Auditoria de Elegibilidade Psicometria & QA Clínico (Matriz de Perfis
     expect(escaladoCorte.flow).toContain("GAD-7");
   });
 });
-

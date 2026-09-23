@@ -123,9 +123,7 @@ function Kpi({
         {label}
       </div>
       <p className="mt-2 font-serif text-2xl font-semibold">{value}</p>
-      {hint ? (
-        <p className="mt-1 text-xs text-muted-foreground">{hint}</p>
-      ) : null}
+      {hint ? <p className="mt-1 text-xs text-muted-foreground">{hint}</p> : null}
     </div>
   );
 }
@@ -204,9 +202,7 @@ function ComercialPage() {
     setSaving(true);
     setMsg(null);
     try {
-      const priceDigits = customPrice
-        .replace(/[^\d,\.]/g, "")
-        .replace(",", ".");
+      const priceDigits = customPrice.replace(/[^\d,\.]/g, "").replace(",", ".");
       const priceCents =
         customPrice.trim() === "" || Number.isNaN(Number(priceDigits))
           ? null
@@ -225,9 +221,7 @@ function ComercialPage() {
       await queryClient.invalidateQueries({ queryKey: ["admin-commercial"] });
       setEditing(null);
     } catch (err) {
-      setMsg(
-        err instanceof Error ? err.message : "Não foi possível salvar a assinatura.",
-      );
+      setMsg(err instanceof Error ? err.message : "Não foi possível salvar a assinatura.");
     } finally {
       setSaving(false);
     }
@@ -257,13 +251,10 @@ function ComercialPage() {
             <p className="text-xs font-medium tracking-wide text-primary uppercase">
               Administração
             </p>
-            <h1 className="mt-1 font-serif text-2xl font-semibold sm:text-3xl">
-              Visão comercial
-            </h1>
+            <h1 className="mt-1 font-serif text-2xl font-semibold sm:text-3xl">Visão comercial</h1>
             <p className="mt-2 max-w-2xl text-sm text-muted-foreground">
-              Planos, situação das assinaturas e receita recorrente. Suspender ou
-              cancelar uma assinatura desativa o acesso do consultório
-              automaticamente.
+              Planos, situação das assinaturas e receita recorrente. Suspender ou cancelar uma
+              assinatura desativa o acesso do consultório automaticamente.
             </p>
             <div className="mt-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
               <Kpi
@@ -335,13 +326,19 @@ function ComercialPage() {
             <TableBody>
               {commercial.isLoading ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="py-10 text-center text-sm text-muted-foreground">
+                  <TableCell
+                    colSpan={7}
+                    className="py-10 text-center text-sm text-muted-foreground"
+                  >
                     Carregando visão comercial…
                   </TableCell>
                 </TableRow>
               ) : filtered.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="py-10 text-center text-sm text-muted-foreground">
+                  <TableCell
+                    colSpan={7}
+                    className="py-10 text-center text-sm text-muted-foreground"
+                  >
                     Nenhum consultório nessa situação.
                   </TableCell>
                 </TableRow>
@@ -359,16 +356,11 @@ function ComercialPage() {
                         </p>
                       </TableCell>
                       <TableCell>
-                        {row.plan_name ?? (
-                          <span className="text-muted-foreground">—</span>
-                        )}
+                        {row.plan_name ?? <span className="text-muted-foreground">—</span>}
                       </TableCell>
                       <TableCell>
                         {row.status ? (
-                          <Badge
-                            variant="outline"
-                            className={STATUS_STYLE[row.status]}
-                          >
+                          <Badge variant="outline" className={STATUS_STYLE[row.status]}>
                             {STATUS_LABEL[row.status]}
                           </Badge>
                         ) : (
@@ -395,9 +387,7 @@ function ComercialPage() {
                       <TableCell>
                         {row.staff_count}
                         {limit != null ? (
-                          <span className="text-xs text-muted-foreground">
-                            /{limit}
-                          </span>
+                          <span className="text-xs text-muted-foreground">/{limit}</span>
                         ) : null}
                       </TableCell>
                       <TableCell>
@@ -405,9 +395,7 @@ function ComercialPage() {
                         {days !== null && days >= 0 && row.status !== "cancelada" ? (
                           <p
                             className={`text-xs ${
-                              days <= 7
-                                ? "font-medium text-amber-600"
-                                : "text-muted-foreground"
+                              days <= 7 ? "font-medium text-amber-600" : "text-muted-foreground"
                             }`}
                           >
                             {days === 0 ? "vence hoje" : `${days} dias`}
@@ -415,11 +403,7 @@ function ComercialPage() {
                         ) : null}
                       </TableCell>
                       <TableCell className="text-right">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => openEdit(row)}
-                        >
+                        <Button size="sm" variant="outline" onClick={() => openEdit(row)}>
                           <Pencil className="mr-1.5 h-3.5 w-3.5" aria-hidden />
                           Gerenciar
                         </Button>
@@ -438,10 +422,9 @@ function ComercialPage() {
           <p className="flex items-start gap-2">
             <TrendingUp className="mt-0.5 h-4 w-4 shrink-0 text-primary" aria-hidden />
             <span>
-              Os limites do plano são aplicados automaticamente: o plano
-              Consultório aceita até 2 profissionais por unidade; equipes maiores
-              pedem o plano Clínica. Valores “personalizados” substituem o preço
-              de tabela (acordos sob medida).
+              Os limites do plano são aplicados automaticamente: o plano Consultório aceita até 2
+              profissionais por unidade; equipes maiores pedem o plano Clínica. Valores
+              “personalizados” substituem o preço de tabela (acordos sob medida).
             </span>
           </p>
         </section>
@@ -450,12 +433,10 @@ function ComercialPage() {
       <Dialog open={!!editing} onOpenChange={(open) => !open && setEditing(null)}>
         <DialogContent className="sm:max-w-lg">
           <DialogHeader>
-            <DialogTitle className="font-serif">
-              Assinatura — {editing?.clinic_name}
-            </DialogTitle>
+            <DialogTitle className="font-serif">Assinatura — {editing?.clinic_name}</DialogTitle>
             <DialogDescription>
-              Ajuste plano, situação e vencimento. Ao suspender ou cancelar, o
-              consultório perde o acesso na hora.
+              Ajuste plano, situação e vencimento. Ao suspender ou cancelar, o consultório perde o
+              acesso na hora.
             </DialogDescription>
           </DialogHeader>
 
@@ -481,10 +462,7 @@ function ComercialPage() {
 
             <div className="grid gap-2">
               <Label htmlFor="sub-status">Situação</Label>
-              <Select
-                value={status}
-                onValueChange={(v) => setStatus(v as SubscriptionStatus)}
-              >
+              <Select value={status} onValueChange={(v) => setStatus(v as SubscriptionStatus)}>
                 <SelectTrigger id="sub-status">
                   <SelectValue />
                 </SelectTrigger>

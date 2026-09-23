@@ -360,118 +360,147 @@ export const SCALE_EVIDENCE: ScaleEvidence[] = [
     icd10: "F10–F19",
     cutoff: "≥ 3 (0–10)",
     reference: "Skinner HA. The Drug Abuse Screening Test. Addict Behav. 1982;7(4):363-371.",
-    validationBr: "Babor TF, et al. Validação do DAST-10 no contexto clínico brasileiro. Rev ABP. 2005.",
+    validationBr:
+      "Babor TF, et al. Validação do DAST-10 no contexto clínico brasileiro. Rev ABP. 2005.",
   },
   {
     code: "C-SSRS",
     condition: "Gravidade e ideação do risco de suicídio",
     cutoff: "≥ 1 rastreio positivo; ≥ 4 risco crítico iminente",
-    reference: "Posner K, et al. The Columbia-Suicide Severity Rating Scale: initial validity and internal consistency findings from three multisite studies with adolescents and adults. Am J Psychiatry. 2011;168(12):1266-1277.",
-    validationBr: "Mattei G, et al. Versão brasileira da Escala Columbia de Gravidade do Risco de Suicídio. J Bras Psiquiatr. 2014.",
+    reference:
+      "Posner K, et al. The Columbia-Suicide Severity Rating Scale: initial validity and internal consistency findings from three multisite studies with adolescents and adults. Am J Psychiatry. 2011;168(12):1266-1277.",
+    validationBr:
+      "Mattei G, et al. Versão brasileira da Escala Columbia de Gravidade do Risco de Suicídio. J Bras Psiquiatr. 2014.",
   },
   {
     code: "Y-BOCS",
     condition: "Transtorno obsessivo-compulsivo — rastreio e gravidade",
     icd10: "F42",
     cutoff: "≥ 16 (0–40)",
-    reference: "Goodman WK, et al. The Yale-Brown Obsessive Compulsive Scale. Arch Gen Psychiatry. 1989;46(11):1006-1011.",
-    validationBr: "Rosário-Campos MC, et al. Validação da Escala Yale-Brown no Brasil. Rev ABP-APAL. 1999.",
+    reference:
+      "Goodman WK, et al. The Yale-Brown Obsessive Compulsive Scale. Arch Gen Psychiatry. 1989;46(11):1006-1011.",
+    validationBr:
+      "Rosário-Campos MC, et al. Validação da Escala Yale-Brown no Brasil. Rev ABP-APAL. 1999.",
   },
   {
     code: "SPIN",
     condition: "Fobia social / Transtorno de ansiedade social",
     icd10: "F40.1",
     cutoff: "≥ 19 (0–68)",
-    reference: "Connor KM, et al. Mini-SPIN: a brief screening assessment for generalized social anxiety disorder. Depress Anxiety. 2001;14(2):137-140.",
-    validationBr: "Osório FL, Crippa JA, Loureiro SR. Validação transcultural do SPIN. Rev Bras Psiquiatr. 2010.",
+    reference:
+      "Connor KM, et al. Mini-SPIN: a brief screening assessment for generalized social anxiety disorder. Depress Anxiety. 2001;14(2):137-140.",
+    validationBr:
+      "Osório FL, Crippa JA, Loureiro SR. Validação transcultural do SPIN. Rev Bras Psiquiatr. 2010.",
   },
   {
     code: "PDSS-SR",
     condition: "Transtorno de pânico e agorafobia",
     icd10: "F41.0",
     cutoff: "≥ 8 (0–28)",
-    reference: "Shear MK, et al. Multicenter collaborative Panic Disorder Severity Scale. Am J Psychiatry. 1997;154(11):1571-1575.",
-    validationBr: "Rangé BP, et al. Adaptação transcultural e validação da PDSS no Brasil. Rev Psiquiatr Clin. 2008.",
+    reference:
+      "Shear MK, et al. Multicenter collaborative Panic Disorder Severity Scale. Am J Psychiatry. 1997;154(11):1571-1575.",
+    validationBr:
+      "Rangé BP, et al. Adaptação transcultural e validação da PDSS no Brasil. Rev Psiquiatr Clin. 2008.",
   },
   {
     code: "BES",
     condition: "Compulsão alimentar periódica",
     icd10: "F50.8",
     cutoff: "≥ 18 (0–48)",
-    reference: "Gormally J, et al. The assessment of binge eating severity among obese persons. Addict Behav. 1982;7(1):47-55.",
-    validationBr: "Freitas S, et al. Tradução e adaptação para o português da Binge Eating Scale. Rev Bras Psiquiatr. 2001.",
+    reference:
+      "Gormally J, et al. The assessment of binge eating severity among obese persons. Addict Behav. 1982;7(1):47-55.",
+    validationBr:
+      "Freitas S, et al. Tradução e adaptação para o português da Binge Eating Scale. Rev Bras Psiquiatr. 2001.",
   },
   {
     code: "MBI-HSS",
     condition: "Síndrome de Burnout no ambiente profissional",
     icd10: "QD85",
     cutoff: "≥ 28 (0–54)",
-    reference: "Maslach C, Jackson SE. The measurement of experienced burnout. J Organ Behav. 1981;2(2):99-113.",
-    validationBr: "Carlotto MS, Câmara SG. Propriedades psicométricas do MBI-HSS. Psicol Reflex Crit. 2007.",
+    reference:
+      "Maslach C, Jackson SE. The measurement of experienced burnout. J Organ Behav. 1981;2(2):99-113.",
+    validationBr:
+      "Carlotto MS, Câmara SG. Propriedades psicométricas do MBI-HSS. Psicol Reflex Crit. 2007.",
   },
   {
     code: "CRAFFT",
     condition: "Rastreio de substâncias em adolescentes e jovens",
     icd10: "F10–F19",
     cutoff: "≥ 2 (0–6)",
-    reference: "Knight JR, et al. The CRAFFT test: screening for substance-related risks and disorders in adolescents. Arch Pediatr Adolesc Med. 2002;156(6):607-614.",
-    validationBr: "Cazenave SOS, et al. Adaptação transcultural do questionário CRAFFT para o português. Einstein. 2012.",
+    reference:
+      "Knight JR, et al. The CRAFFT test: screening for substance-related risks and disorders in adolescents. Arch Pediatr Adolesc Med. 2002;156(6):607-614.",
+    validationBr:
+      "Cazenave SOS, et al. Adaptação transcultural do questionário CRAFFT para o português. Einstein. 2012.",
   },
   {
     code: "HADS",
     condition: "Ansiedade e depressão em contexto hospitalar/ambulatorial",
     icd10: "F32 / F41",
     cutoff: "≥ 15 (0–42)",
-    reference: "Zigmond AS, Snaith RP. The Hospital Anxiety and Depression Scale. Acta Psychiatr Scand. 1983;67(6):361-370.",
-    validationBr: "Botega NJ, et al. Escala hospitalar de ansiedade e depressão: validação de versão em português. Rev Saúde Pública. 1995.",
+    reference:
+      "Zigmond AS, Snaith RP. The Hospital Anxiety and Depression Scale. Acta Psychiatr Scand. 1983;67(6):361-370.",
+    validationBr:
+      "Botega NJ, et al. Escala hospitalar de ansiedade e depressão: validação de versão em português. Rev Saúde Pública. 1995.",
   },
   {
     code: "PSS-10",
     condition: "Nível de estresse percebido global",
     cutoff: "≥ 14 (0–40)",
-    reference: "Cohen S, Kamarck T, Mermelstein R. A global measure of perceived stress. J Health Soc Behav. 1983;24(4):385-396.",
-    validationBr: "Luft CD, et al. Versão brasileira da Escala de Estresse Percebido (PSS-10). Rev Saúde Pública. 2007.",
+    reference:
+      "Cohen S, Kamarck T, Mermelstein R. A global measure of perceived stress. J Health Soc Behav. 1983;24(4):385-396.",
+    validationBr:
+      "Luft CD, et al. Versão brasileira da Escala de Estresse Percebido (PSS-10). Rev Saúde Pública. 2007.",
   },
   {
     code: "WHO-5",
     condition: "Índice de bem-estar e rastreio de humor",
     cutoff: "≤ 50% / ≤ 12 bruto (0–25)",
-    reference: "World Health Organization. Wellbeing measures in primary health care: the DepCare project. WHO Regional Office for Europe. 1998.",
-    validationBr: "Topp CW, et al. The WHO-5 Well-Being Index: a systematic review of the literature. Psychother Psychosom. 2015;84(3):167-176.",
+    reference:
+      "World Health Organization. Wellbeing measures in primary health care: the DepCare project. WHO Regional Office for Europe. 1998.",
+    validationBr:
+      "Topp CW, et al. The WHO-5 Well-Being Index: a systematic review of the literature. Psychother Psychosom. 2015;84(3):167-176.",
   },
   {
     code: "ASRS-C",
     condition: "TDAH infantojuvenil (< 18 anos)",
     icd10: "F90",
     cutoff: "≥ 16 (0–48)",
-    reference: "Kessler RC, et al. The World Health Organization Adult ADHD Self-Report Scale (ASRS). Psychol Med. 2005.",
-    validationBr: "Mattos P, et al. Adaptação transcultural e validação brasileira de rastreio de TDAH. Rev Psiquiatr Clin. 2006.",
+    reference:
+      "Kessler RC, et al. The World Health Organization Adult ADHD Self-Report Scale (ASRS). Psychol Med. 2005.",
+    validationBr:
+      "Mattos P, et al. Adaptação transcultural e validação brasileira de rastreio de TDAH. Rev Psiquiatr Clin. 2006.",
   },
   {
     code: "CGI-S",
     condition: "Impressão clínica global de gravidade percebida",
     cutoff: "≥ 4 (0–7)",
-    reference: "Guy W. ECDEU Assessment Manual for Psychopharmacology. US Department of Health, Education, and Welfare. 1976.",
-    validationBr: "Busner J, Targum SD. The Clinical Global Impressions scale: applying a research tool in clinical practice. Psychiatry (Edgmont). 2007;4(7):28-37.",
+    reference:
+      "Guy W. ECDEU Assessment Manual for Psychopharmacology. US Department of Health, Education, and Welfare. 1976.",
+    validationBr:
+      "Busner J, Targum SD. The Clinical Global Impressions scale: applying a research tool in clinical practice. Psychiatry (Edgmont). 2007;4(7):28-37.",
   },
   {
     code: "WSAS",
     condition: "Prejuízo funcional e ajuste social",
     cutoff: "≥ 10 (0–40)",
-    reference: "Mundt JC, et al. The Work and Social Adjustment Scale: a simple measure of impairment in functioning. Br J Psychiatry. 2002;180:461-464.",
-    validationBr: "Mundt JC, et al. Adaptação transcultural da WSAS para o português do Brasil. 2010.",
+    reference:
+      "Mundt JC, et al. The Work and Social Adjustment Scale: a simple measure of impairment in functioning. Br J Psychiatry. 2002;180:461-464.",
+    validationBr:
+      "Mundt JC, et al. Adaptação transcultural da WSAS para o português do Brasil. 2010.",
   },
   {
     code: "RISK-COMPOSITE",
     condition: "Indicador interno integrado de risco psiquiátrico imediato",
     cutoff: "≥ 1 sinal de alerta",
-    reference: "Diretrizes de Segurança do Paciente e Manejo do Risco Psiquiátrico. Protocolo Institucional TriagemPsi. 2026.",
+    reference:
+      "Diretrizes de Segurança do Paciente e Manejo do Risco Psiquiátrico. Protocolo Institucional TriagemPsi. 2026.",
     validationBr: "Alinhado aos parâmetros de priorização clínica CFM e Ministério da Saúde.",
   },
 ];
 
-export const EVIDENCE_BY_CODE: Record<string, ScaleEvidence> =
-  Object.fromEntries(SCALE_EVIDENCE.map((e) => [e.code, e]));
+export const EVIDENCE_BY_CODE: Record<string, ScaleEvidence> = Object.fromEntries(
+  SCALE_EVIDENCE.map((e) => [e.code, e]),
+);
 
 /* ------------------------------------------------------------------ */
 /* Fluxos exemplificados por especialidade                             */
@@ -497,9 +526,15 @@ export const SPECIALTY_FLOWS: SpecialtyFlow[] = [
       { code: "SRQ-20", text: "Rastreio geral aplicado a todo adulto (linha de base)" },
       { code: "PHQ-2", text: "Rastreio breve de depressão (2 perguntas, ~30 segundos)" },
       { code: "PHQ-9", text: "Se PHQ-2 ≥ 3: aprofunda gravidade depressiva" },
-      { code: "ASQ", text: "Se item 9 do PHQ-9 > 0 ou PHQ-9 ≥ 10: triagem de segurança — via de risco" },
+      {
+        code: "ASQ",
+        text: "Se item 9 do PHQ-9 > 0 ou PHQ-9 ≥ 10: triagem de segurança — via de risco",
+      },
       { code: "PC-PTSD-5", text: "Se PHQ-9 ≥ 10: checa trauma associado" },
-      { code: "MDQ", text: "Se PHQ-9 ≥ 10: rastreia bipolaridade antes de qualquer conduta antidepressiva" },
+      {
+        code: "MDQ",
+        text: "Se PHQ-9 ≥ 10: rastreia bipolaridade antes de qualquer conduta antidepressiva",
+      },
       { text: "Painel: fila de revisão com semáforo, trilha de decisão e parecer do médico" },
     ],
   },
@@ -515,7 +550,10 @@ export const SPECIALTY_FLOWS: SpecialtyFlow[] = [
       },
       { code: "AUDIT", text: "Se álcool ≥ 2 no ASSIST-Lite (ou AUDIT-C ≥ 3): AUDIT completo" },
       { code: "FTND", text: "Se tabaco ≥ 1 no ASSIST-Lite: dependência de nicotina (Fagerström)" },
-      { code: "PHQ-2", text: "Se alto risco em qualquer substância: rastreia comorbidade depressiva" },
+      {
+        code: "PHQ-2",
+        text: "Se alto risco em qualquer substância: rastreia comorbidade depressiva",
+      },
       { text: "Painel: quadro por substância com conduta OMS (FRAMES / avaliação especializada)" },
     ],
   },
@@ -523,7 +561,10 @@ export const SPECIALTY_FLOWS: SpecialtyFlow[] = [
     specialty: "Jogos e apostas",
     scenario: "Paciente marca “apostas, bets ou jogos ocupando espaço na vida”",
     steps: [
-      { code: "PGSI", text: "Índice de gravidade do jogo problemático (9 perguntas, últimos 12 meses)" },
+      {
+        code: "PGSI",
+        text: "Índice de gravidade do jogo problemático (9 perguntas, últimos 12 meses)",
+      },
       { code: "PHQ-2", text: "Se PGSI ≥ 3: rastreia depressão associada" },
       { code: "GAD-2", text: "Se PGSI ≥ 3: rastreia ansiedade associada" },
       { code: "ASQ", text: "Se PGSI ≥ 8 (jogo problemático): triagem de segurança — via de risco" },
@@ -537,7 +578,9 @@ export const SPECIALTY_FLOWS: SpecialtyFlow[] = [
       { code: "GAD-7", text: "Se GAD-2 ≥ 3: aprofunda gravidade" },
       { code: "SNAP-IV", text: "Queixa de atenção: TDAH infantil (em curadoria, via responsável)" },
       { code: "ASQ", text: "Qualquer sinal de risco: triagem de segurança (≥ 10 anos)" },
-      { text: "Menores de 12 anos: queixas de humor/trauma geram aviso para avaliação assistida na consulta" },
+      {
+        text: "Menores de 12 anos: queixas de humor/trauma geram aviso para avaliação assistida na consulta",
+      },
     ],
   },
   {
@@ -546,7 +589,10 @@ export const SPECIALTY_FLOWS: SpecialtyFlow[] = [
     steps: [
       { code: "SRQ-20", text: "Rastreio geral (linha de base)" },
       { code: "AD-8", text: "Queixa de memória: entrevista breve de mudança cognitiva" },
-      { code: "GDS-15", text: "Se AD-8 ≥ 2: diferencia declínio cognitivo de depressão geriátrica" },
+      {
+        code: "GDS-15",
+        text: "Se AD-8 ≥ 2: diferencia declínio cognitivo de depressão geriátrica",
+      },
       { code: "ASQ", text: "Se GDS-15 ≥ 5: triagem de segurança" },
     ],
   },
@@ -556,7 +602,10 @@ export const SPECIALTY_FLOWS: SpecialtyFlow[] = [
     steps: [
       { code: "EPDS", text: "Escala de depressão pós-parto de Edimburgo (10 perguntas)" },
       { code: "GAD-2", text: "Se EPDS ≥ 10: rastreia componente ansioso" },
-      { code: "ASQ", text: "Se item 10 da EPDS (autoagressão) > 0 ou escore ≥ 13: via de risco imediata" },
+      {
+        code: "ASQ",
+        text: "Se item 10 da EPDS (autoagressão) > 0 ou escore ≥ 13: via de risco imediata",
+      },
     ],
   },
   {

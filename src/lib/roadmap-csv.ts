@@ -1,9 +1,5 @@
 import { ROADMAP, ROADMAP_STATUS_LABEL, ROADMAP_VERSION } from "@/config/manual";
-import {
-  DELIVERIES,
-  PENDING_DELIVERIES,
-  formatDeliveryDate,
-} from "@/config/deliveries";
+import { DELIVERIES, PENDING_DELIVERIES, formatDeliveryDate } from "@/config/deliveries";
 
 function cell(value: unknown) {
   const text = value == null ? "" : String(value);
@@ -62,9 +58,7 @@ export function buildRoadmapCsv(): string {
     ]);
   }
 
-  return [header, ...rows]
-    .map((r) => r.map(cell).join(";"))
-    .join("\r\n");
+  return [header, ...rows].map((r) => r.map(cell).join(";")).join("\r\n");
 }
 
 /** Baixa o roadmap completo em CSV (UTF-8 com BOM, compatível com Excel). */

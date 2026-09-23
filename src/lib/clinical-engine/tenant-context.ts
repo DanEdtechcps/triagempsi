@@ -1,7 +1,7 @@
 /**
  * Resolvedor e Middleware de Isolamento Estrito de Contexto Multi-Tenant.
  * Inspirado na arquitetura multi-tenant do Cal.com.
- * 
+ *
  * Garante que:
  * 1. Toda sessão de triagem possua um TenantContext válido e imutável.
  * 2. Nenhum payload seja gravado ou processado sem a selagem do clinic_id.
@@ -64,10 +64,7 @@ export function sanitizeTenantSlug(rawSlug: string | null | undefined): string {
 /**
  * Resolve e valida o contexto do tenant para a sessão de triagem.
  */
-export function resolveTenantContext(
-  slug: string,
-  data?: Partial<TenantContext>,
-): TenantContext {
+export function resolveTenantContext(slug: string, data?: Partial<TenantContext>): TenantContext {
   const cleanSlug = sanitizeTenantSlug(slug);
 
   const clinicId = data?.clinic_id?.trim();
@@ -96,10 +93,7 @@ export function resolveTenantContext(
  * Middleware de Asserção: Bloqueia qualquer tentativa de gravação ou consulta
  * fora da fronteira da clínica ativa.
  */
-export function assertTenantBoundary(
-  context: TenantContext,
-  targetClinicId: string,
-): void {
+export function assertTenantBoundary(context: TenantContext, targetClinicId: string): void {
   if (!context || !context.clinic_id) {
     throw new MissingTenantContextError();
   }
@@ -126,10 +120,7 @@ export function bindTenantToAssessmentPayload(
 
   // Se o payload já continha um clinic_id, valida se coincide com o contexto ativo
   if (payload.clinic_id && payload.clinic_id.trim() !== context.clinic_id.trim()) {
-    throw new TenantBoundaryViolationError(
-      context.clinic_id,
-      payload.clinic_id,
-    );
+    throw new TenantBoundaryViolationError(context.clinic_id, payload.clinic_id);
   }
 
   // Garante que o slug do payload corresponda à clínica ativa

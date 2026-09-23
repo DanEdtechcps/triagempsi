@@ -1,18 +1,9 @@
 import { jsPDF } from "jspdf";
 import { BRANDING, type Branding } from "@/config/branding";
-import {
-  getItemOptions,
-  resolveScaleForAnswers,
-  skippedItemIds,
-} from "@/lib/scales-data";
+import { getItemOptions, resolveScaleForAnswers, skippedItemIds } from "@/lib/scales-data";
 import { computeSubscores } from "@/lib/scoring";
 import { SYMPTOM_QUESTION } from "@/config/triage-tree";
-import {
-  buildDecisionSummary,
-  type Decision,
-  type IndicatedScale,
-} from "@/lib/decision-narrative";
-
+import { buildDecisionSummary, type Decision, type IndicatedScale } from "@/lib/decision-narrative";
 
 export type PdfScale = {
   scale_code: string;
@@ -48,7 +39,6 @@ export type PdfReportData = {
   psychoeducation?: Array<{ title: string; summary: string }>;
 };
 
-
 const MARGIN = 48;
 const PAGE_W = 595.28; // A4 pt
 const PAGE_H = 841.89;
@@ -77,7 +67,6 @@ function summarize(data: PdfReportData) {
   });
 }
 
-
 function fmtDate(value?: string | null) {
   if (!value) return "—";
   const d = new Date(value);
@@ -95,7 +84,10 @@ function fmtDay(value?: string | null) {
 class Doc {
   doc: jsPDF;
   y = MARGIN;
-  constructor(private branding: Branding, private subtitle: string) {
+  constructor(
+    private branding: Branding,
+    private subtitle: string,
+  ) {
     this.doc = new jsPDF({ unit: "pt", format: "a4" });
     this.header();
   }
@@ -176,11 +168,7 @@ class Doc {
     d.setFont("helvetica", "bold");
     d.setFontSize(10);
     const name = `${s.scale_code} — ${s.scale_name}`;
-    d.text(
-      (d.splitTextToSize(name, CONTENT_W - 190) as string[])[0],
-      MARGIN + 8,
-      this.y + 5,
-    );
+    d.text((d.splitTextToSize(name, CONTENT_W - 190) as string[])[0], MARGIN + 8, this.y + 5);
     d.setFont("helvetica", "normal");
     d.setTextColor(70);
     const right = `${s.score ?? "—"} pts   ·   ${s.band ?? "—"}`;
@@ -222,10 +210,7 @@ class Doc {
       const v = s.answers[item.id];
       if (v == null) continue;
       const opt = getItemOptions(scale, item.id).find((o) => o.value === v);
-      const lines = d.splitTextToSize(
-        `${item.id}. ${item.text}`,
-        CONTENT_W - 130,
-      ) as string[];
+      const lines = d.splitTextToSize(`${item.id}. ${item.text}`, CONTENT_W - 130) as string[];
       this.ensure(lines.length * 12 + 6);
       d.setTextColor(skipped.has(item.id) ? 150 : 45);
       lines.forEach((l, i) => d.text(l, MARGIN + 10, this.y + i * 12));
@@ -269,9 +254,7 @@ class Doc {
       d.setFontSize(8);
       d.setTextColor(130);
       const lines = d.splitTextToSize(footer, CONTENT_W - 60) as string[];
-      lines.slice(0, 2).forEach((l, i) =>
-        d.text(l, MARGIN, PAGE_H - MARGIN + 8 + i * 10),
-      );
+      lines.slice(0, 2).forEach((l, i) => d.text(l, MARGIN, PAGE_H - MARGIN + 8 + i * 10));
       d.text(`${p}/${total}`, PAGE_W - MARGIN, PAGE_H - MARGIN + 8, {
         align: "right",
       });
@@ -293,10 +276,7 @@ function safeName(name: string) {
 }
 
 /** Relatório simplificado entregue ao paciente. Sem hipótese diagnóstica. */
-export function buildPatientPdf(
-  data: PdfReportData,
-  branding: Branding = BRANDING,
-) {
+export function buildPatientPdf(data: PdfReportData, branding: Branding = BRANDING) {
   const b = new Doc(branding, "Resumo da sua pré-avaliação");
 
   b.field("Nome", data.respondent_name);
@@ -343,13 +323,13 @@ export function buildPatientPdf(
 
   const hasCrisisRisk = Boolean(
     data.riskPathway ||
-      data.riskFlags?.length ||
-      data.psychoeducation?.some(
-        (p) =>
-          p.title.toLowerCase().includes("crise") ||
-          p.summary.toLowerCase().includes("188") ||
-          p.summary.toLowerCase().includes("samu"),
-      ),
+    data.riskFlags?.length ||
+    data.psychoeducation?.some(
+      (p) =>
+        p.title.toLowerCase().includes("crise") ||
+        p.summary.toLowerCase().includes("188") ||
+        p.summary.toLowerCase().includes("samu"),
+    ),
   );
 
   if (data.psychoeducation?.length) {
@@ -391,10 +371,7 @@ export function buildPatientPdf(
 }
 
 /** Relatório completo para a equipe clínica / contratante. */
-export function buildClinicianPdf(
-  data: PdfReportData,
-  branding: Branding = BRANDING,
-) {
+export function buildClinicianPdf(data: PdfReportData, branding: Branding = BRANDING) {
   const b = new Doc(branding, "Relatório de pré-triagem — uso clínico");
 
   if (data.riskPathway || data.riskFlags?.length) {
@@ -413,10 +390,7 @@ export function buildClinicianPdf(
       `${data.preferred_name}${data.pronouns ? ` (${data.pronouns})` : ""}`,
     );
   }
-  b.field(
-    "Idade",
-    data.respondent_age != null ? `${data.respondent_age} anos` : "—",
-  );
+  b.field("Idade", data.respondent_age != null ? `${data.respondent_age} anos` : "—");
   b.field("Nascimento", fmtDay(data.birth_date));
   b.field("Sexo/gênero", data.respondent_sex || "—");
   b.field(
@@ -506,7 +480,6 @@ export function buildClinicianPdf(
     b.subscoreBlock(s);
   }
 
-
   const withAnswers = data.scales.filter((s) => s.answers);
   if (withAnswers.length) {
     b.title("Respostas item a item");
@@ -520,19 +493,13 @@ export function buildClinicianPdf(
     }
   }
 
-  return b.finish(
-    `${branding.disclaimer} Documento gerado para anexo ao prontuário.`,
-  );
+  return b.finish(`${branding.disclaimer} Documento gerado para anexo ao prontuário.`);
 }
 
 export function downloadPatientPdf(data: PdfReportData, branding?: Branding) {
-  buildPatientPdf(data, branding).save(
-    `pre-avaliacao-${safeName(data.respondent_name)}.pdf`,
-  );
+  buildPatientPdf(data, branding).save(`pre-avaliacao-${safeName(data.respondent_name)}.pdf`);
 }
 
 export function downloadClinicianPdf(data: PdfReportData, branding?: Branding) {
-  buildClinicianPdf(data, branding).save(
-    `triagem-${safeName(data.respondent_name)}.pdf`,
-  );
+  buildClinicianPdf(data, branding).save(`triagem-${safeName(data.respondent_name)}.pdf`);
 }

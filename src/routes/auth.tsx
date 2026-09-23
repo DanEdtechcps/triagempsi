@@ -91,18 +91,13 @@ function AuthPage() {
         redirectTo: window.location.origin + "/reset-password",
       });
       if (error) throw error;
-      setInfo(
-        "Enviamos um link de redefinição para o seu e-mail. Abra-o para criar a nova senha.",
-      );
+      setInfo("Enviamos um link de redefinição para o seu e-mail. Abra-o para criar a nova senha.");
     } catch (err) {
-      setMsg(
-        err instanceof Error ? err.message : "Não foi possível enviar o link.",
-      );
+      setMsg(err instanceof Error ? err.message : "Não foi possível enviar o link.");
     } finally {
       setLoading(false);
     }
   }
-
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4 py-10">
@@ -167,11 +162,8 @@ function AuthPage() {
           }}
           className="mt-3 w-full text-sm text-muted-foreground hover:text-foreground"
         >
-          {mode === "entrar"
-            ? "Não tem conta? Criar acesso"
-            : "Já tem conta? Entrar"}
+          {mode === "entrar" ? "Não tem conta? Criar acesso" : "Já tem conta? Entrar"}
         </button>
-
 
         <Link
           to="/$slug"

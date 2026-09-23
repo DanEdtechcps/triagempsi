@@ -14,10 +14,7 @@ import { readFileSync, writeFileSync } from "node:fs";
 import { resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
-const FILE = resolve(
-  dirname(fileURLToPath(import.meta.url)),
-  "../src/config/deliveries.json",
-);
+const FILE = resolve(dirname(fileURLToPath(import.meta.url)), "../src/config/deliveries.json");
 
 const argv = process.argv.slice(2);
 const flags = {};

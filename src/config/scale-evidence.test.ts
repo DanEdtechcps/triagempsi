@@ -6,29 +6,20 @@ describe("base de evidências das escalas", () => {
   it("toda escala ativa do sistema tem evidência cadastrada", () => {
     const ativas = ALL_SCALES.filter((s) => s.status !== "estrutura");
     for (const scale of ativas) {
-      expect(
-        EVIDENCE_BY_CODE[scale.code],
-        `faltou evidência para ${scale.code}`,
-      ).toBeDefined();
+      expect(EVIDENCE_BY_CODE[scale.code], `faltou evidência para ${scale.code}`).toBeDefined();
     }
   });
 
   it("toda escala em curadoria está sinalizada na base", () => {
     const pendentes = ALL_SCALES.filter((s) => s.status === "estrutura");
     for (const scale of pendentes) {
-      expect(
-        EVIDENCE_BY_CODE[scale.code],
-        `faltou registro para ${scale.code}`,
-      ).toBeDefined();
+      expect(EVIDENCE_BY_CODE[scale.code], `faltou registro para ${scale.code}`).toBeDefined();
     }
   });
 
   it("toda evidência aponta para uma escala que existe no sistema", () => {
     for (const ev of SCALE_EVIDENCE) {
-      expect(
-        SCALE_BY_CODE[ev.code],
-        `evidência órfã: ${ev.code}`,
-      ).toBeDefined();
+      expect(SCALE_BY_CODE[ev.code], `evidência órfã: ${ev.code}`).toBeDefined();
     }
   });
 

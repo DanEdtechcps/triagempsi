@@ -64,10 +64,7 @@ function ContatosPage() {
   const [saving, setSaving] = useState(false);
   const [sendingId, setSendingId] = useState<string | null>(null);
 
-  const selectedClinic = useMemo(
-    () => clinicId || clinics[0]?.id || "",
-    [clinicId, clinics],
-  );
+  const selectedClinic = useMemo(() => clinicId || clinics[0]?.id || "", [clinicId, clinics]);
 
   async function handleAdd(e: React.FormEvent) {
     e.preventDefault();
@@ -150,8 +147,8 @@ function ContatosPage() {
       <PainelShell title="Contatos">
         <Card className="p-6">
           <p className="text-sm text-muted-foreground">
-            Acesso ainda não liberado. Peça a um administrador para vincular seu
-            usuário a uma clínica.
+            Acesso ainda não liberado. Peça a um administrador para vincular seu usuário a uma
+            clínica.
           </p>
         </Card>
       </PainelShell>
@@ -225,13 +222,9 @@ function ContatosPage() {
 
       <section className="mt-8">
         <h2 className="font-serif text-lg font-semibold">Meus contatos</h2>
-        {contacts.isLoading && (
-          <p className="mt-3 text-sm text-muted-foreground">Carregando…</p>
-        )}
+        {contacts.isLoading && <p className="mt-3 text-sm text-muted-foreground">Carregando…</p>}
         {contacts.data?.length === 0 && (
-          <p className="mt-3 text-sm text-muted-foreground">
-            Nenhum contato cadastrado ainda.
-          </p>
+          <p className="mt-3 text-sm text-muted-foreground">Nenhum contato cadastrado ainda.</p>
         )}
         <ul className="mt-3 space-y-3">
           {(contacts.data ?? []).map((c) => (
@@ -245,8 +238,7 @@ function ContatosPage() {
                   </div>
                   {c.last_invite_at && (
                     <div className="mt-1 text-xs text-muted-foreground">
-                      Último convite:{" "}
-                      {new Date(c.last_invite_at).toLocaleString("pt-BR")}
+                      Último convite: {new Date(c.last_invite_at).toLocaleString("pt-BR")}
                     </div>
                   )}
                 </div>
@@ -262,9 +254,8 @@ function ContatosPage() {
           ))}
         </ul>
         <p className="mt-4 text-xs text-muted-foreground">
-          O botão gera um link de triagem individual (válido por 30 dias) e abre o
-          WhatsApp com a mensagem pronta para enviar ao paciente. O envio fica
-          registrado no histórico da clínica.
+          O botão gera um link de triagem individual (válido por 30 dias) e abre o WhatsApp com a
+          mensagem pronta para enviar ao paciente. O envio fica registrado no histórico da clínica.
         </p>
       </section>
     </PainelShell>

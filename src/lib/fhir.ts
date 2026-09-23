@@ -54,10 +54,7 @@ function itemText(code: string, itemId: string): string {
   return scale?.items.find((i) => i.id === itemId)?.text ?? `Item ${itemId}`;
 }
 
-export function buildFhirBundle(
-  assessment: FhirAssessment,
-  scales: FhirScaleRow[],
-): Json {
+export function buildFhirBundle(assessment: FhirAssessment, scales: FhirScaleRow[]): Json {
   const patientId = `patient-${assessment.id}`;
   const patientRef = { reference: `urn:uuid:${patientId}` };
 

@@ -28,8 +28,11 @@ export const listContacts = createServerFn({ method: "GET" })
     }
 
     return (data ?? []).map((c) => {
-      const invites = ((c as unknown as { invitations: { created_at: string }[] })
-        .invitations ?? []).map((i) => i.created_at).sort();
+      const invites = (
+        (c as unknown as { invitations: { created_at: string }[] }).invitations ?? []
+      )
+        .map((i) => i.created_at)
+        .sort();
       return {
         id: c.id as string,
         name: c.name as string,
@@ -50,7 +53,10 @@ export const createContact = createServerFn({ method: "POST" })
       .object({
         clinic_id: z.string().uuid(),
         name: z.string().trim().min(2).max(120),
-        phone_e164: z.string().trim().regex(/^\+\d{10,15}$/),
+        phone_e164: z
+          .string()
+          .trim()
+          .regex(/^\+\d{10,15}$/),
         email: z.string().trim().email().max(200).optional().nullable(),
       })
       .parse(raw),
@@ -93,9 +99,7 @@ export const createContact = createServerFn({ method: "POST" })
 /** Gera um convite individual de triagem e registra o envio por WhatsApp. */
 export const createWhatsappInvite = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((raw: unknown) =>
-    z.object({ contact_id: z.string().uuid() }).parse(raw),
-  )
+  .inputValidator((raw: unknown) => z.object({ contact_id: z.string().uuid() }).parse(raw))
   .handler(async ({ data, context }) => {
     const { data: contact, error: cErr } = await context.supabase
       .from("contacts")
@@ -169,7 +173,10 @@ export const logWhatsappSend = createServerFn({ method: "POST" })
       .object({
         contact_id: z.string().uuid(),
         invitation_id: z.string().uuid(),
-        to_phone: z.string().trim().regex(/^\+\d{10,15}$/),
+        to_phone: z
+          .string()
+          .trim()
+          .regex(/^\+\d{10,15}$/),
         body: z.string().trim().min(1).max(2000),
       })
       .parse(raw),
@@ -197,18 +204,13 @@ export const logWhatsappSend = createServerFn({ method: "POST" })
       invite.clinic_id !== contact.clinic_id ||
       invite.contact_id !== data.contact_id
     ) {
-      throw accessDeniedError(
-        "Este convite não pertence ao contato e ao consultório informados.",
-      );
+      throw accessDeniedError("Este convite não pertence ao contato e ao consultório informados.");
     }
 
     // O destino tem de ser o telefone cadastrado para o contato.
     if (contact.phone_e164 && contact.phone_e164 !== data.to_phone) {
-      throw accessDeniedError(
-        "O número informado não é o telefone cadastrado deste contato.",
-      );
+      throw accessDeniedError("O número informado não é o telefone cadastrado deste contato.");
     }
-
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { error } = await supabaseAdmin.from("whatsapp_messages").insert({
@@ -268,15 +270,11 @@ export const listWhatsappMessages = createServerFn({ method: "GET" })
  */
 export const resendAssessmentInvite = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((raw: unknown) =>
-    z.object({ assessment_id: z.string().uuid() }).parse(raw),
-  )
+  .inputValidator((raw: unknown) => z.object({ assessment_id: z.string().uuid() }).parse(raw))
   .handler(async ({ data, context }) => {
     const { data: a, error: aErr } = await context.supabase
       .from("assessments")
-      .select(
-        "id, clinic_id, contact_id, respondent_name, respondent_phone, clinics(name, slug)",
-      )
+      .select("id, clinic_id, contact_id, respondent_name, respondent_phone, clinics(name, slug)")
       .eq("id", data.assessment_id)
       .maybeSingle();
     if (aErr || !a) throw new Error("Triagem não encontrada.");
@@ -295,13 +293,9 @@ export const resendAssessmentInvite = createServerFn({ method: "POST" })
     }
     const { toE164BR } = await import("@/lib/phone");
     const e164 = phone ? toE164BR(phone) : null;
-    if (!e164)
-      throw new Error(
-        "Esta triagem não tem um telefone válido para envio por WhatsApp.",
-      );
+    if (!e164) throw new Error("Esta triagem não tem um telefone válido para envio por WhatsApp.");
 
-    const clinic = (a as unknown as { clinics: { name: string; slug: string } | null })
-      .clinics;
+    const clinic = (a as unknown as { clinics: { name: string; slug: string } | null }).clinics;
     const token = crypto.randomUUID().replace(/-/g, "");
     const expires = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString();
     const resentAt = new Date().toISOString();

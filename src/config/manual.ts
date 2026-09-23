@@ -23,8 +23,7 @@ export const MANUAL_SECTIONS: ManualSection[] = [
   {
     id: "visao-geral",
     title: "1. Visão geral do sistema",
-    summary:
-      "O que a pré-triagem faz, o que ela não faz e como se encaixa na primeira consulta.",
+    summary: "O que a pré-triagem faz, o que ela não faz e como se encaixa na primeira consulta.",
     blocks: [
       {
         kind: "p",
@@ -113,7 +112,11 @@ export const MANUAL_SECTIONS: ManualSection[] = [
           ["ASQ", "Risco de suicídio", "Qualquer indício de ideação, em todas as faixas"],
           ["GDS-15", "Depressão no idoso", "60 anos ou mais com queixa de humor"],
           ["AUDIT / CAGE", "Álcool", "Queixa ou uso relatado de álcool"],
-          ["ASSIST-Lite", "Substâncias (7 classes)", "Ramificação por substância (OMS); AUDIT após álcool ≥ 2; FTND após tabaco; PHQ-2 em alto risco"],
+          [
+            "ASSIST-Lite",
+            "Substâncias (7 classes)",
+            "Ramificação por substância (OMS); AUDIT após álcool ≥ 2; FTND após tabaco; PHQ-2 em alto risco",
+          ],
           ["PGSI", "Jogo/apostas", "Queixa de apostas, bets ou jogos"],
           ["OCI-R", "Obsessivo-compulsivo", "Queixa obsessiva, 14+ anos"],
           ["ASRS-18", "TDAH", "Queixa de desatenção/impulsividade em adultos"],
@@ -237,7 +240,10 @@ export const MANUAL_SECTIONS: ManualSection[] = [
           ["Paciente não recebeu o link", "Reenvie por WhatsApp na tela de Contatos ou na triagem"],
           ["Link expirado", "Convites valem 30 dias; gere um novo convite"],
           ["E-mail não chegou", "Verifique o status na aba E-mails e use “Reenviar”"],
-          ["Triagem incompleta", "O paciente pode reabrir o link enquanto o convite estiver válido"],
+          [
+            "Triagem incompleta",
+            "O paciente pode reabrir o link enquanto o convite estiver válido",
+          ],
           ["Esqueci a senha", "Use “Esqueci minha senha” na tela de acesso"],
         ],
       },
@@ -430,8 +436,7 @@ export const ROADMAP: RoadmapPhase[] = [
       {
         title: "Manual online e em PDF",
         status: "pronto",
-        detail:
-          "Central de ajuda no painel com download em PDF para distribuição interna.",
+        detail: "Central de ajuda no painel com download em PDF para distribuição interna.",
       },
       {
         title: "Protocolo e simulador de roteamento",
@@ -485,8 +490,7 @@ export const ROADMAP: RoadmapPhase[] = [
       {
         title: "Encaminhamento estruturado",
         status: "ideia",
-        detail:
-          "Sugestão de fluxo (psicoterapia, psiquiatria, urgência) e registro do desfecho.",
+        detail: "Sugestão de fluxo (psicoterapia, psiquiatria, urgência) e registro do desfecho.",
         value: "Permite medir se a triagem melhorou o encaminhamento.",
       },
       {

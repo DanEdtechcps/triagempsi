@@ -25,8 +25,7 @@ export function ParecerMedico({ assessmentId }: { assessmentId: string }) {
       setErro(null);
       void qc.invalidateQueries({ queryKey: ["assessment-notes", assessmentId] });
     },
-    onError: (e) =>
-      setErro(e instanceof Error ? e.message : "Não foi possível salvar o parecer."),
+    onError: (e) => setErro(e instanceof Error ? e.message : "Não foi possível salvar o parecer."),
   });
 
   const tooShort = body.trim().length < 3;
@@ -35,8 +34,8 @@ export function ParecerMedico({ assessmentId }: { assessmentId: string }) {
     <Card className="p-4 sm:p-5">
       <h2 className="font-serif text-lg font-semibold">Parecer do médico</h2>
       <p className="mt-1 text-sm text-muted-foreground">
-        Registre sua avaliação clínica. Cada parecer fica no histórico com autor e
-        data, e a ação é registrada na auditoria.
+        Registre sua avaliação clínica. Cada parecer fica no histórico com autor e data, e a ação é
+        registrada na auditoria.
       </p>
 
       <div className="mt-4 print:hidden">
@@ -48,14 +47,8 @@ export function ParecerMedico({ assessmentId }: { assessmentId: string }) {
           aria-label="Parecer do médico"
         />
         <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
-          <span className="text-xs text-muted-foreground">
-            {body.trim().length}/5000
-          </span>
-          <Button
-            size="sm"
-            disabled={tooShort || salvar.isPending}
-            onClick={() => salvar.mutate()}
-          >
+          <span className="text-xs text-muted-foreground">{body.trim().length}/5000</span>
+          <Button size="sm" disabled={tooShort || salvar.isPending} onClick={() => salvar.mutate()}>
             {salvar.isPending ? "Salvando…" : "Salvar parecer"}
           </Button>
         </div>
@@ -76,9 +69,7 @@ export function ParecerMedico({ assessmentId }: { assessmentId: string }) {
               <span>{n.author_email ?? "Profissional"}</span>
               <span>{new Date(n.created_at).toLocaleString("pt-BR")}</span>
             </div>
-            <p className="mt-2 whitespace-pre-line text-sm text-foreground/90">
-              {n.body}
-            </p>
+            <p className="mt-2 whitespace-pre-line text-sm text-foreground/90">{n.body}</p>
           </div>
         ))}
       </div>

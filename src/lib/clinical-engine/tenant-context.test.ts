@@ -63,9 +63,9 @@ describe("Clinical Engine — Isolamento Multi-Tenant (Cal.com Pattern)", () => 
     });
 
     it("rejeita contexto com clinic_id vazio fornecido", () => {
-      expect(() =>
-        resolveTenantContext("clinica-alpha", { clinic_id: "   " }),
-      ).toThrow(TenantResolutionError);
+      expect(() => resolveTenantContext("clinica-alpha", { clinic_id: "   " })).toThrow(
+        TenantResolutionError,
+      );
     });
   });
 
@@ -76,15 +76,13 @@ describe("Clinical Engine — Isolamento Multi-Tenant (Cal.com Pattern)", () => 
     });
 
     it("permite acesso quando o targetClinicId coincide com o tenant ativo", () => {
-      expect(() =>
-        assertTenantBoundary(activeContext, "clinic-uuid-aaaa"),
-      ).not.toThrow();
+      expect(() => assertTenantBoundary(activeContext, "clinic-uuid-aaaa")).not.toThrow();
     });
 
     it("bloqueia e lança TenantBoundaryViolationError se targetClinicId for de outro tenant", () => {
-      expect(() =>
-        assertTenantBoundary(activeContext, "clinic-uuid-bbbb"),
-      ).toThrow(TenantBoundaryViolationError);
+      expect(() => assertTenantBoundary(activeContext, "clinic-uuid-bbbb")).toThrow(
+        TenantBoundaryViolationError,
+      );
     });
 
     it("bloqueia operação se o contexto for nulo ou incompleto", () => {
@@ -114,9 +112,9 @@ describe("Clinical Engine — Isolamento Multi-Tenant (Cal.com Pattern)", () => 
         clinic_id: "clinic-malicious-999", // Tentativa de salvar na clínica alheia
       };
 
-      expect(() =>
-        bindTenantToAssessmentPayload(hostilePayload, validContext),
-      ).toThrow(TenantBoundaryViolationError);
+      expect(() => bindTenantToAssessmentPayload(hostilePayload, validContext)).toThrow(
+        TenantBoundaryViolationError,
+      );
     });
 
     it("bloqueia payload com clinic_slug conflitante com o contexto ativo", () => {
@@ -125,17 +123,14 @@ describe("Clinical Engine — Isolamento Multi-Tenant (Cal.com Pattern)", () => 
         clinic_slug: "outra-clinica-alheia",
       };
 
-      expect(() =>
-        bindTenantToAssessmentPayload(mismatchedPayload, validContext),
-      ).toThrow(TenantResolutionError);
+      expect(() => bindTenantToAssessmentPayload(mismatchedPayload, validContext)).toThrow(
+        TenantResolutionError,
+      );
     });
 
     it("rejeita a finalização do payload se o contexto de clínica for ausente", () => {
       expect(() =>
-        bindTenantToAssessmentPayload(
-          mockBasePayload,
-          null as unknown as TenantContext,
-        ),
+        bindTenantToAssessmentPayload(mockBasePayload, null as unknown as TenantContext),
       ).toThrow(MissingTenantContextError);
     });
   });

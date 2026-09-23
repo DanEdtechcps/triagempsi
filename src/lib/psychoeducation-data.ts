@@ -25,7 +25,8 @@ export const OFFICIAL_PSYCHOEDUCATION_TOPICS: PsychoTopicDefinition[] = [
     slug: "depressao-humor",
     title: "Depressão e humor baixo",
     short_title: "Humor e Depressão",
-    description: "Compreensão do humor deprimido, ativação comportamental e acolhimento sem julgamento.",
+    description:
+      "Compreensão do humor deprimido, ativação comportamental e acolhimento sem julgamento.",
     icon: "Sun",
     sort_order: 1,
     tags: ["#TCC", "#AtivacaoComportamental", "#Humor"],
@@ -73,7 +74,8 @@ A ansiedade excessiva mantém o organismo em estado contínuo de alerta contra p
     slug: "crise-emocional",
     title: "Crise emocional e apoio prioritário",
     short_title: "Apoio Imediato e Crise",
-    description: "Acolhimento prioritário, desestigmatização do sofrimento extremo e canais 24h de emergência.",
+    description:
+      "Acolhimento prioritário, desestigmatização do sofrimento extremo e canais 24h de emergência.",
     icon: "HeartHandshake",
     sort_order: 3,
     tags: ["#CVV188", "#Seguranca", "#ApoioImediato"],
@@ -99,7 +101,8 @@ Existem intervenções seguras e eficazes. A sua vida tem valor e o acolhimento 
     slug: "insonia-sono",
     title: "Insônia e higiene do sono",
     short_title: "Sono e Recuperação",
-    description: "Regras de higiene do sono, regulação circadiana e cuidados especiais para todas as faixas etárias.",
+    description:
+      "Regras de higiene do sono, regulação circadiana e cuidados especiais para todas as faixas etárias.",
     icon: "Moon",
     sort_order: 4,
     tags: ["#TCC-I", "#HigieneDoSono", "#RitmoCircadiano"],
@@ -123,7 +126,8 @@ A insônia frequentemente se perpetua através de associações condicionadas de
     slug: "tdah-adultos",
     title: "TDAH em adultos (atenção e organização)",
     short_title: "TDAH em Adultos",
-    description: "Mecanismos executivos, desorganização crônica, estratégias práticas de rotina e externalização mental.",
+    description:
+      "Mecanismos executivos, desorganização crônica, estratégias práticas de rotina e externalização mental.",
     icon: "BrainCircuit",
     sort_order: 5,
     tags: ["#TDAH", "#FuncoesExecutivas", "#Organizacao"],
@@ -146,7 +150,8 @@ O Transtorno de Déficit de Atenção/Hiperatividade em adultos se manifesta pri
     slug: "oscilacoes-humor",
     title: "Oscilações de humor (espectro bipolar)",
     short_title: "Estabilidade do Humor",
-    description: "Diferença entre reações normais e períodos de ativação intensa; relevância de diagnóstico cuidadoso.",
+    description:
+      "Diferença entre reações normais e períodos de ativação intensa; relevância de diagnóstico cuidadoso.",
     icon: "Activity",
     sort_order: 6,
     tags: ["#Bipolaridade", "#Estabilidade", "#RitmoBiologico"],
@@ -168,7 +173,8 @@ Variações emocionais fazem parte da existência humana. No entanto, quando sur
     slug: "alcool-substancias",
     title: "Álcool e substâncias",
     short_title: "Álcool e Substâncias",
-    description: "Abordagem humanizada, redução progressiva de danos e acolhimento em saúde sem julgamento moral.",
+    description:
+      "Abordagem humanizada, redução progressiva de danos e acolhimento em saúde sem julgamento moral.",
     icon: "Wine",
     sort_order: 7,
     tags: ["#ReducaoDeDanos", "#SaudeIntegral", "#CuidadoHumanizado"],
@@ -191,7 +197,8 @@ O consumo de álcool, tabaco ou outras substâncias frequentemente tem início c
     slug: "trauma-tept",
     title: "Trauma e estresse pós-traumático",
     short_title: "Trauma e Segurança",
-    description: "Processamento de eventos estressores graves, memórias intrusivas e caminhos de restabelecimento seguro.",
+    description:
+      "Processamento de eventos estressores graves, memórias intrusivas e caminhos de restabelecimento seguro.",
     icon: "ShieldCheck",
     sort_order: 8,
     tags: ["#TEPT", "#Seguranca", "#Resiliencia"],
@@ -216,7 +223,8 @@ A psicoterapia com técnicas de TCC focada em trauma, EMDR e cuidados médicos c
     slug: "burnout-esgotamento",
     title: "Burnout e esgotamento",
     short_title: "Esgotamento e Trabalho",
-    description: "Identificação do cansaço laboral crônico, despersonalização e reorganização saudável de limites.",
+    description:
+      "Identificação do cansaço laboral crônico, despersonalização e reorganização saudável de limites.",
     icon: "BatteryWarning",
     sort_order: 9,
     tags: ["#Burnout", "#SaudeNoTrabalho", "#Limites"],
@@ -241,7 +249,8 @@ O Burnout não é um simples cansaço passageiro; é uma resposta prolongada ao 
     slug: "bem-estar-prevencao",
     title: "Bem-estar e prevenção na vida e no envelhecimento",
     short_title: "Bem-estar e Longevidade",
-    description: "Hábitos protetores, manutenção de propósito, conexões afetivas e saúde mental na maturidade e velhice.",
+    description:
+      "Hábitos protetores, manutenção de propósito, conexões afetivas e saúde mental na maturidade e velhice.",
     icon: "Sparkles",
     sort_order: 10,
     tags: ["#Longevidade", "#EnvelhecimentoHumano", "#Prevencao"],

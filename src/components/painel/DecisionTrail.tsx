@@ -38,7 +38,6 @@ export function DecisionTrail({
     riskPathway,
   });
 
-
   return (
     <div className="space-y-5">
       <section className="rounded-lg border border-border bg-background p-4">
@@ -159,15 +158,11 @@ export function DecisionTrail({
               <li
                 key={`t-${i}`}
                 className={`rounded-md border p-3 text-sm ${
-                  r.risk
-                    ? "border-destructive/40 bg-destructive/5"
-                    : "border-border bg-muted/40"
+                  r.risk ? "border-destructive/40 bg-destructive/5" : "border-border bg-muted/40"
                 }`}
               >
                 <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                  <span className="text-xs font-semibold text-muted-foreground">
-                    Passo {i + 1}
-                  </span>
+                  <span className="text-xs font-semibold text-muted-foreground">Passo {i + 1}</span>
                   <span className="rounded bg-background px-2 py-0.5 text-[11px] uppercase tracking-wide text-muted-foreground">
                     {r.kind === "entrada" ? "Entrada" : "Escalonamento"}
                   </span>
@@ -187,10 +182,6 @@ export function DecisionTrail({
   );
 }
 
-
-
-
-
 function DecisionRow({ index, row }: { index: number; row: Row }) {
   return (
     <li
@@ -209,7 +200,6 @@ function DecisionRow({ index, row }: { index: number; row: Row }) {
       </div>
       <p className="mt-1 leading-relaxed text-foreground/90">{row.plain}</p>
       <p className="mt-1 text-xs text-muted-foreground">Regra técnica: {row.rule}</p>
-
     </li>
   );
 }

@@ -74,7 +74,7 @@ export function TenantProvider({
       activeSlug,
       setActiveClinicId,
     }),
-    [clinics, isGlobalAdmin, activeClinicId, activeClinic, activeSlug]
+    [clinics, isGlobalAdmin, activeClinicId, activeClinic, activeSlug],
   );
 
   return <TenantContext.Provider value={value}>{children}</TenantContext.Provider>;

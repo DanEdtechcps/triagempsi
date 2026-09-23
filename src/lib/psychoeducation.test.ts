@@ -94,9 +94,7 @@ describe("Módulo de Psicoeducação - Motor de Triggers", () => {
   });
 
   it("respeita overrides e desativação por clínica", () => {
-    const results = [
-      { scale_code: "ISI", score: 20, band_level: 3 },
-    ];
+    const results = [{ scale_code: "ISI", score: 20, band_level: 3 }];
     const recsDisabled = evaluatePsychoeducationTriggers(results, {
       clinicOverrides: {
         "insonia-sono": { is_enabled: false, auto_trigger: false },
@@ -106,9 +104,7 @@ describe("Módulo de Psicoeducação - Motor de Triggers", () => {
   });
 
   it("permite liberação manual com prioridade 0", () => {
-    const results = [
-      { scale_code: "PHQ-9", score: 2, band_level: 0, answers: { "9": 0 } },
-    ];
+    const results = [{ scale_code: "PHQ-9", score: 2, band_level: 0, answers: { "9": 0 } }];
     const recs = evaluatePsychoeducationTriggers(results, {
       manualSlugs: ["tdah-adultos"],
     });
@@ -129,18 +125,14 @@ describe("Módulo de Plano de Segurança Estruturado (Feature A)", () => {
 
   it("dispara isSafetyPlanTriggered para PHQ-9 item 9 >= 1", () => {
     const triggered = isSafetyPlanTriggered({
-      scaleResults: [
-        { scale_code: "PHQ-9", score: 14, answers: { "9": 1 } },
-      ],
+      scaleResults: [{ scale_code: "PHQ-9", score: 14, answers: { "9": 1 } }],
     });
     expect(triggered).toBe(true);
   });
 
   it("dispara isSafetyPlanTriggered para C-SSRS positivo", () => {
     const triggered = isSafetyPlanTriggered({
-      scaleResults: [
-        { scale_code: "C-SSRS", score: 3, risk: true },
-      ],
+      scaleResults: [{ scale_code: "C-SSRS", score: 3, risk: true }],
     });
     expect(triggered).toBe(true);
   });
@@ -233,9 +225,7 @@ describe("Apoio à Decisão Clínica do Médico (Decision Support - Feature B)",
   });
 
   it("Caso 7: Burnout (MBI-HSS ou PSS-10) orienta reorganização de limites e possível afastamento", () => {
-    const cds = getClinicalDecisionSupport([
-      { scale_code: "MBI-HSS", score: 32 },
-    ]);
+    const cds = getClinicalDecisionSupport([{ scale_code: "MBI-HSS", score: 32 }]);
     const burn = cds.find((c) => c.id === "burnout-trabalho");
     expect(burn).toBeDefined();
     expect(burn?.clinical_guidance).toContain("exaustão");

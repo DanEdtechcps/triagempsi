@@ -52,9 +52,9 @@ describe("OpenMAIC Simulation Engine", () => {
       { id: "a1", role: "preceptor", display_name: "Dr. Preceptor", system_prompt: "..." },
     ];
 
-    expect(() =>
-      createSimulationContext(scenario, incompleteAgents, "clinic-saraiva-01"),
-    ).toThrow(/Agentes obrigatórios ausentes/);
+    expect(() => createSimulationContext(scenario, incompleteAgents, "clinic-saraiva-01")).toThrow(
+      /Agentes obrigatórios ausentes/,
+    );
   });
 
   it("executa turnos e aplica regras éticas (bloqueio de CPF/PII)", () => {

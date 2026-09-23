@@ -11,15 +11,15 @@
 
 export type AgentRole =
   // Fluxo Clínico
-  | "preceptor"      // Médico preceptor — dirige a discussão de caso
-  | "specialist"     // Especialista convidado (ex: psiquiatra, clínico geral)
-  | "resident"       // Residente / aluno em formação
-  | "patient"        // Simulacro de paciente (anamnese, história clínica)
+  | "preceptor" // Médico preceptor — dirige a discussão de caso
+  | "specialist" // Especialista convidado (ex: psiquiatra, clínico geral)
+  | "resident" // Residente / aluno em formação
+  | "patient" // Simulacro de paciente (anamnese, história clínica)
   // Fluxo de Redução de Danos
-  | "counselor"      // Conselheiro / redutor de danos
-  | "supervisor"     // Supervisor da equipe SUS/SUAS
-  | "street_person"  // Persona de pessoa em situação de rua / uso de substâncias
-  | "observer";      // Observador silencioso (avaliação formativa)
+  | "counselor" // Conselheiro / redutor de danos
+  | "supervisor" // Supervisor da equipe SUS/SUAS
+  | "street_person" // Persona de pessoa em situação de rua / uso de substâncias
+  | "observer"; // Observador silencioso (avaliação formativa)
 
 export type SimulationFlow = "CLINICAL_CASE" | "HARM_REDUCTION";
 
@@ -57,7 +57,7 @@ export interface SimulationTurn {
   timestamp: string;
   /** Metadados de avaliação formativa (preenchido pelo observer) */
   evaluation?: {
-    score: number;       // 0–10
+    score: number; // 0–10
     feedback: string;
     competencies: string[];
   };

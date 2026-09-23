@@ -9,7 +9,6 @@ import { BRANDING } from "@/config/branding";
 import { validateNewPassword, MIN_PASSWORD_LENGTH } from "@/lib/password";
 import { PasswordStrengthMeter } from "@/components/PasswordStrengthMeter";
 
-
 export const Route = createFileRoute("/reset-password")({
   ssr: false,
   head: () => ({
@@ -17,8 +16,7 @@ export const Route = createFileRoute("/reset-password")({
       { title: "Definir nova senha — Acesso do profissional" },
       {
         name: "description",
-        content:
-          "Defina uma nova senha para acessar o painel de pré-triagens da clínica.",
+        content: "Defina uma nova senha para acessar o painel de pré-triagens da clínica.",
       },
       { property: "og:title", content: "Definir nova senha" },
       { property: "og:description", content: "Área restrita da equipe clínica." },
@@ -49,8 +47,7 @@ function readLinkError(): LinkProblem {
   }
   return {
     title: "Link inválido ou já utilizado.",
-    detail:
-      "Cada link de redefinição funciona apenas uma vez. Solicite um novo e-mail abaixo.",
+    detail: "Cada link de redefinição funciona apenas uma vez. Solicite um novo e-mail abaixo.",
   };
 }
 
@@ -102,10 +99,7 @@ function ResetPasswordPage() {
       if (error) throw error;
       setOk(true);
       // Equipe vai ao painel; paciente vai ao portal.
-      const { data: roles } = await supabase
-        .from("user_roles")
-        .select("id")
-        .limit(1);
+      const { data: roles } = await supabase.from("user_roles").select("id").limit(1);
       const destino = roles && roles.length > 0 ? "/painel" : "/portal";
       setTimeout(() => navigate({ to: destino, replace: true }), 1500);
     } catch (err) {
@@ -153,16 +147,12 @@ function ResetPasswordPage() {
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4 py-10">
       <Card className="w-full max-w-md border-border bg-card p-6 sm:p-8">
-        <h1 className="font-serif text-2xl font-semibold text-foreground">
-          Definir nova senha
-        </h1>
+        <h1 className="font-serif text-2xl font-semibold text-foreground">Definir nova senha</h1>
         <p className="mt-2 text-sm text-muted-foreground">
           {BRANDING.clinicName} — escolha uma senha com pelo menos 8 caracteres.
         </p>
 
-        {!ready && (
-          <p className="mt-6 text-sm text-muted-foreground">Verificando o link…</p>
-        )}
+        {!ready && <p className="mt-6 text-sm text-muted-foreground">Verificando o link…</p>}
 
         {blocked && !ok && (
           <div className="mt-6 space-y-4">
@@ -189,9 +179,7 @@ function ResetPasswordPage() {
                   className="text-base"
                 />
               </div>
-              {resendMsg && (
-                <p className="text-sm text-muted-foreground">{resendMsg}</p>
-              )}
+              {resendMsg && <p className="text-sm text-muted-foreground">{resendMsg}</p>}
               <Button type="submit" disabled={resending} className="w-full">
                 {resending ? "Enviando…" : "Enviar novo link"}
               </Button>
@@ -204,8 +192,6 @@ function ResetPasswordPage() {
             </Link>
           </div>
         )}
-
-
 
         {ready && hasSession && !linkError && !ok && (
           <form onSubmit={handleSubmit} className="mt-6 space-y-4">
@@ -238,9 +224,7 @@ function ResetPasswordPage() {
                 className="text-base"
               />
               {confirm && confirm !== password && (
-                <p className="mt-1 text-xs text-destructive">
-                  As senhas não coincidem.
-                </p>
+                <p className="mt-1 text-xs text-destructive">As senhas não coincidem.</p>
               )}
             </div>
 

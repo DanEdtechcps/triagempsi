@@ -91,9 +91,7 @@ function EntrarPage() {
         redirectTo: window.location.origin + "/reset-password",
       });
       if (error) throw error;
-      setInfo(
-        "Se este e-mail estiver cadastrado, enviamos um link para criar uma nova senha.",
-      );
+      setInfo("Se este e-mail estiver cadastrado, enviamos um link para criar uma nova senha.");
     } catch {
       setMsg("Não foi possível enviar o link agora. Tente em instantes.");
     } finally {
@@ -116,13 +114,10 @@ function EntrarPage() {
           <p className="text-xs font-semibold uppercase tracking-widest text-primary">
             Portal do Paciente
           </p>
-          <h1 className="mt-2 font-serif text-2xl font-semibold text-foreground">
-            Entrada rápida
-          </h1>
+          <h1 className="mt-2 font-serif text-2xl font-semibold text-foreground">Entrada rápida</h1>
           <p className="mt-2 text-sm text-muted-foreground">
-            Entre com o <strong className="text-foreground">mesmo e-mail</strong>{" "}
-            que você informou ao responder a pré-avaliação para ver o resumo
-            básico dos seus resultados.
+            Entre com o <strong className="text-foreground">mesmo e-mail</strong> que você informou
+            ao responder a pré-avaliação para ver o resumo básico dos seus resultados.
           </p>
 
           <form onSubmit={handleSubmit} className="mt-6 space-y-4">
@@ -177,10 +172,7 @@ function EntrarPage() {
 
           <p className="mt-6 border-t border-border pt-4 text-center text-xs text-muted-foreground">
             É da equipe clínica?{" "}
-            <Link
-              to="/auth"
-              className="text-primary underline-offset-4 hover:underline"
-            >
+            <Link to="/auth" className="text-primary underline-offset-4 hover:underline">
               Acesse o painel do profissional
             </Link>
           </p>

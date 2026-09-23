@@ -42,9 +42,7 @@ export function loadReviewed(): string[] {
 
 export function toggleReviewed(id: string): string[] {
   const atual = loadReviewed();
-  const próximo = atual.includes(id)
-    ? atual.filter((x) => x !== id)
-    : [...atual, id];
+  const próximo = atual.includes(id) ? atual.filter((x) => x !== id) : [...atual, id];
   try {
     sessionStorage.setItem(DONE_KEY, JSON.stringify(próximo));
   } catch {

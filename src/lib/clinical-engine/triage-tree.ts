@@ -184,8 +184,7 @@ export const ROUTING_RULES: RoutingRule[] = [
     noteByBand: {
       crianca:
         "Sintomas obsessivo-compulsivos em menores de 12 anos — avaliar na consulta com o responsável",
-      adolescente:
-        "Sintomas obsessivo-compulsivos — confirmar com entrevista clínica na consulta",
+      adolescente: "Sintomas obsessivo-compulsivos — confirmar com entrevista clínica na consulta",
     },
   },
   {
@@ -237,8 +236,7 @@ export const ROUTING_RULES: RoutingRule[] = [
       idoso: ["MDQ"],
     },
     noteByBand: {
-      crianca:
-        "Oscilação de humor em menores de 12 anos — avaliar na consulta com o responsável",
+      crianca: "Oscilação de humor em menores de 12 anos — avaliar na consulta com o responsável",
     },
   },
   {
@@ -291,7 +289,8 @@ export const ROUTING_RULES: RoutingRule[] = [
     },
     noteByBand: {
       crianca: "Sinais de TEA na infância — avaliar marcos de desenvolvimento com o responsável",
-      adolescente: "Sinais de TEA em adolescentes — avaliar trajetória de desenvolvimento na consulta",
+      adolescente:
+        "Sinais de TEA em adolescentes — avaliar trajetória de desenvolvimento na consulta",
     },
   },
   {
@@ -312,7 +311,8 @@ export const ROUTING_RULES: RoutingRule[] = [
       idoso: ["AD-8"],
     },
     noteByBand: {
-      crianca: "Dificuldades de memória/aprendizagem na infância — investigar histórico escolar e neurodesenvolvimento",
+      crianca:
+        "Dificuldades de memória/aprendizagem na infância — investigar histórico escolar e neurodesenvolvimento",
       adolescente: "Queixas cognitivas em adolescentes — investigar sono, sobrecarga e atenção",
     },
   },
@@ -421,15 +421,13 @@ export const ESCALATION_RULES: EscalationRule[] = [
     from: "ASSIST",
     when: (r) => subscore(r, "ASSIST_ALCOOL") >= 2,
     add: ["AUDIT"],
-    reason:
-      "ASSIST-Lite: álcool em risco moderado/alto (≥ 2) — aplicar AUDIT completo",
+    reason: "ASSIST-Lite: álcool em risco moderado/alto (≥ 2) — aplicar AUDIT completo",
   },
   {
     from: "ASSIST",
     when: (r) => (r.subscores ?? []).some((s) => s.band_level >= 4),
     add: ["PHQ-2"],
-    reason:
-      "ASSIST-Lite: alto risco em ao menos uma substância — rastrear comorbidade depressiva",
+    reason: "ASSIST-Lite: alto risco em ao menos uma substância — rastrear comorbidade depressiva",
   },
   // Jogo problemático
   {
@@ -491,8 +489,7 @@ export const ESCALATION_RULES: EscalationRule[] = [
     from: "FTND",
     when: (r) => r.score >= 6,
     add: ["PHQ-2"],
-    reason:
-      "Dependência de nicotina elevada — rastrear humor (impacta prognóstico de cessação)",
+    reason: "Dependência de nicotina elevada — rastrear humor (impacta prognóstico de cessação)",
   },
   // Perinatal
   {
@@ -611,9 +608,7 @@ function classify(
       indicated: {
         code,
         name: scale.fullName,
-        reason:
-          scale.licenseNote ??
-          `${reason} — instrumento indicado, aplicação na consulta`,
+        reason: scale.licenseNote ?? `${reason} — instrumento indicado, aplicação na consulta`,
       },
     };
   }
@@ -652,10 +647,12 @@ export function isMaleSex(sex: string | null | undefined): boolean {
  * Avalia se o paciente é do sexo masculino considerando tanto o campo de sexo/gênero
  * quanto pronomes declarados (ex: "Ele / Dele").
  */
-export function isMalePatient(respondent?: {
-  respondent_sex?: string | null;
-  pronouns?: string | null;
-} | null): boolean {
+export function isMalePatient(
+  respondent?: {
+    respondent_sex?: string | null;
+    pronouns?: string | null;
+  } | null,
+): boolean {
   if (!respondent) return false;
   if (isMaleSex(respondent.respondent_sex)) return true;
   if (
@@ -683,9 +680,7 @@ export function buildTriagePlan(
   const isMale = isMaleSex(sex);
 
   // Se o paciente for masculino, qualquer queixa perinatal é expurgada na entrada
-  const effectiveSymptoms = isMale
-    ? symptoms.filter((s) => s !== "perinatal")
-    : symptoms;
+  const effectiveSymptoms = isMale ? symptoms.filter((s) => s !== "perinatal") : symptoms;
 
   if (isMale && symptoms.includes("perinatal")) {
     decisions.push({
@@ -700,7 +695,8 @@ export function buildTriagePlan(
 
   for (const rule of ROUTING_RULES) {
     if (!effectiveSymptoms.includes(rule.symptom)) continue;
-    if (rule.riskPathway) decisions.push({ step: rule.symptom, reason: "Via de risco ativada pelo sintoma relatado" });
+    if (rule.riskPathway)
+      decisions.push({ step: rule.symptom, reason: "Via de risco ativada pelo sintoma relatado" });
 
     const codes = rule.byBand[band] ?? [];
     for (const code of codes) {

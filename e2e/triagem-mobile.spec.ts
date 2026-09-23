@@ -4,7 +4,7 @@ import { test, expect, type Page } from "@playwright/test";
  * Testes de Validação e Responsividade para Dispositivos Móveis
  * - iPhone SE / Android Compacto (375 x 667)
  * - iPhone 14 / Telas Padrão (390 x 844)
- * 
+ *
  * Verifica:
  * 1. Zero overflow horizontal (document.documentElement.scrollWidth <= window.innerWidth)
  * 2. Touch targets adequados (mínimo 44px / 48px)
@@ -41,13 +41,15 @@ test.describe("Validação em Dispositivos Móveis (Mobile UX & Responsividade)"
     hasTouch: true,
   });
 
-  test("Jornada do paciente sem overflow horizontal e com touch targets adequados", async ({ page }) => {
+  test("Jornada do paciente sem overflow horizontal e com touch targets adequados", async ({
+    page,
+  }) => {
     await mockSubmit(page);
     await page.addInitScript(() => window.localStorage.clear());
 
     // 1. Tela 1 — Boas-Vindas
     await page.goto("/saraiva/triagem", { waitUntil: "networkidle" });
-    
+
     // Verifica ausência de scroll horizontal (viewport containment)
     const isContainedScreen1 = await page.evaluate(() => {
       return document.documentElement.scrollWidth <= window.innerWidth;
@@ -69,7 +71,7 @@ test.describe("Validação em Dispositivos Móveis (Mobile UX & Responsividade)"
 
     // 2. Tela 2 — Dados Básicos
     await expect(page.getByRole("heading", { name: "Seus dados" })).toBeVisible();
-    
+
     const isContainedScreen2 = await page.evaluate(() => {
       return document.documentElement.scrollWidth <= window.innerWidth;
     });
@@ -90,7 +92,7 @@ test.describe("Validação em Dispositivos Móveis (Mobile UX & Responsividade)"
 
     // 3. Tela 3 — Sintomas
     await expect(page.getByRole("heading", { name: /Nas últimas semanas/i })).toBeVisible();
-    
+
     const isContainedScreen3 = await page.evaluate(() => {
       return document.documentElement.scrollWidth <= window.innerWidth;
     });
@@ -126,7 +128,9 @@ test.describe("Validação em Dispositivos Móveis (Mobile UX & Responsividade)"
           expect(box.height).toBeGreaterThanOrEqual(44);
         }
         await optionButtons.first().click();
-        await expect(header).not.toHaveText(text, { timeout: 4000 }).catch(() => {});
+        await expect(header)
+          .not.toHaveText(text, { timeout: 4000 })
+          .catch(() => {});
         await page.waitForTimeout(100);
       } else {
         break;
@@ -135,7 +139,7 @@ test.describe("Validação em Dispositivos Móveis (Mobile UX & Responsividade)"
 
     // 5. Conclusão
     await expect(
-      page.getByRole("heading", { name: /(Pré-avaliação concluída|Você não precisa passar)/i })
+      page.getByRole("heading", { name: /(Pré-avaliação concluída|Você não precisa passar)/i }),
     ).toBeVisible({ timeout: 15_000 });
 
     const isContainedFinal = await page.evaluate(() => {
@@ -147,7 +151,9 @@ test.describe("Validação em Dispositivos Móveis (Mobile UX & Responsividade)"
     await expect(page.getByRole("button", { name: /Baixar meu resumo em PDF/i })).toBeVisible();
 
     // Seção de Psicoeducação com cartões expansíveis
-    const psicoHeading = page.getByRole("heading", { name: /Orientações e Práticas de Cuidado Recomendadas/i });
+    const psicoHeading = page.getByRole("heading", {
+      name: /Orientações e Práticas de Cuidado Recomendadas/i,
+    });
     if (await psicoHeading.isVisible()) {
       const lerMaisBtn = page.getByRole("button", { name: /Ler orientações completas/i }).first();
       if (await lerMaisBtn.isVisible()) {
@@ -157,12 +163,14 @@ test.describe("Validação em Dispositivos Móveis (Mobile UX & Responsividade)"
     }
   });
 
-  test("Links de emergência são válidos para discagem móvel nativa (tel:188 e tel:192)", async ({ page }) => {
+  test("Links de emergência são válidos para discagem móvel nativa (tel:188 e tel:192)", async ({
+    page,
+  }) => {
     await mockSubmit(page);
     await page.addInitScript(() => window.localStorage.clear());
 
     await page.goto("/saraiva/triagem", { waitUntil: "networkidle" });
-    
+
     // Início
     const consent = page.getByRole("checkbox");
     const consentLabel = page.locator("label").filter({ has: consent });
@@ -181,7 +189,9 @@ test.describe("Validação em Dispositivos Móveis (Mobile UX & Responsividade)"
 
     // Na tela de acolhimento de risco (imediata)
     await expect(
-      page.getByRole("heading", { name: /(Você não precisa passar por isso sozinho|Você não está sozinho)/i })
+      page.getByRole("heading", {
+        name: /(Você não precisa passar por isso sozinho|Você não está sozinho)/i,
+      }),
     ).toBeVisible({ timeout: 10_000 });
 
     const cvvLink = page.locator('a[href="tel:188"]').first();

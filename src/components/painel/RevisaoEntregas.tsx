@@ -1,11 +1,7 @@
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import {
-  PENDING_DELIVERIES,
-  formatDeliveryDate,
-  type Delivery,
-} from "@/config/deliveries";
+import { PENDING_DELIVERIES, formatDeliveryDate, type Delivery } from "@/config/deliveries";
 
 function approvalText(d: Delivery) {
   return `Aprovar a entrega "${d.title}" (${formatDeliveryDate(d.date)}) para o roadmap.`;
@@ -28,8 +24,8 @@ export function RevisaoEntregas() {
       <Card className="space-y-1 p-4 sm:p-6">
         <h2 className="font-serif text-lg font-semibold">Revisão de entregas</h2>
         <p className="text-sm text-muted-foreground">
-          Nenhuma entrega aguardando aprovação. Toda nova entrega entra primeiro nesta
-          fila e só é fixada no roadmap e no changelog depois da sua validação.
+          Nenhuma entrega aguardando aprovação. Toda nova entrega entra primeiro nesta fila e só é
+          fixada no roadmap e no changelog depois da sua validação.
         </p>
       </Card>
     );
@@ -52,8 +48,8 @@ export function RevisaoEntregas() {
           Aguardando sua aprovação ({PENDING_DELIVERIES.length})
         </h2>
         <p className="text-sm text-muted-foreground">
-          Revise descrição, área, versão e impacto. Enquanto estiver pendente, a entrega
-          não aparece no roadmap fixado nem no changelog.
+          Revise descrição, área, versão e impacto. Enquanto estiver pendente, a entrega não aparece
+          no roadmap fixado nem no changelog.
         </p>
       </div>
       <ul className="space-y-4">
@@ -83,9 +79,7 @@ export function RevisaoEntregas() {
               <p className="mt-1 text-sm text-muted-foreground">{d.detail}</p>
               {d.impact && <p className="mt-1 text-sm">Impacto: {d.impact}</p>}
               {d.review_note && (
-                <p className="mt-1 text-sm text-primary">
-                  Ajuste solicitado: {d.review_note}
-                </p>
+                <p className="mt-1 text-sm text-primary">Ajuste solicitado: {d.review_note}</p>
               )}
               <div className="mt-3 flex flex-wrap gap-2">
                 <Button size="sm" onClick={() => copy(`${key}-ok`, approvalText(d))}>
@@ -104,8 +98,8 @@ export function RevisaoEntregas() {
         })}
       </ul>
       <p className="text-xs text-muted-foreground">
-        Cole o texto copiado no chat do projeto para confirmar a aprovação ou descrever o
-        ajuste desejado.
+        Cole o texto copiado no chat do projeto para confirmar a aprovação ou descrever o ajuste
+        desejado.
       </p>
     </Card>
   );

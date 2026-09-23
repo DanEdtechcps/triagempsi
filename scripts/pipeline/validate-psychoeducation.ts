@@ -75,9 +75,7 @@ function validateTopic(topic: unknown, idx: number): string[] {
 
 const fileArg = process.argv.indexOf("--file");
 const filePath =
-  fileArg !== -1
-    ? process.argv[fileArg + 1]
-    : join(env.OUTPUT_DIR, "psychoeducation_topics.json");
+  fileArg !== -1 ? process.argv[fileArg + 1] : join(env.OUTPUT_DIR, "psychoeducation_topics.json");
 
 if (!existsSync(filePath)) {
   console.error(`❌ Arquivo não encontrado: ${filePath}`);

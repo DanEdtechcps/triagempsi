@@ -53,9 +53,24 @@ export const LUMINA_CLINICAL_CASES: SyntheticClinicalCase[] = [
     symptoms: ["atencao"],
     scale_answers: {
       "ASRS-18": {
-        "1": 3, "2": 3, "3": 3, "4": 2, "5": 3, "6": 2,
-        "7": 3, "8": 2, "9": 3, "10": 2, "11": 3, "12": 2,
-        "13": 2, "14": 2, "15": 2, "16": 3, "17": 2, "18": 2,
+        "1": 3,
+        "2": 3,
+        "3": 3,
+        "4": 2,
+        "5": 3,
+        "6": 2,
+        "7": 3,
+        "8": 2,
+        "9": 3,
+        "10": 2,
+        "11": 3,
+        "12": 2,
+        "13": 2,
+        "14": 2,
+        "15": 2,
+        "16": 3,
+        "17": 2,
+        "18": 2,
       },
     },
     item_telemetry: {
@@ -88,15 +103,35 @@ export const LUMINA_CLINICAL_CASES: SyntheticClinicalCase[] = [
     symptoms: ["perinatal", "tristeza", "morte"],
     scale_answers: {
       EPDS: {
-        "1": 2, "2": 2, "3": 3, "4": 2, "5": 2,
-        "6": 2, "7": 2, "8": 2, "9": 2, "10": 1, // Item 10 de autoagressão
+        "1": 2,
+        "2": 2,
+        "3": 3,
+        "4": 2,
+        "5": 2,
+        "6": 2,
+        "7": 2,
+        "8": 2,
+        "9": 2,
+        "10": 1, // Item 10 de autoagressão
       },
       "PHQ-9": {
-        "1": 3, "2": 3, "3": 2, "4": 2, "5": 2,
-        "6": 3, "7": 2, "8": 2, "9": 3, // Item 9 ideação suicida grave
+        "1": 3,
+        "2": 3,
+        "3": 2,
+        "4": 2,
+        "5": 2,
+        "6": 3,
+        "7": 2,
+        "8": 2,
+        "9": 3, // Item 9 ideação suicida grave
       },
       "C-SSRS": {
-        "1": 1, "2": 1, "3": 1, "4": 0, "5": 0, "6": 0,
+        "1": 1,
+        "2": 1,
+        "3": 1,
+        "4": 0,
+        "5": 0,
+        "6": 0,
       },
     },
     item_telemetry: {
@@ -140,8 +175,18 @@ export const LUMINA_CLINICAL_CASES: SyntheticClinicalCase[] = [
     symptoms: ["obsessivo"],
     scale_answers: {
       "OCI-R": {
-        "1": 3, "2": 3, "3": 2, "4": 3, "5": 2, "6": 3,
-        "7": 3, "8": 2, "9": 3, "10": 2, "11": 2, "12": 2,
+        "1": 3,
+        "2": 3,
+        "3": 2,
+        "4": 3,
+        "5": 2,
+        "6": 3,
+        "7": 3,
+        "8": 2,
+        "9": 3,
+        "10": 2,
+        "11": 2,
+        "12": 2,
       },
     },
     item_telemetry: {
@@ -174,10 +219,22 @@ export const LUMINA_CLINICAL_CASES: SyntheticClinicalCase[] = [
     symptoms: ["sono", "ansiedade"],
     scale_answers: {
       ISI: {
-        "1": 3, "2": 3, "3": 3, "4": 3, "5": 3, "6": 3, "7": 3,
+        "1": 3,
+        "2": 3,
+        "3": 3,
+        "4": 3,
+        "5": 3,
+        "6": 3,
+        "7": 3,
       },
       "GAD-7": {
-        "1": 2, "2": 2, "3": 2, "4": 2, "5": 2, "6": 2, "7": 2,
+        "1": 2,
+        "2": 2,
+        "3": 2,
+        "4": 2,
+        "5": 2,
+        "6": 2,
+        "7": 2,
       },
     },
     item_telemetry: {
@@ -212,10 +269,24 @@ export const LUMINA_CLINICAL_CASES: SyntheticClinicalCase[] = [
     symptoms: ["memoria", "tristeza"],
     scale_answers: {
       "AD-8": {
-        "1": 1, "2": 1, "3": 1, "4": 1, "5": 0, "6": 1, "7": 0, "8": 1,
+        "1": 1,
+        "2": 1,
+        "3": 1,
+        "4": 1,
+        "5": 0,
+        "6": 1,
+        "7": 0,
+        "8": 1,
       },
       "GDS-15": {
-        "1": 1, "2": 1, "3": 1, "4": 1, "5": 0, "6": 1, "7": 0, "8": 1,
+        "1": 1,
+        "2": 1,
+        "3": 1,
+        "4": 1,
+        "5": 0,
+        "6": 1,
+        "7": 0,
+        "8": 1,
       },
     },
     item_telemetry: {
@@ -281,10 +352,25 @@ export const LUMINA_CLINICAL_CASES: SyntheticClinicalCase[] = [
     symptoms: ["tristeza", "oscilacao"],
     scale_answers: {
       "PHQ-9": {
-        "1": 3, "2": 3, "3": 2, "4": 2, "5": 2, "6": 2, "7": 2, "8": 2, "9": 0,
+        "1": 3,
+        "2": 3,
+        "3": 2,
+        "4": 2,
+        "5": 2,
+        "6": 2,
+        "7": 2,
+        "8": 2,
+        "9": 0,
       },
       MDQ: {
-        "1": 1, "2": 1, "3": 1, "4": 1, "5": 1, "6": 1, "7": 1, "8": 1,
+        "1": 1,
+        "2": 1,
+        "3": 1,
+        "4": 1,
+        "5": 1,
+        "6": 1,
+        "7": 1,
+        "8": 1,
       },
     },
     item_telemetry: {
@@ -318,13 +404,21 @@ export const LUMINA_CLINICAL_CASES: SyntheticClinicalCase[] = [
     symptoms: ["trabalho"],
     scale_answers: {
       "MBI-HSS": {
-        "1": 5, "2": 5, "3": 4, "4": 5, "5": 4,
+        "1": 5,
+        "2": 5,
+        "3": 4,
+        "4": 5,
+        "5": 4,
       },
       "COPSOQ-BR": {
-        "1": 3, "2": 3, "3": 4, "14": 0,
+        "1": 3,
+        "2": 3,
+        "3": 4,
+        "14": 0,
       },
       "PHQ-2": {
-        "1": 0, "2": 1,
+        "1": 0,
+        "2": 1,
       },
     },
     item_telemetry: {
@@ -357,10 +451,18 @@ export const LUMINA_CLINICAL_CASES: SyntheticClinicalCase[] = [
     symptoms: ["trauma"],
     scale_answers: {
       "PC-PTSD-5": {
-        "1": 1, "2": 1, "3": 1, "4": 1, "5": 1,
+        "1": 1,
+        "2": 1,
+        "3": 1,
+        "4": 1,
+        "5": 1,
       },
       "PCL-5": {
-        "1": 3, "2": 3, "3": 3, "4": 2, "5": 3,
+        "1": 3,
+        "2": 3,
+        "3": 3,
+        "4": 2,
+        "5": 3,
       },
     },
     item_telemetry: {
@@ -393,10 +495,16 @@ export const LUMINA_CLINICAL_CASES: SyntheticClinicalCase[] = [
     symptoms: ["substancias"],
     scale_answers: {
       ASSIST: {
-        "1": 3, "2": 3, "3": 3, "4": 2,
+        "1": 3,
+        "2": 3,
+        "3": 3,
+        "4": 2,
       },
       AUDIT: {
-        "1": 2, "2": 2, "3": 2, "4": 2,
+        "1": 2,
+        "2": 2,
+        "3": 2,
+        "4": 2,
       },
     },
     item_telemetry: {

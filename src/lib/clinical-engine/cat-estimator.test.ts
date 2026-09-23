@@ -6,11 +6,7 @@ import {
   selectNextCATItem,
   shouldStopCAT,
 } from "./cat-estimator";
-import {
-  detectItemHesitation,
-  analyzeSessionTelemetry,
-  type ItemDwellRecord,
-} from "./dwell-time";
+import { detectItemHesitation, analyzeSessionTelemetry, type ItemDwellRecord } from "./dwell-time";
 import type { ScaleItem } from "./schema-types";
 
 describe("Clinical Engine — Teste Adaptativo Computadorizado (CAT) & Telemetria", () => {
@@ -19,62 +15,112 @@ describe("Clinical Engine — Teste Adaptativo Computadorizado (CAT) & Telemetri
     {
       id: "promis_dep_01",
       text: "Eu me senti para baixo ou deprimido(a)",
-      options: [{ label: "Nunca", value: 0 }, { label: "Raramente", value: 1 }, { label: "Às vezes", value: 2 }, { label: "Frequentemente", value: 3 }],
+      options: [
+        { label: "Nunca", value: 0 },
+        { label: "Raramente", value: 1 },
+        { label: "Às vezes", value: 2 },
+        { label: "Frequentemente", value: 3 },
+      ],
       tri_parameters: { a_discrimination: 2.8, b_thresholds: [-0.8, 0.2, 1.4] },
     },
     {
       id: "promis_dep_02",
       text: "Eu me senti sem esperança quanto ao futuro",
-      options: [{ label: "Nunca", value: 0 }, { label: "Raramente", value: 1 }, { label: "Às vezes", value: 2 }, { label: "Frequentemente", value: 3 }],
+      options: [
+        { label: "Nunca", value: 0 },
+        { label: "Raramente", value: 1 },
+        { label: "Às vezes", value: 2 },
+        { label: "Frequentemente", value: 3 },
+      ],
       tri_parameters: { a_discrimination: 3.1, b_thresholds: [-0.5, 0.4, 1.6] },
     },
     {
       id: "promis_dep_03",
       text: "Eu senti que nada tinha graça ou prazer",
-      options: [{ label: "Nunca", value: 0 }, { label: "Raramente", value: 1 }, { label: "Às vezes", value: 2 }, { label: "Frequentemente", value: 3 }],
+      options: [
+        { label: "Nunca", value: 0 },
+        { label: "Raramente", value: 1 },
+        { label: "Às vezes", value: 2 },
+        { label: "Frequentemente", value: 3 },
+      ],
       tri_parameters: { a_discrimination: 2.5, b_thresholds: [-0.9, 0.1, 1.2] },
     },
     {
       id: "promis_dep_04",
       text: "Eu me senti solitário(a) mesmo entre amigos",
-      options: [{ label: "Nunca", value: 0 }, { label: "Raramente", value: 1 }, { label: "Às vezes", value: 2 }, { label: "Frequentemente", value: 3 }],
+      options: [
+        { label: "Nunca", value: 0 },
+        { label: "Raramente", value: 1 },
+        { label: "Às vezes", value: 2 },
+        { label: "Frequentemente", value: 3 },
+      ],
       tri_parameters: { a_discrimination: 1.9, b_thresholds: [-0.4, 0.6, 1.8] },
     },
     {
       id: "promis_dep_05",
       text: "Eu me senti cansado(a) e sem energia para tarefas básicas",
-      options: [{ label: "Nunca", value: 0 }, { label: "Raramente", value: 1 }, { label: "Às vezes", value: 2 }, { label: "Frequentemente", value: 3 }],
+      options: [
+        { label: "Nunca", value: 0 },
+        { label: "Raramente", value: 1 },
+        { label: "Às vezes", value: 2 },
+        { label: "Frequentemente", value: 3 },
+      ],
       tri_parameters: { a_discrimination: 2.1, b_thresholds: [-1.2, -0.1, 1.0] },
     },
     {
       id: "promis_dep_06",
       text: "Eu me senti um fracasso ou decepção",
-      options: [{ label: "Nunca", value: 0 }, { label: "Raramente", value: 1 }, { label: "Às vezes", value: 2 }, { label: "Frequentemente", value: 3 }],
+      options: [
+        { label: "Nunca", value: 0 },
+        { label: "Raramente", value: 1 },
+        { label: "Às vezes", value: 2 },
+        { label: "Frequentemente", value: 3 },
+      ],
       tri_parameters: { a_discrimination: 2.7, b_thresholds: [0.0, 0.8, 1.9] },
     },
     {
       id: "promis_dep_07",
       text: "Eu tive dificuldade para me concentrar em leituras ou trabalho",
-      options: [{ label: "Nunca", value: 0 }, { label: "Raramente", value: 1 }, { label: "Às vezes", value: 2 }, { label: "Frequentemente", value: 3 }],
+      options: [
+        { label: "Nunca", value: 0 },
+        { label: "Raramente", value: 1 },
+        { label: "Às vezes", value: 2 },
+        { label: "Frequentemente", value: 3 },
+      ],
       tri_parameters: { a_discrimination: 1.7, b_thresholds: [-0.7, 0.3, 1.5] },
     },
     {
       id: "promis_dep_08",
       text: "Eu chorei ou tive vontade de chorar com frequência",
-      options: [{ label: "Nunca", value: 0 }, { label: "Raramente", value: 1 }, { label: "Às vezes", value: 2 }, { label: "Frequentemente", value: 3 }],
+      options: [
+        { label: "Nunca", value: 0 },
+        { label: "Raramente", value: 1 },
+        { label: "Às vezes", value: 2 },
+        { label: "Frequentemente", value: 3 },
+      ],
       tri_parameters: { a_discrimination: 2.3, b_thresholds: [-0.2, 0.7, 1.7] },
     },
     {
       id: "promis_dep_09",
       text: "Eu senti que tudo exigia um esforço monumental",
-      options: [{ label: "Nunca", value: 0 }, { label: "Raramente", value: 1 }, { label: "Às vezes", value: 2 }, { label: "Frequentemente", value: 3 }],
+      options: [
+        { label: "Nunca", value: 0 },
+        { label: "Raramente", value: 1 },
+        { label: "Às vezes", value: 2 },
+        { label: "Frequentemente", value: 3 },
+      ],
       tri_parameters: { a_discrimination: 2.0, b_thresholds: [-0.6, 0.2, 1.3] },
     },
     {
       id: "promis_dep_10",
       text: "Eu pensei que seria melhor se eu não acordasse amanhã",
       is_risk: true,
-      options: [{ label: "Nunca", value: 0 }, { label: "Raramente", value: 1 }, { label: "Às vezes", value: 2 }, { label: "Frequentemente", value: 3 }],
+      options: [
+        { label: "Nunca", value: 0 },
+        { label: "Raramente", value: 1 },
+        { label: "Às vezes", value: 2 },
+        { label: "Frequentemente", value: 3 },
+      ],
       tri_parameters: { a_discrimination: 3.4, b_thresholds: [0.5, 1.2, 2.2] },
     },
   ];
@@ -126,7 +172,7 @@ describe("Clinical Engine — Teste Adaptativo Computadorizado (CAT) & Telemetri
           estimate.se,
           simulatedResponses.length,
           mockPromisBank.length,
-          0.30,
+          0.3,
         );
 
         if (decision.stop) {

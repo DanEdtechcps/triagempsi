@@ -31,9 +31,7 @@ export const listAuditLogs = createServerFn({ method: "GET" })
       );
     if (!scope.global) query = query.eq("actor_user_id", context.userId);
 
-    const { data, error } = await query
-      .order("created_at", { ascending: false })
-      .limit(300);
+    const { data, error } = await query.order("created_at", { ascending: false }).limit(300);
 
     if (error) {
       console.error("listAuditLogs error", error);

@@ -1,6 +1,6 @@
 /**
  * Telemetria de Dwell Time e Detector de Hesitação Psicométrica.
- * 
+ *
  * Monitora os tempos de latência e resposta por item (response_time_ms),
  * identificando hesitação emocional em itens sensíveis (ideação de morte, autoagressão)
  * e detectando preenchimento desatento ou randômico (< 400ms).
@@ -81,9 +81,7 @@ export function detectItemHesitation(
 /**
  * Analisa o conjunto de registros de telemetria da sessão e gera um relatório consolidado.
  */
-export function analyzeSessionTelemetry(
-  records: ItemDwellRecord[],
-): SessionTelemetryReport {
+export function analyzeSessionTelemetry(records: ItemDwellRecord[]): SessionTelemetryReport {
   if (records.length === 0) {
     return {
       total_items: 0,
@@ -103,9 +101,7 @@ export function analyzeSessionTelemetry(
 
   const mid = Math.floor(times.length / 2);
   const median_time_ms =
-    times.length % 2 !== 0
-      ? times[mid]
-      : Math.round((times[mid - 1] + times[mid]) / 2);
+    times.length % 2 !== 0 ? times[mid] : Math.round((times[mid - 1] + times[mid]) / 2);
 
   const min_time_ms = times[0];
   const max_time_ms = times[times.length - 1];
@@ -119,9 +115,7 @@ export function analyzeSessionTelemetry(
     }
   }
 
-  const has_risk_hesitation = hesitations.some(
-    (h) => h.alert_level === "critical",
-  );
+  const has_risk_hesitation = hesitations.some((h) => h.alert_level === "critical");
 
   // Detecção de preenchimento desatento: 3 ou mais itens consecutivos respondidos em < 400ms
   let rapidStreak = 0;

@@ -107,8 +107,7 @@ function AuditoriaPage() {
   const rows = useMemo(() => {
     const all = (data ?? []) as AuditLogRow[];
     const f = FILTERS.find((x) => x.id === filter);
-    let out =
-      !f || f.actions.length === 0 ? all : all.filter((r) => f.actions.includes(r.action));
+    let out = !f || f.actions.length === 0 ? all : all.filter((r) => f.actions.includes(r.action));
 
     if (acao !== "todas") out = out.filter((r) => r.action === acao);
 
@@ -148,9 +147,9 @@ function AuditoriaPage() {
             Quem acessou, alterou ou enviou — e quando
           </h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            Registro automático das ações no painel: abertura de triagens, download de
-            relatórios, criação de contatos, geração de convites e envios por WhatsApp.
-            Os registros não podem ser editados nem apagados pelo aplicativo.
+            Registro automático das ações no painel: abertura de triagens, download de relatórios,
+            criação de contatos, geração de convites e envios por WhatsApp. Os registros não podem
+            ser editados nem apagados pelo aplicativo.
           </p>
 
           <div className="mt-4 flex flex-wrap gap-2">
@@ -225,7 +224,6 @@ function AuditoriaPage() {
           </div>
         </Card>
 
-
         {isLoading && <p className="text-sm text-muted-foreground">Carregando…</p>}
         {error && isAccessDenied(error) && (
           <AcessoNegado error={error} title="Acesso negado a estes registros" />
@@ -237,9 +235,7 @@ function AuditoriaPage() {
         )}
 
         {!isLoading && !error && rows.length === 0 && (
-          <p className="text-sm text-muted-foreground">
-            Nenhum registro para este filtro ainda.
-          </p>
+          <p className="text-sm text-muted-foreground">Nenhum registro para este filtro ainda.</p>
         )}
 
         {rows.length > 0 && (
@@ -248,9 +244,7 @@ function AuditoriaPage() {
               {rows.map((r) => (
                 <li key={r.id} className="p-4 text-sm">
                   <div className="flex flex-wrap items-baseline justify-between gap-2">
-                    <span className="font-medium">
-                      {AUDIT_ACTION_LABEL[r.action] ?? r.action}
-                    </span>
+                    <span className="font-medium">{AUDIT_ACTION_LABEL[r.action] ?? r.action}</span>
                     <span className="text-xs text-muted-foreground">
                       {new Date(r.created_at).toLocaleString("pt-BR")}
                     </span>

@@ -302,9 +302,7 @@ export function FaqItem({ q, a }: { q: string; a: string }) {
             transition={{ duration: 0.4, ease: EASE }}
             className="overflow-hidden"
           >
-            <p className="max-w-2xl pb-6 text-sm leading-relaxed text-ivory/60 sm:text-base">
-              {a}
-            </p>
+            <p className="max-w-2xl pb-6 text-sm leading-relaxed text-ivory/60 sm:text-base">{a}</p>
           </motion.div>
         )}
       </AnimatePresence>

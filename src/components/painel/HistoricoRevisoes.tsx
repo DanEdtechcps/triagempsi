@@ -41,16 +41,13 @@ export function HistoricoRevisoes({ assessmentId }: { assessmentId: string }) {
         </Badge>
       </div>
       <p className="mt-1 text-sm text-muted-foreground">
-        Cada marcação de "revisado" com observações fica registrada aqui com autor
-        e data.
+        Cada marcação de "revisado" com observações fica registrada aqui com autor e data.
       </p>
 
       <div className="mt-4 space-y-3">
         {isLoading && <p className="text-sm text-muted-foreground">Carregando…</p>}
         {!isLoading && revisoes.length === 0 && (
-          <p className="text-sm text-muted-foreground">
-            Nenhuma revisão registrada até o momento.
-          </p>
+          <p className="text-sm text-muted-foreground">Nenhuma revisão registrada até o momento.</p>
         )}
         {revisoes.map((r) => (
           <div key={r.id} className="rounded-md border border-border p-3">
@@ -61,9 +58,7 @@ export function HistoricoRevisoes({ assessmentId }: { assessmentId: string }) {
               <span>{new Date(r.created_at).toLocaleString("pt-BR")}</span>
             </div>
             {r.observacao && (
-              <p className="mt-2 whitespace-pre-line text-sm text-foreground/90">
-                {r.observacao}
-              </p>
+              <p className="mt-2 whitespace-pre-line text-sm text-foreground/90">{r.observacao}</p>
             )}
           </div>
         ))}

@@ -55,9 +55,7 @@ test.describe("Troca de senha com o usuário logado", () => {
     await page.getByLabel("Confirmar nova senha").fill(igual);
     await page.getByRole("button", { name: "Salvar nova senha" }).click();
 
-    await expect(
-      page.getByText("A nova senha precisa ser diferente da atual."),
-    ).toBeVisible();
+    await expect(page.getByText("A nova senha precisa ser diferente da atual.")).toBeVisible();
   });
 
   test("troca válida confirma sucesso e limpa o formulário", async ({ page }) => {

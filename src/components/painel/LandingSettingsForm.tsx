@@ -55,7 +55,9 @@ export function LandingSettingsForm() {
       const { version } = await bump({});
       setForm((f) => ({ ...f, share_image_version: version }));
       await refetch();
-      setMsg(`Miniatura marcada como v${version}. Republique o site para os crawlers buscarem de novo.`);
+      setMsg(
+        `Miniatura marcada como v${version}. Republique o site para os crawlers buscarem de novo.`,
+      );
     } catch (err) {
       setMsg(err instanceof Error ? err.message : "Não foi possível atualizar a versão.");
     } finally {
@@ -67,8 +69,7 @@ export function LandingSettingsForm() {
     if (data) setForm({ ...LANDING_DEFAULTS, ...data });
   }, [data]);
 
-  const set = (k: keyof LandingSettings) => (v: string) =>
-    setForm((f) => ({ ...f, [k]: v }));
+  const set = (k: keyof LandingSettings) => (v: string) => setForm((f) => ({ ...f, [k]: v }));
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault();
@@ -172,9 +173,7 @@ export function LandingSettingsForm() {
 
         <Card className="space-y-4 p-5">
           <div>
-            <h2 className="font-serif text-lg font-semibold">
-              Miniatura ao compartilhar
-            </h2>
+            <h2 className="font-serif text-lg font-semibold">Miniatura ao compartilhar</h2>
             <p className="text-xs text-muted-foreground">
               Título, descrição e imagem usados no WhatsApp, LinkedIn e Google.
             </p>
@@ -223,9 +222,7 @@ export function LandingSettingsForm() {
                 if (file) void handleUpload(file);
               }}
             />
-            {uploading && (
-              <p className="text-xs text-muted-foreground">Enviando imagem…</p>
-            )}
+            {uploading && <p className="text-xs text-muted-foreground">Enviando imagem…</p>}
           </div>
 
           {form.share_image_url && (
@@ -241,8 +238,8 @@ export function LandingSettingsForm() {
           <div className="rounded-xl border border-border p-3">
             <p className="text-xs text-muted-foreground">
               Versão atual da miniatura:{" "}
-              <span className="font-mono">v{form.share_image_version}</span> — a URL enviada
-              aos crawlers termina em <span className="font-mono">?v={form.share_image_version}</span>.
+              <span className="font-mono">v{form.share_image_version}</span> — a URL enviada aos
+              crawlers termina em <span className="font-mono">?v={form.share_image_version}</span>.
             </p>
             <Button
               type="button"
@@ -265,8 +262,8 @@ export function LandingSettingsForm() {
             {saving ? "Salvando…" : "Salvar e publicar textos"}
           </Button>
           <p className="text-xs text-muted-foreground">
-            A nova versão só chega ao WhatsApp/LinkedIn depois de republicar o site;
-            o número de versão evita que eles reutilizem a imagem antiga em cache.
+            A nova versão só chega ao WhatsApp/LinkedIn depois de republicar o site; o número de
+            versão evita que eles reutilizem a imagem antiga em cache.
           </p>
         </Card>
       </form>

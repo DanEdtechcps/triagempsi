@@ -11,16 +11,18 @@ import { readFileSync, writeFileSync } from "node:fs";
 import { resolve, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
-const FILE = resolve(
-  dirname(fileURLToPath(import.meta.url)),
-  "../src/config/deliveries.json",
-);
+const FILE = resolve(dirname(fileURLToPath(import.meta.url)), "../src/config/deliveries.json");
 
 function splitPair(value) {
   const idx = String(value).indexOf("|");
   return idx === -1
     ? [String(value).trim(), ""]
-    : [String(value).slice(0, idx).trim(), String(value).slice(idx + 1).trim()];
+    : [
+        String(value).slice(0, idx).trim(),
+        String(value)
+          .slice(idx + 1)
+          .trim(),
+      ];
 }
 
 function toList(values, map) {

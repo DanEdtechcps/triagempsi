@@ -13,11 +13,7 @@ import type {
   Scale,
 } from "@/lib/scale-types";
 
-import type {
-  ScaleResult,
-  SubscoreResult,
-  Informant,
-} from "@/lib/scoring";
+import type { ScaleResult, SubscoreResult, Informant } from "@/lib/scoring";
 
 export type {
   LikertOption,

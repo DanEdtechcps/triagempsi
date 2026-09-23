@@ -36,10 +36,7 @@ import {
   OFFICIAL_PSYCHOEDUCATION_TOPICS,
   type PsychoTopicDefinition,
 } from "@/lib/psychoeducation-data";
-import {
-  PSYCHOEDUCATION_TRIGGER_SPECS,
-  type PsychoTriggerSpec,
-} from "@/lib/psychoeducation";
+import { PSYCHOEDUCATION_TRIGGER_SPECS, type PsychoTriggerSpec } from "@/lib/psychoeducation";
 
 export const Route = createFileRoute("/_authenticated/materiais")({
   head: () => ({
@@ -117,8 +114,7 @@ function CockpitPsicoeducacao() {
         t.body_md.toLowerCase().includes(q) ||
         t.tags.some((tg) => tg.toLowerCase().includes(q));
 
-      const matchTag =
-        categoriaTag === "todas" || t.tags.includes(categoriaTag);
+      const matchTag = categoriaTag === "todas" || t.tags.includes(categoriaTag);
 
       return matchBusca && matchTag;
     });
@@ -158,7 +154,10 @@ Conduta:
         <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
           <div className="space-y-1.5">
             <div className="flex items-center gap-2">
-              <Badge variant="outline" className="border-primary/30 bg-primary/10 text-primary gap-1 px-2.5 py-0.5 text-xs font-semibold">
+              <Badge
+                variant="outline"
+                className="border-primary/30 bg-primary/10 text-primary gap-1 px-2.5 py-0.5 text-xs font-semibold"
+              >
                 <Sparkles className="h-3 w-3" />
                 Curadoria Clínica Validada
               </Badge>
@@ -171,7 +170,8 @@ Conduta:
             </h1>
             <p className="max-w-2xl text-xs sm:text-sm text-muted-foreground leading-relaxed">
               Acervo de materiais educativos disponibilizados no portal do paciente e no prontuário.
-              Alinhado às diretrizes psiquiátricas contemporâneas, regulação circadiana e medicina humanizada.
+              Alinhado às diretrizes psiquiátricas contemporâneas, regulação circadiana e medicina
+              humanizada.
             </p>
           </div>
 
@@ -386,13 +386,16 @@ Conduta:
               Matriz de Disparo Automatizado na Triagem
             </h2>
             <p className="text-xs text-muted-foreground">
-              Quando um paciente responde às escalas da pré-avaliação, o motor clínico avalia as pontuações e vincula automaticamente os temas correspondentes ao portal dele.
+              Quando um paciente responde às escalas da pré-avaliação, o motor clínico avalia as
+              pontuações e vincula automaticamente os temas correspondentes ao portal dele.
             </p>
           </div>
 
           <div className="divide-y divide-border/80 rounded-xl border border-border overflow-hidden">
             {PSYCHOEDUCATION_TRIGGER_SPECS.map((rule: PsychoTriggerSpec, idx: number) => {
-              const topicDef = OFFICIAL_PSYCHOEDUCATION_TOPICS.find((t) => t.slug === rule.topicSlug);
+              const topicDef = OFFICIAL_PSYCHOEDUCATION_TOPICS.find(
+                (t) => t.slug === rule.topicSlug,
+              );
 
               return (
                 <div
@@ -415,12 +418,12 @@ Conduta:
                         {rule.priority === "urgente" ? "Acolhimento Crítico" : "Rotina Clínica"}
                       </Badge>
                     </div>
-                    <p className="text-xs text-muted-foreground">
-                      {rule.description}
-                    </p>
+                    <p className="text-xs text-muted-foreground">{rule.description}</p>
                     <div className="flex flex-wrap items-center gap-2 text-[11px] text-foreground/80">
                       <span className="font-semibold text-primary">Critério:</span>
-                      <span className="font-mono bg-muted/60 px-1.5 py-0.5 rounded">{rule.criterion}</span>
+                      <span className="font-mono bg-muted/60 px-1.5 py-0.5 rounded">
+                        {rule.criterion}
+                      </span>
                       <span className="text-muted-foreground">|</span>
                       <span className="text-muted-foreground font-mono">
                         Escalas: {rule.scales.join(", ")}
@@ -469,10 +472,14 @@ Conduta:
                   </div>
                 </div>
                 <p className="text-xs text-muted-foreground leading-relaxed">
-                  Fluxograma de acolhimento prioritário quando o paciente pontua no item 9 do PHQ-9 (≥ 1) ou quando a via de risco clínico composta é acionada. Inclui direcionamento imediato para CVV 188 e SAMU 192.
+                  Fluxograma de acolhimento prioritário quando o paciente pontua no item 9 do PHQ-9
+                  (≥ 1) ou quando a via de risco clínico composta é acionada. Inclui direcionamento
+                  imediato para CVV 188 e SAMU 192.
                 </p>
                 <div className="rounded-lg bg-muted/40 p-3 text-xs space-y-1">
-                  <div className="font-semibold text-foreground">Ações de Segurança no Consultório:</div>
+                  <div className="font-semibold text-foreground">
+                    Ações de Segurança no Consultório:
+                  </div>
                   <ul className="list-disc pl-4 space-y-0.5 text-muted-foreground text-[11px]">
                     <li>Notificação visual imediata no Cockpit do Médico (Badge Vermelho)</li>
                     <li>Liberação do módulo de crise com plano de segurança no portal</li>
@@ -507,7 +514,8 @@ Conduta:
                   </div>
                 </div>
                 <p className="text-xs text-muted-foreground leading-relaxed">
-                  Guia de faixas de corte de severidade para PHQ-9, GAD-7, ISI, ASRS-18, AUDIT, DAST-10, PCL-5, MDQ, EPDS, AD-8, GDS-15, SNAP-IV e WHO-5.
+                  Guia de faixas de corte de severidade para PHQ-9, GAD-7, ISI, ASRS-18, AUDIT,
+                  DAST-10, PCL-5, MDQ, EPDS, AD-8, GDS-15, SNAP-IV e WHO-5.
                 </p>
                 <div className="rounded-lg bg-muted/40 p-3 text-xs space-y-1">
                   <div className="font-semibold text-foreground">Destaques psicométricos:</div>
@@ -545,7 +553,8 @@ Conduta:
                   </div>
                 </div>
                 <p className="text-xs text-muted-foreground leading-relaxed">
-                  Estrutura pronta para colar no prontuário eletrônico do seu consultório (CFM/CRM e LGPD compatíveis).
+                  Estrutura pronta para colar no prontuário eletrônico do seu consultório (CFM/CRM e
+                  LGPD compatíveis).
                 </p>
                 <div className="rounded-lg bg-muted/40 p-2.5 font-mono text-[11px] text-muted-foreground space-y-0.5 overflow-hidden">
                   <div>REGISTRO DE TRIAGEM CLÍNICA E PSICOEDUCAÇÃO</div>
@@ -593,7 +602,8 @@ Conduta:
                   </div>
                 </div>
                 <p className="text-xs text-muted-foreground leading-relaxed">
-                  Avaliação de estresse crônico (PSS-10) e esgotamento profissional (Burnout) em conformidade com as novas exigências da NR-01 para empresas e consultórios.
+                  Avaliação de estresse crônico (PSS-10) e esgotamento profissional (Burnout) em
+                  conformidade com as novas exigências da NR-01 para empresas e consultórios.
                 </p>
                 <div className="rounded-lg bg-muted/40 p-3 text-xs space-y-1">
                   <div className="font-semibold text-foreground">Aplicações ocupacionais:</div>
@@ -628,7 +638,10 @@ Conduta:
                 </div>
                 <div>
                   <div className="flex items-center gap-2">
-                    <Badge variant="outline" className="border-primary/30 bg-primary/10 text-primary text-[10px]">
+                    <Badge
+                      variant="outline"
+                      className="border-primary/30 bg-primary/10 text-primary text-[10px]"
+                    >
                       Material de Psicoeducação
                     </Badge>
                     <span className="text-xs text-muted-foreground font-mono">
@@ -671,7 +684,10 @@ Conduta:
                 </div>
                 <div className="flex gap-1">
                   {selectedTopic.tags.map((t) => (
-                    <span key={t} className="text-[10px] bg-background px-1.5 py-0.5 rounded border border-border">
+                    <span
+                      key={t}
+                      className="text-[10px] bg-background px-1.5 py-0.5 rounded border border-border"
+                    >
                       {t}
                     </span>
                   ))}

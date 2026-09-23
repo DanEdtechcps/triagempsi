@@ -57,9 +57,7 @@ export async function getAccessScope(
  * ligados às triagens e contatos das clínicas às quais ele tem acesso (RLS já
  * filtra as consultas abaixo).
  */
-export async function allowedRecipientEmails(
-  supabase: SupabaseClient,
-): Promise<Set<string>> {
+export async function allowedRecipientEmails(supabase: SupabaseClient): Promise<Set<string>> {
   const allowed = new Set<string>();
   const [{ data: assessments }, { data: contacts }] = await Promise.all([
     supabase.from("assessments").select("respondent_email").limit(2000),

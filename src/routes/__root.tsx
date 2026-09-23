@@ -93,7 +93,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:title", content: "Triagem Psiquiátrica — Avaliação pré-consulta" },
-      { name: "twitter:description", content: "Faça sua triagem antes da consulta psiquiátrica. Instrumentos validados, ambiente confidencial e apoio para uma primeira consulta mais eficiente." },
+      {
+        name: "twitter:description",
+        content:
+          "Faça sua triagem antes da consulta psiquiátrica. Instrumentos validados, ambiente confidencial e apoio para uma primeira consulta mais eficiente.",
+      },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
@@ -129,14 +133,12 @@ function useRecoveryLinkRedirect() {
     const hash = window.location.hash;
     const isRecovery = hash.includes("type=recovery");
     // Links expirados/inválidos voltam com error_code em vez de type=recovery.
-    const isLinkError =
-      hash.includes("error_code=") || hash.includes("error=access_denied");
+    const isLinkError = hash.includes("error_code=") || hash.includes("error=access_denied");
     if (!isRecovery && !isLinkError) return;
     if (window.location.pathname === "/reset-password") return;
     window.location.replace("/reset-password" + hash);
   }, []);
 }
-
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();

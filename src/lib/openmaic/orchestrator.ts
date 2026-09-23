@@ -102,11 +102,7 @@ export interface TurnResult {
   is_blocked: boolean;
 }
 
-export function processTurn(
-  ctx: SimulationContext,
-  agent_id: string,
-  content: string,
-): TurnResult {
+export function processTurn(ctx: SimulationContext, agent_id: string, content: string): TurnResult {
   const agent = ctx.agents.find((a) => a.id === agent_id);
   if (!agent) {
     throw new Error(`[OpenMAIC] Agente não encontrado: ${agent_id}`);
@@ -179,7 +175,9 @@ function buildSummaryMd(
   competencies: string[],
 ): string {
   const flowLabel =
-    ctx.flow === "CLINICAL_CASE" ? "Discussão de Caso Clínico" : "Redução de Danos / Abordagem de Rua";
+    ctx.flow === "CLINICAL_CASE"
+      ? "Discussão de Caso Clínico"
+      : "Redução de Danos / Abordagem de Rua";
 
   return [
     `# Relatório de Simulação — ${flowLabel}`,

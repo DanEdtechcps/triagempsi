@@ -81,9 +81,7 @@ export async function buildAssessmentEmail(
   const defaultTo =
     audience === "paciente"
       ? ((a.respondent_email as string | null) ?? null)
-      : ((clinic?.contact_email as string | null) ??
-        (a.respondent_email as string | null) ??
-        null);
+      : ((clinic?.contact_email as string | null) ?? (a.respondent_email as string | null) ?? null);
 
   let to = defaultTo;
   if (toOverride) {

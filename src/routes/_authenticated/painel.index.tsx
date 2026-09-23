@@ -40,12 +40,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { ChevronDown, SlidersHorizontal } from "lucide-react";
 import { MobileTriageCard } from "@/components/painel/MobileTriageCard";
 import {
@@ -54,7 +49,6 @@ import {
   type PainelFiltrosProps,
 } from "@/components/painel/PainelFiltros";
 import { useIsMobile } from "@/hooks/use-mobile";
-
 
 export const Route = createFileRoute("/_authenticated/painel/")({
   head: () => ({
@@ -83,29 +77,18 @@ function PainelLista() {
   const logExport = useServerFn(logReportExport);
   const [clinicFilter, setClinicFilter] = useState<string>("todas");
   const [busca, setBusca] = useState("");
-  const [riscoFilter, setRiscoFilter] = useState<
-    "todos" | "risco" | "atencao" | "sem"
-  >("todos");
+  const [riscoFilter, setRiscoFilter] = useState<"todos" | "risco" | "atencao" | "sem">("todos");
 
   const [escalaFilter, setEscalaFilter] = useState<string>("todas");
-  const [statusFilter, setStatusFilter] = useState<"todos" | "enviado" | "pendente">(
+  const [statusFilter, setStatusFilter] = useState<"todos" | "enviado" | "pendente">("todos");
+  const [informanteFilter, setInformanteFilter] = useState<"todos" | "paciente" | "familiar">(
     "todos",
   );
-  const [informanteFilter, setInformanteFilter] = useState<
-    "todos" | "paciente" | "familiar"
-  >("todos");
   const [medicoFilter, setMedicoFilter] = useState<string>("todos");
   const [ordem, setOrdem] = useState<
-    | "submitted_desc"
-    | "submitted_asc"
-    | "created_desc"
-    | "created_asc"
-    | "nome_asc"
-    | "nome_desc"
+    "submitted_desc" | "submitted_asc" | "created_desc" | "created_asc" | "nome_asc" | "nome_desc"
   >("submitted_desc");
-  const [campoData, setCampoData] = useState<"submitted" | "created">(
-    "submitted",
-  );
+  const [campoData, setCampoData] = useState<"submitted" | "created">("submitted");
   const [dataDe, setDataDe] = useState("");
   const [dataAte, setDataAte] = useState("");
   const [porPagina, setPorPagina] = useState(20);
@@ -126,7 +109,6 @@ function PainelLista() {
   useEffect(() => {
     setRevisados(loadReviewed());
   }, []);
-
 
   const [views, setViews] = useState<SavedView[]>([]);
   const [novoNome, setNovoNome] = useState("");
@@ -223,14 +205,10 @@ function PainelLista() {
     filtrosAbertos,
   ]);
 
-
-
   function salvarView() {
     const nome = novoNome.trim();
     if (!nome) return;
-    const existente = views.find(
-      (v) => v.name.toLowerCase() === nome.toLowerCase(),
-    );
+    const existente = views.find((v) => v.name.toLowerCase() === nome.toLowerCase());
     const view: SavedView = {
       id: existente?.id ?? crypto.randomUUID(),
       name: nome,
@@ -268,8 +246,6 @@ function PainelLista() {
     if (viewAtiva === id) setViewAtiva(null);
   }
 
-
-
   async function baixarPdf(id: string, tipo: "paciente" | "clinico") {
     setPdfBusy(`${id}:${tipo}`);
     try {
@@ -283,7 +259,6 @@ function PainelLista() {
       setPdfBusy(null);
     }
   }
-
 
   const { data: access, isLoading: loadingAccess } = useQuery({
     queryKey: ["my-access"],
@@ -312,9 +287,9 @@ function PainelLista() {
             Acesso ainda não liberado
           </h2>
           <p className="mt-2 text-sm text-muted-foreground">
-            Sua conta foi criada, mas ainda não está vinculada a nenhuma clínica.
-            Peça a um administrador para liberar seu acesso — ele define se você
-            enxerga uma clínica específica ou todas.
+            Sua conta foi criada, mas ainda não está vinculada a nenhuma clínica. Peça a um
+            administrador para liberar seu acesso — ele define se você enxerga uma clínica
+            específica ou todas.
           </p>
         </Card>
       </PainelShell>
@@ -345,10 +320,7 @@ function PainelLista() {
     if (riscoFilter === "atencao" && (risco || !atencao)) return false;
     if (riscoFilter === "sem" && (risco || atencao)) return false;
 
-    if (
-      escalaFilter !== "todas" &&
-      !a.scales.some((s) => s.scale_code === escalaFilter)
-    )
+    if (escalaFilter !== "todas" && !a.scales.some((s) => s.scale_code === escalaFilter))
       return false;
 
     if (dataDe || dataAte) {
@@ -358,15 +330,10 @@ function PainelLista() {
       if (dataAte && dia > dataAte) return false;
     }
 
-    if (informanteFilter !== "todos" && a.respondent_type !== informanteFilter)
-      return false;
+    if (informanteFilter !== "todos" && a.respondent_type !== informanteFilter) return false;
 
     if (medicoFilter === "nenhum" && a.doctor_id) return false;
-    if (
-      medicoFilter !== "todos" &&
-      medicoFilter !== "nenhum" &&
-      a.doctor_id !== medicoFilter
-    )
+    if (medicoFilter !== "todos" && medicoFilter !== "nenhum" && a.doctor_id !== medicoFilter)
       return false;
 
     const enviado = a.status === "completed";
@@ -418,8 +385,7 @@ function PainelLista() {
   /* ---------- seleção múltipla / revisão em lote ---------- */
   const idsPagina = pagina_itens.map((a) => a.id);
   const selecionadosPagina = selecionados.filter((id) => idsPagina.includes(id));
-  const todosSelecionados =
-    idsPagina.length > 0 && selecionadosPagina.length === idsPagina.length;
+  const todosSelecionados = idsPagina.length > 0 && selecionadosPagina.length === idsPagina.length;
 
   function alternarSelecao(id: string) {
     setSelecionados((atual) =>
@@ -459,8 +425,6 @@ function PainelLista() {
     }
   }
 
-
-
   /** Guarda a ordem atual para navegar em lote dentro do detalhe. */
   function enfileirar() {
     saveReviewQueue(
@@ -469,14 +433,10 @@ function PainelLista() {
     );
   }
 
-  const base = (data ?? []).filter(
-    (a) => clinicFilter === "todas" || a.clinic_id === clinicFilter,
-  );
+  const base = (data ?? []).filter((a) => clinicFilter === "todas" || a.clinic_id === clinicFilter);
   const contagem = {
     total: base.length,
-    risco: base.filter(
-      (a) => a.risk_flags.length > 0 || a.summary?.risk_pathway === true,
-    ).length,
+    risco: base.filter((a) => a.risk_flags.length > 0 || a.summary?.risk_pathway === true).length,
     atencao: base.filter(
       (a) =>
         !(a.risk_flags.length > 0 || a.summary?.risk_pathway === true) &&
@@ -503,7 +463,6 @@ function PainelLista() {
     },
   ];
 
-
   const filtrosAtivos =
     clinicFilter !== "todas" ||
     riscoFilter !== "todos" ||
@@ -514,7 +473,6 @@ function PainelLista() {
     dataDe !== "" ||
     dataAte !== "" ||
     termo.length > 0;
-
 
   function limparFiltros() {
     setBusca("");
@@ -633,107 +591,97 @@ function PainelLista() {
               Filtros{nFiltrosAtivos > 0 ? ` (${nFiltrosAtivos})` : ""}
             </Button>
           </div>
-          <div className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1">
-            {chipsAtalhos}
-          </div>
+          <div className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1">{chipsAtalhos}</div>
         </div>
       )}
 
       {/* Controles completos — desktop */}
       {isMobile === false && (
-      <Card className="mb-4 space-y-3 p-4">
-        <PainelViews
-          views={views}
-          viewAtiva={viewAtiva}
-          novoNome={novoNome}
-          onNovoNome={setNovoNome}
-          onSalvar={salvarView}
-          onAplicar={aplicarView}
-          onRemover={removerView}
-        />
-
-        <div>
-          <label htmlFor="busca" className="sr-only">
-            Buscar triagem
-          </label>
-          <input
-            id="busca"
-            type="search"
-            value={busca}
-            onChange={(e) => setBusca(e.target.value)}
-            placeholder="Buscar por nome, e-mail, clínica ou escala…"
-            className="min-h-11 w-full rounded-md border border-border bg-background px-3 text-sm text-foreground"
+        <Card className="mb-4 space-y-3 p-4">
+          <PainelViews
+            views={views}
+            viewAtiva={viewAtiva}
+            novoNome={novoNome}
+            onNovoNome={setNovoNome}
+            onSalvar={salvarView}
+            onAplicar={aplicarView}
+            onRemover={removerView}
           />
-        </div>
 
-        <div className="flex flex-wrap items-center gap-2">
-          {chipsAtalhos}
-          <span className="text-xs text-muted-foreground">
-            {contagem.revisados} revisada(s) nesta sessão
-          </span>
-        </div>
+          <div>
+            <label htmlFor="busca" className="sr-only">
+              Buscar triagem
+            </label>
+            <input
+              id="busca"
+              type="search"
+              value={busca}
+              onChange={(e) => setBusca(e.target.value)}
+              placeholder="Buscar por nome, e-mail, clínica ou escala…"
+              className="min-h-11 w-full rounded-md border border-border bg-background px-3 text-sm text-foreground"
+            />
+          </div>
 
-        {impactoFila.graves > 0 ? (
-          <div className="rounded-lg border border-primary/30 bg-primary/5 p-3 text-sm">
-            <span className="font-medium">
-              Ganho da fila priorizada por risco:{" "}
-            </span>
-            <span className="text-muted-foreground">
-              {impactSentence(impactoFila)}
+          <div className="flex flex-wrap items-center gap-2">
+            {chipsAtalhos}
+            <span className="text-xs text-muted-foreground">
+              {contagem.revisados} revisada(s) nesta sessão
             </span>
           </div>
-        ) : null}
 
-        <div className="flex flex-wrap items-center justify-between gap-2">
-          <div className="inline-flex overflow-hidden rounded-md border border-border">
-            <button
-              type="button"
-              onClick={() => setModo("fila")}
-              className={`px-3 py-1.5 text-xs font-medium ${
-                modo === "fila"
-                  ? "bg-primary/10 text-foreground"
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              Fila de revisão
-            </button>
-            <button
-              type="button"
-              onClick={() => setModo("cartoes")}
-              className={`border-l border-border px-3 py-1.5 text-xs font-medium ${
-                modo === "cartoes"
-                  ? "bg-primary/10 text-foreground"
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              Cartões
-            </button>
-          </div>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setFiltrosAbertos((v) => !v)}
-          >
-            {filtrosAbertos ? "Ocultar filtros" : "Mais filtros"}
-            {filtrosAtivos ? " · ativos" : ""}
-          </Button>
-        </div>
+          {impactoFila.graves > 0 ? (
+            <div className="rounded-lg border border-primary/30 bg-primary/5 p-3 text-sm">
+              <span className="font-medium">Ganho da fila priorizada por risco: </span>
+              <span className="text-muted-foreground">{impactSentence(impactoFila)}</span>
+            </div>
+          ) : null}
 
-        {filtrosAbertos && <PainelFiltros {...filtrosProps} />}
-
-        <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-muted-foreground">
-          <span>
-            {lista.length} de {data?.length ?? 0} triagem(ns) · página{" "}
-            {paginaAtual} de {totalPaginas}
-          </span>
-
-          {filtrosAtivos && (
-            <Button variant="ghost" size="sm" onClick={limparFiltros}>
-              Limpar filtros
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div className="inline-flex overflow-hidden rounded-md border border-border">
+              <button
+                type="button"
+                onClick={() => setModo("fila")}
+                className={`px-3 py-1.5 text-xs font-medium ${
+                  modo === "fila"
+                    ? "bg-primary/10 text-foreground"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                Fila de revisão
+              </button>
+              <button
+                type="button"
+                onClick={() => setModo("cartoes")}
+                className={`border-l border-border px-3 py-1.5 text-xs font-medium ${
+                  modo === "cartoes"
+                    ? "bg-primary/10 text-foreground"
+                    : "text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                Cartões
+              </button>
+            </div>
+            <Button variant="outline" size="sm" onClick={() => setFiltrosAbertos((v) => !v)}>
+              {filtrosAbertos ? "Ocultar filtros" : "Mais filtros"}
+              {filtrosAtivos ? " · ativos" : ""}
             </Button>
-          )}
-        </div>
-      </Card>
+          </div>
+
+          {filtrosAbertos && <PainelFiltros {...filtrosProps} />}
+
+          <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-muted-foreground">
+            <span>
+              {lista.length} de {data?.length ?? 0} triagem(ns) · página {paginaAtual} de{" "}
+              {totalPaginas}
+            </span>
+
+            {filtrosAtivos && (
+              <Button variant="ghost" size="sm" onClick={limparFiltros}>
+                Limpar filtros
+              </Button>
+            )}
+          </div>
+        </Card>
       )}
 
       {/* Gaveta de filtros — mobile */}
@@ -743,9 +691,7 @@ function PainelLista() {
           className="max-h-[85vh] overflow-y-auto rounded-t-2xl pb-[calc(1.5rem+env(safe-area-inset-bottom))]"
         >
           <SheetHeader className="pb-2 text-left">
-            <SheetTitle className="font-serif">
-              Filtros e visualizações
-            </SheetTitle>
+            <SheetTitle className="font-serif">Filtros e visualizações</SheetTitle>
           </SheetHeader>
           <div className="space-y-5">
             <PainelViews
@@ -767,10 +713,7 @@ function PainelLista() {
                   Limpar
                 </Button>
               )}
-              <Button
-                className="min-h-11 flex-1"
-                onClick={() => setFiltrosSheetAberto(false)}
-              >
+              <Button className="min-h-11 flex-1" onClick={() => setFiltrosSheetAberto(false)}>
                 Mostrar {lista.length} triagem(ns)
               </Button>
             </div>
@@ -778,12 +721,7 @@ function PainelLista() {
         </SheetContent>
       </Sheet>
 
-      {isMobile === false && (
-        <InformanteMetrics itens={lista} campoData={campoData} />
-      )}
-
-
-
+      {isMobile === false && <InformanteMetrics itens={lista} campoData={campoData} />}
 
       {isLoading && (
         <div className="space-y-3" aria-busy="true" aria-label="Carregando triagens">
@@ -793,11 +731,7 @@ function PainelLista() {
         </div>
       )}
       {error && isAccessDenied(error) && (
-        <AcessoNegado
-          error={error}
-          title="Acesso negado a estas triagens"
-          backToPainel={false}
-        />
+        <AcessoNegado error={error} title="Acesso negado a estas triagens" backToPainel={false} />
       )}
       {error && !isAccessDenied(error) && (
         <Card className="flex flex-col items-center justify-center gap-3 border-destructive/30 bg-destructive/5 p-6 text-center">
@@ -822,9 +756,7 @@ function PainelLista() {
 
       {selecionados.length > 0 && (
         <Card className="flex flex-wrap items-center justify-between gap-2 border-primary/40 bg-primary/5 p-3 text-sm">
-          <span className="font-medium">
-            {selecionados.length} triagem(ns) selecionada(s)
-          </span>
+          <span className="font-medium">{selecionados.length} triagem(ns) selecionada(s)</span>
           <div className="flex flex-wrap gap-2">
             <Button variant="ghost" size="sm" onClick={() => setSelecionados([])}>
               Limpar seleção
@@ -836,17 +768,14 @@ function PainelLista() {
         </Card>
       )}
 
-      <Dialog
-        open={loteAberto}
-        onOpenChange={(v) => !salvandoLote && setLoteAberto(v)}
-      >
+      <Dialog open={loteAberto} onOpenChange={(v) => !salvandoLote && setLoteAberto(v)}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Marcar triagens como revisadas</DialogTitle>
             <DialogDescription>
-              {selecionados.length} triagem(ns) serão marcadas como revisadas.
-              Confirme antes de salvar. A observação abaixo é opcional e será
-              registrada no histórico de pareceres de cada triagem.
+              {selecionados.length} triagem(ns) serão marcadas como revisadas. Confirme antes de
+              salvar. A observação abaixo é opcional e será registrada no histórico de pareceres de
+              cada triagem.
             </DialogDescription>
           </DialogHeader>
 
@@ -859,17 +788,11 @@ function PainelLista() {
           />
 
           <DialogFooter>
-            <Button
-              variant="ghost"
-              onClick={() => setLoteAberto(false)}
-              disabled={salvandoLote}
-            >
+            <Button variant="ghost" onClick={() => setLoteAberto(false)} disabled={salvandoLote}>
               Cancelar
             </Button>
             <Button onClick={() => void confirmarLote()} disabled={salvandoLote}>
-              {salvandoLote
-                ? "Salvando…"
-                : `Confirmar ${selecionados.length} revisão(ões)`}
+              {salvandoLote ? "Salvando…" : `Confirmar ${selecionados.length} revisão(ões)`}
             </Button>
           </DialogFooter>
         </DialogContent>
@@ -958,9 +881,7 @@ function PainelLista() {
                               {a.respondent_age != null
                                 ? `${a.respondent_age} anos`
                                 : "idade não informada"}
-                              {multiClinica && a.clinic_name
-                                ? ` · ${a.clinic_name}`
-                                : ""}
+                              {multiClinica && a.clinic_name ? ` · ${a.clinic_name}` : ""}
                             </div>
                             <span className="mt-1 flex flex-wrap gap-1">
                               {risco && (
@@ -984,11 +905,7 @@ function PainelLista() {
                         {a.respondent_type === "familiar"
                           ? `Familiar/responsável${
                               a.informant_name ? ` — ${a.informant_name}` : ""
-                            }${
-                              a.informant_relation
-                                ? ` (${a.informant_relation})`
-                                : ""
-                            }`
+                            }${a.informant_relation ? ` (${a.informant_relation})` : ""}`
                           : "O próprio paciente"}
                       </td>
                       <td className="px-3 py-3">
@@ -1054,7 +971,6 @@ function PainelLista() {
         </div>
       )}
 
-
       {listaOrdenada.length > 0 &&
         (isMobile ? (
           /* Mobile: carregar mais acumulando */
@@ -1065,8 +981,7 @@ function PainelLista() {
                 className="min-h-11 w-full"
                 onClick={() => setPagina(paginaAtual + 1)}
               >
-                Carregar mais ({listaOrdenada.length - pagina_itens.length}{" "}
-                restantes)
+                Carregar mais ({listaOrdenada.length - pagina_itens.length} restantes)
               </Button>
             ) : (
               <p className="text-center text-xs text-muted-foreground">
@@ -1078,8 +993,7 @@ function PainelLista() {
           /* Desktop: paginação clássica */
           <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
             <span className="text-xs text-muted-foreground">
-              Mostrando {inicio + 1}–
-              {Math.min(inicio + porPagina, listaOrdenada.length)} de{" "}
+              Mostrando {inicio + 1}–{Math.min(inicio + porPagina, listaOrdenada.length)} de{" "}
               {listaOrdenada.length}
             </span>
 
@@ -1112,12 +1026,8 @@ function PainelLista() {
         <div className="mt-4 space-y-3">
           {impactoFila.graves > 0 && (
             <div className="rounded-lg border border-primary/30 bg-primary/5 p-3 text-sm">
-              <span className="font-medium">
-                Ganho da fila priorizada por risco:{" "}
-              </span>
-              <span className="text-muted-foreground">
-                {impactSentence(impactoFila)}
-              </span>
+              <span className="font-medium">Ganho da fila priorizada por risco: </span>
+              <span className="text-muted-foreground">{impactSentence(impactoFila)}</span>
             </div>
           )}
           <button
@@ -1131,12 +1041,9 @@ function PainelLista() {
               className={`h-4 w-4 transition-transform ${metricasAbertas ? "rotate-180" : ""}`}
             />
           </button>
-          {metricasAbertas && (
-            <InformanteMetrics itens={lista} campoData={campoData} />
-          )}
+          {metricasAbertas && <InformanteMetrics itens={lista} campoData={campoData} />}
         </div>
       )}
     </PainelShell>
-
   );
 }

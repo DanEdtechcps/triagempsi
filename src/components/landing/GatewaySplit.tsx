@@ -1,10 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import {
-  motion,
-  useMotionTemplate,
-  useMotionValue,
-  useReducedMotion,
-} from "motion/react";
+import { motion, useMotionTemplate, useMotionValue, useReducedMotion } from "motion/react";
 import { useRef, type ReactNode } from "react";
 
 import { MagneticButton } from "./parts";
@@ -82,9 +77,7 @@ function GatewayPanel({
           <h3 className="mt-7 max-w-md font-display text-[clamp(1.85rem,3.2vw,2.9rem)] leading-[1.04] tracking-tight text-ivory">
             {title}
           </h3>
-          <p className="mt-4 max-w-md text-sm leading-relaxed text-ivory/55 sm:text-base">
-            {desc}
-          </p>
+          <p className="mt-4 max-w-md text-sm leading-relaxed text-ivory/55 sm:text-base">{desc}</p>
         </div>
 
         <div>
@@ -131,8 +124,8 @@ export function GatewaySplit() {
           Comece pelo <span className="text-gradient-gold">seu lado</span>.
         </h2>
         <p className="mx-auto mt-4 max-w-xl text-sm leading-relaxed text-ivory/55 sm:text-base">
-          O paciente responde em minutos. O profissional recebe a leitura clínica pronta.
-          Escolha a sua porta — o resto do caminho já está pavimentado.
+          O paciente responde em minutos. O profissional recebe a leitura clínica pronta. Escolha a
+          sua porta — o resto do caminho já está pavimentado.
         </p>
       </motion.div>
 
@@ -167,7 +160,12 @@ export function GatewaySplit() {
             className="inline-flex items-center gap-2 rounded-full border border-ivory/15 px-6 py-3.5 text-sm text-ivory/70 transition-colors duration-300 hover:border-jade/50 hover:text-ivory"
           >
             Portal do paciente
-            <span aria-hidden className="transition-transform duration-300 group-hover:translate-x-0.5">→</span>
+            <span
+              aria-hidden
+              className="transition-transform duration-300 group-hover:translate-x-0.5"
+            >
+              →
+            </span>
           </Link>
         </GatewayPanel>
 

@@ -2,18 +2,14 @@ import { test, expect } from "@playwright/test";
 import { mockAuthApi, signInAs, signOut } from "./helpers";
 
 test.describe("Redefinição de senha por e-mail", () => {
-  test("link expirado mostra mensagem específica e formulário de reenvio", async ({
-    page,
-  }) => {
+  test("link expirado mostra mensagem específica e formulário de reenvio", async ({ page }) => {
     await mockAuthApi(page);
     await signOut(page);
     await page.goto(
       "/reset-password#error=access_denied&error_code=otp_expired&error_description=Email+link+is+invalid+or+has+expired",
     );
 
-    await expect(
-      page.getByText("Este link de redefinição expirou."),
-    ).toBeVisible();
+    await expect(page.getByText("Este link de redefinição expirou.")).toBeVisible();
     await expect(page.getByLabel("Seu e-mail")).toBeVisible();
     await expect(page.getByRole("heading", { name: "Definir nova senha" })).toBeVisible();
     // Sem link válido, o formulário de nova senha não deve aparecer.
@@ -38,9 +34,7 @@ test.describe("Redefinição de senha por e-mail", () => {
     await expect(page.getByRole("button", { name: "Enviar novo link" })).toBeVisible();
   });
 
-  test("reenvio do link confirma envio sem revelar se o e-mail existe", async ({
-    page,
-  }) => {
+  test("reenvio do link confirma envio sem revelar se o e-mail existe", async ({ page }) => {
     await mockAuthApi(page);
     await signOut(page);
     await page.goto("/reset-password#error_code=otp_expired");
@@ -62,9 +56,7 @@ test.describe("Redefinição de senha por e-mail", () => {
     expect(page.url()).toContain("type=recovery");
   });
 
-  test("com sessão válida, senha fraca é bloqueada e senha forte é salva", async ({
-    page,
-  }) => {
+  test("com sessão válida, senha fraca é bloqueada e senha forte é salva", async ({ page }) => {
     await mockAuthApi(page);
     await signInAs(page);
     await page.goto("/reset-password");
@@ -89,9 +81,7 @@ test.describe("Redefinição de senha por e-mail", () => {
     await expect(page.getByText(/Senha alterada com sucesso/i)).toBeVisible();
   });
 
-  test("token expirado no momento de salvar cai no fluxo de novo link", async ({
-    page,
-  }) => {
+  test("token expirado no momento de salvar cai no fluxo de novo link", async ({ page }) => {
     await mockAuthApi(page, {
       updateUser: {
         status: 401,

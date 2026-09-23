@@ -75,8 +75,7 @@ export const GHQ12: Scale = {
   minAge: 16,
   licenseNote:
     "Conteúdo dos itens aguardando curadoria clínica. Estrutura pronta para receber as 12 questões.",
-  instructions:
-    "Nas últimas semanas, comparando com o seu habitual, você tem…",
+  instructions: "Nas últimas semanas, comparando com o seu habitual, você tem…",
   timeframe: "Últimas semanas",
   options: OPTS_0_3,
   items: Array.from({ length: 12 }, (_, i) => ({
@@ -99,8 +98,7 @@ export const BDI2: Scale = {
   minAge: 13,
   licenseNote:
     "Instrumento proprietário: exige licença de uso. Estrutura mantida como placeholder — não aplicar ao paciente até a licença ser formalizada.",
-  instructions:
-    "Aplicação sujeita a licenciamento. Estrutura reservada para os 21 itens.",
+  instructions: "Aplicação sujeita a licenciamento. Estrutura reservada para os 21 itens.",
   options: OPTS_0_3,
   items: Array.from({ length: 21 }, (_, i) => ({
     id: String(i + 1),
@@ -122,8 +120,7 @@ export const ASRS18: Scale = {
   status: "estrutura",
   minAge: 18,
   licenseNote: "Itens aguardando curadoria clínica.",
-  instructions:
-    "Com que frequência, nos últimos 6 meses, você teve cada uma destas dificuldades?",
+  instructions: "Com que frequência, nos últimos 6 meses, você teve cada uma destas dificuldades?",
   timeframe: "Últimos 6 meses",
   options: OPTS_TDAH,
   items: Array.from({ length: 18 }, (_, i) => ({
@@ -147,8 +144,7 @@ export const TDAH_INFANTIL: Scale = {
   minAge: 6,
   maxAge: 17,
   licenseNote: "Itens aguardando curadoria clínica. Respondido por responsável.",
-  instructions:
-    "Com que frequência a criança/adolescente apresenta cada comportamento?",
+  instructions: "Com que frequência a criança/adolescente apresenta cada comportamento?",
   options: OPTS_TDAH,
   items: Array.from({ length: 18 }, (_, i) => ({
     id: String(i + 1),
@@ -170,8 +166,7 @@ export const RISCO_ADOLESCENTE: Scale = {
   maxAge: 17,
   licenseNote:
     "Estrutura reservada para a versão infantojuvenil validada, a ser definida pela equipe clínica.",
-  instructions:
-    "Perguntas de segurança, adaptadas para crianças e adolescentes.",
+  instructions: "Perguntas de segurança, adaptadas para crianças e adolescentes.",
   options: OPTS_SIM_NAO,
   items: Array.from({ length: 4 }, (_, i) => ({
     id: String(i + 1),
@@ -183,7 +178,6 @@ export const RISCO_ADOLESCENTE: Scale = {
   ],
   positiveCutoff: 1,
 };
-
 
 export const GDS15: Scale = {
   code: "GDS-15",
@@ -207,13 +201,25 @@ export const GDS15: Scale = {
     { id: "6", text: "Tem medo de que algo ruim aconteça?", options: SIM1_NAO0 },
     { id: "7", text: "Sente-se feliz na maior parte do tempo?", options: SIM0_NAO1 },
     { id: "8", text: "Sente-se frequentemente desamparado(a)?", options: SIM1_NAO0 },
-    { id: "9", text: "Prefere ficar em casa em vez de sair e fazer coisas novas?", options: SIM1_NAO0 },
-    { id: "10", text: "Acha que tem mais problemas de memória do que a maioria?", options: SIM1_NAO0 },
+    {
+      id: "9",
+      text: "Prefere ficar em casa em vez de sair e fazer coisas novas?",
+      options: SIM1_NAO0,
+    },
+    {
+      id: "10",
+      text: "Acha que tem mais problemas de memória do que a maioria?",
+      options: SIM1_NAO0,
+    },
     { id: "11", text: "Acha maravilhoso estar vivo(a) agora?", options: SIM0_NAO1 },
     { id: "12", text: "Sente-se sem valor do jeito que está agora?", options: SIM1_NAO0 },
     { id: "13", text: "Sente-se cheio(a) de energia?", options: SIM0_NAO1 },
     { id: "14", text: "Acha que sua situação não tem esperança?", options: SIM1_NAO0 },
-    { id: "15", text: "Acha que a maioria das pessoas está melhor do que você?", options: SIM1_NAO0 },
+    {
+      id: "15",
+      text: "Acha que a maioria das pessoas está melhor do que você?",
+      options: SIM1_NAO0,
+    },
   ],
   bands: [
     { min: 0, max: 4, label: "Sem indicação relevante", level: 0 },
@@ -231,8 +237,7 @@ export const CAGE: Scale = {
   domain: "alcool",
   status: "ativa",
   minAge: 18,
-  instructions:
-    "Estas perguntas se referem à sua vida como um todo, não apenas ao momento atual.",
+  instructions: "Estas perguntas se referem à sua vida como um todo, não apenas ao momento atual.",
   options: OPTS_SIM_NAO,
   items: [
     { id: "1", text: "Já sentiu que deveria diminuir a bebida?" },
@@ -286,29 +291,48 @@ export const OCIR: Scale = {
     { id: "2", text: "Eu verifico coisas mais vezes do que é necessário." },
     { id: "3", text: "Eu fico chateado(a) se os objetos não estão arrumados corretamente." },
     { id: "4", text: "Eu sinto vontade de contar enquanto estou fazendo coisas." },
-    { id: "5", text: "Eu sinto dificuldade em tocar um objeto se sei que este já foi tocado por estranhos ou por certas pessoas." },
+    {
+      id: "5",
+      text: "Eu sinto dificuldade em tocar um objeto se sei que este já foi tocado por estranhos ou por certas pessoas.",
+    },
     { id: "6", text: "Eu tenho dificuldades em controlar meus próprios pensamentos." },
     { id: "7", text: "Eu coleciono coisas de que não preciso." },
     { id: "8", text: "Eu verifico repetidamente as portas, janelas, gavetas, etc." },
     { id: "9", text: "Eu fico chateado(a) se outras pessoas mudam as coisas que arrumei." },
     { id: "10", text: "Eu sinto necessidade de repetir certos números." },
     { id: "11", text: "Às vezes tenho que me lavar simplesmente porque me sinto contaminado(a)." },
-    { id: "12", text: "Pensamentos desagradáveis que invadem minha mente contra a minha vontade me deixam chateado(a)." },
-    { id: "13", text: "Evito jogar coisas fora, pois tenho medo de precisar delas em outro momento." },
-    { id: "14", text: "Eu verifico repetidamente o gás, as torneiras e os interruptores de luz após desligá-los." },
+    {
+      id: "12",
+      text: "Pensamentos desagradáveis que invadem minha mente contra a minha vontade me deixam chateado(a).",
+    },
+    {
+      id: "13",
+      text: "Evito jogar coisas fora, pois tenho medo de precisar delas em outro momento.",
+    },
+    {
+      id: "14",
+      text: "Eu verifico repetidamente o gás, as torneiras e os interruptores de luz após desligá-los.",
+    },
     { id: "15", text: "Eu necessito de que as coisas estejam arrumadas em uma determinada ordem." },
     { id: "16", text: "Eu acredito que há números bons e ruins." },
     { id: "17", text: "Eu lavo as minhas mãos mais vezes que o necessário." },
-    { id: "18", text: "Eu tenho pensamentos impróprios com frequência e tenho dificuldade em me livrar deles." },
+    {
+      id: "18",
+      text: "Eu tenho pensamentos impróprios com frequência e tenho dificuldade em me livrar deles.",
+    },
   ],
   bands: [
     { min: 0, max: 20, label: "Abaixo do ponto de corte", level: 0 },
-    { min: 21, max: 39, label: "Acima do corte — sintomas obsessivo-compulsivos prováveis", level: 3 },
+    {
+      min: 21,
+      max: 39,
+      label: "Acima do corte — sintomas obsessivo-compulsivos prováveis",
+      level: 3,
+    },
     { min: 40, max: 72, label: "Sintomatologia obsessivo-compulsiva intensa", level: 4 },
   ],
   positiveCutoff: 21,
-  licenseNote:
-    "OCI-R — versão brasileira (Souza et al., 2008/2011). Ponto de corte 21.",
+  licenseNote: "OCI-R — versão brasileira (Souza et al., 2008/2011). Ponto de corte 21.",
 };
 
 /* ------------------------------------------------------------------ */
@@ -335,7 +359,12 @@ const assistBandasPadrao = (max: number): SubscaleBand[] => [
 ];
 
 const ASSIST_SUBSCALES: SubscaleDef[] = [
-  { key: "ASSIST_TABACO", label: "Tabaco", items: ["801", "802", "803"], bands: assistBandasPadrao(3) },
+  {
+    key: "ASSIST_TABACO",
+    label: "Tabaco",
+    items: ["801", "802", "803"],
+    bands: assistBandasPadrao(3),
+  },
   {
     key: "ASSIST_ALCOOL",
     label: "Álcool",
@@ -346,10 +375,30 @@ const ASSIST_SUBSCALES: SubscaleDef[] = [
       { min: 3, max: 4, label: "Alto risco", level: 4, recommendation: RECO_ASSIST.alto },
     ],
   },
-  { key: "ASSIST_CANNABIS", label: "Cannabis", items: ["808", "809", "810"], bands: assistBandasPadrao(3) },
-  { key: "ASSIST_ESTIMULANTES", label: "Estimulantes (cocaína, anfetaminas)", items: ["811", "812", "813"], bands: assistBandasPadrao(3) },
-  { key: "ASSIST_SEDATIVOS", label: "Sedativos", items: ["814", "815", "816"], bands: assistBandasPadrao(3) },
-  { key: "ASSIST_OPIOIDES", label: "Opioides", items: ["817", "818", "819"], bands: assistBandasPadrao(3) },
+  {
+    key: "ASSIST_CANNABIS",
+    label: "Cannabis",
+    items: ["808", "809", "810"],
+    bands: assistBandasPadrao(3),
+  },
+  {
+    key: "ASSIST_ESTIMULANTES",
+    label: "Estimulantes (cocaína, anfetaminas)",
+    items: ["811", "812", "813"],
+    bands: assistBandasPadrao(3),
+  },
+  {
+    key: "ASSIST_SEDATIVOS",
+    label: "Sedativos",
+    items: ["814", "815", "816"],
+    bands: assistBandasPadrao(3),
+  },
+  {
+    key: "ASSIST_OPIOIDES",
+    label: "Opioides",
+    items: ["817", "818", "819"],
+    bands: assistBandasPadrao(3),
+  },
   {
     key: "ASSIST_OUTRAS",
     label: "Outras substâncias",
@@ -373,32 +422,119 @@ export const ASSIST: Scale = {
   timeframe: "Últimos 3 meses",
   options: OPTS_SIM_NAO,
   items: [
-    { id: "801", text: "Você usou algum produto de tabaco (cigarro, charuto, cachimbo, narguilé, vape com nicotina)?", branchGroup: "ASSIST_TABACO", isGateway: true },
-    { id: "802", text: "Teve forte desejo ou vontade incontrolável de usar tabaco?", branchGroup: "ASSIST_TABACO" },
-    { id: "803", text: "O uso de tabaco causou problemas de saúde, sociais, legais ou financeiros?", branchGroup: "ASSIST_TABACO" },
+    {
+      id: "801",
+      text: "Você usou algum produto de tabaco (cigarro, charuto, cachimbo, narguilé, vape com nicotina)?",
+      branchGroup: "ASSIST_TABACO",
+      isGateway: true,
+    },
+    {
+      id: "802",
+      text: "Teve forte desejo ou vontade incontrolável de usar tabaco?",
+      branchGroup: "ASSIST_TABACO",
+    },
+    {
+      id: "803",
+      text: "O uso de tabaco causou problemas de saúde, sociais, legais ou financeiros?",
+      branchGroup: "ASSIST_TABACO",
+    },
 
-    { id: "804", text: "Você consumiu alguma bebida alcoólica?", branchGroup: "ASSIST_ALCOOL", isGateway: true },
-    { id: "805", text: "Teve forte desejo ou vontade incontrolável de beber?", branchGroup: "ASSIST_ALCOOL" },
-    { id: "806", text: "O uso de bebida alcoólica causou problemas de saúde, sociais, legais ou financeiros?", branchGroup: "ASSIST_ALCOOL" },
-    { id: "807", text: "Deixou de cumprir obrigações (trabalho, estudos, casa) por causa da bebida?", branchGroup: "ASSIST_ALCOOL" },
+    {
+      id: "804",
+      text: "Você consumiu alguma bebida alcoólica?",
+      branchGroup: "ASSIST_ALCOOL",
+      isGateway: true,
+    },
+    {
+      id: "805",
+      text: "Teve forte desejo ou vontade incontrolável de beber?",
+      branchGroup: "ASSIST_ALCOOL",
+    },
+    {
+      id: "806",
+      text: "O uso de bebida alcoólica causou problemas de saúde, sociais, legais ou financeiros?",
+      branchGroup: "ASSIST_ALCOOL",
+    },
+    {
+      id: "807",
+      text: "Deixou de cumprir obrigações (trabalho, estudos, casa) por causa da bebida?",
+      branchGroup: "ASSIST_ALCOOL",
+    },
 
-    { id: "808", text: "Você usou cannabis (maconha, haxixe, skunk)?", branchGroup: "ASSIST_CANNABIS", isGateway: true },
-    { id: "809", text: "Teve forte desejo ou vontade incontrolável de usar cannabis?", branchGroup: "ASSIST_CANNABIS" },
-    { id: "810", text: "O uso de cannabis causou problemas de saúde, sociais, legais ou financeiros?", branchGroup: "ASSIST_CANNABIS" },
+    {
+      id: "808",
+      text: "Você usou cannabis (maconha, haxixe, skunk)?",
+      branchGroup: "ASSIST_CANNABIS",
+      isGateway: true,
+    },
+    {
+      id: "809",
+      text: "Teve forte desejo ou vontade incontrolável de usar cannabis?",
+      branchGroup: "ASSIST_CANNABIS",
+    },
+    {
+      id: "810",
+      text: "O uso de cannabis causou problemas de saúde, sociais, legais ou financeiros?",
+      branchGroup: "ASSIST_CANNABIS",
+    },
 
-    { id: "811", text: "Você usou cocaína, crack ou estimulantes (anfetaminas, ecstasy/MD, ritalina sem prescrição)?", branchGroup: "ASSIST_ESTIMULANTES", isGateway: true },
-    { id: "812", text: "Teve forte desejo ou vontade incontrolável de usar cocaína ou estimulantes?", branchGroup: "ASSIST_ESTIMULANTES" },
-    { id: "813", text: "O uso de cocaína ou estimulantes causou problemas de saúde, sociais, legais ou financeiros?", branchGroup: "ASSIST_ESTIMULANTES" },
+    {
+      id: "811",
+      text: "Você usou cocaína, crack ou estimulantes (anfetaminas, ecstasy/MD, ritalina sem prescrição)?",
+      branchGroup: "ASSIST_ESTIMULANTES",
+      isGateway: true,
+    },
+    {
+      id: "812",
+      text: "Teve forte desejo ou vontade incontrolável de usar cocaína ou estimulantes?",
+      branchGroup: "ASSIST_ESTIMULANTES",
+    },
+    {
+      id: "813",
+      text: "O uso de cocaína ou estimulantes causou problemas de saúde, sociais, legais ou financeiros?",
+      branchGroup: "ASSIST_ESTIMULANTES",
+    },
 
-    { id: "814", text: "Você usou sedativos ou remédios para dormir sem prescrição, ou em dose maior que a prescrita (benzodiazepínicos e similares)?", branchGroup: "ASSIST_SEDATIVOS", isGateway: true },
-    { id: "815", text: "Teve forte desejo ou vontade incontrolável de usar sedativos?", branchGroup: "ASSIST_SEDATIVOS" },
-    { id: "816", text: "O uso de sedativos causou problemas de saúde, sociais, legais ou financeiros?", branchGroup: "ASSIST_SEDATIVOS" },
+    {
+      id: "814",
+      text: "Você usou sedativos ou remédios para dormir sem prescrição, ou em dose maior que a prescrita (benzodiazepínicos e similares)?",
+      branchGroup: "ASSIST_SEDATIVOS",
+      isGateway: true,
+    },
+    {
+      id: "815",
+      text: "Teve forte desejo ou vontade incontrolável de usar sedativos?",
+      branchGroup: "ASSIST_SEDATIVOS",
+    },
+    {
+      id: "816",
+      text: "O uso de sedativos causou problemas de saúde, sociais, legais ou financeiros?",
+      branchGroup: "ASSIST_SEDATIVOS",
+    },
 
-    { id: "817", text: "Você usou opioides sem prescrição ou em dose maior que a prescrita (codeína, tramadol, morfina, oxicodona, heroína)?", branchGroup: "ASSIST_OPIOIDES", isGateway: true },
-    { id: "818", text: "Teve forte desejo ou vontade incontrolável de usar opioides?", branchGroup: "ASSIST_OPIOIDES" },
-    { id: "819", text: "O uso de opioides causou problemas de saúde, sociais, legais ou financeiros?", branchGroup: "ASSIST_OPIOIDES" },
+    {
+      id: "817",
+      text: "Você usou opioides sem prescrição ou em dose maior que a prescrita (codeína, tramadol, morfina, oxicodona, heroína)?",
+      branchGroup: "ASSIST_OPIOIDES",
+      isGateway: true,
+    },
+    {
+      id: "818",
+      text: "Teve forte desejo ou vontade incontrolável de usar opioides?",
+      branchGroup: "ASSIST_OPIOIDES",
+    },
+    {
+      id: "819",
+      text: "O uso de opioides causou problemas de saúde, sociais, legais ou financeiros?",
+      branchGroup: "ASSIST_OPIOIDES",
+    },
 
-    { id: "820", text: "Você usou alguma outra substância (inalantes como loló ou lança-perfume, alucinógenos como LSD ou cogumelos, ketamina)?", branchGroup: "ASSIST_OUTRAS", isGateway: true },
+    {
+      id: "820",
+      text: "Você usou alguma outra substância (inalantes como loló ou lança-perfume, alucinógenos como LSD ou cogumelos, ketamina)?",
+      branchGroup: "ASSIST_OUTRAS",
+      isGateway: true,
+    },
   ],
   // Faixas do escore total (0-20) são apenas um fallback formal — a
   // classificação exibida deriva das subescalas por substância.
@@ -481,10 +617,16 @@ export const PGSI: Scale = {
     { id: "3", text: "Você voltou outro dia para tentar recuperar o dinheiro perdido?" },
     { id: "4", text: "Você pegou dinheiro emprestado ou vendeu algo para conseguir apostar?" },
     { id: "5", text: "Você sentiu que poderia ter um problema com apostas ou jogos?" },
-    { id: "6", text: "As apostas causaram algum problema de saúde, incluindo estresse ou ansiedade?" },
+    {
+      id: "6",
+      text: "As apostas causaram algum problema de saúde, incluindo estresse ou ansiedade?",
+    },
     { id: "7", text: "Alguém criticou suas apostas ou disse que você tinha um problema com isso?" },
     { id: "8", text: "As apostas causaram problemas financeiros a você ou à sua família?" },
-    { id: "9", text: "Você se sentiu culpado(a) pelo modo como aposta ou pelo que acontece quando aposta?" },
+    {
+      id: "9",
+      text: "Você se sentiu culpado(a) pelo modo como aposta ou pelo que acontece quando aposta?",
+    },
   ],
   bands: [
     { min: 0, max: 0, label: "Sem risco identificado", level: 0 },

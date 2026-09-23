@@ -113,8 +113,7 @@ export const getMyPortalAssessments = createServerFn({ method: "GET" })
       clinic_name: r.clinics?.name ?? "Consultório",
       submitted_at: r.submitted_at,
       respondent_name: r.respondent_name,
-      respondent_type:
-        (r.respondent_type as "paciente" | "familiar") ?? "paciente",
+      respondent_type: (r.respondent_type as "paciente" | "familiar") ?? "paciente",
       informant_name: r.informant_name,
       informant_relation: r.informant_relation,
       results: byAssessment.get(r.id) ?? [],

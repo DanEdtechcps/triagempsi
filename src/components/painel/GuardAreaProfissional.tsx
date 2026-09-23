@@ -49,8 +49,8 @@ export function GuardAreaProfissional({ children }: { children: ReactNode }) {
             Não foi possível confirmar seu acesso
           </h1>
           <p className="mt-2 text-sm text-muted-foreground">
-            Houve uma falha de conexão ao verificar seu perfil. Confira sua
-            internet e tente novamente — seus dados continuam protegidos.
+            Houve uma falha de conexão ao verificar seu perfil. Confira sua internet e tente
+            novamente — seus dados continuam protegidos.
           </p>
           <div className="mt-6 grid gap-2">
             <Button onClick={() => window.location.reload()}>
@@ -77,9 +77,9 @@ export function GuardAreaProfissional({ children }: { children: ReactNode }) {
             Área exclusiva da equipe clínica
           </h1>
           <p className="mt-2 text-sm text-muted-foreground">
-            Você entrou com <strong>{email ?? "uma conta"}</strong>, que é uma
-            conta de <strong>paciente</strong>. As telas de triagens, auditoria e
-            administração são restritas a médicos e administradores da clínica.
+            Você entrou com <strong>{email ?? "uma conta"}</strong>, que é uma conta de{" "}
+            <strong>paciente</strong>. As telas de triagens, auditoria e administração são restritas
+            a médicos e administradores da clínica.
           </p>
           <div className="mt-6 grid gap-2">
             <Button asChild>
@@ -93,8 +93,8 @@ export function GuardAreaProfissional({ children }: { children: ReactNode }) {
             </Button>
           </div>
           <p className="mt-4 text-xs text-muted-foreground">
-            É profissional e está vendo esta mensagem? Peça ao administrador da
-            clínica para liberar seu acesso à equipe.
+            É profissional e está vendo esta mensagem? Peça ao administrador da clínica para liberar
+            seu acesso à equipe.
           </p>
         </Card>
       </div>

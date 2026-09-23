@@ -38,7 +38,10 @@ export type PasswordRule = { label: string; ok: boolean };
 
 export function passwordRules(value: string): PasswordRule[] {
   return [
-    { label: `Mínimo de ${MIN_PASSWORD_LENGTH} caracteres`, ok: value.length >= MIN_PASSWORD_LENGTH },
+    {
+      label: `Mínimo de ${MIN_PASSWORD_LENGTH} caracteres`,
+      ok: value.length >= MIN_PASSWORD_LENGTH,
+    },
     { label: "Uma letra maiúscula", ok: /[A-Z]/.test(value) },
     { label: "Uma letra minúscula", ok: /[a-z]/.test(value) },
     { label: "Um número", ok: /[0-9]/.test(value) },

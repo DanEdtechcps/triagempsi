@@ -1,11 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { PainelShell } from "@/components/painel/PainelShell";
 import { Card } from "@/components/ui/card";
-import {
-  ESCALATION_RULES,
-  ROUTING_RULES,
-  SYMPTOM_QUESTION,
-} from "@/config/triage-tree";
+import { ESCALATION_RULES, ROUTING_RULES, SYMPTOM_QUESTION } from "@/config/triage-tree";
 import {
   LIMITATIONS,
   METHODOLOGY_NOTE,
@@ -73,8 +69,8 @@ function ReferenciasPage() {
         <Card className="border-border bg-card p-4 sm:p-6">
           <h2 className="font-serif text-lg font-semibold">O que a pré-triagem cobre</h2>
           <p className="mt-2 text-sm text-muted-foreground">
-            Números derivados diretamente do protocolo vigente — esta página se
-            atualiza sozinha a cada nova escala ou regra.
+            Números derivados diretamente do protocolo vigente — esta página se atualiza sozinha a
+            cada nova escala ou regra.
           </p>
           <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
             {stats.map((s) => (
@@ -82,9 +78,7 @@ function ReferenciasPage() {
                 key={s.label}
                 className="rounded-xl border border-border bg-background p-3 text-center"
               >
-                <p className="font-serif text-2xl font-semibold text-foreground">
-                  {s.value}
-                </p>
+                <p className="font-serif text-2xl font-semibold text-foreground">{s.value}</p>
                 <p className="mt-1 text-xs text-muted-foreground">{s.label}</p>
               </div>
             ))}
@@ -97,10 +91,10 @@ function ReferenciasPage() {
             Acuidade por instrumento (escalas ativas)
           </h2>
           <p className="mt-2 text-sm text-muted-foreground">
-            Sensibilidade = capacidade de não perder casos; especificidade =
-            capacidade de não gerar falso positivo. Rastreio positivo{" "}
-            <strong className="text-foreground">não é diagnóstico</strong> — exige
-            avaliação clínica.
+            Sensibilidade = capacidade de não perder casos; especificidade = capacidade de não gerar
+            falso positivo. Rastreio positivo{" "}
+            <strong className="text-foreground">não é diagnóstico</strong> — exige avaliação
+            clínica.
           </p>
           <div className="mt-4 overflow-x-auto">
             <table className="w-full min-w-[720px] text-sm">
@@ -127,9 +121,7 @@ function ReferenciasPage() {
                       <td className="py-3 pr-3 text-foreground">
                         {ev?.condition}
                         {ev?.icd10 && (
-                          <span className="block text-xs text-muted-foreground">
-                            {ev.icd10}
-                          </span>
+                          <span className="block text-xs text-muted-foreground">{ev.icd10}</span>
                         )}
                       </td>
                       <td className="py-3 pr-3 text-muted-foreground">{ev?.cutoff}</td>
@@ -142,13 +134,10 @@ function ReferenciasPage() {
                         <p>{ev?.reference}</p>
                         {ev?.validationBr && (
                           <p className="mt-1">
-                            <strong className="text-foreground">Brasil:</strong>{" "}
-                            {ev.validationBr}
+                            <strong className="text-foreground">Brasil:</strong> {ev.validationBr}
                           </p>
                         )}
-                        {ev?.note && (
-                          <p className="mt-1 italic">{ev.note}</p>
-                        )}
+                        {ev?.note && <p className="mt-1 italic">{ev.note}</p>}
                       </td>
                     </tr>
                   );
@@ -159,17 +148,15 @@ function ReferenciasPage() {
           {pendingScales.length > 0 && (
             <p className="mt-4 rounded-lg border border-dashed border-border bg-muted/40 p-3 text-xs text-muted-foreground">
               <strong className="text-foreground">Em curadoria (não aplicadas):</strong>{" "}
-              {pendingScales.map((s) => s.code).join(" · ")} — estrutura pronta,
-              aguardando revisão da equipe clínica antes de entrar no fluxo.
+              {pendingScales.map((s) => s.code).join(" · ")} — estrutura pronta, aguardando revisão
+              da equipe clínica antes de entrar no fluxo.
             </p>
           )}
         </Card>
 
         {/* Fluxos por especialidade */}
         <Card className="border-border bg-card p-4 sm:p-6">
-          <h2 className="font-serif text-lg font-semibold">
-            Fluxos mais comuns por especialidade
-          </h2>
+          <h2 className="font-serif text-lg font-semibold">Fluxos mais comuns por especialidade</h2>
           <p className="mt-2 text-sm text-muted-foreground">
             Cenários reais de encaminhamento gerados pelas regras do protocolo.
           </p>
@@ -179,9 +166,7 @@ function ReferenciasPage() {
                 key={flow.specialty}
                 className="rounded-xl border border-border bg-background p-4"
               >
-                <h3 className="text-sm font-semibold text-foreground">
-                  {flow.specialty}
-                </h3>
+                <h3 className="text-sm font-semibold text-foreground">{flow.specialty}</h3>
                 <p className="mt-0.5 text-xs text-muted-foreground">{flow.scenario}</p>
                 <ol className="mt-3 space-y-2">
                   {flow.steps.map((step, i) => (
@@ -207,9 +192,7 @@ function ReferenciasPage() {
 
         {/* Limitações */}
         <Card className="border-border bg-card p-4 sm:p-6">
-          <h2 className="font-serif text-lg font-semibold">
-            Limitações e governança clínica
-          </h2>
+          <h2 className="font-serif text-lg font-semibold">Limitações e governança clínica</h2>
           <ul className="mt-3 list-disc space-y-2 pl-5 text-sm text-muted-foreground">
             {LIMITATIONS.map((item, i) => (
               <li key={i}>{item}</li>
@@ -223,27 +206,21 @@ function ReferenciasPage() {
             Próximos passos para dados de pesquisa
           </h2>
           <p className="mt-2 text-sm text-muted-foreground">
-            Melhorias propostas para elevar a qualidade dos dados brutos — todas
-            compatíveis com a LGPD e com as resoluções do CNS.
+            Melhorias propostas para elevar a qualidade dos dados brutos — todas compatíveis com a
+            LGPD e com as resoluções do CNS.
           </p>
           <div className="mt-4 grid gap-3 sm:grid-cols-2">
             {RESEARCH_PROPOSALS.map((p) => (
-              <div
-                key={p.title}
-                className="rounded-xl border border-border bg-background p-4"
-              >
+              <div key={p.title} className="rounded-xl border border-border bg-background p-4">
                 <h3 className="text-sm font-semibold text-foreground">{p.title}</h3>
-                <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
-                  {p.detail}
-                </p>
+                <p className="mt-1 text-xs leading-relaxed text-muted-foreground">{p.detail}</p>
               </div>
             ))}
           </div>
         </Card>
 
         <p className="rounded-lg border border-border bg-muted/40 p-4 text-xs leading-relaxed text-muted-foreground">
-          <strong className="text-foreground">Nota metodológica:</strong>{" "}
-          {METHODOLOGY_NOTE}
+          <strong className="text-foreground">Nota metodológica:</strong> {METHODOLOGY_NOTE}
         </p>
       </div>
     </PainelShell>

@@ -13,9 +13,7 @@ export type AssessmentNote = {
 /** Histórico de pareceres médicos de uma triagem (RLS limita à clínica). */
 export const listAssessmentNotes = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((raw: unknown) =>
-    z.object({ assessment_id: z.string().uuid() }).parse(raw),
-  )
+  .inputValidator((raw: unknown) => z.object({ assessment_id: z.string().uuid() }).parse(raw))
   .handler(async ({ data, context }): Promise<AssessmentNote[]> => {
     const { data: rows, error } = await context.supabase
       .from("assessment_notes")

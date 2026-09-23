@@ -141,11 +141,7 @@ export function isScaleAllowedForAge(scale: Scale, age: number | null): boolean 
 /* Ramificação: perguntas-gateway pulam o restante do grupo             */
 /* ------------------------------------------------------------------ */
 
-function gatewayValue(
-  scale: Scale,
-  group: string,
-  answers: Record<string, number>,
-): number {
+function gatewayValue(scale: Scale, group: string, answers: Record<string, number>): number {
   const gw = scale.items.find((i) => i.branchGroup === group && i.isGateway);
   return gw ? (answers[gw.id] ?? 0) : 0;
 }
@@ -154,15 +150,10 @@ function gatewayValue(
  * Ids dos itens atualmente pulados pela regra de ramificação: pertencem a
  * um grupo cuja pergunta-porta vale 0 (ou ainda não foi respondida).
  */
-export function skippedItemIds(
-  scale: Scale,
-  answers: Record<string, number>,
-): Set<string> {
+export function skippedItemIds(scale: Scale, answers: Record<string, number>): Set<string> {
   const skipped = new Set<string>();
   const groups = new Set(
-    scale.items
-      .map((i) => i.branchGroup)
-      .filter((g): g is string => typeof g === "string"),
+    scale.items.map((i) => i.branchGroup).filter((g): g is string => typeof g === "string"),
   );
   for (const g of groups) {
     if (gatewayValue(scale, g, answers) !== 0) continue;

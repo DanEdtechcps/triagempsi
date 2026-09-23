@@ -66,11 +66,7 @@ export function MobileTriageCard({
 }) {
   const risco = a.risk_flags.length > 0 || a.summary?.risk_pathway === true;
   const atencao = !risco && a.scales.some((s) => (s.band_level ?? 0) >= 2);
-  const faixa = risco
-    ? "border-l-destructive"
-    : atencao
-      ? "border-l-warning"
-      : "border-l-border";
+  const faixa = risco ? "border-l-destructive" : atencao ? "border-l-warning" : "border-l-border";
   const extras = a.scales.length - 3;
 
   return (
@@ -88,9 +84,7 @@ export function MobileTriageCard({
             className="block min-w-0 hover:opacity-80"
           >
             <div className="min-w-0">
-              <div className="truncate font-medium text-foreground">
-                {a.respondent_name}
-              </div>
+              <div className="truncate font-medium text-foreground">{a.respondent_name}</div>
               <div className="mt-0.5 text-xs text-muted-foreground">
                 {a.respondent_age != null ? `${a.respondent_age} anos · ` : ""}
                 {tempoRelativo(a.submitted_at)}
@@ -105,9 +99,7 @@ export function MobileTriageCard({
             </div>
             <div className="mt-2 flex flex-wrap items-center gap-1.5">
               {a.scales.length === 0 && (
-                <span className="text-xs text-muted-foreground">
-                  Sem escalas aplicadas
-                </span>
+                <span className="text-xs text-muted-foreground">Sem escalas aplicadas</span>
               )}
               {a.scales.slice(0, 3).map((s) => (
                 <BandBadge

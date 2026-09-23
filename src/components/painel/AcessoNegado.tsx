@@ -22,9 +22,9 @@ export function AcessoNegado({
       <h2 className="font-serif text-lg font-semibold text-foreground">{title}</h2>
       <p className="mt-2 text-sm text-foreground/80">{accessDeniedMessage(error)}</p>
       <p className="mt-2 text-sm text-muted-foreground">
-        Seu perfil só enxerga dados dos consultórios vinculados à sua conta. Se você
-        precisa acompanhar este registro, peça a um administrador para incluir o
-        consultório correspondente no seu acesso.
+        Seu perfil só enxerga dados dos consultórios vinculados à sua conta. Se você precisa
+        acompanhar este registro, peça a um administrador para incluir o consultório correspondente
+        no seu acesso.
       </p>
       {backToPainel && (
         <Link

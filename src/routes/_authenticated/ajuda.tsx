@@ -3,11 +3,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { PainelShell } from "@/components/painel/PainelShell";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import {
-  MANUAL_SECTIONS,
-  MANUAL_VERSION,
-  type ManualBlock,
-} from "@/config/manual";
+import { MANUAL_SECTIONS, MANUAL_VERSION, type ManualBlock } from "@/config/manual";
 import { downloadManualPdf } from "@/lib/pdf-manual";
 
 export const Route = createFileRoute("/_authenticated/ajuda")({
@@ -33,8 +29,7 @@ export const Route = createFileRoute("/_authenticated/ajuda")({
 });
 
 function Bloco({ block }: { block: ManualBlock }) {
-  if (block.kind === "p")
-    return <p className="text-sm text-muted-foreground">{block.text}</p>;
+  if (block.kind === "p") return <p className="text-sm text-muted-foreground">{block.text}</p>;
 
   if (block.kind === "list")
     return (
@@ -100,9 +95,7 @@ function Ajuda() {
   const secoes = useMemo(() => {
     const termo = busca.trim().toLowerCase();
     if (!termo) return MANUAL_SECTIONS;
-    return MANUAL_SECTIONS.filter((s) =>
-      JSON.stringify(s).toLowerCase().includes(termo),
-    );
+    return MANUAL_SECTIONS.filter((s) => JSON.stringify(s).toLowerCase().includes(termo));
   }, [busca]);
 
   return (
@@ -117,12 +110,10 @@ function Ajuda() {
       <div className="space-y-6">
         <Card className="space-y-3 p-4 sm:p-6">
           <div>
-            <h1 className="font-serif text-xl font-semibold sm:text-2xl">
-              Manual do profissional
-            </h1>
+            <h1 className="font-serif text-xl font-semibold sm:text-2xl">Manual do profissional</h1>
             <p className="text-sm text-muted-foreground">
-              Versão {MANUAL_VERSION}. Mesmo conteúdo disponível online e em PDF
-              para distribuição interna.
+              Versão {MANUAL_VERSION}. Mesmo conteúdo disponível online e em PDF para distribuição
+              interna.
             </p>
           </div>
           <label htmlFor="busca-ajuda" className="sr-only">

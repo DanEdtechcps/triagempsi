@@ -31,17 +31,21 @@ export const CLINICAL_CASE_SCENARIOS: ScenarioConfig[] = [
       patient_age: 22,
       patient_sex: "F",
       source_reference: "Autoral Dr. José Saraiva Junior · Corte 800",
-      chief_complaint: "Dorme 3h/noite sem cansaço há 10 dias, gastos impulsivos que 'vão virar negócio'",
-      past_history: "Episódio depressivo prévio (tristeza, hipersonia, anedonia por 3 meses) há 2 anos",
+      chief_complaint:
+        "Dorme 3h/noite sem cansaço há 10 dias, gastos impulsivos que 'vão virar negócio'",
+      past_history:
+        "Episódio depressivo prévio (tristeza, hipersonia, anedonia por 3 meses) há 2 anos",
       key_diagnostics: "Transtorno Bipolar Tipo I, episódio maníaco atual",
-      differential_rationale: "Prejuízo funcional grave com repercussão financeira diferencia mania de hipomania",
-      pharmacotherapy: "Estabilizador do humor (Lítio) em monoterapia. Contraindicado ISRS isolado (risco de virada e ciclagem rápida)",
+      differential_rationale:
+        "Prejuízo funcional grave com repercussão financeira diferencia mania de hipomania",
+      pharmacotherapy:
+        "Estabilizador do humor (Lítio) em monoterapia. Contraindicado ISRS isolado (risco de virada e ciclagem rápida)",
       learning_objectives: [
         "Identificar critérios DSM-5 para episódio maníaco",
         "Diferenciar mania de hipomania com base em gravidade e impacto funcional",
-        "Prescrever estabilizador do humor de 1ª linha e evitar antidepressivo em monoterapia"
-      ]
-    }
+        "Prescrever estabilizador do humor de 1ª linha e evitar antidepressivo em monoterapia",
+      ],
+    },
   },
   {
     id: "cc-002-ekbom-cocaina",
@@ -55,17 +59,21 @@ export const CLINICAL_CASE_SCENARIOS: ScenarioConfig[] = [
     seed_data: {
       patient_age: 41,
       patient_sex: "M",
-      source_reference: "SARAIVA JUNIOR, J.R.F.; MARCON, G.; REAL, A.G. Síndrome de Ekbom Induzida por Cocaína (2015)",
-      chief_complaint: "Convicção de infestação parasitária subcutânea, trazendo fragmentos em pote ('sinal do pote')",
-      physical_exam: "Escoriações secundárias nos antebraços e couro cabeludo; sem lesão dermatológica primária",
+      source_reference:
+        "SARAIVA JUNIOR, J.R.F.; MARCON, G.; REAL, A.G. Síndrome de Ekbom Induzida por Cocaína (2015)",
+      chief_complaint:
+        "Convicção de infestação parasitária subcutânea, trazendo fragmentos em pote ('sinal do pote')",
+      physical_exam:
+        "Escoriações secundárias nos antebraços e couro cabeludo; sem lesão dermatológica primária",
       key_diagnostics: "Delírio de infestação (Síndrome de Ekbom) secundário ao uso de estimulante",
-      clinical_conduct: "Suspensão do estimulante, antipsicótico em dose baixa e manejo acolhedor SEM confrontação direta do delírio",
+      clinical_conduct:
+        "Suspensão do estimulante, antipsicótico em dose baixa e manejo acolhedor SEM confrontação direta do delírio",
       learning_objectives: [
         "Reconhecer a Síndrome de Ekbom secundária à formicação induzida por estimulantes",
         "Evitar confronto direto com o delírio para preservar a aliança terapêutica",
-        "Articular conduta conjunta entre psiquiatria e dermatologia"
-      ]
-    }
+        "Articular conduta conjunta entre psiquiatria e dermatologia",
+      ],
+    },
   },
   {
     id: "cc-003-alcool-idoso",
@@ -79,17 +87,21 @@ export const CLINICAL_CASE_SCENARIOS: ScenarioConfig[] = [
     seed_data: {
       patient_age: 72,
       patient_sex: "M",
-      source_reference: "SARAIVA JUNIOR, J.R.F.; DIEHL, A.A. Utilização de substâncias psicoativas em idosos (Ed. Berthier, 2014)",
-      chief_complaint: "Quedas repetidas, esquecimentos e irritabilidade; viúvo recente; parou caminhadas",
-      pharmacokinetics: "Menor água corporal, metabolismo hepático lento e polifarmácia amplificam a mesma dose de décadas",
+      source_reference:
+        "SARAIVA JUNIOR, J.R.F.; DIEHL, A.A. Utilização de substâncias psicoativas em idosos (Ed. Berthier, 2014)",
+      chief_complaint:
+        "Quedas repetidas, esquecimentos e irritabilidade; viúvo recente; parou caminhadas",
+      pharmacokinetics:
+        "Menor água corporal, metabolismo hepático lento e polifarmácia amplificam a mesma dose de décadas",
       screening_tool: "AUDIT-C adaptado para idosos, aplicado na consulta sem postura acusatória",
-      clinical_conduct: "Intervenção breve motivacional (FRAMES), revisão da polifarmácia e reinserção social",
+      clinical_conduct:
+        "Intervenção breve motivacional (FRAMES), revisão da polifarmácia e reinserção social",
       learning_objectives: [
         "Compreender a vulnerabilidade farmacocinética do idoso ao álcool",
         "Aplicar rastreio AUDIT-C sem confrontação",
-        "Identificar o luto e isolamento como mantenedores do consumo"
-      ]
-    }
+        "Identificar o luto e isolamento como mantenedores do consumo",
+      ],
+    },
   },
   {
     id: "cc-004-desmame-bzd-idoso",
@@ -103,17 +115,21 @@ export const CLINICAL_CASE_SCENARIOS: ScenarioConfig[] = [
     seed_data: {
       patient_age: 76,
       patient_sex: "F",
-      source_reference: "SARAIVA JUNIOR, J.R.F.; DIEHL, A.A. Adicções em Idosos (Ed. Berthier, 2014)",
-      chief_complaint: "Uso de BZD há 12 anos; mal-estar intenso na interrupção abrupta (dependência fisiológica iatrogênica)",
-      risks: "Quedas com fratura de fêmur, sedação diurna e declínio cognitivo mimetizando demência",
-      tapering_protocol: "Desmame gradual programado (10-25% a cada 1-2 semanas) com suporte de TCC-I e higiene do sono",
+      source_reference:
+        "SARAIVA JUNIOR, J.R.F.; DIEHL, A.A. Adicções em Idosos (Ed. Berthier, 2014)",
+      chief_complaint:
+        "Uso de BZD há 12 anos; mal-estar intenso na interrupção abrupta (dependência fisiológica iatrogênica)",
+      risks:
+        "Quedas com fratura de fêmur, sedação diurna e declínio cognitivo mimetizando demência",
+      tapering_protocol:
+        "Desmame gradual programado (10-25% a cada 1-2 semanas) com suporte de TCC-I e higiene do sono",
       interdisciplinary_team: "Prescritor, enfermagem, farmacêutico e família orientada",
       learning_objectives: [
         "Diagnosticar dependência iatrogênica de benzodiazepínicos no idoso",
         "Executar protocolo de desmame gradual seguro sem interrupção abrupta",
-        "Implementar intervenções não farmacológicas para o sono (TCC-I)"
-      ]
-    }
+        "Implementar intervenções não farmacológicas para o sono (TCC-I)",
+      ],
+    },
   },
   {
     id: "cc-005-delirium-tremens",
@@ -128,17 +144,21 @@ export const CLINICAL_CASE_SCENARIOS: ScenarioConfig[] = [
       patient_age: 68,
       patient_sex: "M",
       source_reference: "Autoral Dr. José Saraiva Junior · Protocolo de Emergências Hospitalares",
-      chief_complaint: "Agitação psicomotora, tremores e alucinações visuais no 3º dia de internação clínica",
-      key_diagnostics: "Delirium Tremens (abstinência alcoólica grave em 48-96h) — emergência com alta mortalidade",
-      emergency_protocol: "Benzodiazepínico em esquema protocolado (Diazepam/Lorazepam), Tiamina parenteral precoce (prevenção de Wernicke) e suporte hidroeletrolítico",
-      systemic_prevention: "Rastreio obrigatório do consumo de álcool na admissão de todo paciente hospitalizado",
+      chief_complaint:
+        "Agitação psicomotora, tremores e alucinações visuais no 3º dia de internação clínica",
+      key_diagnostics:
+        "Delirium Tremens (abstinência alcoólica grave em 48-96h) — emergência com alta mortalidade",
+      emergency_protocol:
+        "Benzodiazepínico em esquema protocolado (Diazepam/Lorazepam), Tiamina parenteral precoce (prevenção de Wernicke) e suporte hidroeletrolítico",
+      systemic_prevention:
+        "Rastreio obrigatório do consumo de álcool na admissão de todo paciente hospitalizado",
       learning_objectives: [
         "Reconhecer Delirium Tremens precocemente em enfermarias clínicas",
         "Instituir protocolo de sedação e reposição de tiamina antes da glicose",
-        "Superar o etarismo no rastreio sistemático de substâncias na admissão"
-      ]
-    }
-  }
+        "Superar o etarismo no rastreio sistemático de substâncias na admissão",
+      ],
+    },
+  },
 ];
 
 // ── FLUXO B: Redução de Danos & Abordagem de Rua (Caminhos Campinas) ────────
@@ -162,14 +182,14 @@ export const HARM_REDUCTION_SCENARIOS: ScenarioConfig[] = [
         "Abordagem sem julgamento moral e sem impor abstinência como condição de atendimento",
         "Aplicação de escuta ativa, validação e acolhimento de demandas imediatas (água, alimentação, curativos)",
         "Oferta de insumos de redução de danos (piteiras, protetor labial, água potável)",
-        "Pactuação de plano de cuidado compartilhado no CAPS-AD e Centro Pop"
+        "Pactuação de plano de cuidado compartilhado no CAPS-AD e Centro Pop",
       ],
       ethical_guardrails: [
         "Nunca romantizar nem criminalizar o uso de substâncias",
         "Respeitar o protagonismo e o tempo da pessoa atendida",
-        "Garantir sigilo e proteção contra violência institucional"
-      ]
-    }
+        "Garantir sigilo e proteção contra violência institucional",
+      ],
+    },
   },
   {
     id: "hr-002-desescalada-crise-alcool",
@@ -188,10 +208,10 @@ export const HARM_REDUCTION_SCENARIOS: ScenarioConfig[] = [
         "Técnicas de desescalada verbal em ambiente social",
         "Identificação de sinais de abstinência grave vs. intoxicação aguda",
         "Articulação intersetorial entre SUAS, Atenção Básica e CAPS-AD",
-        "Construção de projeto terapêutico singular (PTS)"
-      ]
-    }
-  }
+        "Construção de projeto terapêutico singular (PTS)",
+      ],
+    },
+  },
 ];
 
 // ── Index combinado ────────────────────────────────────────────────────────────

@@ -17,4 +17,3 @@ export const AUDIT_ACTION_LABEL: Record<string, string> = {
   subscription_created: "Criou a assinatura de um consultório",
   subscription_updated: "Atualizou a assinatura de um consultório",
 };
-

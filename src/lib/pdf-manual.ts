@@ -111,9 +111,7 @@ class Sheet {
     const drawRow = (cells: string[], bold: boolean) => {
       d.setFont("helvetica", bold ? "bold" : "normal");
       d.setFontSize(9);
-      const wrapped = cells.map(
-        (c, i) => d.splitTextToSize(c, widths[i]! - 10) as string[],
-      );
+      const wrapped = cells.map((c, i) => d.splitTextToSize(c, widths[i]! - 10) as string[]);
       const height = Math.max(...wrapped.map((w) => w.length)) * 12 + 8;
       this.ensure(height + 4);
       if (bold) {
@@ -200,11 +198,7 @@ export function downloadManualPdf(branding: Branding = BRANDING) {
 
 /** Roadmap do projeto para equipe e contratante. */
 export function downloadRoadmapPdf(branding: Branding = BRANDING) {
-  const sheet = new Sheet(
-    branding,
-    "Roadmap do projeto de pré-triagem",
-    ROADMAP_VERSION,
-  );
+  const sheet = new Sheet(branding, "Roadmap do projeto de pré-triagem", ROADMAP_VERSION);
   sheet.paragraph(
     "Panorama do que já está entregue, do que está em andamento e das oportunidades priorizadas por impacto clínico e operacional.",
     { color: 100 },

@@ -5,12 +5,7 @@ import type { ScaleResult } from "@/lib/scoring";
 import { scoreScale } from "@/lib/scoring";
 
 /** Aplica uma escala já respondida ao plano, como faz a tela de triagem. */
-function advance(
-  plan: TriagePlan,
-  result: ScaleResult,
-  age: number,
-  completed: string[] = [],
-) {
+function advance(plan: TriagePlan, result: ScaleResult, age: number, completed: string[] = []) {
   const index = plan.flow.indexOf(result.scale_code);
   return applyEscalations(plan, result, age, completed, index);
 }
@@ -23,9 +18,7 @@ describe("escalonamento por resultado", () => {
 
     const positivo = advance(plan, resultWithScore("PHQ-2", 3), 30);
     expect(positivo.flow).toContain("PHQ-9");
-    expect(positivo.flow.indexOf("PHQ-9")).toBe(
-      positivo.flow.indexOf("PHQ-2") + 1,
-    );
+    expect(positivo.flow.indexOf("PHQ-9")).toBe(positivo.flow.indexOf("PHQ-2") + 1);
   });
 
   it("PHQ-9 com item 9 positivo dispara ASQ e liga a via de risco", () => {
@@ -121,7 +114,19 @@ describe("escalonamento por resultado", () => {
 
   it("ASSIST-Lite: álcool ≥ 2 dispara AUDIT completo; 1 não dispara", () => {
     const plan = buildTriagePlan(["substancias"], 40);
-    const baixo = advance(plan, scoreScale("ASSIST", { "801": 0, "804": 1, "808": 0, "811": 0, "814": 0, "817": 0, "820": 0 }), 40);
+    const baixo = advance(
+      plan,
+      scoreScale("ASSIST", {
+        "801": 0,
+        "804": 1,
+        "808": 0,
+        "811": 0,
+        "814": 0,
+        "817": 0,
+        "820": 0,
+      }),
+      40,
+    );
     expect(baixo.flow).not.toContain("AUDIT");
     const moderado = advance(plan, scoreScale("ASSIST", { "804": 1, "805": 1 }), 40);
     expect(moderado.flow).toContain("AUDIT");
@@ -129,7 +134,21 @@ describe("escalonamento por resultado", () => {
 
   it("ASSIST-Lite: uso de tabaco dispara Fagerström; sem tabaco, não", () => {
     const plan = buildTriagePlan(["substancias"], 40);
-    expect(advance(plan, scoreScale("ASSIST", { "801": 0, "804": 0, "808": 0, "811": 0, "814": 0, "817": 0, "820": 0 }), 40).flow).not.toContain("FTND");
+    expect(
+      advance(
+        plan,
+        scoreScale("ASSIST", {
+          "801": 0,
+          "804": 0,
+          "808": 0,
+          "811": 0,
+          "814": 0,
+          "817": 0,
+          "820": 0,
+        }),
+        40,
+      ).flow,
+    ).not.toContain("FTND");
     expect(advance(plan, scoreScale("ASSIST", { "801": 1 }), 40).flow).toContain("FTND");
   });
 
@@ -150,9 +169,7 @@ describe("escalonamento por resultado", () => {
   it("registra o motivo de cada escalonamento para o relatório", () => {
     const plan = buildTriagePlan(["tristeza"], 30);
     const next = advance(plan, resultWithScore("PHQ-2", 5), 30);
-    expect(next.decisions.some((d) => d.step === "PHQ-2" && /PHQ-9/.test(d.reason))).toBe(
-      true,
-    );
+    expect(next.decisions.some((d) => d.step === "PHQ-2" && /PHQ-9/.test(d.reason))).toBe(true);
   });
 });
 

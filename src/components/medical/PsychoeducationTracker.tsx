@@ -26,7 +26,11 @@ export function PsychoeducationTracker({ assessmentId }: PsychoeducationTrackerP
   const fetchItems = useServerFn(getAssessmentPsychoeducation);
   const [activePreview, setActivePreview] = useState<AssessmentPsychoItem | null>(null);
 
-  const { data: items = [], isLoading, error } = useQuery({
+  const {
+    data: items = [],
+    isLoading,
+    error,
+  } = useQuery({
     queryKey: ["assessment-psycho", assessmentId],
     queryFn: () => fetchItems({ data: { assessment_id: assessmentId } }),
   });
@@ -72,8 +76,8 @@ export function PsychoeducationTracker({ assessmentId }: PsychoeducationTrackerP
               progressPercent === 100
                 ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300"
                 : progressPercent > 0
-                ? "border-primary/40 bg-primary/10 text-primary"
-                : "border-border text-muted-foreground"
+                  ? "border-primary/40 bg-primary/10 text-primary"
+                  : "border-border text-muted-foreground"
             }`}
           >
             {progressPercent === 100 ? (
@@ -119,20 +123,17 @@ export function PsychoeducationTracker({ assessmentId }: PsychoeducationTrackerP
                 >
                   <div className="space-y-1">
                     <div className="flex items-center gap-2">
-                      <span className="font-semibold text-sm text-foreground">
-                        {item.title}
-                      </span>
+                      <span className="font-semibold text-sm text-foreground">{item.title}</span>
                       {item.is_manual && (
                         <span className="rounded bg-muted px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground">
                           Adicionado pela equipe
                         </span>
                       )}
                     </div>
-                    <p className="text-xs text-muted-foreground line-clamp-1">
-                      {item.description}
-                    </p>
+                    <p className="text-xs text-muted-foreground line-clamp-1">{item.description}</p>
                     <div className="text-[11px] text-muted-foreground/80">
-                      Gatilho clínico: <span className="font-medium text-foreground/80">{item.trigger_reason}</span>
+                      Gatilho clínico:{" "}
+                      <span className="font-medium text-foreground/80">{item.trigger_reason}</span>
                     </div>
                   </div>
 
@@ -196,9 +197,7 @@ export function PsychoeducationTracker({ assessmentId }: PsychoeducationTrackerP
                 <p className="font-medium text-foreground">{activePreview.resumo_card}</p>
               </div>
 
-              <div className="whitespace-pre-line text-xs sm:text-sm">
-                {activePreview.body_md}
-              </div>
+              <div className="whitespace-pre-line text-xs sm:text-sm">{activePreview.body_md}</div>
             </div>
 
             <div className="mt-4 pt-3 border-t border-border flex justify-end">

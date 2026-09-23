@@ -2,7 +2,7 @@
  * Estimador de Teste Adaptativo Computadorizado (CAT) via Teoria de Resposta ao Item (TRI).
  * Implementado segundo o Modelo de Resposta Gradual de Samejima (GRM - Graded Response Model),
  * padrão internacional do PROMIS (Patient-Reported Outcomes Measurement Information System) / NIH.
- * 
+ *
  * Permite reduzir a carga de aplicação em >= 50% dos itens mantendo precisão clínica
  * equivalente ao questionário completo (SE <= 0.30).
  */
@@ -49,7 +49,7 @@ function logisticPStar(theta: number, a: number, b: number): number {
 /**
  * Calcula a probabilidade de resposta para cada categoria k = 0 ... K-1
  * sob o Graded Response Model (GRM).
- * 
+ *
  * P_k(theta) = P*_k(theta) - P*_{k+1}(theta)
  * onde P*_0 = 1 e P*_K = 0
  */
@@ -132,13 +132,11 @@ export interface CATEstimateResult {
 /**
  * Estima o traço latente theta (theta_hat) e o erro padrão SE(theta)
  * utilizando o estimador Expected A Posteriori (EAP) com integração numérica gaussiana.
- * 
+ *
  * EAP é estável para qualquer padrão de resposta (inclusive zeros absolutos) e
  * converge rapidamente para a escala padronizada (média 0, desvio-padrão 1).
  */
-export function estimateThetaEAP(
-  responses: CATItemResponse[],
-): CATEstimateResult {
+export function estimateThetaEAP(responses: CATItemResponse[]): CATEstimateResult {
   if (responses.length === 0) {
     return { theta: 0.0, se: 1.0, information: 1.0 };
   }
@@ -156,11 +154,7 @@ export function estimateThetaEAP(
     for (const resp of responses) {
       if (!resp.item.tri_parameters) continue;
       const numCats = resp.item.options?.length ?? 4;
-      const probs = calculateGRMCategoryProbabilities(
-        nodeTheta,
-        resp.item.tri_parameters,
-        numCats,
-      );
+      const probs = calculateGRMCategoryProbabilities(nodeTheta, resp.item.tri_parameters, numCats);
       const val = Math.min(numCats - 1, Math.max(0, resp.answerValue));
       l *= probs[val];
     }
@@ -193,11 +187,7 @@ export function estimateThetaEAP(
   for (const resp of responses) {
     if (!resp.item.tri_parameters) continue;
     const numCats = resp.item.options?.length ?? 4;
-    totalInfo += calculateItemFisherInformation(
-      thetaHat,
-      resp.item.tri_parameters,
-      numCats,
-    );
+    totalInfo += calculateItemFisherInformation(thetaHat, resp.item.tri_parameters, numCats);
   }
 
   return {
@@ -227,11 +217,7 @@ export function selectNextCATItem(
 
   for (const item of unappliedItems) {
     const numCats = item.options?.length ?? 4;
-    const info = calculateItemFisherInformation(
-      currentTheta,
-      item.tri_parameters!,
-      numCats,
-    );
+    const info = calculateItemFisherInformation(currentTheta, item.tri_parameters!, numCats);
     if (info > maxInfo) {
       maxInfo = info;
       bestItem = item;
@@ -258,7 +244,7 @@ export function shouldStopCAT(
   se: number,
   itemsAnsweredCount: number,
   totalItemsCount: number,
-  targetSE = 0.30,
+  targetSE = 0.3,
 ): CATStoppingDecision {
   const maxAllowedItems = Math.max(3, Math.ceil(totalItemsCount / 2));
   const reductionPercentage = Math.round(

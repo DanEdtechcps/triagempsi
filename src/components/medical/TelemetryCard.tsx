@@ -1,18 +1,8 @@
 import { useMemo } from "react";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import {
-  Clock,
-  Activity,
-  AlertTriangle,
-  CheckCircle2,
-  Zap,
-  Timer,
-} from "lucide-react";
-import {
-  analyzeSessionTelemetry,
-  type ItemDwellRecord,
-} from "@/lib/clinical-engine/dwell-time";
+import { Clock, Activity, AlertTriangle, CheckCircle2, Zap, Timer } from "lucide-react";
+import { analyzeSessionTelemetry, type ItemDwellRecord } from "@/lib/clinical-engine/dwell-time";
 import { resolveScaleForAnswers, getItemOptions } from "@/lib/scales-data";
 
 export interface TelemetryCardProps {
@@ -81,15 +71,16 @@ export function TelemetryCard({
                 scale_code: r.scale_code,
                 item_id: id,
                 value: val,
-                response_time_ms:
-                  isRisk && val > 0 ? 14500 : 1300 + ((Number(id) * 150) % 700),
+                response_time_ms: isRisk && val > 0 ? 14500 : 1300 + ((Number(id) * 150) % 700),
                 is_risk_item: isRisk,
               };
             }),
           );
 
     return effectiveRecords
-      .filter((r) => r.response_time_ms >= 3 * median || (r.is_risk_item && r.response_time_ms >= 8000))
+      .filter(
+        (r) => r.response_time_ms >= 3 * median || (r.is_risk_item && r.response_time_ms >= 8000),
+      )
       .map((record) => {
         const scaleDef = resolveScaleForAnswers(record.scale_code, {
           [record.item_id]: record.value,
@@ -232,9 +223,7 @@ export function TelemetryCard({
         </div>
       </div>
 
-      <p className="mt-3 text-xs text-muted-foreground">
-        {diagnosis.description}
-      </p>
+      <p className="mt-3 text-xs text-muted-foreground">{diagnosis.description}</p>
 
       {/* Tabela de Itens com Hesitação Significativa (>= 3x mediana) */}
       {hesitationItemsWithText.length > 0 ? (
@@ -283,9 +272,7 @@ export function TelemetryCard({
                         {item.ratio}x a mediana
                       </span>
                     </td>
-                    <td className="py-2.5 px-3 text-foreground font-medium">
-                      {item.chosen_label}
-                    </td>
+                    <td className="py-2.5 px-3 text-foreground font-medium">{item.chosen_label}</td>
                   </tr>
                 ))}
               </tbody>
@@ -296,7 +283,8 @@ export function TelemetryCard({
         <div className="mt-4 rounded-lg border border-emerald-500/20 bg-emerald-500/5 p-3 text-xs text-emerald-800 dark:text-emerald-300 flex items-center gap-2">
           <CheckCircle2 className="h-4 w-4 shrink-0" />
           <span>
-            Nenhuma hesitação focal detectada: todas as perguntas foram respondidas dentro do padrão esperado para o perfil do paciente.
+            Nenhuma hesitação focal detectada: todas as perguntas foram respondidas dentro do padrão
+            esperado para o perfil do paciente.
           </span>
         </div>
       )}

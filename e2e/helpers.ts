@@ -27,8 +27,7 @@ function fakeJwt(expiresIn = 3600) {
     aud: "authenticated",
     exp: Math.floor(Date.now() / 1000) + expiresIn,
   };
-  const b64 = (o: unknown) =>
-    Buffer.from(JSON.stringify(o)).toString("base64url");
+  const b64 = (o: unknown) => Buffer.from(JSON.stringify(o)).toString("base64url");
   return `${b64({ alg: "HS256", typ: "JWT" })}.${b64(payload)}.signature`;
 }
 

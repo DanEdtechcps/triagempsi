@@ -16,11 +16,7 @@ export type {
   SimulationTurn,
 } from "./types";
 
-export {
-  createSimulationContext,
-  processTurn,
-  finalizeSimulation,
-} from "./orchestrator";
+export { createSimulationContext, processTurn, finalizeSimulation } from "./orchestrator";
 
 export type { TurnResult } from "./orchestrator";
 

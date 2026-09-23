@@ -59,7 +59,11 @@ function MetaLanding() {
         <Button variant="outline" size="sm" onClick={() => void refetch()} disabled={isFetching}>
           {isFetching ? "Atualizando…" : "Atualizar"}
         </Button>
-        <Button variant="outline" size="sm" onClick={() => void navigator.clipboard.writeText(html)}>
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => void navigator.clipboard.writeText(html)}
+        >
           Copiar HTML
         </Button>
         <Button variant="ghost" size="sm" asChild>
@@ -109,9 +113,16 @@ function MetaLanding() {
                   </thead>
                   <tbody>
                     {tags.map((t) => (
-                      <tr key={`${t.kind}-${t.key}`} className="border-t border-border/60 align-top">
+                      <tr
+                        key={`${t.kind}-${t.key}`}
+                        className="border-t border-border/60 align-top"
+                      >
                         <td className="whitespace-nowrap py-2 pr-4 font-mono text-xs text-muted-foreground">
-                          {t.kind === "title" ? "<title>" : t.kind === "link" ? `link ${t.key}` : t.key}
+                          {t.kind === "title"
+                            ? "<title>"
+                            : t.kind === "link"
+                              ? `link ${t.key}`
+                              : t.key}
                         </td>
                         <td className="py-2 break-all">{t.value || "—"}</td>
                       </tr>

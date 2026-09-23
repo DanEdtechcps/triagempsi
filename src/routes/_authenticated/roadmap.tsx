@@ -44,9 +44,7 @@ const STATUS_CLS: Record<RoadmapStatus, string> = {
 
 function Roadmap() {
   const todos = ROADMAP.flatMap((f) => f.items);
-  const resumo = (
-    ["pronto", "andamento", "planejado", "ideia"] as RoadmapStatus[]
-  ).map((s) => ({
+  const resumo = (["pronto", "andamento", "planejado", "ideia"] as RoadmapStatus[]).map((s) => ({
     status: s,
     total: todos.filter((i) => i.status === s).length,
   }));
@@ -68,12 +66,10 @@ function Roadmap() {
       <div className="space-y-6">
         <Card className="space-y-3 p-4 sm:p-6">
           <div>
-            <h1 className="font-serif text-xl font-semibold sm:text-2xl">
-              Roadmap do projeto
-            </h1>
+            <h1 className="font-serif text-xl font-semibold sm:text-2xl">Roadmap do projeto</h1>
             <p className="text-sm text-muted-foreground">
-              {ROADMAP_VERSION}. Panorama do que temos, do que falta e do que
-              agrega mais valor clínico e operacional.
+              {ROADMAP_VERSION}. Panorama do que temos, do que falta e do que agrega mais valor
+              clínico e operacional.
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -96,13 +92,10 @@ function Roadmap() {
         {DELIVERIES.length > 0 && (
           <Card className="space-y-4 p-4 sm:p-6">
             <div>
-              <h2 className="font-serif text-lg font-semibold">
-                Registro de entregas
-              </h2>
+              <h2 className="font-serif text-lg font-semibold">Registro de entregas</h2>
               <p className="text-sm text-muted-foreground">
-                Histórico automático: cada entrega é registrada com título,
-                descrição e data. Última atualização em{" "}
-                {formatDeliveryDate(DELIVERIES[0]!.date)}.
+                Histórico automático: cada entrega é registrada com título, descrição e data. Última
+                atualização em {formatDeliveryDate(DELIVERIES[0]!.date)}.
               </p>
             </div>
             <ol className="space-y-3 border-l border-border pl-4">
@@ -110,9 +103,7 @@ function Roadmap() {
                 <li key={`${d.date}-${d.title}`} className="relative">
                   <span className="absolute -left-[21px] top-2 h-2 w-2 rounded-full bg-primary" />
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="font-medium text-foreground">
-                      {d.title}
-                    </span>
+                    <span className="font-medium text-foreground">{d.title}</span>
                     {d.area && (
                       <span className="inline-flex rounded-full border border-border bg-muted px-2 py-0.5 text-[11px] text-muted-foreground">
                         {d.area}
@@ -122,52 +113,34 @@ function Roadmap() {
                       {formatDeliveryDate(d.date)}
                     </span>
                   </div>
-                  <p className="mt-1 text-sm text-muted-foreground">
-                    {d.detail}
-                  </p>
+                  <p className="mt-1 text-sm text-muted-foreground">{d.detail}</p>
                 </li>
               ))}
             </ol>
           </Card>
         )}
 
-
-
         {ROADMAP.map((fase) => (
           <Card key={fase.id} className="space-y-4 p-4 sm:p-6">
             <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
-              <h2 className="truncate font-serif text-lg font-semibold">
-                {fase.title}
-              </h2>
-              <span className="shrink-0 text-xs text-muted-foreground">
-                {fase.horizon}
-              </span>
+              <h2 className="truncate font-serif text-lg font-semibold">{fase.title}</h2>
+              <span className="shrink-0 text-xs text-muted-foreground">{fase.horizon}</span>
             </div>
             <ul className="space-y-3">
               {fase.items.map((item) => (
-                <li
-                  key={item.title}
-                  className="rounded-md border border-border p-3"
-                >
+                <li key={item.title} className="rounded-md border border-border p-3">
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="font-medium text-foreground">
-                      {item.title}
-                    </span>
+                    <span className="font-medium text-foreground">{item.title}</span>
                     <span
                       className={`inline-flex rounded-full border px-2 py-0.5 text-[11px] font-medium ${STATUS_CLS[item.status]}`}
                     >
                       {ROADMAP_STATUS_LABEL[item.status]}
                     </span>
                   </div>
-                  <p className="mt-1 text-sm text-muted-foreground">
-                    {item.detail}
-                  </p>
+                  <p className="mt-1 text-sm text-muted-foreground">{item.detail}</p>
                   {item.value && (
                     <p className="mt-1 text-xs text-muted-foreground">
-                      <span className="font-medium text-foreground">
-                        Impacto:
-                      </span>{" "}
-                      {item.value}
+                      <span className="font-medium text-foreground">Impacto:</span> {item.value}
                     </p>
                   )}
                 </li>

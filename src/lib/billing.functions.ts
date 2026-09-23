@@ -12,12 +12,7 @@ export type PlanInfo = {
   is_active: boolean;
 };
 
-export type SubscriptionStatus =
-  | "trial"
-  | "ativa"
-  | "inadimplente"
-  | "suspensa"
-  | "cancelada";
+export type SubscriptionStatus = "trial" | "ativa" | "inadimplente" | "suspensa" | "cancelada";
 
 export type CommercialRow = {
   subscription_id: string | null;
@@ -40,13 +35,7 @@ export type CommercialRow = {
   staff_count: number;
 };
 
-const SUBSCRIPTION_STATUSES = [
-  "trial",
-  "ativa",
-  "inadimplente",
-  "suspensa",
-  "cancelada",
-] as const;
+const SUBSCRIPTION_STATUSES = ["trial", "ativa", "inadimplente", "suspensa", "cancelada"] as const;
 
 /** Catálogo de planos (qualquer usuário autenticado pode ler). */
 export const listPlans = createServerFn({ method: "GET" })
@@ -54,9 +43,7 @@ export const listPlans = createServerFn({ method: "GET" })
   .handler(async ({ context }): Promise<PlanInfo[]> => {
     const { data, error } = await context.supabase
       .from("plans")
-      .select(
-        "code, name, monthly_price_cents, max_professionals, max_units, features, is_active",
-      )
+      .select("code, name, monthly_price_cents, max_professionals, max_units, features, is_active")
       .eq("is_active", true)
       .order("monthly_price_cents", { ascending: true, nullsFirst: false });
     if (error) throw new Error("Não foi possível carregar os planos.");
@@ -72,9 +59,7 @@ export const listCommercialAdmin = createServerFn({ method: "GET" })
   .handler(async ({ context }): Promise<CommercialRow[]> => {
     const { requireGlobalAdmin } = await import("@/lib/admin-guard.server");
     await requireGlobalAdmin(context.supabase, context.userId);
-    const { supabaseAdmin } = await import(
-      "@/integrations/supabase/client.server"
-    );
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     const [clinicsRes, subsRes, rolesRes] = await Promise.all([
       supabaseAdmin
@@ -125,12 +110,14 @@ export const listCommercialAdmin = createServerFn({ method: "GET" })
       staffByClinic.set(r.clinic_id, set);
     }
 
-    return ((clinicsRes.data ?? []) as {
-      id: string;
-      slug: string;
-      name: string;
-      is_active: boolean;
-    }[]).map((c) => {
+    return (
+      (clinicsRes.data ?? []) as {
+        id: string;
+        slug: string;
+        name: string;
+        is_active: boolean;
+      }[]
+    ).map((c) => {
       const sub = subByClinic.get(c.id) ?? null;
       return {
         subscription_id: sub?.id ?? null,
@@ -144,8 +131,7 @@ export const listCommercialAdmin = createServerFn({ method: "GET" })
         max_professionals: sub?.plans?.max_professionals ?? null,
         status: sub?.status ?? null,
         monthly_price_cents: sub?.monthly_price_cents ?? null,
-        effective_price_cents:
-          sub?.monthly_price_cents ?? sub?.plans?.monthly_price_cents ?? null,
+        effective_price_cents: sub?.monthly_price_cents ?? sub?.plans?.monthly_price_cents ?? null,
         started_at: sub?.started_at ?? null,
         trial_ends_at: sub?.trial_ends_at ?? null,
         current_period_end: sub?.current_period_end ?? null,
@@ -178,9 +164,7 @@ export const upsertSubscriptionAdmin = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     const { requireGlobalAdmin } = await import("@/lib/admin-guard.server");
     await requireGlobalAdmin(context.supabase, context.userId);
-    const { supabaseAdmin } = await import(
-      "@/integrations/supabase/client.server"
-    );
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     const { data: existing } = await supabaseAdmin
       .from("clinic_subscriptions")

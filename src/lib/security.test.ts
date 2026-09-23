@@ -16,12 +16,17 @@ describe("Segurança de Borda — Cloudflare Edge Headers & PII Scrubbing", () =
     expect(securedResponse.headers.get("Strict-Transport-Security")).toContain("max-age=31536000");
     expect(securedResponse.headers.get("Referrer-Policy")).toBe("strict-origin-when-cross-origin");
     expect(securedResponse.headers.get("Permissions-Policy")).toContain("camera=()");
-    expect(securedResponse.headers.get("Content-Security-Policy")).toContain("frame-ancestors 'self'");
-    expect(securedResponse.headers.get("Content-Security-Policy")).toContain("https://ffyjjkouscnabyxjxexu.supabase.co");
+    expect(securedResponse.headers.get("Content-Security-Policy")).toContain(
+      "frame-ancestors 'self'",
+    );
+    expect(securedResponse.headers.get("Content-Security-Policy")).toContain(
+      "https://ffyjjkouscnabyxjxexu.supabase.co",
+    );
   });
 
   it("mascarar e-mails, telefones e CPFs com sanitizeLogOutput", () => {
-    const rawLog = "Paciente joao.silva@exemplo.com.br com fone 5554999887766 e CPF 123.456.789-00 relatou crise";
+    const rawLog =
+      "Paciente joao.silva@exemplo.com.br com fone 5554999887766 e CPF 123.456.789-00 relatou crise";
     const cleaned = sanitizeLogOutput(rawLog);
 
     expect(cleaned).not.toContain("joao.silva@exemplo.com.br");
@@ -33,7 +38,8 @@ describe("Segurança de Borda — Cloudflare Edge Headers & PII Scrubbing", () =
   });
 
   it("mascarar tokens JWT Bearer e chaves secretas do Supabase", () => {
-    const rawLog = "Falha de autenticação com Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIn0.dozjgN e sb_secret_xyz123456789";
+    const rawLog =
+      "Falha de autenticação com Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIn0.dozjgN e sb_secret_xyz123456789";
     const cleaned = sanitizeLogOutput(rawLog);
 
     expect(cleaned).not.toContain("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9");
@@ -43,7 +49,9 @@ describe("Segurança de Borda — Cloudflare Edge Headers & PII Scrubbing", () =
   });
 
   it("describeError deve expurgar PII contido em mensagens de erro ou stacks", () => {
-    const err = new Error("Validação falhou para maria.oliveira@clinica.com com telefone (54) 98877-6655");
+    const err = new Error(
+      "Validação falhou para maria.oliveira@clinica.com com telefone (54) 98877-6655",
+    );
     const serialized = describeError(err);
 
     expect(serialized).not.toContain("maria.oliveira@clinica.com");

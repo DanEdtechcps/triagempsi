@@ -40,12 +40,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { BRANDING } from "@/config/branding";
 import { GuardAreaProfissional } from "@/components/painel/GuardAreaProfissional";
 import { getMyAccess, type MyAccess } from "@/lib/painel.functions";
@@ -55,22 +50,18 @@ import { TenantSwitcher } from "@/components/painel/TenantSwitcher";
 /**
  * Layout do painel profissional (Cockpit Médico).
  * Toda página _authenticated passa por aqui.
- * 
+ *
  * Desktop (>= 768px):
  * - 4 abas clínicas diárias no topo (Triagens, Pacientes, Evolução, Indicadores)
  * - Menu suspenso "Diretrizes Clínicas" (Protocolo, Interpretação, Evidências, Materiais, NR-01)
  * - Ações rápidas no topo: Copiar Link da Triagem + Ver Triagem Pública
  * - Menu do Usuário: Consultórios, Senha, Auditoria, Metatags e Logout
- * 
+ *
  * Mobile (< 768px):
  * - Barra inferior fixa ergonômica com os fluxos mais usados
  * - Gaveta (Hub) categorizada com touch targets confortáveis (>= 48px)
  */
-export function PainelShell(props: {
-  title: string;
-  action?: ReactNode;
-  children: ReactNode;
-}) {
+export function PainelShell(props: { title: string; action?: ReactNode; children: ReactNode }) {
   const fetchAccess = useServerFn(getMyAccess);
   const { data: access } = useQuery({
     queryKey: ["my-access"],
@@ -241,8 +232,7 @@ function PainelShellContent({
 
   const { activeClinic, activeSlug, isGlobalAdmin } = useTenant();
   const clinicDisplayName =
-    activeClinic?.name ??
-    (isGlobalAdmin ? "Todas as Clínicas (Global)" : BRANDING.clinicName);
+    activeClinic?.name ?? (isGlobalAdmin ? "Todas as Clínicas (Global)" : BRANDING.clinicName);
 
   async function signOut() {
     await queryClient.cancelQueries();
@@ -502,16 +492,12 @@ function PainelShellContent({
           </div>
 
           {/* Indicador sutil de página atual */}
-          <div className="hidden text-xs text-muted-foreground lg:block">
-            {title}
-          </div>
+          <div className="hidden text-xs text-muted-foreground lg:block">{title}</div>
         </nav>
       </header>
 
       {/* Conteúdo da Página */}
-      <main className="mx-auto max-w-6xl px-4 pt-4 pb-28 sm:px-6 sm:py-6">
-        {children}
-      </main>
+      <main className="mx-auto max-w-6xl px-4 pt-4 pb-28 sm:px-6 sm:py-6">{children}</main>
 
       {/* Barra Inferior Fixa — Apenas Mobile (< 640px) */}
       <nav
@@ -556,9 +542,7 @@ function PainelShellContent({
         >
           <SheetHeader className="pb-3 text-left border-b border-border">
             <SheetTitle className="font-serif text-lg">Hub do Consultório</SheetTitle>
-            <p className="text-xs text-muted-foreground">
-              {clinicDisplayName} · Cockpit Clínico
-            </p>
+            <p className="text-xs text-muted-foreground">{clinicDisplayName} · Cockpit Clínico</p>
           </SheetHeader>
 
           {/* Ações Rápidas no topo da gaveta */}

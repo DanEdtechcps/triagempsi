@@ -43,9 +43,7 @@ export const getProgressSummary = createServerFn({ method: "GET" })
       .gte("created_at", since);
     if (!scope.global) query = query.eq("actor_user_id", context.userId);
 
-    const { data: rows, error } = await query
-      .order("created_at", { ascending: false })
-      .limit(5000);
+    const { data: rows, error } = await query.order("created_at", { ascending: false }).limit(5000);
 
     if (error) {
       console.error("getProgressSummary error", error);

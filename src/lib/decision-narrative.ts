@@ -60,9 +60,7 @@ export function buildDecisionRows(
     const scale = SCALE_BY_CODE[d.step];
     const r = byCode.get(d.step);
     const criterion =
-      r && r.score != null
-        ? `Escore ${r.score}${r.band ? ` — ${r.band}` : ""}`
-        : ageLabel;
+      r && r.score != null ? `Escore ${r.score}${r.band ? ` — ${r.band}` : ""}` : ageLabel;
 
     const entradaPorSintoma = /^Sintoma "|^Rastreio geral/.test(d.reason);
     const nome = scale ? `${scale.code} (${scale.fullName})` : d.step;

@@ -16,7 +16,10 @@ export function versionedImageUrl(
     parsed.searchParams.set("v", String(v));
     return parsed.toString();
   } catch {
-    const base = url.split("#")[0].replace(/([?&])v=[^&]*/g, "$1").replace(/[?&]$/, "");
+    const base = url
+      .split("#")[0]
+      .replace(/([?&])v=[^&]*/g, "$1")
+      .replace(/[?&]$/, "");
     return `${base}${base.includes("?") ? "&" : "?"}v=${v}`;
   }
 }
@@ -55,7 +58,8 @@ export function landingMetaTags(settings: Partial<LandingSettings> | null | unde
   const tags: MetaTag[] = [];
   for (const entry of meta as unknown as Array<Partial<Record<string, string>>>) {
     if (entry.title !== undefined) tags.push({ kind: "title", key: "title", value: entry.title });
-    else if (entry.property) tags.push({ kind: "property", key: entry.property, value: entry.content ?? "" });
+    else if (entry.property)
+      tags.push({ kind: "property", key: entry.property, value: entry.content ?? "" });
     else if (entry.name) tags.push({ kind: "name", key: entry.name, value: entry.content ?? "" });
   }
   for (const l of links) tags.push({ kind: "link", key: `rel="${l.rel}"`, value: l.href });
@@ -89,9 +93,13 @@ export function validateLandingMeta(
   const { title, description, image } = buildLandingMeta(settings);
   const issues: MetaIssue[] = [];
 
-  if (!title.trim()) issues.push({ level: "erro", message: "Título do compartilhamento está vazio." });
+  if (!title.trim())
+    issues.push({ level: "erro", message: "Título do compartilhamento está vazio." });
   else if (title.length > 60)
-    issues.push({ level: "atencao", message: `Título com ${title.length} caracteres — o ideal é até 60.` });
+    issues.push({
+      level: "atencao",
+      message: `Título com ${title.length} caracteres — o ideal é até 60.`,
+    });
 
   if (!description.trim())
     issues.push({ level: "erro", message: "Descrição do compartilhamento está vazia." });
@@ -107,7 +115,10 @@ export function validateLandingMeta(
       message: "Sem imagem de miniatura: o compartilhamento usará a captura automática do site.",
     });
   else if (!/^https?:\/\//i.test(image))
-    issues.push({ level: "erro", message: "A imagem precisa de um endereço absoluto (https://…)." });
+    issues.push({
+      level: "erro",
+      message: "A imagem precisa de um endereço absoluto (https://…).",
+    });
 
   return issues;
 }

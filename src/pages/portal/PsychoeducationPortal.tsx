@@ -24,17 +24,18 @@ export interface PsychoeducationPortalProps {
   patientName?: string;
 }
 
-export function PsychoeducationPortal({
-  assessmentId,
-  patientName,
-}: PsychoeducationPortalProps) {
+export function PsychoeducationPortal({ assessmentId, patientName }: PsychoeducationPortalProps) {
   const queryClient = useQueryClient();
   const fetchItems = useServerFn(getAssessmentPsychoeducation);
   const markViewedFn = useServerFn(markPsychoeducationViewed);
 
   const [activeSlug, setActiveSlug] = useState<string | null>(null);
 
-  const { data: items = [], isLoading, error } = useQuery({
+  const {
+    data: items = [],
+    isLoading,
+    error,
+  } = useQuery({
     queryKey: ["assessment-psycho", assessmentId],
     queryFn: () => fetchItems({ data: { assessment_id: assessmentId } }),
   });
@@ -55,8 +56,7 @@ export function PsychoeducationPortal({
   });
 
   // Define o item ativo selecionado
-  const activeItem =
-    items.find((it) => it.topic_slug === activeSlug) || items[0] || null;
+  const activeItem = items.find((it) => it.topic_slug === activeSlug) || items[0] || null;
 
   if (isLoading) {
     return (
@@ -96,7 +96,10 @@ export function PsychoeducationPortal({
         </div>
 
         <div className="flex items-center gap-2">
-          <Badge variant="outline" className="bg-primary/5 text-primary border-primary/20 gap-1.5 px-3 py-1">
+          <Badge
+            variant="outline"
+            className="bg-primary/5 text-primary border-primary/20 gap-1.5 px-3 py-1"
+          >
             <Sparkles className="h-3.5 w-3.5" />
             {items.length} tema(s) para você
           </Badge>

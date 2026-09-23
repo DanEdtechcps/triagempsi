@@ -9,7 +9,9 @@ import { test, expect } from "@playwright/test";
  */
 
 test.describe("Painel Médico & Administração — UX/UI Responsiva", () => {
-  test("deve exibir as 4 abas clínicas diárias e o dropdown de diretrizes no desktop", async ({ page }) => {
+  test("deve exibir as 4 abas clínicas diárias e o dropdown de diretrizes no desktop", async ({
+    page,
+  }) => {
     // Redimensiona para Desktop
     await page.setViewportSize({ width: 1280, height: 900 });
     await page.goto("/painel", { waitUntil: "networkidle" });

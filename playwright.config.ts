@@ -1,15 +1,13 @@
 import { existsSync } from "node:fs";
 import { defineConfig, devices } from "@playwright/test";
 
-const baseURL =
-  process.env.E2E_BASE_URL ?? "https://triagempsi.pontocomumtus.workers.dev";
+const baseURL = process.env.E2E_BASE_URL ?? "https://triagempsi.pontocomumtus.workers.dev";
 
 // Em ambientes que já trazem um Chromium pré-instalado, reaproveitamos o binário.
 const preinstalledChromium = "/chromium-1194/chrome-linux/chrome";
 const executablePath =
   process.env.PLAYWRIGHT_CHROMIUM_PATH ??
   (existsSync(preinstalledChromium) ? preinstalledChromium : undefined);
-
 
 export default defineConfig({
   testDir: "./e2e",

@@ -42,9 +42,7 @@ export function answersWithScore(
   }
 
   if (total() !== target) {
-    throw new Error(
-      `Não foi possível montar ${code} com pontuação ${target} (obtido ${total()})`,
-    );
+    throw new Error(`Não foi possível montar ${code} com pontuação ${target} (obtido ${total()})`);
   }
   return answers;
 }

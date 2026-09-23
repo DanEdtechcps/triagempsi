@@ -28,8 +28,7 @@ export function DemoModal({
   // Número comercial de WhatsApp (configurável via env ou fallback direto)
   const commercialPhone =
     (typeof import.meta !== "undefined" &&
-      (import.meta as unknown as { env: Record<string, string> }).env
-        ?.VITE_COMMERCIAL_WHATSAPP) ||
+      (import.meta as unknown as { env: Record<string, string> }).env?.VITE_COMMERCIAL_WHATSAPP) ||
     "5519997116568";
   const contactEmail = "contato@triagempsi.com.br";
 
@@ -74,7 +73,8 @@ export function DemoModal({
             Agendar Demonstração
           </DialogTitle>
           <DialogDescription className="text-center text-sm text-ivory/60">
-            Conheça o painel com dados clínicos em uma sessão prática de 20 minutos com nossa equipe.
+            Conheça o painel com dados clínicos em uma sessão prática de 20 minutos com nossa
+            equipe.
           </DialogDescription>
         </DialogHeader>
 

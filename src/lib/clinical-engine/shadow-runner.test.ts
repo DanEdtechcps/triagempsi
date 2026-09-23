@@ -9,11 +9,7 @@ import {
 describe("Clinical Engine — Homologação Final e Execução Sombra (Shadow Execution)", () => {
   describe("Matriz de Equivalência dos Motores Clínicos", () => {
     it("Cenário 1: Homem Adulto (35a) com sintoma perinatal — 100% equivalente e EPDS estritamente bloqueada", () => {
-      const res = runShadowTriageComparison(
-        ["perinatal", "tristeza"],
-        35,
-        "masculino",
-      );
+      const res = runShadowTriageComparison(["perinatal", "tristeza"], 35, "masculino");
 
       expect(res.epdsBlockedInBoth).toBe(true);
       expect(res.legacyFlow).not.toContain("EPDS");
@@ -23,11 +19,7 @@ describe("Clinical Engine — Homologação Final e Execução Sombra (Shadow Ex
     });
 
     it("Cenário 2: Mulher Adulta (28a) com queixa perinatal e tristeza — ambas ativam EPDS e PHQ-2", () => {
-      const res = runShadowTriageComparison(
-        ["perinatal", "tristeza"],
-        28,
-        "feminino",
-      );
+      const res = runShadowTriageComparison(["perinatal", "tristeza"], 28, "feminino");
 
       expect(res.legacyFlow).toContain("EPDS");
       expect(res.declarativeFlow).toContain("EPDS");
@@ -73,15 +65,10 @@ describe("Clinical Engine — Homologação Final e Execução Sombra (Shadow Ex
   describe("Gerenciamento de Feature Flags e Fallback Seguro", () => {
     it("permite obter o plano de triagem com shadow check ativo", () => {
       const onDiffSpy = vi.fn();
-      const plan = getTriagePlanForSession(
-        ["ansiedade"],
-        25,
-        "feminino",
-        {
-          enableShadow: true,
-          onShadowDiff: onDiffSpy,
-        },
-      );
+      const plan = getTriagePlanForSession(["ansiedade"], 25, "feminino", {
+        enableShadow: true,
+        onShadowDiff: onDiffSpy,
+      });
 
       expect(plan).toBeDefined();
       expect(plan.flow).toBeInstanceOf(Array);

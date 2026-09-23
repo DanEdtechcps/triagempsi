@@ -1,11 +1,5 @@
 import { describe, expect, it } from "vitest";
-import {
-  formatDateBR,
-  isValidEmail,
-  isValidPhoneBR,
-  maskPhoneBR,
-  onlyDigits,
-} from "./masks";
+import { formatDateBR, isValidEmail, isValidPhoneBR, maskPhoneBR, onlyDigits } from "./masks";
 
 describe("masks e validações", () => {
   it("onlyDigits remove caracteres especiais", () => {

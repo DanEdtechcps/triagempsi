@@ -129,7 +129,9 @@ function scaleRows(results: EmailScaleResult[], showAdjusted: boolean, isPro: bo
         </td>
       </tr>${
         subscoresOf(r).length
-          ? `<tr><td colspan="3" style="padding:6px 12px 10px 24px;border-bottom:1px solid ${COLORS.border};font-size:12px;line-height:1.6;color:${COLORS.muted}">${subscoresOf(r)
+          ? `<tr><td colspan="3" style="padding:6px 12px 10px 24px;border-bottom:1px solid ${COLORS.border};font-size:12px;line-height:1.6;color:${COLORS.muted}">${subscoresOf(
+              r,
+            )
               .map((s) => esc(subscoreLine(s, isPro)))
               .join("<br>")}</td></tr>`
           : ""

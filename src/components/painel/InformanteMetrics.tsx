@@ -79,8 +79,7 @@ export function InformanteMetrics({
     return { total: paciente + familiar, paciente, familiar, periodos };
   }, [itens, campoData, agrupamento]);
 
-  const pct = (n: number, base: number) =>
-    base === 0 ? 0 : Math.round((n / base) * 100);
+  const pct = (n: number, base: number) => (base === 0 ? 0 : Math.round((n / base) * 100));
 
   return (
     <Card className="mb-4 space-y-4 p-4">
@@ -90,8 +89,8 @@ export function InformanteMetrics({
             Quem respondeu as triagens
           </h2>
           <p className="text-xs text-muted-foreground">
-            Proporção entre o próprio paciente e familiar/responsável, conforme os
-            filtros aplicados (data de {campoData === "created" ? "criação" : "envio"}).
+            Proporção entre o próprio paciente e familiar/responsável, conforme os filtros aplicados
+            (data de {campoData === "created" ? "criação" : "envio"}).
           </p>
         </div>
         <select
@@ -107,9 +106,7 @@ export function InformanteMetrics({
       </div>
 
       {total === 0 ? (
-        <p className="text-sm text-muted-foreground">
-          Nenhuma triagem no período selecionado.
-        </p>
+        <p className="text-sm text-muted-foreground">Nenhuma triagem no período selecionado.</p>
       ) : (
         <>
           <div className="grid gap-3 sm:grid-cols-3">
@@ -119,23 +116,13 @@ export function InformanteMetrics({
             </div>
             <div className="rounded-md border border-border p-3">
               <div className="text-xs text-muted-foreground">Paciente</div>
-              <div className="font-serif text-2xl text-foreground">
-                {pct(paciente, total)}%
-              </div>
-              <div className="text-xs text-muted-foreground">
-                {paciente} triagem(ns)
-              </div>
+              <div className="font-serif text-2xl text-foreground">{pct(paciente, total)}%</div>
+              <div className="text-xs text-muted-foreground">{paciente} triagem(ns)</div>
             </div>
             <div className="rounded-md border border-border p-3">
-              <div className="text-xs text-muted-foreground">
-                Familiar/responsável
-              </div>
-              <div className="font-serif text-2xl text-foreground">
-                {pct(familiar, total)}%
-              </div>
-              <div className="text-xs text-muted-foreground">
-                {familiar} triagem(ns)
-              </div>
+              <div className="text-xs text-muted-foreground">Familiar/responsável</div>
+              <div className="font-serif text-2xl text-foreground">{pct(familiar, total)}%</div>
+              <div className="text-xs text-muted-foreground">{familiar} triagem(ns)</div>
             </div>
           </div>
 
@@ -145,19 +132,13 @@ export function InformanteMetrics({
                 <div className="flex items-center justify-between text-xs text-muted-foreground">
                   <span className="capitalize">{rotulo(p.chave, agrupamento)}</span>
                   <span>
-                    {pct(p.paciente, p.total)}% paciente ·{" "}
-                    {pct(p.familiar, p.total)}% familiar · {p.total}
+                    {pct(p.paciente, p.total)}% paciente · {pct(p.familiar, p.total)}% familiar ·{" "}
+                    {p.total}
                   </span>
                 </div>
                 <div className="flex h-2.5 w-full overflow-hidden rounded-full bg-muted">
-                  <div
-                    className="bg-primary"
-                    style={{ width: `${pct(p.paciente, p.total)}%` }}
-                  />
-                  <div
-                    className="bg-accent"
-                    style={{ width: `${pct(p.familiar, p.total)}%` }}
-                  />
+                  <div className="bg-primary" style={{ width: `${pct(p.paciente, p.total)}%` }} />
+                  <div className="bg-accent" style={{ width: `${pct(p.familiar, p.total)}%` }} />
                 </div>
               </div>
             ))}
@@ -168,8 +149,7 @@ export function InformanteMetrics({
               <span className="h-2.5 w-2.5 rounded-full bg-primary" /> Paciente
             </span>
             <span className="inline-flex items-center gap-1.5">
-              <span className="h-2.5 w-2.5 rounded-full bg-accent" />{" "}
-              Familiar/responsável
+              <span className="h-2.5 w-2.5 rounded-full bg-accent" /> Familiar/responsável
             </span>
           </div>
         </>

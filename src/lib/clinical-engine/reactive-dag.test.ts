@@ -52,7 +52,9 @@ describe("Clinical Engine — Motor Reativo de Grafos (DAG) & Reações Cruzadas
       expect(nextState.flow).toContain("PHQ-9");
       expect(nextState.flow).toEqual(["PHQ-2", "PHQ-9"]);
       expect(nextState.completed).toContain("PHQ-2");
-      expect(nextState.logs.some((l) => l.action === "INJECT_SCALE" && l.target === "PHQ-9")).toBe(true);
+      expect(nextState.logs.some((l) => l.action === "INJECT_SCALE" && l.target === "PHQ-9")).toBe(
+        true,
+      );
     });
 
     it("não duplica PHQ-9 se ele já constar na fila ativa", () => {
@@ -91,9 +93,7 @@ describe("Clinical Engine — Motor Reativo de Grafos (DAG) & Reações Cruzadas
       expect(nextState.flow).toContain("C-SSRS");
       expect(nextState.completed).toContain("PHQ-9");
       expect(
-        nextState.logs.some(
-          (l) => l.action === "TRIGGER_SAFETY_PLAN" && l.target === "C-SSRS",
-        ),
+        nextState.logs.some((l) => l.action === "TRIGGER_SAFETY_PLAN" && l.target === "C-SSRS"),
       ).toBe(true);
     });
 

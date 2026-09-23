@@ -26,7 +26,6 @@ export type AuditAction =
   | "subscription_created"
   | "subscription_updated";
 
-
 export const AUDIT_ACTION_LABEL: Record<string, string> = {
   assessment_viewed: "Acessou uma triagem",
   assessment_submitted: "Triagem enviada pelo paciente",
@@ -49,7 +48,6 @@ export const AUDIT_ACTION_LABEL: Record<string, string> = {
   subscription_created: "Criou a assinatura de um consultório",
   subscription_updated: "Atualizou a assinatura de um consultório",
 };
-
 
 export async function recordAudit(input: {
   action: AuditAction;

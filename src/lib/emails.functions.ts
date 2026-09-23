@@ -17,9 +17,7 @@ export const getEmailStatus = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }): Promise<EmailStatusPayload> => {
     const { fetchEmailDeliveries, senderDomain } = await import("@/lib/emails.server");
-    const { getAccessScope, allowedRecipientEmails } = await import(
-      "@/lib/painel-access.server"
-    );
+    const { getAccessScope, allowedRecipientEmails } = await import("@/lib/painel-access.server");
     const domainConfigured = Boolean(senderDomain());
     try {
       const scope = await getAccessScope(context.supabase, context.userId);
@@ -28,9 +26,7 @@ export const getEmailStatus = createServerFn({ method: "GET" })
       if (!scope.global) {
         // Sem acesso global: só destinatários das clínicas do usuário.
         const allowed = await allowedRecipientEmails(context.supabase);
-        visible = deliveries.filter((d) =>
-          allowed.has((d.recipient ?? "").trim().toLowerCase()),
-        );
+        visible = deliveries.filter((d) => allowed.has((d.recipient ?? "").trim().toLowerCase()));
       }
       return { domainConfigured, deliveries: visible, history_starts_at, error: null };
     } catch (e) {
@@ -93,7 +89,6 @@ export const previewResultsEmail = createServerFn({ method: "POST" })
     };
   });
 
-
 /** Reenvia o e-mail de resultados básicos e registra o resultado na auditoria. */
 export const resendResultsEmail = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -119,7 +114,11 @@ export const resendResultsEmail = createServerFn({ method: "POST" })
     await assertClinicAccess(context.supabase, context.userId, built.clinicId);
     const to = built.to;
     if (!to) throw new Error("Nenhum destinatário disponível para este envio.");
-    const a = { id: data.assessment_id, clinic_id: built.clinicId, respondent_name: built.respondentName };
+    const a = {
+      id: data.assessment_id,
+      clinic_id: built.clinicId,
+      respondent_name: built.respondentName,
+    };
 
     const { sendRenderedEmail } = await import("@/lib/emails.server");
     const sent = await sendRenderedEmail({
@@ -130,7 +129,6 @@ export const resendResultsEmail = createServerFn({ method: "POST" })
       label: `resultados-${data.audience}`,
       idempotencyKey: `resend-${data.assessment_id}-${data.audience}-${Date.now()}`,
     });
-
 
     // Número da tentativa: envios anteriores registrados para esta triagem + 1.
     const { count: previousAttempts } = await context.supabase
@@ -157,12 +155,9 @@ export const resendResultsEmail = createServerFn({ method: "POST" })
         publico: data.audience,
         respondent_name: a.respondent_name,
         provedor: sent.provider,
-        ...(sent.ok
-          ? { message_id: sent.message_id }
-          : { erro: sent.reason, codigo: sent.code }),
+        ...(sent.ok ? { message_id: sent.message_id } : { erro: sent.reason, codigo: sent.code }),
       },
     });
-
 
     // Aviso por WhatsApp ao contato somente quando o e-mail saiu com sucesso.
     let whatsapp: { to_phone: string; body: string; link: string } | null = null;
@@ -177,5 +172,4 @@ export const resendResultsEmail = createServerFn({ method: "POST" })
     }
 
     return { ...sent, whatsapp };
-
   });

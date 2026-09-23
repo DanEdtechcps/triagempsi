@@ -29,10 +29,7 @@ async function mockSubmit(page: Page) {
   );
 }
 
-async function startTriagem(
-  page: Page,
-  opts: { age: number; symptoms: string[] },
-) {
+async function startTriagem(page: Page, opts: { age: number; symptoms: string[] }) {
   await mockSubmit(page);
   await page.addInitScript(() => window.localStorage.clear());
   await page.goto("/saraiva/triagem", { waitUntil: "networkidle" });
@@ -63,9 +60,7 @@ async function startTriagem(
 
 /** Confere a escala mostrada na tela de perguntas. */
 async function expectScale(page: Page, code: string) {
-  await expect(
-    page.getByText(new RegExp(`${code} · pergunta 1 de`, "i")),
-  ).toBeVisible();
+  await expect(page.getByText(new RegExp(`${code} · pergunta 1 de`, "i"))).toBeVisible();
 }
 
 /** Responde toda a escala atual com a primeira opção (menor pontuação). */
@@ -89,7 +84,9 @@ async function answerCurrentScale(page: Page) {
     await optionBtn.click();
 
     if (currentQ === totalQ) {
-      await expect(header).not.toBeVisible({ timeout: 4000 }).catch(() => {});
+      await expect(header)
+        .not.toBeVisible({ timeout: 4000 })
+        .catch(() => {});
       await page.waitForTimeout(300);
       break;
     }
@@ -110,63 +107,47 @@ const SINTOMA = {
 };
 
 test.describe("Encaminhamento por faixa etária", () => {
-  test("criança com tristeza não recebe escala e é encaminhada à consulta", async ({
-    page,
-  }) => {
+  test("criança com tristeza não recebe escala e é encaminhada à consulta", async ({ page }) => {
     await startTriagem(page, { age: 8, symptoms: [SINTOMA.tristeza] });
     await expect(page.getByText(/pergunta 1 de/i)).toHaveCount(0);
-    await expect(
-      page.getByRole("heading", { name: /Pré-avaliação concluída/i }),
-    ).toBeVisible();
+    await expect(page.getByRole("heading", { name: /Pré-avaliação concluída/i })).toBeVisible();
   });
 
-  test("criança com sintomas de atenção não responde SNAP-IV online", async ({
-    page,
-  }) => {
+  test("criança com sintomas de atenção não responde SNAP-IV online", async ({ page }) => {
     await startTriagem(page, { age: 8, symptoms: [SINTOMA.atencao] });
     await expect(page.getByText(/SNAP-IV · pergunta/i)).toHaveCount(0);
-    await expect(
-      page.getByRole("heading", { name: /Pré-avaliação concluída/i }),
-    ).toBeVisible();
+    await expect(page.getByRole("heading", { name: /Pré-avaliação concluída/i })).toBeVisible();
   });
 
-  test("criança com ideias de morte cai direto na via de risco", async ({
-    page,
-  }) => {
+  test("criança com ideias de morte cai direto na via de risco", async ({ page }) => {
     await startTriagem(page, { age: 8, symptoms: [SINTOMA.morte] });
     await expect(
-      page.getByRole("heading", { name: /(Você não precisa passar por isso sozinho|Você não está sozinho)/i }),
+      page.getByRole("heading", {
+        name: /(Você não precisa passar por isso sozinho|Você não está sozinho)/i,
+      }),
     ).toBeVisible();
   });
 
-  test("adolescente com tristeza começa pelo PHQ-2, sem SRQ-20 de base", async ({
-    page,
-  }) => {
+  test("adolescente com tristeza começa pelo PHQ-2, sem SRQ-20 de base", async ({ page }) => {
     await startTriagem(page, { age: 15, symptoms: [SINTOMA.tristeza] });
     await expectScale(page, "PHQ-2");
   });
 
-  test("adolescente com uso de álcool responde AUDIT-C (sem CAGE de entrada)", async ({
-    page,
-  }) => {
+  test("adolescente com uso de álcool responde AUDIT-C (sem CAGE de entrada)", async ({ page }) => {
     await startTriagem(page, { age: 16, symptoms: [SINTOMA.substancias] });
     await expectScale(page, "AUDIT-C");
     await answerCurrentScale(page);
     await expect(page.getByText(/CAGE · pergunta/i)).toHaveCount(0);
   });
 
-  test("adulto com tristeza faz SRQ-20 de base e depois PHQ-2", async ({
-    page,
-  }) => {
+  test("adulto com tristeza faz SRQ-20 de base e depois PHQ-2", async ({ page }) => {
     await startTriagem(page, { age: 30, symptoms: [SINTOMA.tristeza] });
     await expectScale(page, "SRQ-20");
     await answerCurrentScale(page);
     await expectScale(page, "PHQ-2");
   });
 
-  test("adulto com sintomas de atenção não responde ASRS-18 online", async ({
-    page,
-  }) => {
+  test("adulto com sintomas de atenção não responde ASRS-18 online", async ({ page }) => {
     await startTriagem(page, { age: 30, symptoms: [SINTOMA.atencao] });
     await expectScale(page, "SRQ-20");
     await expect(page.getByText(/ASRS-18 · pergunta/i)).toHaveCount(0);
@@ -184,9 +165,7 @@ test.describe("Encaminhamento por faixa etária", () => {
     await expectScale(page, "ASQ");
   });
 
-  test("pessoa idosa com tristeza recebe GDS-15 no lugar do PHQ-2", async ({
-    page,
-  }) => {
+  test("pessoa idosa com tristeza recebe GDS-15 no lugar do PHQ-2", async ({ page }) => {
     await startTriagem(page, { age: 70, symptoms: [SINTOMA.tristeza] });
     await expectScale(page, "SRQ-20");
     await answerCurrentScale(page);

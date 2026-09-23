@@ -94,14 +94,13 @@ function PrimeiroAcessoPage() {
       const raw = err instanceof Error ? err.message : "";
       setErro(
         /already registered/i.test(raw)
-          ? "Este e-mail já tem uma conta. Entre no portal com sua senha ou use \"Esqueci minha senha\"."
+          ? 'Este e-mail já tem uma conta. Entre no portal com sua senha ou use "Esqueci minha senha".'
           : raw || "Não foi possível criar sua conta agora. Tente em instantes.",
       );
     } finally {
       setLoading(false);
     }
   }
-
 
   // Fronteira paciente × profissional: quem tem papel de equipe não cria
   // conta de paciente — é encaminhado ao painel.
@@ -113,8 +112,8 @@ function PrimeiroAcessoPage() {
             Você faz parte da equipe clínica
           </h1>
           <p className="mt-2 text-sm text-muted-foreground">
-            Esta página é o primeiro acesso de <strong>pacientes</strong>. Como
-            profissional, suas telas ficam no painel da clínica.
+            Esta página é o primeiro acesso de <strong>pacientes</strong>. Como profissional, suas
+            telas ficam no painel da clínica.
           </p>
           <Button asChild className="mt-6 w-full">
             <Link to="/painel">Ir para o painel do profissional</Link>
@@ -143,18 +142,15 @@ function PrimeiroAcessoPage() {
             Primeiro acesso
           </h1>
           <p className="mt-2 text-sm text-muted-foreground">
-            Em poucos minutos você cria sua conta e passa a acompanhar o resumo
-            das suas pré-avaliações. Veja como funciona:
+            Em poucos minutos você cria sua conta e passa a acompanhar o resumo das suas
+            pré-avaliações. Veja como funciona:
           </p>
         </header>
 
         {/* Passo a passo */}
         <ol className="mt-8 grid gap-3 sm:grid-cols-2">
           {STEPS.map((step, i) => (
-            <li
-              key={step.title}
-              className="relative rounded-xl border border-border bg-card p-4"
-            >
+            <li key={step.title} className="relative rounded-xl border border-border bg-card p-4">
               <div className="flex items-center gap-3">
                 <span className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/10">
                   <step.icon className="h-4.5 w-4.5 text-primary" aria-hidden />
@@ -163,9 +159,7 @@ function PrimeiroAcessoPage() {
                   Passo {i + 1}
                 </span>
               </div>
-              <h2 className="mt-3 text-sm font-semibold text-foreground">
-                {step.title}
-              </h2>
+              <h2 className="mt-3 text-sm font-semibold text-foreground">{step.title}</h2>
               <p className="mt-1 text-sm text-muted-foreground">{step.text}</p>
             </li>
           ))}
@@ -182,14 +176,11 @@ function PrimeiroAcessoPage() {
             </h2>
             <p className="mt-2 text-sm text-muted-foreground">
               Enviamos um link de confirmação para{" "}
-              <strong className="text-foreground">{email}</strong>. Abra o
-              e-mail e clique no link para ativar seu acesso — depois é só
-              entrar no portal.
+              <strong className="text-foreground">{email}</strong>. Abra o e-mail e clique no link
+              para ativar seu acesso — depois é só entrar no portal.
             </p>
             <div className="mt-4 rounded-xl border border-border bg-muted/40 p-4 text-left">
-              <p className="text-sm font-medium text-foreground">
-                Não encontrou o e-mail?
-              </p>
+              <p className="text-sm font-medium text-foreground">Não encontrou o e-mail?</p>
               <ul className="mt-1.5 list-disc space-y-1 pl-5 text-sm text-muted-foreground">
                 <li>Verifique a caixa de spam ou lixo eletrônico.</li>
                 <li>Confira se o endereço foi digitado corretamente.</li>
@@ -202,13 +193,10 @@ function PrimeiroAcessoPage() {
           </Card>
         ) : (
           <Card className="mt-8 border-border bg-card p-6 sm:p-8">
-            <h2 className="font-serif text-xl font-semibold text-foreground">
-              Criar minha conta
-            </h2>
+            <h2 className="font-serif text-xl font-semibold text-foreground">Criar minha conta</h2>
             <p className="mt-1.5 text-sm text-muted-foreground">
-              Use o <strong className="text-foreground">mesmo e-mail</strong>{" "}
-              que você informou ao responder a triagem — é assim que o portal
-              encontra seus resultados.
+              Use o <strong className="text-foreground">mesmo e-mail</strong> que você informou ao
+              responder a triagem — é assim que o portal encontra seus resultados.
             </p>
 
             <form onSubmit={handleCriarConta} className="mt-5 space-y-4">
@@ -257,18 +245,13 @@ function PrimeiroAcessoPage() {
               )}
 
               <Button type="submit" disabled={loading} className="w-full">
-                {loading
-                  ? "Criando sua conta…"
-                  : "Criar conta e receber e-mail de confirmação"}
+                {loading ? "Criando sua conta…" : "Criar conta e receber e-mail de confirmação"}
               </Button>
             </form>
 
             <p className="mt-5 border-t border-border pt-4 text-center text-xs text-muted-foreground">
               Já tem conta?{" "}
-              <Link
-                to="/entrar"
-                className="text-primary underline-offset-4 hover:underline"
-              >
+              <Link to="/entrar" className="text-primary underline-offset-4 hover:underline">
                 Entrar no portal
               </Link>
             </p>

@@ -58,22 +58,17 @@ function InterpretarPage() {
   );
 
   function toggle(id: string) {
-    setSymptoms((prev) =>
-      prev.includes(id) ? prev.filter((s) => s !== id) : [...prev, id],
-    );
+    setSymptoms((prev) => (prev.includes(id) ? prev.filter((s) => s !== id) : [...prev, id]));
   }
 
   return (
     <PainelShell title="Como interpretar">
       <div className="space-y-6">
         <Card className="border-border bg-card p-4 sm:p-6">
-          <h2 className="font-serif text-lg font-semibold">
-            Simule um cenário
-          </h2>
+          <h2 className="font-serif text-lg font-semibold">Simule um cenário</h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            Escolha a faixa etária e as queixas marcadas pelo paciente para ver
-            exatamente quais escalas ele responderia — e o que pode entrar depois
-            por escalonamento.
+            Escolha a faixa etária e as queixas marcadas pelo paciente para ver exatamente quais
+            escalas ele responderia — e o que pode entrar depois por escalonamento.
           </p>
 
           <div className="mt-4">
@@ -94,8 +89,7 @@ function InterpretarPage() {
               ))}
             </div>
             <p className="mt-2 text-xs text-muted-foreground">
-              Idade de referência usada no cálculo: {age} anos (
-              {AGE_BAND_LABEL[ageBand(age)]}).
+              Idade de referência usada no cálculo: {age} anos ({AGE_BAND_LABEL[ageBand(age)]}).
             </p>
           </div>
 
@@ -124,27 +118,23 @@ function InterpretarPage() {
             </div>
             {symptoms.length === 0 && (
               <p className="mt-2 text-xs text-muted-foreground">
-                Nenhuma queixa marcada — só o rastreio geral da faixa etária é
-                aplicado.
+                Nenhuma queixa marcada — só o rastreio geral da faixa etária é aplicado.
               </p>
             )}
           </div>
         </Card>
 
         <Card className="border-border bg-card p-4 sm:p-6">
-          <h2 className="font-serif text-lg font-semibold">
-            O que o paciente responderia
-          </h2>
+          <h2 className="font-serif text-lg font-semibold">O que o paciente responderia</h2>
           {plan.riskPathway && (
             <div className="mt-3 rounded-lg border border-destructive/40 bg-destructive/5 p-3 text-sm text-destructive">
-              Via de risco ativada: o ASQ entra no fluxo e a orientação de
-              emergência é exibida ao paciente ao final.
+              Via de risco ativada: o ASQ entra no fluxo e a orientação de emergência é exibida ao
+              paciente ao final.
             </div>
           )}
           {plan.flow.length === 0 ? (
             <p className="mt-3 text-sm text-muted-foreground">
-              Nenhuma escala aplicável neste cenário — a avaliação segue na
-              consulta.
+              Nenhuma escala aplicável neste cenário — a avaliação segue na consulta.
             </p>
           ) : (
             <ol className="mt-3 space-y-2">
@@ -152,18 +142,11 @@ function InterpretarPage() {
                 const s = SCALE_BY_CODE[code];
                 const reason = plan.decisions.find((d) => d.step === code)?.reason;
                 return (
-                  <li
-                    key={code}
-                    className="rounded-lg border border-border p-3 text-sm"
-                  >
+                  <li key={code} className="rounded-lg border border-border p-3 text-sm">
                     <div className="font-medium">
                       {i + 1}. {code} — {s?.name ?? ""}
                     </div>
-                    {reason && (
-                      <p className="mt-1 text-xs text-muted-foreground">
-                        {reason}
-                      </p>
-                    )}
+                    {reason && <p className="mt-1 text-xs text-muted-foreground">{reason}</p>}
                   </li>
                 );
               })}
@@ -182,9 +165,7 @@ function InterpretarPage() {
                     className="rounded-lg border border-dashed border-border p-3 text-sm"
                   >
                     <div className="font-medium">{ind.code}</div>
-                    <p className="mt-1 text-xs text-muted-foreground">
-                      {ind.reason}
-                    </p>
+                    <p className="mt-1 text-xs text-muted-foreground">{ind.reason}</p>
                   </li>
                 ))}
               </ul>
@@ -197,8 +178,7 @@ function InterpretarPage() {
             Quando o escalonamento acontece neste cenário
           </h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            Gatilhos que podem disparar durante o preenchimento, a partir das
-            escalas acima.
+            Gatilhos que podem disparar durante o preenchimento, a partir das escalas acima.
           </p>
           {escalations.length === 0 ? (
             <p className="mt-3 text-sm text-muted-foreground">
@@ -207,10 +187,7 @@ function InterpretarPage() {
           ) : (
             <ul className="mt-3 space-y-2">
               {escalations.map((r, i) => (
-                <li
-                  key={`${r.from}-${i}`}
-                  className="rounded-lg border border-border p-3 text-sm"
-                >
+                <li key={`${r.from}-${i}`} className="rounded-lg border border-border p-3 text-sm">
                   <div className="flex flex-wrap items-center gap-2">
                     <span className="rounded-full border border-border bg-muted px-2.5 py-0.5 text-xs font-medium">
                       {r.from}
@@ -262,9 +239,7 @@ function InterpretarPage() {
                   <p className="mt-1 text-xs text-muted-foreground">
                     {s.items.length} {s.items.length === 1 ? "item" : "itens"}
                     {s.timeframe ? ` · ${s.timeframe}` : ""}
-                    {s.riskItems?.length
-                      ? ` · itens de risco: ${s.riskItems.join(", ")}`
-                      : ""}
+                    {s.riskItems?.length ? ` · itens de risco: ${s.riskItems.join(", ")}` : ""}
                   </p>
                   <ul className="mt-3 space-y-1.5">
                     {s.bands.map((b) => (

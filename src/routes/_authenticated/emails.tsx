@@ -12,7 +12,6 @@ import {
   resendResultsEmail,
 } from "@/lib/emails.functions";
 
-
 export const Route = createFileRoute("/_authenticated/emails")({
   head: () => ({
     meta: [
@@ -92,7 +91,6 @@ function EmailsPage() {
     link: string;
   } | null>(null);
 
-
   const status = useQuery({ queryKey: ["email-status"], queryFn: () => fetchStatus() });
   const targets = useQuery({ queryKey: ["email-targets"], queryFn: () => fetchTargets() });
 
@@ -138,20 +136,18 @@ function EmailsPage() {
     <PainelShell title="E-mails">
       <div className="space-y-5">
         <Card className="border-border bg-card p-4 sm:p-5">
-          <h2 className="font-serif text-lg font-semibold">
-            Confirmação de envio dos e-mails
-          </h2>
+          <h2 className="font-serif text-lg font-semibold">Confirmação de envio dos e-mails</h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            Acompanhe se cada e-mail de resultados foi entregue ou falhou (recusa,
-            devolução, spam ou bloqueio) e reenvie quando necessário. Cada reenvio fica
-            registrado na auditoria com data, hora e destinatário.
+            Acompanhe se cada e-mail de resultados foi entregue ou falhou (recusa, devolução, spam
+            ou bloqueio) e reenvie quando necessário. Cada reenvio fica registrado na auditoria com
+            data, hora e destinatário.
           </p>
 
           {domainMissing && (
             <p className="mt-3 rounded-md border border-warning/30 bg-warning/10 p-3 text-sm text-foreground">
-              O domínio de envio ainda não está configurado — por isso nenhum e-mail é
-              disparado e o histórico aparece vazio. Após configurar o domínio, os envios
-              e reenvios funcionam imediatamente nesta tela.
+              O domínio de envio ainda não está configurado — por isso nenhum e-mail é disparado e o
+              histórico aparece vazio. Após configurar o domínio, os envios e reenvios funcionam
+              imediatamente nesta tela.
             </p>
           )}
           {status.data?.error && (
@@ -176,9 +172,7 @@ function EmailsPage() {
             </select>
             <select
               value={audience}
-              onChange={(e) =>
-                setAudience(e.target.value as "profissional" | "paciente")
-              }
+              onChange={(e) => setAudience(e.target.value as "profissional" | "paciente")}
               className="h-11 rounded-md border border-border bg-background px-3 text-sm"
             >
               <option value="profissional">Para o profissional</option>
@@ -209,9 +203,7 @@ function EmailsPage() {
             </div>
           </div>
           {feedback && (
-            <p
-              className={`mt-3 text-sm ${feedback.ok ? "text-foreground" : "text-destructive"}`}
-            >
+            <p className={`mt-3 text-sm ${feedback.ok ? "text-foreground" : "text-destructive"}`}>
               {feedback.msg}
             </p>
           )}
@@ -231,15 +223,14 @@ function EmailsPage() {
             </div>
           )}
 
-
-
           {previewData && (
             <div className="mt-4 rounded-lg border border-border">
               <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border px-3 py-2">
                 <div className="min-w-0">
                   <p className="truncate text-sm font-medium">{previewData.subject}</p>
                   <p className="truncate text-xs text-muted-foreground">
-                    Para: {previewData.to ?? "sem destinatário definido"} · {previewData.respondent_name}
+                    Para: {previewData.to ?? "sem destinatário definido"} ·{" "}
+                    {previewData.respondent_name}
                   </p>
                 </div>
                 <Button
@@ -260,7 +251,6 @@ function EmailsPage() {
             </div>
           )}
         </Card>
-
 
         <Card className="border-border bg-card p-4 sm:p-5">
           <div className="flex flex-wrap gap-2">
@@ -292,9 +282,7 @@ function EmailsPage() {
 
         {status.isLoading && <p className="text-sm text-muted-foreground">Carregando…</p>}
         {!status.isLoading && rows.length === 0 && (
-          <p className="text-sm text-muted-foreground">
-            Nenhum envio registrado até agora.
-          </p>
+          <p className="text-sm text-muted-foreground">Nenhum envio registrado até agora.</p>
         )}
 
         {rows.length > 0 && (
@@ -314,9 +302,7 @@ function EmailsPage() {
                     >
                       {EVENT_LABEL[d.event_type] ?? d.event_type}
                     </span>
-                    {d.status && (
-                      <span className="text-xs text-muted-foreground">{d.status}</span>
-                    )}
+                    {d.status && <span className="text-xs text-muted-foreground">{d.status}</span>}
                   </div>
                 </li>
               ))}

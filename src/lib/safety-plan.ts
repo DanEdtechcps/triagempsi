@@ -45,28 +45,32 @@ export const OFFICIAL_SAFETY_PLAN: SafetyPlanStructure = {
     {
       nome: "CVV - Centro de Valorização da Vida",
       numero: "188",
-      descricao: "Apoio emocional e prevenção do suicídio. Atendimento 24h, gratuito e sob sigilo absoluto em todo o Brasil.",
+      descricao:
+        "Apoio emocional e prevenção do suicídio. Atendimento 24h, gratuito e sob sigilo absoluto em todo o Brasil.",
       linkTel: "tel:188",
       badge: "Gratuito 24h",
     },
     {
       nome: "SAMU - Serviço de Atendimento Móvel de Urgência",
       numero: "192",
-      descricao: "Emergência médica imediata. Acione em situações de risco à integridade física ou crise aguda descompensada.",
+      descricao:
+        "Emergência médica imediata. Acione em situações de risco à integridade física ou crise aguda descompensada.",
       linkTel: "tel:192",
       badge: "Emergência Médica",
     },
     {
       nome: "UPA / Pronto-Socorro mais próximo",
       numero: "Presencial 24h",
-      descricao: "Procure a Unidade de Pronto Atendimento ou emergência hospitalar da sua cidade para acolhimento médico imediato.",
+      descricao:
+        "Procure a Unidade de Pronto Atendimento ou emergência hospitalar da sua cidade para acolhimento médico imediato.",
       linkTel: "",
       badge: "Acolhimento Presencial",
     },
     {
       nome: "CAPS / CAPS III",
       numero: "Rede SUS",
-      descricao: "Centro de Atenção Psicossocial do seu município, especializado em acolhimento e suporte continuado em saúde mental.",
+      descricao:
+        "Centro de Atenção Psicossocial do seu município, especializado em acolhimento e suporte continuado em saúde mental.",
       linkTel: "",
       badge: "Apoio Psicossocial",
     },

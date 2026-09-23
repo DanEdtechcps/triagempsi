@@ -20,13 +20,18 @@ export type AssessmentListItem = {
     symptoms?: string[];
     indicated_scales?: { code: string; name: string; reason: string }[];
   };
-  scales: { scale_code: string; score: number | null; band: string | null; band_level: number | null; risk: boolean }[];
+  scales: {
+    scale_code: string;
+    score: number | null;
+    band: string | null;
+    band_level: number | null;
+    risk: boolean;
+  }[];
   clinic_id: string;
   clinic_name?: string | null;
   doctor_id?: string | null;
   doctor_name?: string | null;
 };
-
 
 export type MyAccess = {
   hasAccess: boolean;
@@ -102,30 +107,28 @@ export const listAssessments = createServerFn({ method: "GET" })
     const rows = (data ?? []).map((a) => ({
       id: a.id as string,
       clinic_id: a.clinic_id as string,
-      clinic_name:
-        ((a as unknown as { clinics: { name: string } | null }).clinics?.name ??
-          null) as string | null,
-      doctor_id: ((a as { doctor_id?: string | null }).doctor_id ?? null),
+      clinic_name: ((a as unknown as { clinics: { name: string } | null }).clinics?.name ??
+        null) as string | null,
+      doctor_id: (a as { doctor_id?: string | null }).doctor_id ?? null,
       doctor_name:
-        ((a as unknown as { doctor_profiles: { display_name: string } | null })
-          .doctor_profiles?.display_name ?? null),
+        (a as unknown as { doctor_profiles: { display_name: string } | null }).doctor_profiles
+          ?.display_name ?? null,
       respondent_name: a.respondent_name as string,
       respondent_age: (a.respondent_age as number | null) ?? null,
       respondent_email: (a.respondent_email as string | null) ?? null,
-      respondent_type: (((a as { respondent_type?: string }).respondent_type ??
-        "paciente") as "paciente" | "familiar"),
-      informant_name: ((a as { informant_name?: string | null }).informant_name ?? null),
-      informant_relation:
-        ((a as { informant_relation?: string | null }).informant_relation ?? null),
+      respondent_type: ((a as { respondent_type?: string }).respondent_type ?? "paciente") as
+        | "paciente"
+        | "familiar",
+      informant_name: (a as { informant_name?: string | null }).informant_name ?? null,
+      informant_relation: (a as { informant_relation?: string | null }).informant_relation ?? null,
       status: (a.status as string) ?? "completed",
       submitted_at: a.submitted_at as string,
-      created_at: ((a as { created_at?: string }).created_at ??
-        a.submitted_at) as string,
+      created_at: ((a as { created_at?: string }).created_at ?? a.submitted_at) as string,
 
       risk_flags: (a.risk_flags as string[]) ?? [],
       summary: (a.summary ?? {}) as AssessmentListItem["summary"],
-      scales: ((a as unknown as { scale_results: AssessmentListItem["scales"] })
-        .scale_results ?? []) as AssessmentListItem["scales"],
+      scales: ((a as unknown as { scale_results: AssessmentListItem["scales"] }).scale_results ??
+        []) as AssessmentListItem["scales"],
     })) satisfies AssessmentListItem[];
 
     // Risco sempre no topo
@@ -190,7 +193,6 @@ export const getAssessment = createServerFn({ method: "GET" })
                 }`
               : "o próprio paciente",
         },
-
       });
     }
     return a;

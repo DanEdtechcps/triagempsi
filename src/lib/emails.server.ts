@@ -22,11 +22,7 @@ function apiKey() {
 
 /** Domínio remetente verificado, quando já configurado. */
 export function senderDomain(): string | null {
-  return (
-    process.env["EMAIL_SENDER_DOMAIN"] ??
-    process.env["LOVABLE_EMAIL_SENDER_DOMAIN"] ??
-    null
-  );
+  return process.env["EMAIL_SENDER_DOMAIN"] ?? process.env["LOVABLE_EMAIL_SENDER_DOMAIN"] ?? null;
 }
 
 /** Últimos eventos de entrega (enviado, recusado, devolvido, bloqueado…). */
@@ -60,7 +56,6 @@ export type ProviderPayload = {
 export type SendResult =
   | { ok: true; message_id: string | null; provider: ProviderPayload }
   | { ok: false; reason: string; code: string | null; provider: ProviderPayload };
-
 
 /** Dispara um e-mail já renderizado, devolvendo o resultado do provedor. */
 export async function sendRenderedEmail(input: {
@@ -152,5 +147,4 @@ export async function sendRenderedEmail(input: {
       },
     };
   }
-
 }

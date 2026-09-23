@@ -43,7 +43,11 @@ export const CHANGE_SPECS: Record<string, ChangeSpec> = {
   AUDIT: { rci: 4, mcid: 3 },
   "AUDIT-C": { rci: 2, mcid: 2 },
   PGSI: { rci: 3, mcid: 3 },
-  ASSIST: { rci: 3, mcid: 2, nota: "ASSIST-Lite (0-20, soma das 7 substâncias). A leitura clínica principal é por substância; use o total apenas como tendência." },
+  ASSIST: {
+    rci: 3,
+    mcid: 2,
+    nota: "ASSIST-Lite (0-20, soma das 7 substâncias). A leitura clínica principal é por substância; use o total apenas como tendência.",
+  },
   FTND: { rci: 2, mcid: 2 },
   MDQ: { rci: 3, mcid: 3, nota: "Instrumento categórico — variação é indicativa." },
   "SNAP-IV": { rci: 6, mcid: 5 },
@@ -79,11 +83,7 @@ export type ChangeAnalysis = {
   narrative: string;
 };
 
-export function analyzeChange(
-  code: string,
-  baseline: number,
-  latest: number,
-): ChangeAnalysis {
+export function analyzeChange(code: string, baseline: number, latest: number): ChangeAnalysis {
   const spec = CHANGE_SPECS[code] ?? null;
   const delta = latest - baseline;
   const worseUp = (spec?.worseDirection ?? "sobe") === "sobe";

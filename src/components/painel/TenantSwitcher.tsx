@@ -13,14 +13,8 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 
 export function TenantSwitcher() {
-  const {
-    clinics,
-    isGlobalAdmin,
-    activeClinicId,
-    activeClinic,
-    activeSlug,
-    setActiveClinicId,
-  } = useTenant();
+  const { clinics, isGlobalAdmin, activeClinicId, activeClinic, activeSlug, setActiveClinicId } =
+    useTenant();
 
   // Se o usuário só tem 1 clínica e não é admin global, exibe apenas o nome fixo
   if (!isGlobalAdmin && clinics.length <= 1) {
@@ -40,7 +34,7 @@ export function TenantSwitcher() {
   const currentLabel =
     activeClinicId === "todas"
       ? "Todas as Clínicas (Consolidado)"
-      : activeClinic?.name ?? "Selecionar Consultório";
+      : (activeClinic?.name ?? "Selecionar Consultório");
 
   return (
     <DropdownMenu>
@@ -89,9 +83,7 @@ export function TenantSwitcher() {
                   </div>
                 </div>
               </div>
-              {activeClinicId === "todas" && (
-                <Check className="h-4 w-4 text-primary shrink-0" />
-              )}
+              {activeClinicId === "todas" && <Check className="h-4 w-4 text-primary shrink-0" />}
             </DropdownMenuItem>
             <DropdownMenuSeparator />
           </>
@@ -114,9 +106,7 @@ export function TenantSwitcher() {
                   />
                   <div className="truncate">
                     <div className="truncate text-foreground font-medium">{c.name}</div>
-                    <div className="text-[10px] text-muted-foreground font-mono">
-                      /{c.slug}
-                    </div>
+                    <div className="text-[10px] text-muted-foreground font-mono">/{c.slug}</div>
                   </div>
                 </div>
                 {isSelected && <Check className="h-4 w-4 text-primary shrink-0" />}

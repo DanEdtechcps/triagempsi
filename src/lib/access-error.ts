@@ -9,8 +9,7 @@ export function accessDeniedError(message: string): Error {
 }
 
 export function isAccessDenied(error: unknown): boolean {
-  const msg =
-    error instanceof Error ? error.message : typeof error === "string" ? error : "";
+  const msg = error instanceof Error ? error.message : typeof error === "string" ? error : "";
   return msg.includes(ACCESS_DENIED_PREFIX);
 }
 

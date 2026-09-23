@@ -215,7 +215,11 @@ function AdminPage() {
   if (clinics.isLoading || staff.isLoading) {
     return (
       <PainelShell title="Consultórios e equipe">
-        <div className="space-y-4" aria-busy="true" aria-label="Carregando informações administrativas">
+        <div
+          className="space-y-4"
+          aria-busy="true"
+          aria-label="Carregando informações administrativas"
+        >
           <div className="h-32 w-full animate-pulse rounded-2xl bg-muted/60" />
           <div className="h-64 w-full animate-pulse rounded-2xl bg-muted/40" />
         </div>
@@ -246,7 +250,8 @@ function AdminPage() {
                   Consultórios e Equipe Médica
                 </h1>
                 <p className="mt-1 max-w-2xl text-xs sm:text-sm text-muted-foreground">
-                  Configure unidades com identidade visual própria e vincule médicos com acesso isolado por consultório.
+                  Configure unidades com identidade visual própria e vincule médicos com acesso
+                  isolado por consultório.
                 </p>
               </div>
 
@@ -260,9 +265,21 @@ function AdminPage() {
 
             {/* Régua de Estatísticas Compacta (responsiva em 3 colunas até em telas estreitas) */}
             <div className="mt-5 grid grid-cols-3 gap-2 sm:gap-4">
-              <Stat label="Consultórios" value={list.length} icon={<Building2 className="h-4 w-4 text-primary" />} />
-              <Stat label="Ativos" value={activeCount} icon={<Check className="h-4 w-4 text-emerald-600" />} />
-              <Stat label="Profissionais" value={staffList.length} icon={<Users className="h-4 w-4 text-blue-600" />} />
+              <Stat
+                label="Consultórios"
+                value={list.length}
+                icon={<Building2 className="h-4 w-4 text-primary" />}
+              />
+              <Stat
+                label="Ativos"
+                value={activeCount}
+                icon={<Check className="h-4 w-4 text-emerald-600" />}
+              />
+              <Stat
+                label="Profissionais"
+                value={staffList.length}
+                icon={<Users className="h-4 w-4 text-blue-600" />}
+              />
             </div>
           </div>
         </section>
@@ -299,7 +316,11 @@ function AdminPage() {
                 <Plus className="h-4 w-4" />
                 Novo consultório
               </span>
-              {novoConsultorioAberto ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+              {novoConsultorioAberto ? (
+                <ChevronUp className="h-4 w-4" />
+              ) : (
+                <ChevronDown className="h-4 w-4" />
+              )}
             </Button>
           </div>
 
@@ -308,16 +329,21 @@ function AdminPage() {
             <Card className={`p-4 sm:p-5 ${novoConsultorioAberto ? "block" : "hidden lg:block"}`}>
               <div className="flex items-center justify-between">
                 <div>
-                  <h2 className="font-serif text-base sm:text-lg font-semibold">Novo consultório</h2>
+                  <h2 className="font-serif text-base sm:text-lg font-semibold">
+                    Novo consultório
+                  </h2>
                   <p className="text-xs text-muted-foreground">
-                    Endereço público em <code className="rounded bg-muted px-1 py-0.5 text-[11px]">/seu-slug</code>
+                    Endereço público em{" "}
+                    <code className="rounded bg-muted px-1 py-0.5 text-[11px]">/seu-slug</code>
                   </p>
                 </div>
               </div>
 
               <form onSubmit={handleCreateClinic} className="mt-4 space-y-4">
                 <div className="space-y-1.5">
-                  <Label htmlFor="c-name" className="text-xs">Nome do Consultório *</Label>
+                  <Label htmlFor="c-name" className="text-xs">
+                    Nome do Consultório *
+                  </Label>
                   <Input
                     id="c-name"
                     value={name}
@@ -330,7 +356,9 @@ function AdminPage() {
                 </div>
 
                 <div className="space-y-1.5">
-                  <Label htmlFor="c-slug" className="text-xs">Endereço público (slug) *</Label>
+                  <Label htmlFor="c-slug" className="text-xs">
+                    Endereço público (slug) *
+                  </Label>
                   <Input
                     id="c-slug"
                     value={slugTouched ? slug : slugify(name)}
@@ -344,7 +372,9 @@ function AdminPage() {
                 </div>
 
                 <div className="space-y-1.5">
-                  <Label htmlFor="c-tagline" className="text-xs">Frase de apresentação</Label>
+                  <Label htmlFor="c-tagline" className="text-xs">
+                    Frase de apresentação
+                  </Label>
                   <Input
                     id="c-tagline"
                     value={tagline}
@@ -357,7 +387,9 @@ function AdminPage() {
 
                 <div className="grid gap-3 sm:grid-cols-2">
                   <div className="space-y-1.5">
-                    <Label htmlFor="c-email" className="text-xs">E-mail de contato</Label>
+                    <Label htmlFor="c-email" className="text-xs">
+                      E-mail de contato
+                    </Label>
                     <Input
                       id="c-email"
                       type="email"
@@ -368,7 +400,9 @@ function AdminPage() {
                     />
                   </div>
                   <div className="space-y-1.5">
-                    <Label htmlFor="c-phone" className="text-xs">Telefone / WhatsApp</Label>
+                    <Label htmlFor="c-phone" className="text-xs">
+                      Telefone / WhatsApp
+                    </Label>
                     <Input
                       id="c-phone"
                       type="tel"
@@ -424,7 +458,9 @@ function AdminPage() {
 
                 {/* Prévia da marca */}
                 <div className="rounded-xl border border-border bg-muted/30 p-3">
-                  <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider">Prévia visual</p>
+                  <p className="text-[11px] font-medium text-muted-foreground uppercase tracking-wider">
+                    Prévia visual
+                  </p>
                   <div className="mt-2.5 flex items-center gap-3">
                     <span
                       className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl text-base font-bold shadow-sm"
@@ -449,7 +485,11 @@ function AdminPage() {
                   </p>
                 )}
 
-                <Button type="submit" disabled={savingClinic} className="w-full min-h-11 font-medium">
+                <Button
+                  type="submit"
+                  disabled={savingClinic}
+                  className="w-full min-h-11 font-medium"
+                >
                   {savingClinic ? "Criando consultório…" : "Salvar consultório"}
                 </Button>
               </form>
@@ -563,7 +603,11 @@ function AdminPage() {
                 <Plus className="h-4 w-4" />
                 Vincular novo profissional
               </span>
-              {novoAcessoAberto ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+              {novoAcessoAberto ? (
+                <ChevronUp className="h-4 w-4" />
+              ) : (
+                <ChevronDown className="h-4 w-4" />
+              )}
             </Button>
           </div>
 
@@ -572,11 +616,14 @@ function AdminPage() {
             <Card className={`p-4 sm:p-5 ${novoAcessoAberto ? "block" : "hidden lg:block"}`}>
               <h2 className="font-serif text-base sm:text-lg font-semibold">Novo acesso</h2>
               <p className="text-xs text-muted-foreground">
-                Se o e-mail ainda não tiver conta, o acesso é criado com a senha provisória informada.
+                Se o e-mail ainda não tiver conta, o acesso é criado com a senha provisória
+                informada.
               </p>
               <form onSubmit={handleAddStaff} className="mt-4 space-y-4">
                 <div className="space-y-1.5">
-                  <Label htmlFor="s-email" className="text-xs">E-mail do profissional *</Label>
+                  <Label htmlFor="s-email" className="text-xs">
+                    E-mail do profissional *
+                  </Label>
                   <Input
                     id="s-email"
                     type="email"
@@ -589,7 +636,9 @@ function AdminPage() {
                 </div>
 
                 <div className="space-y-1.5">
-                  <Label htmlFor="s-clinic" className="text-xs">Consultório vinculado</Label>
+                  <Label htmlFor="s-clinic" className="text-xs">
+                    Consultório vinculado
+                  </Label>
                   <select
                     id="s-clinic"
                     value={staffClinic}
@@ -606,7 +655,9 @@ function AdminPage() {
                 </div>
 
                 <div className="space-y-1.5">
-                  <Label htmlFor="s-role" className="text-xs">Papel de acesso</Label>
+                  <Label htmlFor="s-role" className="text-xs">
+                    Papel de acesso
+                  </Label>
                   <select
                     id="s-role"
                     value={staffRole}
@@ -620,7 +671,9 @@ function AdminPage() {
                 </div>
 
                 <div className="space-y-1.5">
-                  <Label htmlFor="s-pass" className="text-xs">Senha provisória (opcional)</Label>
+                  <Label htmlFor="s-pass" className="text-xs">
+                    Senha provisória (opcional)
+                  </Label>
                   <Input
                     id="s-pass"
                     type="text"
@@ -638,7 +691,11 @@ function AdminPage() {
                   </p>
                 )}
 
-                <Button type="submit" disabled={savingStaff} className="w-full min-h-11 font-medium">
+                <Button
+                  type="submit"
+                  disabled={savingStaff}
+                  className="w-full min-h-11 font-medium"
+                >
                   {savingStaff ? "Vinculando…" : "Vincular profissional"}
                 </Button>
               </form>
@@ -648,7 +705,9 @@ function AdminPage() {
             <Card className="overflow-hidden">
               <div className="border-b border-border bg-muted/20 px-4 py-3 sm:px-5">
                 <h3 className="font-serif text-sm sm:text-base font-semibold">Equipe com acesso</h3>
-                <p className="text-xs text-muted-foreground">Profissionais vinculados aos consultórios.</p>
+                <p className="text-xs text-muted-foreground">
+                  Profissionais vinculados aos consultórios.
+                </p>
               </div>
 
               {staff.isLoading ? (
@@ -670,7 +729,11 @@ function AdminPage() {
                             {s.email ?? s.user_id}
                           </span>
                           <span className="rounded-full border border-primary/30 bg-primary/10 px-2 py-0.5 text-[10px] font-medium text-primary shrink-0">
-                            {s.role === "admin" ? "Admin" : s.role === "doctor" ? "Médico" : "Equipe"}
+                            {s.role === "admin"
+                              ? "Admin"
+                              : s.role === "doctor"
+                                ? "Médico"
+                                : "Equipe"}
                           </span>
                         </div>
                         <div className="mt-0.5 text-xs text-muted-foreground">
@@ -746,7 +809,11 @@ function DoctorProfilesCard({ staffList }: { staffList: AdminStaff[] }) {
   const fetchProfiles = useServerFn(listDoctorProfilesAdmin);
   const saveProfile = useServerFn(upsertDoctorProfileAdmin);
 
-  const { data: profiles, isLoading, error } = useQuery({
+  const {
+    data: profiles,
+    isLoading,
+    error,
+  } = useQuery({
     queryKey: ["doctor-profiles"],
     queryFn: () => fetchProfiles({}),
     retry: false,
@@ -763,15 +830,11 @@ function DoctorProfilesCard({ staffList }: { staffList: AdminStaff[] }) {
     (m) =>
       m.role === "doctor" &&
       m.clinic_id &&
-      !(profiles ?? []).some(
-        (p) => p.user_id === m.user_id && p.clinic_id === m.clinic_id,
-      ),
+      !(profiles ?? []).some((p) => p.user_id === m.user_id && p.clinic_id === m.clinic_id),
   );
 
   async function adicionar() {
-    const alvo = candidatos.find(
-      (c) => `${c.user_id}:${c.clinic_id}` === novoSel,
-    );
+    const alvo = candidatos.find((c) => `${c.user_id}:${c.clinic_id}` === novoSel);
     if (!alvo || !alvo.clinic_id) return;
     setSavingNew(true);
     setMsgNew(null);
@@ -780,8 +843,7 @@ function DoctorProfilesCard({ staffList }: { staffList: AdminStaff[] }) {
         data: {
           clinic_id: alvo.clinic_id,
           user_id: alvo.user_id,
-          display_name:
-            novoNome.trim() || nomeSugerido(alvo.email) || "Profissional",
+          display_name: novoNome.trim() || nomeSugerido(alvo.email) || "Profissional",
           specialty: novaEspecialidade.trim() || null,
           is_listed: true,
         },
@@ -812,7 +874,8 @@ function DoctorProfilesCard({ staffList }: { staffList: AdminStaff[] }) {
               Lista pública de médicos na triagem
             </h2>
             <p className="mt-0.5 max-w-2xl text-xs text-muted-foreground">
-              Quem aparece para o paciente escolher no início da pré-avaliação (ex.: "Dr. José Ribamar Fernandes Saraiva Junior").
+              Quem aparece para o paciente escolher no início da pré-avaliação (ex.: "Dr. José
+              Ribamar Fernandes Saraiva Junior").
             </p>
           </div>
           <span className="rounded-full border border-primary/30 bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary">
@@ -821,9 +884,7 @@ function DoctorProfilesCard({ staffList }: { staffList: AdminStaff[] }) {
         </div>
 
         {isLoading && (
-          <p className="mt-4 text-xs text-muted-foreground">
-            Carregando perfis médicos…
-          </p>
+          <p className="mt-4 text-xs text-muted-foreground">Carregando perfis médicos…</p>
         )}
         {error && (
           <p className="mt-4 text-xs text-destructive">
@@ -862,10 +923,7 @@ function DoctorProfilesCard({ staffList }: { staffList: AdminStaff[] }) {
               >
                 <option value="">Selecionar profissional…</option>
                 {candidatos.map((c) => (
-                  <option
-                    key={`${c.user_id}:${c.clinic_id}`}
-                    value={`${c.user_id}:${c.clinic_id}`}
-                  >
+                  <option key={`${c.user_id}:${c.clinic_id}`} value={`${c.user_id}:${c.clinic_id}`}>
                     {c.email ?? c.user_id} · {c.clinic_name ?? ""}
                   </option>
                 ))}
@@ -938,12 +996,7 @@ function DoctorProfileEditor({ profile }: { profile: DoctorProfileRow }) {
   }
 
   async function remover() {
-    if (
-      !window.confirm(
-        `Remover ${profile.display_name} da lista pública de escolha?`,
-      )
-    )
-      return;
+    if (!window.confirm(`Remover ${profile.display_name} da lista pública de escolha?`)) return;
     setBusy(true);
     setMsg(null);
     try {
@@ -1037,7 +1090,9 @@ function ColorField({
 }) {
   return (
     <div className="space-y-1.5">
-      <Label htmlFor={id} className="text-xs">{label}</Label>
+      <Label htmlFor={id} className="text-xs">
+        {label}
+      </Label>
       <div className="flex items-center gap-2">
         <input
           id={id}

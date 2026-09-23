@@ -1,9 +1,4 @@
-import {
-  createFileRoute,
-  Outlet,
-  notFound,
-  Link,
-} from "@tanstack/react-router";
+import { createFileRoute, Outlet, notFound, Link } from "@tanstack/react-router";
 import { getClinicBySlug } from "@/lib/clinics.functions";
 import { ClinicTheme } from "@/components/ClinicTheme";
 
@@ -15,8 +10,7 @@ export const Route = createFileRoute("/$slug")({
   },
   head: ({ loaderData }) => {
     const name = loaderData?.name ?? "Triagem";
-    const desc =
-      loaderData?.tagline ?? "Avaliação pré-consulta psiquiátrica";
+    const desc = loaderData?.tagline ?? "Avaliação pré-consulta psiquiátrica";
     return {
       meta: [
         { title: `${name} — Triagem pré-consulta` },

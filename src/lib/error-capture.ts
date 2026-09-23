@@ -12,7 +12,10 @@ function record(error: unknown) {
 // Regex de higienização de dados sensíveis e credenciais (LGPD)
 const PII_PATTERNS: Array<{ regex: RegExp; mask: string }> = [
   // JWT / Bearer tokens
-  { regex: /Bearer\s+[A-Za-z0-9-_=]+\.[A-Za-z0-9-_=]+\.?[A-Za-z0-9-_.+/=]*/gi, mask: "Bearer [JWT_REDACTED]" },
+  {
+    regex: /Bearer\s+[A-Za-z0-9-_=]+\.[A-Za-z0-9-_=]+\.?[A-Za-z0-9-_.+/=]*/gi,
+    mask: "Bearer [JWT_REDACTED]",
+  },
   // Supabase secret keys
   { regex: /sb_secret_[A-Za-z0-9_-]+/gi, mask: "[SUPABASE_SECRET_REDACTED]" },
   // E-mails

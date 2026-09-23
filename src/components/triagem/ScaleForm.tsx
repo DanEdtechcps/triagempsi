@@ -24,9 +24,7 @@ export function ScaleForm({ scale, onSubmit, onBack, step, totalSteps }: Props) 
         <div className="text-xs uppercase tracking-wider text-muted-foreground">
           Etapa {step} de {totalSteps} · {scale.code}
         </div>
-        <h2 className="mt-1 text-xl font-semibold text-foreground sm:text-2xl">
-          {scale.fullName}
-        </h2>
+        <h2 className="mt-1 text-xl font-semibold text-foreground sm:text-2xl">{scale.fullName}</h2>
         {scale.timeframe && (
           <p className="mt-1 text-sm text-muted-foreground">
             Período de referência: {scale.timeframe}
@@ -53,9 +51,7 @@ export function ScaleForm({ scale, onSubmit, onBack, step, totalSteps }: Props) 
                     <button
                       key={opt.value}
                       type="button"
-                      onClick={() =>
-                        setAnswers((prev) => ({ ...prev, [item.id]: opt.value }))
-                      }
+                      onClick={() => setAnswers((prev) => ({ ...prev, [item.id]: opt.value }))}
                       className={`min-h-11 rounded-md border px-3 py-2.5 text-left text-sm transition-colors ${
                         selected
                           ? "border-primary bg-primary text-primary-foreground"
@@ -73,12 +69,7 @@ export function ScaleForm({ scale, onSubmit, onBack, step, totalSteps }: Props) 
       </div>
 
       <div className="flex flex-col-reverse gap-3 pt-2 sm:flex-row sm:items-center sm:justify-between">
-        <Button
-          variant="ghost"
-          onClick={onBack}
-          disabled={!onBack}
-          className="w-full sm:w-auto"
-        >
+        <Button variant="ghost" onClick={onBack} disabled={!onBack} className="w-full sm:w-auto">
           Voltar
         </Button>
         <Button

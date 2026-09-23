@@ -13,11 +13,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import {
-  loadReviewQueue,
-  loadReviewed,
-  toggleReviewed,
-} from "@/lib/review-queue";
+import { loadReviewQueue, loadReviewed, toggleReviewed } from "@/lib/review-queue";
 
 /** Barra de revisão em lote: posição na fila, anterior/próxima e "revisado". */
 export function QueueNav({ id }: { id: string }) {
@@ -63,8 +59,7 @@ export function QueueNav({ id }: { id: string }) {
         navigate({ to: "/painel/$id", params: { id: próxima } });
       }
     },
-    onError: (e) =>
-      setErro(e instanceof Error ? e.message : "Não foi possível salvar a nota."),
+    onError: (e) => setErro(e instanceof Error ? e.message : "Não foi possível salvar a nota."),
   });
 
   function abrir(comAvanço: boolean) {
@@ -89,8 +84,6 @@ export function QueueNav({ id }: { id: string }) {
 
   const notaCurta = nota.trim().length > 0 && nota.trim().length < 3;
 
-
-
   // Atalhos: J / → próxima, K / ← anterior, R marcar revisado,
   // Shift+R revisado e próxima. No diálogo, Ctrl/Cmd+Enter confirma.
   useEffect(() => {
@@ -98,9 +91,7 @@ export function QueueNav({ id }: { id: string }) {
       const alvo = e.target as HTMLElement | null;
       const digitando =
         !!alvo &&
-        (alvo.tagName === "INPUT" ||
-          alvo.tagName === "TEXTAREA" ||
-          alvo.isContentEditable);
+        (alvo.tagName === "INPUT" || alvo.tagName === "TEXTAREA" || alvo.isContentEditable);
 
       if (aberto) {
         if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) {
@@ -131,15 +122,14 @@ export function QueueNav({ id }: { id: string }) {
     return () => window.removeEventListener("keydown", onKey);
   });
 
-
   const dialog = (
     <Dialog open={aberto} onOpenChange={(v) => !salvar.isPending && setAberto(v)}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Marcar triagem como revisada</DialogTitle>
           <DialogDescription>
-            Registre notas e observações desta revisão (opcional). O texto entra no
-            histórico de pareceres com autor, data e registro na auditoria.
+            Registre notas e observações desta revisão (opcional). O texto entra no histórico de
+            pareceres com autor, data e registro na auditoria.
           </DialogDescription>
         </DialogHeader>
         <div>
@@ -150,9 +140,7 @@ export function QueueNav({ id }: { id: string }) {
             placeholder="Observações da revisão, pendências e conduta…"
             aria-label="Notas e observações da revisão"
           />
-          <div className="mt-2 text-xs text-muted-foreground">
-            {nota.trim().length}/5000
-          </div>
+          <div className="mt-2 text-xs text-muted-foreground">{nota.trim().length}/5000</div>
           {notaCurta && (
             <p className="mt-1 text-xs text-destructive">
               Escreva ao menos 3 caracteres ou deixe em branco.
@@ -161,22 +149,11 @@ export function QueueNav({ id }: { id: string }) {
           {erro && <p className="mt-2 text-sm text-destructive">{erro}</p>}
         </div>
         <DialogFooter>
-          <Button
-            variant="outline"
-            onClick={() => setAberto(false)}
-            disabled={salvar.isPending}
-          >
+          <Button variant="outline" onClick={() => setAberto(false)} disabled={salvar.isPending}>
             Cancelar
           </Button>
-          <Button
-            onClick={() => salvar.mutate()}
-            disabled={salvar.isPending || notaCurta}
-          >
-            {salvar.isPending
-              ? "Salvando…"
-              : avançar
-                ? "Salvar e próxima"
-                : "Confirmar revisão"}
+          <Button onClick={() => salvar.mutate()} disabled={salvar.isPending || notaCurta}>
+            {salvar.isPending ? "Salvando…" : avançar ? "Salvar e próxima" : "Confirmar revisão"}
           </Button>
         </DialogFooter>
       </DialogContent>
@@ -186,11 +163,7 @@ export function QueueNav({ id }: { id: string }) {
   if (idx < 0 || ids.length < 2) {
     return (
       <div className="mb-4 flex justify-end print:hidden">
-        <Button
-          variant={feito ? "secondary" : "outline"}
-          size="sm"
-          onClick={() => marcar(false)}
-        >
+        <Button variant={feito ? "secondary" : "outline"} size="sm" onClick={() => marcar(false)}>
           {feito ? "Revisado ✓" : "Marcar revisado"}
         </Button>
         {dialog}
@@ -204,24 +177,17 @@ export function QueueNav({ id }: { id: string }) {
         <div className="text-sm font-medium text-foreground">
           Revisão {idx + 1} de {ids.length}
         </div>
-        {label && (
-          <div className="truncate text-xs text-muted-foreground">{label}</div>
-        )}
+        {label && <div className="truncate text-xs text-muted-foreground">{label}</div>}
         <div className="mt-1 hidden text-xs text-muted-foreground sm:block">
           Atalhos: <kbd className="rounded border border-border px-1">J</kbd>/
           <kbd className="rounded border border-border px-1">K</kbd> navegar ·{" "}
           <kbd className="rounded border border-border px-1">R</kbd> revisado ·{" "}
-          <kbd className="rounded border border-border px-1">Shift+R</kbd> revisado e
-          próxima
+          <kbd className="rounded border border-border px-1">Shift+R</kbd> revisado e próxima
         </div>
       </div>
 
       <div className="flex shrink-0 flex-wrap items-center gap-2">
-        <Button
-          variant={feito ? "secondary" : "outline"}
-          size="sm"
-          onClick={() => marcar(false)}
-        >
+        <Button variant={feito ? "secondary" : "outline"} size="sm" onClick={() => marcar(false)}>
           {feito ? "Revisado ✓" : "Marcar revisado"}
         </Button>
         <Button

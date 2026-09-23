@@ -9,15 +9,13 @@ import { Label } from "@/components/ui/label";
 import { validateNewPassword, MIN_PASSWORD_LENGTH } from "@/lib/password";
 import { PasswordStrengthMeter } from "@/components/PasswordStrengthMeter";
 
-
 export const Route = createFileRoute("/_authenticated/senha")({
   head: () => ({
     meta: [
       { title: "Alterar senha — Painel da clínica" },
       {
         name: "description",
-        content:
-          "Troque a senha da sua conta de acesso ao painel de pré-triagens da clínica.",
+        content: "Troque a senha da sua conta de acesso ao painel de pré-triagens da clínica.",
       },
       { property: "og:title", content: "Alterar senha — Painel da clínica" },
       {
@@ -51,7 +49,6 @@ function TrocarSenhaPage() {
       return;
     }
 
-
     setLoading(true);
     try {
       const { data: userData } = await supabase.auth.getUser();
@@ -73,9 +70,7 @@ function TrocarSenhaPage() {
       setPassword("");
       setConfirm("");
     } catch (err) {
-      setMsg(
-        err instanceof Error ? err.message : "Não foi possível alterar a senha.",
-      );
+      setMsg(err instanceof Error ? err.message : "Não foi possível alterar a senha.");
     } finally {
       setLoading(false);
     }
@@ -84,9 +79,7 @@ function TrocarSenhaPage() {
   return (
     <PainelShell title="Alterar senha">
       <Card className="max-w-md border-border bg-card p-5 sm:p-6">
-        <h2 className="font-serif text-lg font-semibold text-foreground">
-          Trocar minha senha
-        </h2>
+        <h2 className="font-serif text-lg font-semibold text-foreground">Trocar minha senha</h2>
         <p className="mt-1 text-sm text-muted-foreground">
           Use esta tela para substituir a senha provisória por uma definitiva.
         </p>
@@ -133,19 +126,12 @@ function TrocarSenhaPage() {
               className="text-base"
             />
             {confirm && confirm !== password && (
-              <p className="mt-1 text-xs text-destructive">
-                As senhas não coincidem.
-              </p>
+              <p className="mt-1 text-xs text-destructive">As senhas não coincidem.</p>
             )}
           </div>
 
-
           {msg && <p className="text-sm text-destructive">{msg}</p>}
-          {ok && (
-            <p className="text-sm text-foreground">
-              Senha alterada com sucesso.
-            </p>
-          )}
+          {ok && <p className="text-sm text-foreground">Senha alterada com sucesso.</p>}
 
           <Button type="submit" disabled={loading} className="w-full">
             {loading ? "Salvando…" : "Salvar nova senha"}

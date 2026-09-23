@@ -21,7 +21,10 @@ import ad8Raw from "./schemas/ad8.json";
 import gds15Raw from "./schemas/gds15.json";
 import srq20Raw from "./schemas/srq20.json";
 
-export const DECLARATIVE_SCHEMAS: (ScaleSchema & { status?: string; eligibility: { triggers_only?: boolean } })[] = [
+export const DECLARATIVE_SCHEMAS: (ScaleSchema & {
+  status?: string;
+  eligibility: { triggers_only?: boolean };
+})[] = [
   srq20Raw,
   epdsRaw,
   phq2Raw,
@@ -61,7 +64,15 @@ export function buildDeclarativeTriagePlan(
 
   // 1. Linha de Base (Baseline) para adultos e idosos
   const band =
-    age === null ? "adulto" : age < 12 ? "crianca" : age < 18 ? "adolescente" : age < 60 ? "adulto" : "idoso";
+    age === null
+      ? "adulto"
+      : age < 12
+        ? "crianca"
+        : age < 18
+          ? "adolescente"
+          : age < 60
+            ? "adulto"
+            : "idoso";
 
   if (band === "adulto" || band === "idoso") {
     flow.push("SRQ-20");
@@ -147,9 +158,7 @@ export function runShadowTriageComparison(
   const legacyHasEpds = legacyPlan.flow.includes("EPDS");
   const declarativeHasEpds = declarativePlan.flow.includes("EPDS");
 
-  const epdsBlockedInBoth = isMale
-    ? !legacyHasEpds && !declarativeHasEpds
-    : true;
+  const epdsBlockedInBoth = isMale ? !legacyHasEpds && !declarativeHasEpds : true;
 
   if (isMale && (legacyHasEpds || declarativeHasEpds)) {
     diffs.push(

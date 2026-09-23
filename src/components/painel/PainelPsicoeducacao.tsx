@@ -88,9 +88,10 @@ export function PainelPsicoeducacao({
     .sort((a, b) => new Date(b.viewed_at!).getTime() - new Date(a.viewed_at!).getTime())[0];
 
   // 2. Sugestões de Apoio à Decisão Clínica (Clinical Decision Support)
-  const decisionSupportItems: ClinicalDecisionItem[] = scaleResults.length > 0
-    ? getClinicalDecisionSupport(scaleResults, { riskPathway: riskPathway || hasRiskFlags })
-    : [];
+  const decisionSupportItems: ClinicalDecisionItem[] =
+    scaleResults.length > 0
+      ? getClinicalDecisionSupport(scaleResults, { riskPathway: riskPathway || hasRiskFlags })
+      : [];
 
   return (
     <div className="space-y-4">
@@ -104,7 +105,8 @@ export function PainelPsicoeducacao({
                 Apoio à Decisão Clínica (Decision Support)
               </h2>
               <p className="text-xs text-muted-foreground">
-                Insights diagnósticos e sugestões terapêuticas orientativas baseadas nos escores das escalas:
+                Insights diagnósticos e sugestões terapêuticas orientativas baseadas nos escores das
+                escalas:
               </p>
             </div>
           </div>
@@ -193,7 +195,8 @@ export function PainelPsicoeducacao({
               </span>
             </div>
             <p className="mt-1 text-xs text-muted-foreground">
-              Materiais recomendados pelo motor clínico e disponibilizados ao paciente no PDF e Portal.
+              Materiais recomendados pelo motor clínico e disponibilizados ao paciente no PDF e
+              Portal.
             </p>
           </div>
 
@@ -241,7 +244,12 @@ export function PainelPsicoeducacao({
               </div>
               {lastViewedItem?.viewed_at && (
                 <span className="text-[11px] text-muted-foreground">
-                  Última leitura: {new Date(lastViewedItem.viewed_at).toLocaleDateString("pt-BR")} às {new Date(lastViewedItem.viewed_at).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
+                  Última leitura: {new Date(lastViewedItem.viewed_at).toLocaleDateString("pt-BR")}{" "}
+                  às{" "}
+                  {new Date(lastViewedItem.viewed_at).toLocaleTimeString("pt-BR", {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
                 </span>
               )}
             </div>
@@ -262,9 +270,7 @@ export function PainelPsicoeducacao({
         )}
 
         {isLoading && (
-          <p className="py-4 text-sm text-muted-foreground">
-            Carregando materiais recomendados…
-          </p>
+          <p className="py-4 text-sm text-muted-foreground">Carregando materiais recomendados…</p>
         )}
 
         {!isLoading && list.length === 0 && (
@@ -315,7 +321,12 @@ export function PainelPsicoeducacao({
                       {item.viewed_at ? (
                         <span className="inline-flex items-center gap-1 text-emerald-600 dark:text-emerald-400 font-medium">
                           <CheckCircle2 className="h-3.5 w-3.5" />
-                          Visualizado no portal em {new Date(item.viewed_at).toLocaleDateString("pt-BR")} às {new Date(item.viewed_at).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
+                          Visualizado no portal em{" "}
+                          {new Date(item.viewed_at).toLocaleDateString("pt-BR")} às{" "}
+                          {new Date(item.viewed_at).toLocaleTimeString("pt-BR", {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })}
                         </span>
                       ) : (
                         <span className="inline-flex items-center gap-1">
@@ -367,25 +378,25 @@ export function PainelPsicoeducacao({
                   </div>
                   <p className="text-xs text-muted-foreground">{previewItem.short_title}</p>
                 </div>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setPreviewItem(null)}
-                >
+                <Button variant="ghost" size="sm" onClick={() => setPreviewItem(null)}>
                   Fechar
                 </Button>
               </div>
 
               <div className="mt-4 space-y-4 text-xs leading-relaxed text-foreground/90">
                 <div>
-                  <div className="font-semibold text-primary">Versão Resumo (impresso no PDF do Paciente):</div>
+                  <div className="font-semibold text-primary">
+                    Versão Resumo (impresso no PDF do Paciente):
+                  </div>
                   <div className="mt-1 rounded-lg border border-border bg-muted/40 p-3">
                     {previewItem.summary_pdf}
                   </div>
                 </div>
 
                 <div>
-                  <div className="font-semibold text-primary">Versão Completa (exibida no Portal):</div>
+                  <div className="font-semibold text-primary">
+                    Versão Completa (exibida no Portal):
+                  </div>
                   <div className="prose prose-sm dark:prose-invert mt-1 max-w-none whitespace-pre-line rounded-lg border border-border bg-muted/20 p-3">
                     {previewItem.body_md}
                   </div>

@@ -1,7 +1,7 @@
 /**
  * Motor Reativo de Grafos (DAG) e Reações Cruzadas (x-reactions).
  * Inspirado na arquitetura reativa do Formily (Alibaba).
- * 
+ *
  * Permite que escalas e itens disparem eventos puramente funcionais no Edge,
  * recalculando dependências e injetando/removendo escalas de forma determinística
  * e estritamente acíclica (garantia matemática de DAG sem loops infinitos).
@@ -10,10 +10,7 @@
 import type { SchemaScoreResult, EvaluationContext } from "./schema-types";
 import { isMaleSex } from "./triage-tree";
 
-export type ReactionAction =
-  | "INJECT_SCALE"
-  | "TRIGGER_SAFETY_PLAN"
-  | "REMOVE_SCALE";
+export type ReactionAction = "INJECT_SCALE" | "TRIGGER_SAFETY_PLAN" | "REMOVE_SCALE";
 
 export interface ScaleReaction {
   id?: string;

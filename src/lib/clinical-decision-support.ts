@@ -29,9 +29,7 @@ export function getClinicalDecisionSupport(
     riskPathway?: boolean;
   },
 ): ClinicalDecisionItem[] {
-  const mapResults = new Map(
-    scaleResults.map((r) => [r.scale_code.toUpperCase(), r]),
-  );
+  const mapResults = new Map(scaleResults.map((r) => [r.scale_code.toUpperCase(), r]));
   const items: ClinicalDecisionItem[] = [];
 
   const phq9 = mapResults.get("PHQ-9");
@@ -79,9 +77,8 @@ export function getClinicalDecisionSupport(
 
   // 2. Alerta: Espectro Bipolar e Risco de Virada Maníaca
   const mdqPositive =
-    mdq &&
-    ((mdq.score ?? 0) >= 7 || (mdq.band ?? "").toLowerCase().includes("positivo"));
-  const phq9Elevated = (phq9 && (phq9.score ?? 0) >= 10);
+    mdq && ((mdq.score ?? 0) >= 7 || (mdq.band ?? "").toLowerCase().includes("positivo"));
+  const phq9Elevated = phq9 && (phq9.score ?? 0) >= 10;
 
   if (mdqPositive && phq9Elevated) {
     items.push({
@@ -149,8 +146,7 @@ export function getClinicalDecisionSupport(
 
   // 5. Orientativo: TDAH vs. Hiperativação Ansiosa
   const asrsPositive =
-    asrs &&
-    ((asrs.band_level ?? 0) >= 2 || (asrs.band ?? "").toLowerCase().includes("positivo"));
+    asrs && ((asrs.band_level ?? 0) >= 2 || (asrs.band ?? "").toLowerCase().includes("positivo"));
 
   if (asrsPositive && gad7Elevated) {
     items.push({
@@ -184,7 +180,8 @@ export function getClinicalDecisionSupport(
         "Investigar pesadelos recorrentes e avaliar antagonistas alfa-1 (como prazosina) se indicado.",
         "Trabalhar estratégias de ancoragem de segurança física no quarto e na rotina noturna.",
       ],
-      evidence_basis: "Diretrizes APA e VA/DoD para Manejo do Transtorno de Estresse Pós-Traumático.",
+      evidence_basis:
+        "Diretrizes APA e VA/DoD para Manejo do Transtorno de Estresse Pós-Traumático.",
     });
   }
 
@@ -214,7 +211,8 @@ export function getClinicalDecisionSupport(
       id: "prevencao-longevidade",
       title: "Promoção de Saúde Mental e Longevidade Saudável",
       level: "orientativo",
-      rationale: "Ausência de sinais clínicos de alarme ou transtornos psiquiátricos moderados a graves na triagem.",
+      rationale:
+        "Ausência de sinais clínicos de alarme ou transtornos psiquiátricos moderados a graves na triagem.",
       clinical_guidance:
         "Paciente em rastreio favorável. Momento oportuno para medicina do estilo de vida, fortalecimento de fatores de proteção, higiene circadiana e cultivo de conexões sociais significativas.",
       suggested_actions: [

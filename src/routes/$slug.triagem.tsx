@@ -187,7 +187,7 @@ function TriagemPage() {
 
           let cleanedSymptoms = s.symptoms ?? [];
           let cleanedPlan = s.plan ?? null;
-          let cleanedAnswers = s.answers ?? {};
+          const cleanedAnswers = s.answers ?? {};
           let cleanedResults = s.results ?? [];
 
           // Purga rigorosa de resíduos perinatais / EPDS para homens em cache

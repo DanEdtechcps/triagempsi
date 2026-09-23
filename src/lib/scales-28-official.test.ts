@@ -17,7 +17,16 @@ describe("As 28 Escalas Psiquiátricas Oficiais do TriagemPsi", () => {
       expect(mod.band_level).toBe(2);
       expect(mod.risk).toBe(false);
 
-      const grave = scoreScale("PHQ-9", { "1": 3, "2": 3, "3": 3, "4": 3, "5": 3, "6": 3, "7": 3, "9": 0 });
+      const grave = scoreScale("PHQ-9", {
+        "1": 3,
+        "2": 3,
+        "3": 3,
+        "4": 3,
+        "5": 3,
+        "6": 3,
+        "7": 3,
+        "9": 0,
+      });
       expect(grave.score).toBe(21);
       expect(grave.band_level).toBe(4);
     });
@@ -129,7 +138,17 @@ describe("As 28 Escalas Psiquiátricas Oficiais do TriagemPsi", () => {
   // 9. Y-BOCS (TOC)
   describe("9. Y-BOCS", () => {
     it("pontua de 0 a 40 em faixas de gravidade", () => {
-      const mod = scoreScale("Y-BOCS", { "1": 2, "2": 2, "3": 2, "4": 2, "5": 2, "6": 2, "7": 2, "8": 2, "9": 2 });
+      const mod = scoreScale("Y-BOCS", {
+        "1": 2,
+        "2": 2,
+        "3": 2,
+        "4": 2,
+        "5": 2,
+        "6": 2,
+        "7": 2,
+        "8": 2,
+        "9": 2,
+      });
       expect(mod.score).toBe(18);
       expect(mod.band_level).toBe(2);
       expect(mod.band).toBe("TOC moderado");

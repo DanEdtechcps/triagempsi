@@ -25,7 +25,8 @@ export const CANONICAL_REACTIONS: ScaleReaction[] = [
     action: "TRIGGER_SAFETY_PLAN",
     target: "C-SSRS",
     priority: 100, // Máxima prioridade
-    description: "Item 9 positivo ou depressão grave no PHQ-9 — acionar protocolo de segurança e C-SSRS",
+    description:
+      "Item 9 positivo ou depressão grave no PHQ-9 — acionar protocolo de segurança e C-SSRS",
   },
 
   // 3. Protocolo Perinatal: EPDS -> C-SSRS / Crise
@@ -36,7 +37,8 @@ export const CANONICAL_REACTIONS: ScaleReaction[] = [
     action: "TRIGGER_SAFETY_PLAN",
     target: "C-SSRS",
     priority: 90,
-    description: "Item 10 de autoagressão ou escore severo no EPDS — acionar protocolo de segurança",
+    description:
+      "Item 10 de autoagressão ou escore severo no EPDS — acionar protocolo de segurança",
   },
 
   // 4. Escalonamento Ultrarrápido de Ansiedade: GAD-2 -> GAD-7

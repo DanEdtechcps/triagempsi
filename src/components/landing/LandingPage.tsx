@@ -2,17 +2,10 @@ import { Link } from "@tanstack/react-router";
 import { motion, useScroll, useSpring, useTransform } from "motion/react";
 import { useRef, useState } from "react";
 
-import {
-  LANDING_DEFAULTS,
-  type LandingSettings,
-} from "@/lib/landing-settings.functions";
-
+import { LANDING_DEFAULTS, type LandingSettings } from "@/lib/landing-settings.functions";
 
 import { GatewaySplit } from "./GatewaySplit";
-import {
-  LandingVariantSwitcher,
-  useLandingVariant,
-} from "./LandingVariantSwitcher";
+import { LandingVariantSwitcher, useLandingVariant } from "./LandingVariantSwitcher";
 import {
   AuroraBackdrop,
   CountUp,
@@ -193,7 +186,6 @@ export function LandingPage({ settings }: { settings?: LandingSettings | null })
       <AuroraBackdrop />
       <LandingVariantSwitcher variant={variant} onChange={setVariant} />
 
-
       {/* NAV */}
       <motion.header
         initial={{ opacity: 0, y: -18 }}
@@ -262,7 +254,6 @@ export function LandingPage({ settings }: { settings?: LandingSettings | null })
             className="mx-auto mt-8 max-w-2xl text-base leading-relaxed text-ivory/60 sm:text-lg"
           >
             {copy.subheadline}
-
           </motion.p>
 
           <motion.div
@@ -378,7 +369,9 @@ export function LandingPage({ settings }: { settings?: LandingSettings | null })
       <section id="recursos" className="relative scroll-mt-24 px-5 py-24 sm:px-8">
         <div className="mx-auto max-w-6xl">
           <Reveal>
-            <p className="text-[0.68rem] uppercase tracking-[0.24em] text-gold/70">Engenharia clínica</p>
+            <p className="text-[0.68rem] uppercase tracking-[0.24em] text-gold/70">
+              Engenharia clínica
+            </p>
             <h2 className="mt-5 max-w-3xl font-display text-[clamp(2rem,5vw,3.75rem)] leading-[1.05]">
               Feito para quem leva a primeira consulta a sério.
             </h2>
@@ -401,8 +394,8 @@ export function LandingPage({ settings }: { settings?: LandingSettings | null })
       <section className="relative px-5 py-28 sm:px-8">
         <Reveal className="mx-auto max-w-4xl text-center">
           <p className="font-display text-[clamp(1.6rem,4vw,3rem)] leading-[1.2] text-ivory/90">
-            “Eu gastava metade da primeira consulta preenchendo escala. Agora entro na sala
-            com o caso lido — e o paciente sente isso no primeiro minuto.”
+            “Eu gastava metade da primeira consulta preenchendo escala. Agora entro na sala com o
+            caso lido — e o paciente sente isso no primeiro minuto.”
           </p>
           <p className="mt-8 text-xs uppercase tracking-[0.22em] text-ivory/40">
             Psiquiatra · consultório particular
@@ -492,9 +485,7 @@ export function LandingPage({ settings }: { settings?: LandingSettings | null })
             configuramos seu consultório no mesmo dia.
           </p>
           <div className="mt-11 flex flex-wrap justify-center gap-3">
-            <MagneticButton onClick={() => setDemoOpen(true)}>
-              Agendar demonstração
-            </MagneticButton>
+            <MagneticButton onClick={() => setDemoOpen(true)}>Agendar demonstração</MagneticButton>
             <Link to="/$slug" params={{ slug: "saraiva" }}>
               <MagneticButton variant="ghost">Experimentar a triagem</MagneticButton>
             </Link>

@@ -33,27 +33,21 @@ export type Delivery = {
   review_note?: string;
 };
 
-const ALL: Delivery[] = [...(raw as Delivery[])].sort((a, b) =>
-  b.date.localeCompare(a.date),
-);
+const ALL: Delivery[] = [...(raw as Delivery[])].sort((a, b) => b.date.localeCompare(a.date));
 
 export function deliveryStatus(d: Delivery): DeliveryStatus {
   return d.status === "pendente" ? "pendente" : "aprovada";
 }
 
 /** Entregas aguardando sua revisão/aprovação. */
-export const PENDING_DELIVERIES: Delivery[] = ALL.filter(
-  (d) => deliveryStatus(d) === "pendente",
-);
+export const PENDING_DELIVERIES: Delivery[] = ALL.filter((d) => deliveryStatus(d) === "pendente");
 
 /**
  * Histórico de entregas aprovadas. O arquivo `deliveries.json` é alimentado
  * automaticamente pelo comando `node scripts/roadmap-add.mjs` — não edite à mão.
  * A aprovação é feita por `node scripts/roadmap-review.mjs`.
  */
-export const DELIVERIES: Delivery[] = ALL.filter(
-  (d) => deliveryStatus(d) === "aprovada",
-);
+export const DELIVERIES: Delivery[] = ALL.filter((d) => deliveryStatus(d) === "aprovada");
 
 /** Todas as entregas, aprovadas e pendentes. */
 export const ALL_DELIVERIES: Delivery[] = ALL;
@@ -64,7 +58,6 @@ export function formatDeliveryDate(iso: string) {
 }
 
 export const LAST_DELIVERY_DATE = DELIVERIES[0]?.date ?? null;
-
 
 export const UNVERSIONED = "Sem versão";
 
@@ -89,9 +82,7 @@ function compareVersionDesc(a: ChangelogVersion, b: ChangelogVersion) {
 }
 
 /** Agrupa as entregas do roadmap por versão, da mais recente para a mais antiga. */
-export function changelogByVersion(
-  deliveries: Delivery[] = DELIVERIES,
-): ChangelogVersion[] {
+export function changelogByVersion(deliveries: Delivery[] = DELIVERIES): ChangelogVersion[] {
   const map = new Map<string, Delivery[]>();
   for (const d of deliveries) {
     const key = d.version ?? UNVERSIONED;

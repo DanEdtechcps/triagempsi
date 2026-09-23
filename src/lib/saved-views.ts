@@ -54,15 +54,10 @@ export function describeView(f: PainelViewFilters): string {
   const partes: string[] = [];
   if (f.risco !== "todos")
     partes.push(
-      f.risco === "risco"
-        ? "via de risco"
-        : f.risco === "atencao"
-          ? "atenção"
-          : "sem alteração",
+      f.risco === "risco" ? "via de risco" : f.risco === "atencao" ? "atenção" : "sem alteração",
     );
   if (f.escala !== "todas") partes.push(f.escala);
-  if (f.status !== "todos")
-    partes.push(f.status === "enviado" ? "enviados" : "pendentes");
+  if (f.status !== "todos") partes.push(f.status === "enviado" ? "enviados" : "pendentes");
   if (f.clinica !== "todas") partes.push("clínica específica");
   if (f.informante && f.informante !== "todos")
     partes.push(

@@ -22,7 +22,8 @@ export const Route = createFileRoute("/_authenticated/ocupacional")({
       { property: "og:title", content: "Relatório de riscos psicossociais (NR-01)" },
       {
         property: "og:description",
-        content: "Domínios COPSOQ, percentual de exposição e distribuição de gravidade por empresa.",
+        content:
+          "Domínios COPSOQ, percentual de exposição e distribuição de gravidade por empresa.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -38,10 +39,19 @@ function csvEscape(v: string | number) {
 }
 
 function exportCsv(reports: OcupacionalReport[]) {
-  const linhas = [["Empresa", "Respondentes", "Média geral", "Domínio", "Média do domínio", "% exposto"]];
+  const linhas = [
+    ["Empresa", "Respondentes", "Média geral", "Domínio", "Média do domínio", "% exposto"],
+  ];
   for (const r of reports) {
     if (!r.suficiente) {
-      linhas.push([r.clinic_name ?? r.clinic_id, String(r.respondentes), "—", "amostra insuficiente", "—", "—"]);
+      linhas.push([
+        r.clinic_name ?? r.clinic_id,
+        String(r.respondentes),
+        "—",
+        "amostra insuficiente",
+        "—",
+        "—",
+      ]);
       continue;
     }
     for (const d of r.dominios) {
@@ -107,8 +117,8 @@ function OcupacionalPage() {
           <p className="text-sm text-muted-foreground">Carregando relatório…</p>
         ) : reports.length === 0 ? (
           <Card className="p-6 text-sm text-muted-foreground">
-            Nenhuma aplicação do COPSOQ-BR registrada ainda. O instrumento é acionado quando a pessoa
-            marca sobrecarga ou adoecimento ligado ao trabalho na triagem.
+            Nenhuma aplicação do COPSOQ-BR registrada ainda. O instrumento é acionado quando a
+            pessoa marca sobrecarga ou adoecimento ligado ao trabalho na triagem.
           </Card>
         ) : (
           reports.map((r) => <RelatorioEmpresa key={r.clinic_id} r={r} />)

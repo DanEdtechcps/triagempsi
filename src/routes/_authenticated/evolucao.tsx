@@ -43,7 +43,11 @@ export const Route = createFileRoute("/_authenticated/evolucao")({
 });
 
 function formatDate(iso: string) {
-  return new Date(iso).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit", year: "2-digit" });
+  return new Date(iso).toLocaleDateString("pt-BR", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "2-digit",
+  });
 }
 
 function scaleCodes(serie: SerieItem): string[] {
@@ -166,7 +170,12 @@ function CurvaEscala({ serie, code }: { serie: SerieItem; code: string }) {
     .map((p) => {
       const s = p.scales.find((x) => x.code === code);
       if (!s || s.score == null) return null;
-      return { data: formatDate(p.submitted_at), score: Number(s.score), band: s.band, name: s.name };
+      return {
+        data: formatDate(p.submitted_at),
+        score: Number(s.score),
+        band: s.band,
+        name: s.name,
+      };
     })
     .filter(Boolean) as { data: string; score: number; band: string | null; name: string }[];
 
@@ -174,8 +183,7 @@ function CurvaEscala({ serie, code }: { serie: SerieItem; code: string }) {
 
   const primeiro = pontos[0];
   const ultimo = pontos[pontos.length - 1];
-  const analise =
-    pontos.length >= 2 ? analyzeChange(code, primeiro.score, ultimo.score) : null;
+  const analise = pontos.length >= 2 ? analyzeChange(code, primeiro.score, ultimo.score) : null;
   const ref = CHANGE_SPECS[code];
 
   return (

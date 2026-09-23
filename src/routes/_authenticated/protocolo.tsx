@@ -23,8 +23,7 @@ export const Route = createFileRoute("/_authenticated/protocolo")({
       { property: "og:title", content: "Protocolo de triagem — árvore de decisão" },
       {
         property: "og:description",
-        content:
-          "Regras completas de roteamento e escalonamento das escalas da pré-triagem.",
+        content: "Regras completas de roteamento e escalonamento das escalas da pré-triagem.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
@@ -63,33 +62,29 @@ function ProtocoloPage() {
           <h2 className="font-serif text-lg font-semibold">Como a triagem decide</h2>
           <ol className="mt-3 space-y-2 text-sm text-muted-foreground">
             <li>
-              <strong className="text-foreground">1. Idade.</strong> A data de
-              nascimento define a faixa etária e quais instrumentos são válidos.
+              <strong className="text-foreground">1. Idade.</strong> A data de nascimento define a
+              faixa etária e quais instrumentos são válidos.
             </li>
             <li>
-              <strong className="text-foreground">2. Queixa inicial.</strong> Os
-              sintomas marcados pelo paciente abrem os rastreios breves
-              correspondentes.
+              <strong className="text-foreground">2. Queixa inicial.</strong> Os sintomas marcados
+              pelo paciente abrem os rastreios breves correspondentes.
             </li>
             <li>
-              <strong className="text-foreground">3. Rastreio geral.</strong> Em
-              adultos e idosos o SRQ-20 é aplicado sempre, mesmo sem sintoma
-              marcado.
+              <strong className="text-foreground">3. Rastreio geral.</strong> Em adultos e idosos o
+              SRQ-20 é aplicado sempre, mesmo sem sintoma marcado.
             </li>
             <li>
-              <strong className="text-foreground">4. Escalonamento.</strong> O
-              escore de cada rastreio pode acrescentar escalas completas ao fluxo
-              durante o preenchimento.
+              <strong className="text-foreground">4. Escalonamento.</strong> O escore de cada
+              rastreio pode acrescentar escalas completas ao fluxo durante o preenchimento.
             </li>
             <li>
-              <strong className="text-foreground">5. Via de risco.</strong>{" "}
-              Qualquer item de ideação positivo ativa o ASQ e a orientação de
-              emergência, e sinaliza a triagem no painel.
+              <strong className="text-foreground">5. Via de risco.</strong> Qualquer item de ideação
+              positivo ativa o ASQ e a orientação de emergência, e sinaliza a triagem no painel.
             </li>
           </ol>
           <p className="mt-3 text-xs text-muted-foreground">
-            Em cada triagem, o caminho realmente percorrido aparece no detalhe da
-            triagem, no bloco “Trilha de decisão”.
+            Em cada triagem, o caminho realmente percorrido aparece no detalhe da triagem, no bloco
+            “Trilha de decisão”.
           </p>
         </Card>
 
@@ -102,9 +97,7 @@ function ProtocoloPage() {
                 <div className="mt-2 flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground">
                   Rastreio geral:
                   {(BASELINE_BY_BAND[b] ?? []).length ? (
-                    (BASELINE_BY_BAND[b] ?? []).map((c) => (
-                      <ScaleChip key={c} code={c} />
-                    ))
+                    (BASELINE_BY_BAND[b] ?? []).map((c) => <ScaleChip key={c} code={c} />)
                   ) : (
                     <span>nenhum — depende da queixa</span>
                   )}
@@ -115,9 +108,7 @@ function ProtocoloPage() {
         </Card>
 
         <Card className="border-border bg-card p-4 sm:p-6">
-          <h2 className="font-serif text-lg font-semibold">
-            Sintoma da queixa × faixa etária
-          </h2>
+          <h2 className="font-serif text-lg font-semibold">Sintoma da queixa × faixa etária</h2>
           <p className="mt-1 text-sm text-muted-foreground">
             O que cada opção marcada pelo paciente aciona, por idade.
           </p>
@@ -156,9 +147,7 @@ function ProtocoloPage() {
                               ))}
                             </div>
                           ) : (
-                            <span className="text-xs text-muted-foreground">
-                              {note ?? "—"}
-                            </span>
+                            <span className="text-xs text-muted-foreground">{note ?? "—"}</span>
                           )}
                         </td>
                       );
@@ -171,28 +160,20 @@ function ProtocoloPage() {
         </Card>
 
         <Card className="border-border bg-card p-4 sm:p-6">
-          <h2 className="font-serif text-lg font-semibold">
-            Escalonamento por resultado
-          </h2>
+          <h2 className="font-serif text-lg font-semibold">Escalonamento por resultado</h2>
           <p className="mt-1 text-sm text-muted-foreground">
-            Regras aplicadas automaticamente assim que o paciente termina cada
-            escala.
+            Regras aplicadas automaticamente assim que o paciente termina cada escala.
           </p>
           <ul className="mt-4 space-y-3">
             {ESCALATION_RULES.map((r, i) => (
-              <li
-                key={`${r.from}-${i}`}
-                className="rounded-lg border border-border p-3"
-              >
+              <li key={`${r.from}-${i}`} className="rounded-lg border border-border p-3">
                 <div className="flex flex-wrap items-center gap-2 text-sm">
                   <ScaleChip code={r.from} />
                   <span className="text-muted-foreground">→</span>
                   {r.add.length ? (
                     r.add.map((c) => <ScaleChip key={c} code={c} />)
                   ) : (
-                    <span className="text-xs text-muted-foreground">
-                      nenhuma escala adicional
-                    </span>
+                    <span className="text-xs text-muted-foreground">nenhuma escala adicional</span>
                   )}
                   {r.riskPathway && (
                     <span className="inline-flex items-center rounded-full border border-destructive/30 bg-destructive/12 px-2.5 py-0.5 text-xs font-medium text-destructive">
@@ -210,10 +191,7 @@ function ProtocoloPage() {
           <h2 className="font-serif text-lg font-semibold">Escalas usadas</h2>
           <div className="mt-3 grid gap-2 sm:grid-cols-2">
             {Object.values(SCALE_BY_CODE).map((s) => (
-              <div
-                key={s.code}
-                className="rounded-lg border border-border p-3 text-sm"
-              >
+              <div key={s.code} className="rounded-lg border border-border p-3 text-sm">
                 <div className="font-medium">
                   {s.code} — {s.name}
                 </div>
@@ -222,7 +200,6 @@ function ProtocoloPage() {
                   {s.timeframe ? ` · ${s.timeframe}` : ""} · {s.items.length}{" "}
                   {s.items.length === 1 ? "item" : "itens"}
                 </p>
-
               </div>
             ))}
           </div>

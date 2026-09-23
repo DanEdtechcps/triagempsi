@@ -2,12 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { PainelShell } from "@/components/painel/PainelShell";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import {
-  CHANGELOG,
-  CURRENT_VERSION,
-  formatDeliveryDate,
-  UNVERSIONED,
-} from "@/config/deliveries";
+import { CHANGELOG, CURRENT_VERSION, formatDeliveryDate, UNVERSIONED } from "@/config/deliveries";
 import { downloadRoadmapPdf } from "@/lib/pdf-manual";
 
 export const Route = createFileRoute("/_authenticated/changelog")({
@@ -54,9 +49,7 @@ function Changelog() {
             {total === 1 ? "" : "s"} em {CHANGELOG.length} versõe
             {CHANGELOG.length === 1 ? "m" : "s"}. Versão atual:{" "}
             <span className="font-medium text-foreground">
-              {CURRENT_VERSION === UNVERSIONED
-                ? UNVERSIONED
-                : `v${CURRENT_VERSION}`}
+              {CURRENT_VERSION === UNVERSIONED ? UNVERSIONED : `v${CURRENT_VERSION}`}
             </span>
             .
           </p>
@@ -69,9 +62,7 @@ function Changelog() {
                 {v.version === UNVERSIONED ? UNVERSIONED : `Versão ${v.version}`}
               </h2>
               {v.date && (
-                <span className="text-xs text-muted-foreground">
-                  {formatDeliveryDate(v.date)}
-                </span>
+                <span className="text-xs text-muted-foreground">{formatDeliveryDate(v.date)}</span>
               )}
               {v.version === CURRENT_VERSION && v.version !== UNVERSIONED && (
                 <span className="inline-flex rounded-full border border-primary/30 bg-primary/10 px-2 py-0.5 text-[11px] font-medium">
@@ -95,22 +86,15 @@ function Changelog() {
                   className="rounded-md border border-border p-3"
                 >
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="font-medium text-foreground">
-                      {item.title}
-                    </span>
+                    <span className="font-medium text-foreground">{item.title}</span>
                     <span className="text-xs text-muted-foreground">
                       {formatDeliveryDate(item.date)}
                     </span>
                   </div>
-                  <p className="mt-1 text-sm text-muted-foreground">
-                    {item.detail}
-                  </p>
+                  <p className="mt-1 text-sm text-muted-foreground">{item.detail}</p>
                   {item.impact && (
                     <p className="mt-1 text-xs text-muted-foreground">
-                      <span className="font-medium text-foreground">
-                        Impacto:
-                      </span>{" "}
-                      {item.impact}
+                      <span className="font-medium text-foreground">Impacto:</span> {item.impact}
                     </p>
                   )}
                   {item.links && item.links.length > 0 && (

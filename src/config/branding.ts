@@ -44,7 +44,7 @@ export const BRANDING: Branding = {
   city: "Passo Fundo/RS",
   logoUrl: null,
   primaryColor: "#1e4d5c", // Azul-petróleo sóbrio e confiável
-  accentColor: "#3d8b8b",  // Verde-azulado suave
+  accentColor: "#3d8b8b", // Verde-azulado suave
   contactEmail: "contato@clinicasaraiva.med.br",
   contactPhone: null,
   websiteUrl: null,
@@ -75,7 +75,7 @@ export const LUMINA_BRANDING: Branding = {
   city: "São Paulo/SP",
   logoUrl: null,
   primaryColor: "#4c1d95", // Púrpura Nobre
-  accentColor: "#8b5cf6",  // Violeta Clínico
+  accentColor: "#8b5cf6", // Violeta Clínico
   contactEmail: "contato@lumina.med.br",
   contactPhone: "11988887777",
   websiteUrl: "https://lumina.med.br",

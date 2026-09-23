@@ -30,16 +30,10 @@ function ClinicLanding() {
             </div>
           </div>
           <div className="flex shrink-0 items-center gap-4 text-sm">
-            <Link
-              to="/entrar"
-              className="font-medium text-primary hover:text-primary/80"
-            >
+            <Link to="/entrar" className="font-medium text-primary hover:text-primary/80">
               Portal do paciente
             </Link>
-            <Link
-              to="/auth"
-              className="text-muted-foreground hover:text-foreground"
-            >
+            <Link to="/auth" className="text-muted-foreground hover:text-foreground">
               Sou profissional
             </Link>
             <Link
@@ -55,9 +49,7 @@ function ClinicLanding() {
 
       <main>
         <section className="mx-auto max-w-3xl px-4 py-12 text-center sm:px-6 sm:py-20">
-          <p className="text-xs uppercase tracking-widest text-primary">
-            {branding.tagline}
-          </p>
+          <p className="text-xs uppercase tracking-widest text-primary">{branding.tagline}</p>
           <h1 className="mt-4 font-serif text-3xl font-semibold leading-tight text-foreground sm:text-4xl md:text-5xl">
             Uma primeira consulta mais produtiva começa aqui.
           </h1>
@@ -70,9 +62,7 @@ function ClinicLanding() {
                 Começar minha pré-avaliação
               </Link>
             </Button>
-            <span className="text-sm text-muted-foreground">
-              cerca de 10 minutos
-            </span>
+            <span className="text-sm text-muted-foreground">cerca de 10 minutos</span>
           </div>
         </section>
 
@@ -92,10 +82,7 @@ function ClinicLanding() {
                 d: "Responda pelo celular, no seu ritmo. Se parar, retomamos de onde ficou.",
               },
             ].map((c) => (
-              <div
-                key={c.t}
-                className="rounded-lg border border-border bg-card p-5"
-              >
+              <div key={c.t} className="rounded-lg border border-border bg-card p-5">
                 <div className="font-serif text-lg font-semibold">{c.t}</div>
                 <p className="mt-2 text-sm text-muted-foreground">{c.d}</p>
               </div>

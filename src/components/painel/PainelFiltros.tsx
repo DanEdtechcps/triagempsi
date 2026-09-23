@@ -1,8 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { describeView, type SavedView } from "@/lib/saved-views";
 
-const selectCls =
-  "min-h-11 rounded-md border border-border bg-card px-3 text-sm text-foreground";
+const selectCls = "min-h-11 rounded-md border border-border bg-card px-3 text-sm text-foreground";
 
 /** Bloco de visualizações salvas — usado no cartão de filtros (desktop) e na gaveta (mobile). */
 export function PainelViews({
@@ -24,9 +23,7 @@ export function PainelViews({
 }) {
   return (
     <div className="space-y-2">
-      <div className="text-xs font-medium text-muted-foreground">
-        Visualizações salvas
-      </div>
+      <div className="text-xs font-medium text-muted-foreground">Visualizações salvas</div>
       {views.length === 0 ? (
         <p className="text-xs text-muted-foreground">
           Configure os filtros abaixo e salve para reutilizar depois.
@@ -73,12 +70,7 @@ export function PainelViews({
           placeholder="Nome da visualização (ex.: Risco pendente)"
           className="min-h-11 min-w-0 flex-1 rounded-md border border-border bg-background px-3 text-sm text-foreground"
         />
-        <Button
-          variant="outline"
-          size="sm"
-          disabled={!novoNome.trim()}
-          onClick={onSalvar}
-        >
+        <Button variant="outline" size="sm" disabled={!novoNome.trim()} onClick={onSalvar}>
           Salvar filtros atuais
         </Button>
       </div>
