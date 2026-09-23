@@ -153,6 +153,9 @@ CREATE TABLE public.scale_results (
   risk BOOLEAN NOT NULL DEFAULT false,
   answers JSONB NOT NULL DEFAULT '{}'::jsonb,
   notes TEXT,
+  -- ids de itens completados pelo corte adaptativo com valor estimado
+  -- (mediana), não respondidos de fato — distingue do resto de `answers`.
+  estimated_items TEXT[] NOT NULL DEFAULT '{}',
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 GRANT INSERT ON public.scale_results TO anon;
@@ -382,11 +385,16 @@ CREATE POLICY scale_results_admin_write ON public.scale_results
     SELECT 1 FROM public.assessments a
     WHERE a.id = scale_results.assessment_id
       AND has_clinic_access(a.clinic_id)
-  ));REVOKE EXECUTE ON FUNCTION public.has_role(uuid, app_role) FROM PUBLIC, anon;
+  ));-- Estado final: has_role/has_clinic_access chamáveis por authenticated (as
+-- policies em todo o schema dependem disso) e service_role; nunca por
+-- anon/PUBLIC. As duas linhas de REVOKE de `authenticated` que existiam
+-- logo depois desses GRANTs eram duplicadas de uma consolidação anterior e
+-- desfaziam silenciosamente o acesso que as próprias policies exigem —
+-- removidas.
+REVOKE EXECUTE ON FUNCTION public.has_role(uuid, app_role) FROM PUBLIC, anon;
 REVOKE EXECUTE ON FUNCTION public.has_clinic_access(uuid) FROM PUBLIC, anon;
 GRANT EXECUTE ON FUNCTION public.has_role(uuid, app_role) TO authenticated, service_role;
-GRANT EXECUTE ON FUNCTION public.has_clinic_access(uuid) TO authenticated, service_role;REVOKE EXECUTE ON FUNCTION public.has_role(uuid, public.app_role) FROM PUBLIC, anon, authenticated;
-REVOKE EXECUTE ON FUNCTION public.has_clinic_access(uuid) FROM PUBLIC, anon, authenticated;
+GRANT EXECUTE ON FUNCTION public.has_clinic_access(uuid) TO authenticated, service_role;
 REVOKE EXECUTE ON FUNCTION public.update_updated_at_column() FROM PUBLIC, anon, authenticated;ALTER TABLE public.assessments
   ADD COLUMN IF NOT EXISTS birth_date date,
   ADD COLUMN IF NOT EXISTS consent_at timestamptz,
