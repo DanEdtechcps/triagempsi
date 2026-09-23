@@ -44,3 +44,6 @@ playwright-report/
 *.mp4
 *.aac
 temp_audio/
+
+# Relatórios de auditoria do ECC — ficam em documentação viva/, só locais
+documentação viva/AUDITORIA_*.md
