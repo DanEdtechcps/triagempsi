@@ -130,7 +130,14 @@ export const getSerieForAssessment = createServerFn({ method: "GET" })
       .eq("id", data.id)
       .maybeSingle();
 
-    const email = (base?.respondent_email ?? "").trim().toLowerCase();
+    // Remove curingas de ILIKE (% e _) antes de usar o e-mail como padrão de
+    // busca — sem isso, "_" (válido na parte local de um e-mail) casa com
+    // "qualquer caractere" e mistura o histórico longitudinal de pacientes
+    // diferentes da mesma clínica. Mesmo padrão de portal.functions.ts.
+    const email = (base?.respondent_email ?? "")
+      .trim()
+      .toLowerCase()
+      .replace(/[%_]/g, "");
     if (!base || !email) return null;
 
     const { data: rows, error } = await context.supabase
