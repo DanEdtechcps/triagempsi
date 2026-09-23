@@ -32,6 +32,9 @@ type PaginationLinkProps = {
   React.ComponentProps<"a">;
 
 const PaginationLink = ({ className, isActive, size = "icon", ...props }: PaginationLinkProps) => (
+  // Wrapper component: children arrive via {...props} at every call
+  // site, not visible to static analysis.
+  // eslint-disable-next-line jsx-a11y/anchor-has-content
   <a
     aria-current={isActive ? "page" : undefined}
     className={cn(
