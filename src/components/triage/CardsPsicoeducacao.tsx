@@ -123,6 +123,8 @@ export function CardsPsicoeducacao({ items }: CardsPsicoeducacaoProps) {
                     <Button
                       variant="ghost"
                       size="sm"
+                      aria-expanded={isExpanded}
+                      aria-controls={`psicoeducacao-detalhes-${item.topic.slug}`}
                       onClick={() =>
                         setExpandedSlug(isExpanded ? null : item.topic.slug)
                       }
@@ -138,7 +140,10 @@ export function CardsPsicoeducacao({ items }: CardsPsicoeducacaoProps) {
                   </div>
 
                   {isExpanded && (
-                    <div className="mt-4 rounded-xl border border-border bg-card/60 p-4 text-xs leading-relaxed text-foreground/90">
+                    <div
+                      id={`psicoeducacao-detalhes-${item.topic.slug}`}
+                      className="mt-4 rounded-xl border border-border bg-card/60 p-4 text-xs leading-relaxed text-foreground/90"
+                    >
                       <div className="prose prose-sm dark:prose-invert max-w-none space-y-2 whitespace-pre-line">
                         {item.topic.body_md}
                       </div>
