@@ -206,6 +206,38 @@ export function scoreScale(
   };
 }
 
+/**
+ * O AUDIT completo (10 itens) é administrado em duas etapas: AUDIT-C (itens
+ * 1-3, rastreio breve) dispara o restante (AUDIT, itens 4-10) quando
+ * positivo. As duas ficam como ScaleResult separados, mas a interpretação
+ * clínica oficial do AUDIT usa o escore somado dos 10 itens — sem esse
+ * merge, um consumo pesado capturado só no AUDIT-C pode sair classificado
+ * como "baixo risco" porque os itens 4-10 sozinhos não alcançam a faixa.
+ */
+export function mergeAuditScore(results: ScaleResult[]): ScaleResult[] {
+  const auditC = results.find((r) => r.scale_code === "AUDIT-C");
+  const auditIdx = results.findIndex((r) => r.scale_code === "AUDIT");
+  if (!auditC || auditIdx === -1) return results;
+
+  const audit = results[auditIdx];
+  const scale = SCALE_BY_CODE["AUDIT"];
+  if (!scale) return results;
+
+  const mergedScore = auditC.score + audit.score;
+  const band = bandFor(scale, mergedScore);
+
+  const merged: ScaleResult = {
+    ...audit,
+    score: mergedScore,
+    score_adjusted: mergedScore,
+    band: band.label,
+    band_level: band.level,
+    risk: audit.risk || mergedScore >= 20,
+  };
+
+  return results.map((r, i) => (i === auditIdx ? merged : r));
+}
+
 export function shouldTrigger(scaleCode: string, result: ScaleResult): string | null {
   const scale = SCALE_BY_CODE[scaleCode];
   if (!scale?.triggersScale || scale.positiveCutoff == null) return null;

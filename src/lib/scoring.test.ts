@@ -1,7 +1,42 @@
 import { describe, expect, it } from "vitest";
 import { SCALE_BY_CODE } from "@/lib/scales-data";
-import { scoreScale, summarize } from "@/lib/scoring";
+import { scoreScale, summarize, mergeAuditScore } from "@/lib/scoring";
 import { answersWithScore, resultWithScore } from "@/lib/test-utils";
+
+describe("mergeAuditScore", () => {
+  it("soma AUDIT-C + AUDIT e reclassifica pela faixa oficial de 10 itens", () => {
+    // Consumo pesado capturado inteiramente no AUDIT-C (itens 1-3, máx 4 cada
+    // = 12), com os itens 4-10 do AUDIT zerados — antes do merge, o AUDIT
+    // sozinho pontuava 0 ("Baixo risco"); com os 10 itens juntos são 12
+    // pontos, "Uso de risco" (faixa 8-15).
+    const auditC = scoreScale("AUDIT-C", { "1": 4, "2": 4, "3": 4 });
+    const audit = scoreScale("AUDIT", { "4": 0, "5": 0, "6": 0, "7": 0, "8": 0 });
+    expect(audit.band).toBe("Baixo risco");
+
+    const [, merged] = mergeAuditScore([auditC, audit]);
+    expect(merged.score).toBe(12);
+    expect(merged.band).toBe("Uso de risco");
+    expect(merged.band_level).toBe(2);
+    expect(merged.risk).toBe(false);
+  });
+
+  it("marca risk quando o total somado dos 10 itens atinge 20", () => {
+    const auditC = scoreScale("AUDIT-C", { "1": 4, "2": 4, "3": 4 });
+    const audit = scoreScale("AUDIT", {
+      "4": 4, "5": 4, "6": 0, "7": 0, "8": 0, "9": 0, "10": 0,
+    });
+    const [, merged] = mergeAuditScore([auditC, audit]);
+    expect(merged.score).toBe(20);
+    expect(merged.band).toBe("Provável dependência");
+    expect(merged.risk).toBe(true);
+  });
+
+  it("não mexe nos resultados se AUDIT-C ou AUDIT não foram administrados", () => {
+    const phq9 = scoreScale("PHQ-9", { "1": 1 });
+    const result = mergeAuditScore([phq9]);
+    expect(result).toEqual([phq9]);
+  });
+});
 
 describe("pontuação e bandas", () => {
   it("cobre toda a amplitude possível com bandas contíguas", () => {

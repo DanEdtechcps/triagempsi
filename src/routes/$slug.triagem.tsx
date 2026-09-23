@@ -42,7 +42,7 @@ import {
 import { evaluateAdaptive, completeAdaptiveAnswers } from "@/lib/adaptive";
 import {
   scoreScale,
-
+  mergeAuditScore,
   summarize,
   INFORMANT_LABEL,
   type Informant,
@@ -245,7 +245,12 @@ function TriagemPage() {
   // Salvamento automático
   useEffect(() => {
     if (!restored) return;
-    if (phase === "fim") {
+    // Limpa em toda fase terminal — não só "fim". Sessões de crise ou erro
+    // não podem sobreviver no localStorage: são justamente as que carregam
+    // dado identificado de maior sensibilidade (nome, contato, risk_flags),
+    // e retomar a sessão do paciente anterior num navegador compartilhado
+    // é um vazamento de PHI entre pacientes.
+    if (phase === "fim" || phase === "risco" || phase === "erro") {
       localStorage.removeItem(storageKey);
       return;
     }
@@ -368,10 +373,26 @@ function TriagemPage() {
     setSubmitting(true);
     setErrorMsg(null);
 
+    // AUDIT-C + AUDIT são administrados em duas etapas mas a interpretação
+    // oficial usa o escore somado dos 10 itens — sem isso um consumo pesado
+    // pego só no AUDIT-C sai classificado como "baixo risco".
+    const mergedResults = mergeAuditScore(allResults);
+    setResults(mergedResults);
+
+    const riskPathway =
+      usedPlan.riskPathway || mergedResults.some((r) => r.risk);
+
+    // Regra de segurança inviolável: a tela de crise (CVV 188 / SAMU 192)
+    // não pode depender do envio ao servidor ter dado certo. O risco já é
+    // conhecido aqui, então mostramos o plano de segurança imediatamente —
+    // uma falha de rede depois disso só afeta a persistência, nunca a
+    // visibilidade dos recursos de emergência.
+    if (riskPathway) {
+      setPhase("risco");
+    }
+
     try {
-      const riskPathway =
-        usedPlan.riskPathway || allResults.some((r) => r.risk);
-      const baseSummary = summarize(allResults, {
+      const baseSummary = summarize(mergedResults, {
         symptoms: usedSymptoms,
         indicated: usedPlan.indicated,
         decisions: usedPlan.decisions,
@@ -404,19 +425,30 @@ function TriagemPage() {
           invitation_token: search.t ?? null,
           doctor_id: respondent.doctor_id,
           symptom_path: usedSymptoms,
-          results: allResults,
+          results: mergedResults,
           summary,
         },
       });
-      setPhase(riskPathway ? "risco" : "fim");
+      if (!riskPathway) {
+        setPhase("fim");
+      }
     } catch (e) {
       console.error(e);
-      setErrorMsg(
-        e instanceof Error
-          ? e.message
-          : "Não foi possível enviar sua triagem. Tente novamente.",
-      );
-      setPhase("erro");
+      if (riskPathway) {
+        // A tela de risco já está visível (setada acima) e continua —
+        // uma falha de envio aqui não deve nunca esconder o plano de
+        // segurança do paciente. Só registramos a falha de persistência.
+        console.error(
+          "Falha ao persistir triagem de risco no servidor; tela de segurança mantida.",
+        );
+      } else {
+        setErrorMsg(
+          e instanceof Error
+            ? e.message
+            : "Não foi possível enviar sua triagem. Tente novamente.",
+        );
+        setPhase("erro");
+      }
       submittingRef.current = false;
     } finally {
       setSubmitting(false);
