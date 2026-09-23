@@ -14,6 +14,7 @@ const ScaleResultInput = z.object({
   informant: z.enum(["paciente", "familiar"]).optional(),
   score_adjusted: z.number().min(0).optional(),
   informant_note: z.string().max(1000).nullable().optional(),
+  estimated_items: z.array(z.string().max(20)).max(60).optional(),
 });
 
 const SubmitSchema = z.object({
@@ -35,13 +36,53 @@ const SubmitSchema = z.object({
   symptom_path: z.array(z.string().max(80)).max(60).default([]),
   results: z.array(ScaleResultInput).min(0).max(50),
   summary: z.object({
-    highlights: z.array(z.any()),
+    // Formatos vêm de summarize() em scoring.ts — z.any() aqui deixava o
+    // endpoint público aceitar JSON arbitrário e profundamente aninhado sem
+    // nenhum limite de tamanho, apesar de todo o resto do schema ser
+    // rigorosamente limitado. Espelha exatamente o shape que summarize()
+    // produz, com .max() em cada campo de texto e no comprimento dos arrays.
+    highlights: z
+      .array(
+        z.object({
+          domain: z.string().max(60),
+          code: z.string().max(40),
+          score: z.number(),
+          band: z.string().max(200),
+          level: z.number(),
+        }),
+      )
+      .max(30),
     symptoms: z.array(z.string()).default([]),
-    indicated_scales: z.array(z.any()).default([]),
-    routing_decisions: z.array(z.any()).default([]),
+    indicated_scales: z
+      .array(
+        z.object({
+          code: z.string().max(40),
+          name: z.string().max(120),
+          reason: z.string().max(500),
+        }),
+      )
+      .max(30)
+      .default([]),
+    routing_decisions: z
+      .array(
+        z.object({
+          step: z.string().max(120),
+          reason: z.string().max(500),
+        }),
+      )
+      .max(60)
+      .default([]),
     age_band: z.string().max(80).nullable().default(null),
     informant: z.enum(["paciente", "familiar"]).default("paciente"),
-    informant_notes: z.array(z.any()).default([]),
+    informant_notes: z
+      .array(
+        z.object({
+          code: z.string().max(40),
+          note: z.string().max(1000),
+        }),
+      )
+      .max(30)
+      .default([]),
     risk_pathway: z.boolean().default(false),
     risk_flags: z.array(z.string()),
     preferred_name: z.string().max(120).optional().nullable(),
@@ -147,6 +188,7 @@ export const submitAssessment = createServerFn({ method: "POST" })
         answers: r.answers,
         risk: r.risk,
         notes: r.informant_note ?? null,
+        estimated_items: r.estimated_items ?? [],
       }));
 
       const { error: rErr } = await supabaseAdmin.from("scale_results").insert(rows);

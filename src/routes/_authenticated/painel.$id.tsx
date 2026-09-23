@@ -366,6 +366,9 @@ function PainelDetalhe() {
             const subscores = scale
               ? (computeSubscores(scale, r.answers ?? {}) ?? null)
               : null;
+            const estimatedIds = new Set(
+              (r as { estimated_items?: string[] }).estimated_items ?? [],
+            );
             return (
               <Card
                 key={r.scale_code}
@@ -451,6 +454,11 @@ function PainelDetalhe() {
                           {isSkipped
                             ? "pulada — não se aplica"
                             : `${opt?.label ?? "—"} (${val ?? "—"})`}
+                          {estimatedIds.has(item.id) && !isSkipped && (
+                            <span className="ml-1.5 rounded bg-muted px-1 py-0.5 text-[10px] font-medium uppercase tracking-wide text-muted-foreground">
+                              estimado
+                            </span>
+                          )}
                         </span>
                       </li>
                     );

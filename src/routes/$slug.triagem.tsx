@@ -524,13 +524,24 @@ function TriagemPage() {
     }
 
     // Escala concluída (integralmente, por ramificação ou parada adaptativa):
-    // itens pulados são gravados com 0 — "não se aplica" no escore.
+    // itens pulados são gravados com 0 — "não se aplica" no escore. Itens
+    // completados pela parada adaptativa (valor estimado, não respondido de
+    // verdade) ficam marcados em estimatedItemIds — sem isso o escore fica
+    // indistinguível de um respondido item a item no painel/PDF/RCI.
+    let estimatedItemIds: string[] = [];
     const finalAnswers = adaptive.stop
-      ? completeAdaptiveAnswers(code, scaleAnswers).answers
+      ? (() => {
+          const completed = completeAdaptiveAnswers(code, scaleAnswers);
+          estimatedItemIds = completed.estimated;
+          return completed.answers;
+        })()
       : applyBranchingSkips(currentScale, scaleAnswers);
     setAnswers({ ...answers, [code]: finalAnswers });
 
-    const result = scoreScale(code, finalAnswers, respondent.respondent_type);
+    const result: ScaleResult = {
+      ...scoreScale(code, finalAnswers, respondent.respondent_type),
+      ...(estimatedItemIds.length ? { estimated_items: estimatedItemIds } : {}),
+    };
     const nextResults = [...results.filter((r) => r.scale_code !== code), result];
     setResults(nextResults);
 

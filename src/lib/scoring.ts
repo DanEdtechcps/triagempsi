@@ -42,6 +42,13 @@ export type ScaleResult = {
   informant_note?: string | null;
   /** escores por subescala (ex.: substâncias do ASSIST-Lite), quando a escala tem */
   subscores?: SubscoreResult[];
+  /**
+   * ids dos itens que não foram de fato respondidos e tiveram valor
+   * estimado (mediana das respostas dadas) pelo corte adaptativo — sem essa
+   * marcação, o escore fica indistinguível de um respondido item a item no
+   * relatório/painel e nas contas longitudinais de RCI/MCID.
+   */
+  estimated_items?: string[];
 };
 
 /** Escore de uma subescala, com faixa e conduta recomendada. */
