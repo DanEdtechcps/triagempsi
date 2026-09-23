@@ -28,6 +28,7 @@ import { PainelPsicoeducacao } from "@/components/painel/PainelPsicoeducacao";
 import { TelemetryCard } from "@/components/medical/TelemetryCard";
 import { PsychoeducationTracker } from "@/components/medical/PsychoeducationTracker";
 import { AcessoNegado } from "@/components/painel/AcessoNegado";
+import type { ItemDwellRecord } from "@/lib/clinical-engine/dwell-time";
 import { isAccessDenied, accessDeniedMessage } from "@/lib/access-error";
 
 
@@ -81,12 +82,21 @@ function PainelDetalhe() {
     | (Record<string, unknown> & { scale_results: ScaleRow[] })
     | null
     | undefined;
+  // Espelha o shape real de summarize() (scoring.ts) + os campos que
+  // submitAssessment adiciona por cima (preferred_name/pronouns) — extendido
+  // pra cobrir os campos que antes eram lidos via `as any` mais abaixo no
+  // componente. Se o schema de summary mudar, quebra em compilação em vez
+  // de silenciosamente mostrar campo vazio pro médico.
   const summary = (a?.summary ?? {}) as {
     symptoms?: string[];
     indicated_scales?: { code: string; name: string; reason: string }[];
     routing_decisions?: { step: string; reason: string }[];
     age_band?: string | null;
     risk_pathway?: boolean;
+    preferred_name?: string | null;
+    pronouns?: string | null;
+    telemetry_records?: ItemDwellRecord[];
+    item_telemetry?: ItemDwellRecord[];
   };
 
   const riskFlags = (a?.risk_flags as string[]) ?? [];
@@ -221,8 +231,8 @@ function PainelDetalhe() {
           )}
 
           {(() => {
-            const preferredName = (a.summary as any)?.preferred_name as string | undefined;
-            const pronouns = (a.summary as any)?.pronouns as string | undefined;
+            const preferredName = summary.preferred_name ?? undefined;
+            const pronouns = summary.pronouns ?? undefined;
             const rawPhone = a.respondent_phone ? String(a.respondent_phone) : null;
             const phoneMasked = rawPhone ? maskPhoneBR(rawPhone) : null;
             const phoneE164 = rawPhone ? toE164BR(rawPhone) : null;
@@ -337,8 +347,8 @@ function PainelDetalhe() {
           </Card>
 
           <TelemetryCard
-            telemetryRecords={(a.summary as any)?.telemetry_records ?? (a.summary as any)?.item_telemetry ?? []}
-            scaleResults={(a.scale_results ?? []) as any}
+            telemetryRecords={summary.telemetry_records ?? summary.item_telemetry ?? []}
+            scaleResults={a.scale_results ?? []}
           />
 
           <HistoricoRevisoes assessmentId={id} />
@@ -349,7 +359,7 @@ function PainelDetalhe() {
 
           <PainelPsicoeducacao
             assessmentId={id}
-            scaleResults={(a.scale_results ?? []) as any}
+            scaleResults={a.scale_results ?? []}
             riskPathway={Boolean(summary.risk_pathway)}
             hasRiskFlags={riskFlags.length > 0}
           />
