@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { requireGlobalAdmin } from "@/lib/admin-guard.server";
 
 export type AdminClinic = {
   id: string;
@@ -25,25 +26,6 @@ export type AdminStaff = {
   created_at: string;
   last_sign_in_at: string | null;
 };
-
-/** Só administradores globais (papel admin sem clínica) usam esta área. */
-async function requireGlobalAdmin(supabase: any, userId: string) {
-  const { data, error } = await supabase
-    .from("user_roles")
-    .select("role, clinic_id")
-    .eq("user_id", userId);
-  if (error) throw new Error("Não foi possível verificar seu acesso.");
-  const ok = (data ?? []).some(
-    (r: { role: string; clinic_id: string | null }) =>
-      r.role === "admin" && r.clinic_id === null,
-  );
-  if (!ok) {
-    const { accessDeniedError } = await import("@/lib/access-error");
-    throw accessDeniedError(
-      "Somente o administrador geral pode gerenciar consultórios e médicos.",
-    );
-  }
-}
 
 export const listClinicsAdmin = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
@@ -227,11 +209,20 @@ export const addStaffAdmin = createServerFn({ method: "POST" })
 
     // Enforcement do plano: limite de profissionais por consultório.
     if (data.clinic_id) {
-      const { data: sub } = await supabaseAdmin
+      const { data: sub, error: subError } = await supabaseAdmin
         .from("clinic_subscriptions")
         .select("status, plans(max_professionals)")
         .eq("clinic_id", data.clinic_id)
         .maybeSingle();
+      // Falha na consulta não pode virar "sem limite" — sub viria undefined
+      // e o enforcement inteiro seria pulado silenciosamente, deixando uma
+      // clínica com plano limitado ganhar vagas ilimitadas numa falha
+      // transitória do banco. Falha fechado: nega em vez de prosseguir.
+      if (subError) {
+        throw new Error(
+          "Não foi possível verificar o limite do plano agora. Tente novamente em instantes.",
+        );
+      }
       const limit =
         (sub?.plans as { max_professionals: number | null } | null)
           ?.max_professionals ?? null;
