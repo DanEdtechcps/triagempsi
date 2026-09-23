@@ -55,6 +55,61 @@ export type Database = {
           },
         ]
       }
+      assessment_psychoeducation: {
+        Row: {
+          assessment_id: string
+          content_id: string | null
+          created_at: string | null
+          id: string
+          is_manual: boolean | null
+          topic_id: string
+          trigger_reason: string | null
+          viewed_at: string | null
+        }
+        Insert: {
+          assessment_id: string
+          content_id?: string | null
+          created_at?: string | null
+          id?: string
+          is_manual?: boolean | null
+          topic_id: string
+          trigger_reason?: string | null
+          viewed_at?: string | null
+        }
+        Update: {
+          assessment_id?: string
+          content_id?: string | null
+          created_at?: string | null
+          id?: string
+          is_manual?: boolean | null
+          topic_id?: string
+          trigger_reason?: string | null
+          viewed_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "assessment_psychoeducation_assessment_id_fkey"
+            columns: ["assessment_id"]
+            isOneToOne: false
+            referencedRelation: "assessments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assessment_psychoeducation_content_id_fkey"
+            columns: ["content_id"]
+            isOneToOne: false
+            referencedRelation: "psychoeducation_contents"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "assessment_psychoeducation_topic_id_fkey"
+            columns: ["topic_id"]
+            isOneToOne: false
+            referencedRelation: "psychoeducation_topics"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       assessments: {
         Row: {
           birth_date: string | null
@@ -200,6 +255,54 @@ export type Database = {
           id?: string
         }
         Relationships: []
+      }
+      clinic_psychoeducation_settings: {
+        Row: {
+          auto_trigger: boolean | null
+          clinic_id: string
+          created_at: string | null
+          custom_intro: string | null
+          id: string
+          is_enabled: boolean | null
+          topic_id: string
+          updated_at: string | null
+        }
+        Insert: {
+          auto_trigger?: boolean | null
+          clinic_id: string
+          created_at?: string | null
+          custom_intro?: string | null
+          id?: string
+          is_enabled?: boolean | null
+          topic_id: string
+          updated_at?: string | null
+        }
+        Update: {
+          auto_trigger?: boolean | null
+          clinic_id?: string
+          created_at?: string | null
+          custom_intro?: string | null
+          id?: string
+          is_enabled?: boolean | null
+          topic_id?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "clinic_psychoeducation_settings_clinic_id_fkey"
+            columns: ["clinic_id"]
+            isOneToOne: false
+            referencedRelation: "clinics"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "clinic_psychoeducation_settings_topic_id_fkey"
+            columns: ["topic_id"]
+            isOneToOne: false
+            referencedRelation: "psychoeducation_topics"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       clinic_subscriptions: {
         Row: {
@@ -514,6 +617,66 @@ export type Database = {
         }
         Relationships: []
       }
+      patient_longitudinal_records: {
+        Row: {
+          assessment_id: string
+          band: string | null
+          band_level: number | null
+          clinic_id: string
+          created_at: string
+          id: string
+          patient_email: string
+          patient_name: string
+          recorded_at: string
+          risk: boolean
+          scale_code: string
+          score: number
+        }
+        Insert: {
+          assessment_id: string
+          band?: string | null
+          band_level?: number | null
+          clinic_id: string
+          created_at?: string
+          id?: string
+          patient_email: string
+          patient_name: string
+          recorded_at?: string
+          risk?: boolean
+          scale_code: string
+          score: number
+        }
+        Update: {
+          assessment_id?: string
+          band?: string | null
+          band_level?: number | null
+          clinic_id?: string
+          created_at?: string
+          id?: string
+          patient_email?: string
+          patient_name?: string
+          recorded_at?: string
+          risk?: boolean
+          scale_code?: string
+          score?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "patient_longitudinal_records_assessment_id_fkey"
+            columns: ["assessment_id"]
+            isOneToOne: false
+            referencedRelation: "assessments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "patient_longitudinal_records_clinic_id_fkey"
+            columns: ["clinic_id"]
+            isOneToOne: false
+            referencedRelation: "clinics"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       plans: {
         Row: {
           code: string
@@ -553,6 +716,98 @@ export type Database = {
         }
         Relationships: []
       }
+      psychoeducation_contents: {
+        Row: {
+          body_md: string
+          created_at: string | null
+          external_links: Json | null
+          id: string
+          is_published: boolean | null
+          level: string
+          summary_pdf: string | null
+          title: string
+          topic_id: string
+          updated_at: string | null
+          version: string
+          video_urls: Json | null
+        }
+        Insert: {
+          body_md: string
+          created_at?: string | null
+          external_links?: Json | null
+          id?: string
+          is_published?: boolean | null
+          level: string
+          summary_pdf?: string | null
+          title: string
+          topic_id: string
+          updated_at?: string | null
+          version?: string
+          video_urls?: Json | null
+        }
+        Update: {
+          body_md?: string
+          created_at?: string | null
+          external_links?: Json | null
+          id?: string
+          is_published?: boolean | null
+          level?: string
+          summary_pdf?: string | null
+          title?: string
+          topic_id?: string
+          updated_at?: string | null
+          version?: string
+          video_urls?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "psychoeducation_contents_topic_id_fkey"
+            columns: ["topic_id"]
+            isOneToOne: false
+            referencedRelation: "psychoeducation_topics"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      psychoeducation_topics: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          icon: string | null
+          id: string
+          is_active: boolean | null
+          short_title: string | null
+          slug: string
+          sort_order: number | null
+          title: string
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean | null
+          short_title?: string | null
+          slug: string
+          sort_order?: number | null
+          title: string
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          icon?: string | null
+          id?: string
+          is_active?: boolean | null
+          short_title?: string | null
+          slug?: string
+          sort_order?: number | null
+          title?: string
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       scale_results: {
         Row: {
           answers: Json
@@ -560,6 +815,7 @@ export type Database = {
           band: string | null
           band_level: number | null
           created_at: string
+          estimated_items: string[]
           id: string
           notes: string | null
           risk: boolean
@@ -573,6 +829,7 @@ export type Database = {
           band?: string | null
           band_level?: number | null
           created_at?: string
+          estimated_items?: string[]
           id?: string
           notes?: string | null
           risk?: boolean
@@ -586,6 +843,7 @@ export type Database = {
           band?: string | null
           band_level?: number | null
           created_at?: string
+          estimated_items?: string[]
           id?: string
           notes?: string | null
           risk?: boolean
@@ -709,201 +967,6 @@ export type Database = {
             referencedRelation: "contacts"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "whatsapp_messages_invitation_id_fkey"
-            columns: ["invitation_id"]
-            isOneToOne: false
-            referencedRelation: "invitations"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      psychoeducation_topics: {
-        Row: {
-          id: string
-          slug: string
-          title: string
-          short_title: string | null
-          description: string | null
-          icon: string | null
-          sort_order: number | null
-          is_active: boolean | null
-          created_at: string | null
-          updated_at: string | null
-        }
-        Insert: {
-          id?: string
-          slug: string
-          title: string
-          short_title?: string | null
-          description?: string | null
-          icon?: string | null
-          sort_order?: number | null
-          is_active?: boolean | null
-          created_at?: string | null
-          updated_at?: string | null
-        }
-        Update: {
-          id?: string
-          slug?: string
-          title?: string
-          short_title?: string | null
-          description?: string | null
-          icon?: string | null
-          sort_order?: number | null
-          is_active?: boolean | null
-          created_at?: string | null
-          updated_at?: string | null
-        }
-        Relationships: []
-      }
-      psychoeducation_contents: {
-        Row: {
-          id: string
-          topic_id: string
-          version: string
-          level: "resumo" | "completo" | "crise"
-          title: string
-          body_md: string
-          summary_pdf: string | null
-          external_links: Json | null
-          video_urls: Json | null
-          is_published: boolean | null
-          created_at: string | null
-          updated_at: string | null
-        }
-        Insert: {
-          id?: string
-          topic_id: string
-          version?: string
-          level: "resumo" | "completo" | "crise"
-          title: string
-          body_md: string
-          summary_pdf?: string | null
-          external_links?: Json | null
-          video_urls?: Json | null
-          is_published?: boolean | null
-          created_at?: string | null
-          updated_at?: string | null
-        }
-        Update: {
-          id?: string
-          topic_id?: string
-          version?: string
-          level?: "resumo" | "completo" | "crise"
-          title?: string
-          body_md?: string
-          summary_pdf?: string | null
-          external_links?: Json | null
-          video_urls?: Json | null
-          is_published?: boolean | null
-          created_at?: string | null
-          updated_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "psychoeducation_contents_topic_id_fkey"
-            columns: ["topic_id"]
-            isOneToOne: false
-            referencedRelation: "psychoeducation_topics"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      clinic_psychoeducation_settings: {
-        Row: {
-          id: string
-          clinic_id: string
-          topic_id: string
-          is_enabled: boolean | null
-          auto_trigger: boolean | null
-          custom_intro: string | null
-          created_at: string | null
-          updated_at: string | null
-        }
-        Insert: {
-          id?: string
-          clinic_id: string
-          topic_id: string
-          is_enabled?: boolean | null
-          auto_trigger?: boolean | null
-          custom_intro?: string | null
-          created_at?: string | null
-          updated_at?: string | null
-        }
-        Update: {
-          id?: string
-          clinic_id?: string
-          topic_id?: string
-          is_enabled?: boolean | null
-          auto_trigger?: boolean | null
-          custom_intro?: string | null
-          created_at?: string | null
-          updated_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "clinic_psychoeducation_settings_clinic_id_fkey"
-            columns: ["clinic_id"]
-            isOneToOne: false
-            referencedRelation: "clinics"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "clinic_psychoeducation_settings_topic_id_fkey"
-            columns: ["topic_id"]
-            isOneToOne: false
-            referencedRelation: "psychoeducation_topics"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      assessment_psychoeducation: {
-        Row: {
-          id: string
-          assessment_id: string
-          topic_id: string
-          content_id: string | null
-          trigger_reason: string | null
-          is_manual: boolean | null
-          viewed_at: string | null
-          created_at: string | null
-        }
-        Insert: {
-          id?: string
-          assessment_id: string
-          topic_id: string
-          content_id?: string | null
-          trigger_reason?: string | null
-          is_manual?: boolean | null
-          viewed_at?: string | null
-          created_at?: string | null
-        }
-        Update: {
-          id?: string
-          assessment_id?: string
-          topic_id?: string
-          content_id?: string | null
-          trigger_reason?: string | null
-          is_manual?: boolean | null
-          viewed_at?: string | null
-          created_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "assessment_psychoeducation_assessment_id_fkey"
-            columns: ["assessment_id"]
-            isOneToOne: false
-            referencedRelation: "assessments"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "assessment_psychoeducation_topic_id_fkey"
-            columns: ["topic_id"]
-            isOneToOne: false
-            referencedRelation: "psychoeducation_topics"
-            referencedColumns: ["id"]
-          },
         ]
       }
     }
@@ -919,9 +982,21 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_global_admin: { Args: never; Returns: boolean }
+      provision_new_clinic: {
+        Args: {
+          p_accent_color?: string
+          p_contact_email?: string
+          p_name: string
+          p_primary_color?: string
+          p_slug: string
+          p_tagline: string
+        }
+        Returns: string
+      }
     }
     Enums: {
-      app_role: "admin" | "doctor" | "staff"
+      app_role: "admin" | "clinico" | "doctor" | "staff"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -937,12 +1012,12 @@ export type Tables<
   DefaultSchemaTableNameOrOptions extends
     | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
         DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -966,11 +1041,11 @@ export type TablesInsert<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -991,11 +1066,11 @@ export type TablesUpdate<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -1016,11 +1091,11 @@ export type Enums<
   DefaultSchemaEnumNameOrOptions extends
     | keyof DefaultSchema["Enums"]
     | { schema: keyof DatabaseWithoutInternals },
-  EnumName extends DefaultSchemaEnumNameOrOptions extends {
+  EnumName extends (DefaultSchemaEnumNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaEnumNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -1033,11 +1108,11 @@ export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
     | keyof DefaultSchema["CompositeTypes"]
     | { schema: keyof DatabaseWithoutInternals },
-  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
+  CompositeTypeName extends (PublicCompositeTypeNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
-    : never = never,
+    : never) = never,
 > = PublicCompositeTypeNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -1049,7 +1124,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "doctor", "staff"],
+      app_role: ["admin", "clinico", "doctor", "staff"],
     },
   },
 } as const
