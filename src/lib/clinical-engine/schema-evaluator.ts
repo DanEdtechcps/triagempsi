@@ -95,8 +95,9 @@ export function scoreSchemaScale(
   let score = 0;
   let maxScore = 0;
   const riskItemsTriggered: string[] = [];
+  let highestEndorsedItemNumber = 0;
 
-  for (const item of schema.items) {
+  schema.items.forEach((item, index) => {
     const itemOptions = item.options ?? schema.options ?? [];
     const maxItemVal = itemOptions.length > 0
       ? Math.max(...itemOptions.map((o) => o.value))
@@ -105,6 +106,7 @@ export function scoreSchemaScale(
 
     const val = answers[item.id] ?? 0;
     score += val;
+    if (val > 0) highestEndorsedItemNumber = index + 1;
 
     // Checagem de itens de risco
     const isRiskItem =
@@ -115,12 +117,16 @@ export function scoreSchemaScale(
     if (isRiskItem && val > 0) {
       riskItemsTriggered.push(item.id);
     }
-  }
+  });
 
-  // Encontra a faixa (band) correspondente
+  // Encontra a faixa (band) correspondente. Instrumentos hierárquicos
+  // (scoringMethod: "highest_item_band") usam o item de maior severidade
+  // respondido positivamente em vez da soma — ver schema-types.ts.
+  const bandKey =
+    schema.scoringMethod === "highest_item_band" ? highestEndorsedItemNumber : score;
   let matchedBand: ScoringBand | null = null;
   for (const band of schema.bands) {
-    if (score >= band.min && score <= band.max) {
+    if (bandKey >= band.min && bandKey <= band.max) {
       matchedBand = band;
       break;
     }

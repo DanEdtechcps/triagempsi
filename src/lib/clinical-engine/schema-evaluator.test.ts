@@ -5,10 +5,12 @@ import type { ScaleSchema } from "./schema-types";
 import epdsSchemaRaw from "./schemas/epds.json";
 import phq2SchemaRaw from "./schemas/phq2.json";
 import phq9SchemaRaw from "./schemas/phq9.json";
+import cssrsSchemaRaw from "./schemas/c-ssrs.json";
 
 const epdsSchema = epdsSchemaRaw as unknown as ScaleSchema;
 const phq2Schema = phq2SchemaRaw as unknown as ScaleSchema;
 const phq9Schema = phq9SchemaRaw as unknown as ScaleSchema;
+const cssrsSchema = cssrsSchemaRaw as unknown as ScaleSchema;
 
 describe("Clinical Engine — Avaliador de Schemas Declarativos (DSL)", () => {
   describe("Elegibilidade Declarativa (evaluateScaleEligibility)", () => {
@@ -148,6 +150,36 @@ describe("Clinical Engine — Avaliador de Schemas Declarativos (DSL)", () => {
       expect(resAltaGravidade.score).toBe(15);
       expect(resAltaGravidade.isPositive).toBe(true);
       expect(resAltaGravidade.isRisk).toBe(true); // band level 4 tem is_risk: true
+    });
+
+    // Achado #30 da auditoria: o C-SSRS é hierárquico (item 6 = comportamento
+    // preparatório é o mais grave da escala), não um Likert somado — usar a
+    // soma pra escolher a banda faz alguém que só endossa o item 6 cair na
+    // banda de "ideação passiva" (score=1) em vez de "alto risco iminente".
+    // scoringMethod: "highest_item_band" corrige isso usando o item de maior
+    // severidade endossado, não a soma.
+    it("C-SSRS: classifica pelo item de maior severidade endossado, não pela soma (achado #30)", () => {
+      // Só o item 6 (comportamento preparatório, o mais grave) — soma seria
+      // 1, caindo erroneamente na banda de ideação passiva.
+      const soItem6 = scoreSchemaScale(cssrsSchema, { "6": 1 });
+      expect(soItem6.score).toBe(1);
+      expect(soItem6.band?.label).toBe("Alto risco iminente — protocolo de segurança ativado");
+      expect(soItem6.band?.level).toBe(4);
+
+      // Só o item 1 (ideação passiva, o menos grave) — deve permanecer na
+      // banda de ideação passiva.
+      const soItem1 = scoreSchemaScale(cssrsSchema, { "1": 1 });
+      expect(soItem1.band?.label).toBe("Risco de ideação passiva");
+      expect(soItem1.band?.level).toBe(2);
+
+      // Itens 1 e 2 juntos (soma 2) — ainda ideação, banda intermediária.
+      const items1e2 = scoreSchemaScale(cssrsSchema, { "1": 1, "2": 1 });
+      expect(items1e2.band?.label).toBe("Risco de ideação passiva");
+
+      // Nenhum item — sem risco.
+      const nenhum = scoreSchemaScale(cssrsSchema, {});
+      expect(nenhum.band?.label).toBe("Sem risco detectado");
+      expect(nenhum.isRisk).toBe(false);
     });
   });
 });

@@ -271,6 +271,18 @@ export const BES: Scale = {
 /* ------------------------------------------------------------------ */
 /* 17. MBI-HSS — Maslach Burnout Inventory (Versão Rastreio)          */
 /* ------------------------------------------------------------------ */
+// ATENÇÃO CLÍNICA (achado #29 da auditoria, não resolvido em código): o
+// MBI-HSS validado tem 22 itens em 3 subescalas com bandas e pontos de
+// corte próprios e SEPARADOS — Exaustão Emocional, Despersonalização e
+// Realização Profissional (invertida: score baixo = pior). Esta versão soma
+// os 9 itens (3 por dimensão, fraseados pra não precisar de item reverso)
+// num único escore com uma única banda 0–15/16–27/28–54 — uma agregação
+// que não corresponde à psicometria publicada do instrumento e cujos
+// pontos de corte não têm fonte citável. Precisa de revisão por um
+// profissional clínico antes de confiar no resultado pra decisão de
+// triagem: manter como rastreio breve não-oficial (renomear/deixar claro
+// que não é o MBI-HSS validado) ou reimplementar as 3 subescalas com os
+// cortes publicados. Não alterado sem esse aval.
 export const MBI_HSS: Scale = {
   code: "MBI-HSS",
   name: "MBI-HSS",

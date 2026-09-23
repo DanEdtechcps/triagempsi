@@ -65,6 +65,18 @@ export type ScaleSchema = {
   positiveCutoff?: number;
   triggersScale?: string;
   riskItems?: string[];
+  /**
+   * Como a faixa (band) é escolhida:
+   * - "sum" (padrão): pela soma dos escores dos itens — correto pra
+   *   instrumentos Likert somados (PHQ-9, AUDIT etc.).
+   * - "highest_item_band": pelo item de maior severidade respondido
+   *   positivamente (posição no array `items`, 1-based) — pra instrumentos
+   *   hierárquicos onde os itens têm severidade crescente e a soma sub-
+   *   estima o risco (ex.: C-SSRS — alguém que só endossa o item 6
+   *   "comportamento preparatório" tem score=1 pela soma, mas é o item
+   *   clinicamente mais grave da escala).
+   */
+  scoringMethod?: "sum" | "highest_item_band";
 };
 
 export type EvaluationContext = {
