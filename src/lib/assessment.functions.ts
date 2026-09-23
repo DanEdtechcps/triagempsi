@@ -17,6 +17,30 @@ const ScaleResultInput = z.object({
   estimated_items: z.array(z.string().max(20)).max(60).optional(),
 });
 
+/**
+ * Decide se um convite pertence à clínica resolvida pelo slug e ainda pode
+ * ser usado — a checagem real de isolamento entre clínicas nesta rota
+ * pública (tenant-context.ts é código morto, nunca chamado por nenhuma
+ * rota/server function real). Extraída como função pura pra dar cobertura
+ * de teste direta ao caminho que de fato roda em produção, sem precisar
+ * mockar o cliente Supabase inteiro.
+ */
+export function isInvitationValidForClinic(
+  inv: {
+    clinic_id: string;
+    status: string;
+    expires_at: string | null;
+  } | null,
+  clinicId: string,
+  now: Date = new Date(),
+): boolean {
+  if (!inv) return false;
+  if (inv.clinic_id !== clinicId) return false;
+  if (inv.status === "used") return false;
+  if (inv.expires_at && new Date(inv.expires_at) <= now) return false;
+  return true;
+}
+
 const SubmitSchema = z.object({
   clinic_slug: z.string().trim().min(1).max(80),
   respondent_name: z.string().trim().min(2).max(120),
@@ -88,7 +112,6 @@ const SubmitSchema = z.object({
     preferred_name: z.string().max(120).optional().nullable(),
     pronouns: z.string().max(60).optional().nullable(),
   }),
-
 });
 
 export const submitAssessment = createServerFn({ method: "POST" })
@@ -118,14 +141,9 @@ export const submitAssessment = createServerFn({ method: "POST" })
         .select("id, contact_id, status, expires_at, clinic_id")
         .eq("token", data.invitation_token)
         .maybeSingle();
-      if (
-        inv &&
-        inv.clinic_id === clinicId &&
-        inv.status !== "used" &&
-        (!inv.expires_at || new Date(inv.expires_at) > new Date())
-      ) {
-        invitationId = inv.id;
-        contactId = inv.contact_id;
+      if (isInvitationValidForClinic(inv, clinicId)) {
+        invitationId = inv!.id;
+        contactId = inv!.contact_id;
       }
     }
 
@@ -156,8 +174,7 @@ export const submitAssessment = createServerFn({ method: "POST" })
         respondent_sex: data.respondent_sex,
         respondent_type: data.respondent_type,
         informant_name: data.respondent_type === "familiar" ? data.informant_name : null,
-        informant_relation:
-          data.respondent_type === "familiar" ? data.informant_relation : null,
+        informant_relation: data.respondent_type === "familiar" ? data.informant_relation : null,
         main_complaint: data.main_complaint,
         consent_lgpd: data.consent_lgpd,
         consent_at: data.consent_at ?? new Date().toISOString(),
@@ -259,7 +276,6 @@ export const submitAssessment = createServerFn({ method: "POST" })
               }${data.informant_relation ? ` (${data.informant_relation})` : ""}`
             : "o próprio paciente",
       },
-
     });
 
     return { ok: true, assessment_id: assessment.id };
