@@ -17,18 +17,7 @@ import {
   type LandingSettings,
 } from "@/lib/landing-settings.functions";
 import { versionedImageUrl } from "@/lib/landing-meta";
-
-function fileToBase64(file: File) {
-  return new Promise<string>((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => {
-      const result = String(reader.result ?? "");
-      resolve(result.slice(result.indexOf(",") + 1));
-    };
-    reader.onerror = () => reject(new Error("Não foi possível ler o arquivo."));
-    reader.readAsDataURL(file);
-  });
-}
+import { fileToBase64 } from "@/lib/file-to-base64";
 
 export function LandingSettingsForm() {
   const fetchSettings = useServerFn(getLandingSettings);

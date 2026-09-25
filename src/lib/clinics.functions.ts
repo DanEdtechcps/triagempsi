@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import type { Json } from "@/integrations/supabase/types";
 
 export type Clinic = {
   id: string;
@@ -23,6 +24,10 @@ export type Clinic = {
   disclaimer: string | null;
   consent_copy: string | null;
   emergency_message: string | null;
+  landing_headline: string | null;
+  landing_font_preset: string | null;
+  landing_feature_cards: Json | null;
+  landing_hero_image_url: string | null;
 };
 
 const SlugSchema = z.object({ slug: z.string().trim().min(1).max(80) });
@@ -34,7 +39,7 @@ export const getClinicBySlug = createServerFn({ method: "GET" })
     const { data: clinic, error } = await supabase
       .from("clinics")
       .select(
-        "id, slug, name, tagline, about, doctor_name, doctor_credentials, short_tagline, city, logo_url, favicon_url, primary_color, accent_color, contact_email, contact_phone, website_url, intro_copy, done_copy, disclaimer, consent_copy, emergency_message",
+        "id, slug, name, tagline, about, doctor_name, doctor_credentials, short_tagline, city, logo_url, favicon_url, primary_color, accent_color, contact_email, contact_phone, website_url, intro_copy, done_copy, disclaimer, consent_copy, emergency_message, landing_headline, landing_font_preset, landing_feature_cards, landing_hero_image_url",
       )
       .eq("slug", data.slug)
       .eq("is_active", true)

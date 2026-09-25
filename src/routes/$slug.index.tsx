@@ -48,43 +48,67 @@ function ClinicLanding() {
       </header>
 
       <main>
-        <section className="mx-auto max-w-3xl px-4 py-12 text-center sm:px-6 sm:py-20">
-          <p className="text-xs uppercase tracking-widest text-primary">{branding.tagline}</p>
-          <h1 className="mt-4 font-serif text-3xl font-semibold leading-tight text-foreground sm:text-4xl md:text-5xl">
-            Uma primeira consulta mais produtiva começa aqui.
-          </h1>
-          <p className="mx-auto mt-6 max-w-xl text-base leading-relaxed text-foreground/70">
-            {clinic.about ?? branding.introCopy}
-          </p>
-          <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:mt-10 sm:flex-row sm:flex-wrap">
-            <Button asChild size="lg" className="w-full sm:w-auto">
-              <Link to="/$slug/triagem" params={{ slug }}>
-                Começar minha pré-avaliação
-              </Link>
-            </Button>
-            <span className="text-sm text-muted-foreground">cerca de 10 minutos</span>
+        <section className="landing-grain relative overflow-hidden">
+          <div
+            className={`mx-auto px-4 py-14 sm:px-6 sm:py-24 ${
+              branding.heroImageUrl
+                ? "grid max-w-5xl items-center gap-10 sm:grid-cols-[1.1fr_0.9fr] sm:text-left"
+                : "max-w-3xl text-center"
+            }`}
+          >
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-[0.2em] text-primary">
+                {branding.tagline}
+              </p>
+              <h1 className="mt-5 font-serif text-4xl font-semibold leading-[1.05] tracking-tight text-foreground sm:text-5xl md:text-6xl">
+                {branding.landingHeadline}
+              </h1>
+              <p
+                className={`mt-6 text-base leading-relaxed text-foreground/70 ${
+                  branding.heroImageUrl ? "max-w-lg" : "mx-auto max-w-xl"
+                }`}
+              >
+                {clinic.about ?? branding.introCopy}
+              </p>
+              <div
+                className={`mt-8 flex flex-col gap-3 sm:mt-10 sm:flex-row sm:flex-wrap ${
+                  branding.heroImageUrl ? "items-start" : "items-center justify-center"
+                }`}
+              >
+                <Button asChild size="lg" className="w-full sm:w-auto">
+                  <Link to="/$slug/triagem" params={{ slug }}>
+                    Começar minha pré-avaliação
+                  </Link>
+                </Button>
+                <span className="self-center text-sm text-muted-foreground">
+                  cerca de 10 minutos
+                </span>
+              </div>
+            </div>
+
+            {branding.heroImageUrl ? (
+              <div className="relative overflow-hidden rounded-2xl border border-border shadow-sm">
+                <img
+                  src={branding.heroImageUrl}
+                  alt={branding.clinicName}
+                  className="aspect-[4/5] w-full object-cover"
+                />
+              </div>
+            ) : null}
           </div>
         </section>
 
         <section className="mx-auto max-w-4xl px-4 pb-16 sm:px-6 sm:pb-24">
-          <div className="grid gap-4 sm:grid-cols-3">
-            {[
-              {
-                t: "Confidencial",
-                d: "Suas respostas ficam disponíveis apenas para a equipe clínica responsável.",
-              },
-              {
-                t: "Instrumentos validados",
-                d: "Escalas de rastreio reconhecidas, abertas conforme o que você relatar.",
-              },
-              {
-                t: "No seu tempo",
-                d: "Responda pelo celular, no seu ritmo. Se parar, retomamos de onde ficou.",
-              },
-            ].map((c) => (
-              <div key={c.t} className="rounded-lg border border-border bg-card p-5">
-                <div className="font-serif text-lg font-semibold">{c.t}</div>
-                <p className="mt-2 text-sm text-muted-foreground">{c.d}</p>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {branding.featureCards.map((c, i) => (
+              <div
+                key={c.title}
+                className={`rounded-lg border border-border bg-card p-5 ${
+                  i % 2 === 0 ? "shadow-sm" : "shadow-none"
+                }`}
+              >
+                <div className="font-serif text-lg font-semibold">{c.title}</div>
+                <p className="mt-2 text-sm text-muted-foreground">{c.description}</p>
               </div>
             ))}
           </div>

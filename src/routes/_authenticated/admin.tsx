@@ -8,6 +8,7 @@ import { LandingSettingsForm } from "@/components/painel/LandingSettingsForm";
 import { Stat } from "@/components/admin/Stat";
 import { ColorField } from "@/components/admin/ColorField";
 import { DoctorProfilesCard } from "@/components/admin/DoctorProfilesCard";
+import { ClinicEditDialog } from "@/components/admin/ClinicEditDialog";
 
 import { isAccessDenied, accessDeniedMessage } from "@/lib/access-error";
 import { Button } from "@/components/ui/button";
@@ -24,6 +25,7 @@ import {
   ChevronUp,
   Copy,
   ExternalLink,
+  Pencil,
   Plus,
   Trash2,
   Users,
@@ -113,6 +115,7 @@ function AdminPage() {
   const [novoAcessoAberto, setNovoAcessoAberto] = useState(false);
 
   const [copiadoId, setCopiadoId] = useState<string | null>(null);
+  const [editingClinicId, setEditingClinicId] = useState<string | null>(null);
 
   const list = clinics.data ?? [];
   const activeCount = useMemo(() => list.filter((c) => c.is_active).length, [list]);
@@ -546,13 +549,22 @@ function AdminPage() {
                           <Button
                             variant="outline"
                             size="sm"
+                            onClick={() => setEditingClinicId(c.id)}
+                            className="min-h-10 flex-1 gap-1.5 text-xs font-medium"
+                          >
+                            <Pencil className="h-3.5 w-3.5" />
+                            Editar
+                          </Button>
+                          <Button
+                            variant="outline"
+                            size="sm"
                             onClick={() => handleCopiarLink(c.slug, c.id)}
                             className="min-h-10 flex-1 gap-1.5 text-xs font-medium"
                           >
                             {copiadoId === c.id ? (
                               <>
                                 <Check className="h-3.5 w-3.5 text-emerald-600" />
-                                Link Copiado!
+                                Copiado!
                               </>
                             ) : (
                               <>
@@ -560,6 +572,17 @@ function AdminPage() {
                                 Copiar link
                               </>
                             )}
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            asChild
+                            className="min-h-10 gap-1.5 text-xs"
+                          >
+                            <a href={`/${c.slug}`} target="_blank" rel="noopener noreferrer">
+                              <ExternalLink className="h-3.5 w-3.5" />
+                              <span className="hidden sm:inline">Ver landing</span>
+                            </a>
                           </Button>
                           <Button
                             variant="ghost"
@@ -578,6 +601,12 @@ function AdminPage() {
                           </Button>
                         </div>
                       </Card>
+
+                      <ClinicEditDialog
+                        clinic={c}
+                        open={editingClinicId === c.id}
+                        onOpenChange={(open) => setEditingClinicId(open ? c.id : null)}
+                      />
                     </StaggerItem>
                   ))}
                 </StaggerGroup>
@@ -773,4 +802,3 @@ function AdminPage() {
     </PainelShell>
   );
 }
-

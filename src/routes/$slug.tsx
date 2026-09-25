@@ -1,6 +1,7 @@
 import { createFileRoute, Outlet, notFound, Link } from "@tanstack/react-router";
 import { getClinicBySlug } from "@/lib/clinics.functions";
 import { ClinicTheme } from "@/components/ClinicTheme";
+import { resolveFontPreset } from "@/config/font-presets";
 
 export const Route = createFileRoute("/$slug")({
   loader: async ({ params }) => {
@@ -11,6 +12,7 @@ export const Route = createFileRoute("/$slug")({
   head: ({ loaderData }) => {
     const name = loaderData?.name ?? "Triagem";
     const desc = loaderData?.tagline ?? "Avaliação pré-consulta psiquiátrica";
+    const fontPreset = resolveFontPreset(loaderData?.landing_font_preset);
     return {
       meta: [
         { title: `${name} — Triagem pré-consulta` },
@@ -19,6 +21,9 @@ export const Route = createFileRoute("/$slug")({
         { property: "og:description", content: desc },
         { property: "og:type", content: "website" },
       ],
+      links: fontPreset.googleFontsHref
+        ? [{ rel: "stylesheet", href: fontPreset.googleFontsHref }]
+        : [],
     };
   },
   component: SlugLayout,

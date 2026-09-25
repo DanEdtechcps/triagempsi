@@ -10,8 +10,11 @@
  */
 
 @theme inline {
-  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
-  --font-serif: "Fraunces", Georgia, serif;
+  /* Indireção via --clinic-font-* permite que ClinicTheme.tsx sobrescreva a
+     fonte por clínica (mesmo padrão já usado para --primary/--accent), sem
+     custo para quem não customiza: o fallback é a fonte global de sempre. */
+  --font-sans: var(--clinic-font-body, "Inter", system-ui, -apple-system, sans-serif);
+  --font-serif: var(--clinic-font-heading, "Fraunces", Georgia, serif);
   --font-display: "Instrument Serif", "Fraunces", Georgia, serif;
 
   /* Paleta exclusiva da landing (noir premium) */
