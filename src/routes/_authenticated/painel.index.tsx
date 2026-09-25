@@ -1,13 +1,13 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
-import { motion, useReducedMotion } from "motion/react";
+import { useReducedMotion } from "motion/react";
 
 import { listAssessments, getMyAccess, getAssessment } from "@/lib/painel.functions";
 import { AcessoNegado } from "@/components/painel/AcessoNegado";
 import { isAccessDenied } from "@/lib/access-error";
-import { PainelShell, BandBadge } from "@/components/painel/PainelShell";
+import { PainelShell } from "@/components/painel/PainelShell";
 import { computeQueueImpact, impactSentence } from "@/lib/queue-impact";
 import { InformanteMetrics } from "@/components/painel/InformanteMetrics";
 import { Card } from "@/components/ui/card";
@@ -31,15 +31,6 @@ import {
   markReviewedBulk,
 } from "@/lib/review-queue";
 import { addAssessmentNote } from "@/lib/notes.functions";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { ChevronDown, SlidersHorizontal } from "lucide-react";
 import { MobileTriageCard } from "@/components/painel/MobileTriageCard";
@@ -49,6 +40,9 @@ import {
   type PainelFiltrosProps,
 } from "@/components/painel/PainelFiltros";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { RevisaoLoteDialog } from "@/components/painel/RevisaoLoteDialog";
+import { PainelTabelaFila } from "@/components/painel/PainelTabelaFila";
+import { PainelPaginacao } from "@/components/painel/PainelPaginacao";
 import {
   isRiskFlagged,
   isAttentionFlagged,
@@ -709,190 +703,32 @@ function PainelLista() {
         </Card>
       )}
 
-      <Dialog open={loteAberto} onOpenChange={(v) => !salvandoLote && setLoteAberto(v)}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Marcar triagens como revisadas</DialogTitle>
-            <DialogDescription>
-              {selecionados.length} triagem(ns) serão marcadas como revisadas. Confirme antes de
-              salvar. A observação abaixo é opcional e será registrada no histórico de pareceres de
-              cada triagem.
-            </DialogDescription>
-          </DialogHeader>
-
-          <Textarea
-            value={notaLote}
-            onChange={(e) => setNotaLote(e.target.value.slice(0, 5000))}
-            rows={4}
-            placeholder="Observações da revisão (opcional)"
-            disabled={salvandoLote}
-          />
-
-          <DialogFooter>
-            <Button variant="ghost" onClick={() => setLoteAberto(false)} disabled={salvandoLote}>
-              Cancelar
-            </Button>
-            <Button onClick={() => void confirmarLote()} disabled={salvandoLote}>
-              {salvandoLote ? "Salvando…" : `Confirmar ${selecionados.length} revisão(ões)`}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <RevisaoLoteDialog
+        open={loteAberto}
+        onOpenChange={setLoteAberto}
+        quantidade={selecionados.length}
+        nota={notaLote}
+        onNotaChange={setNotaLote}
+        salvando={salvandoLote}
+        onCancelar={() => setLoteAberto(false)}
+        onConfirmar={() => void confirmarLote()}
+      />
 
       {mostrarTabela ? (
-        <Card className="overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full min-w-[52rem] border-collapse text-sm">
-              <thead>
-                <tr className="border-b border-border bg-muted/40 text-left text-xs uppercase tracking-wide text-muted-foreground">
-                  <th className="px-3 py-2 font-medium">
-                    <input
-                      type="checkbox"
-                      aria-label="Selecionar todas as triagens desta página"
-                      checked={todosSelecionados}
-                      onChange={alternarTodos}
-                      className="h-4 w-4 accent-[hsl(var(--primary))]"
-                    />
-                  </th>
-                  <th className="px-3 py-2 font-medium">Paciente</th>
-                  <th className="px-3 py-2 font-medium">Envio</th>
-                  <th className="px-3 py-2 font-medium">Quem preencheu</th>
-                  <th className="px-3 py-2 font-medium">Escalas e escores</th>
-                  <th className="px-3 py-2 text-right font-medium">Ações</th>
-                </tr>
-              </thead>
-              <motion.tbody
-                initial="hidden"
-                animate="show"
-                variants={{
-                  hidden: {},
-                  show: { transition: { staggerChildren: prefersReduced ? 0 : 0.02 } },
-                }}
-              >
-                {pagina_itens.map((a) => {
-                  const risco = isRiskFlagged(a);
-                  const atencao = isAttentionFlagged(a);
-                  const feito = revisados.includes(a.id);
-                  return (
-                    <motion.tr
-                      key={a.id}
-                      variants={{
-                        hidden: { opacity: 0, y: prefersReduced ? 0 : 4 },
-                        show: {
-                          opacity: 1,
-                          y: 0,
-                          transition: { duration: prefersReduced ? 0.12 : 0.22 },
-                        },
-                      }}
-                      className={`border-b border-border align-top last:border-0 ${
-                        risco ? "bg-destructive/5" : feito ? "opacity-60" : ""
-                      }`}
-                    >
-                      <td className="px-3 py-3">
-                        <input
-                          type="checkbox"
-                          aria-label={`Selecionar triagem de ${a.respondent_name}`}
-                          checked={selecionados.includes(a.id)}
-                          onChange={() => alternarSelecao(a.id)}
-                          className="mt-1 h-4 w-4 accent-[hsl(var(--primary))]"
-                        />
-                      </td>
-                      <td className="px-3 py-3">
-                        <div className="flex items-start gap-2">
-                          <span
-                            aria-hidden
-                            className={`mt-1.5 h-2 w-2 shrink-0 rounded-full ${
-                              risco
-                                ? "bg-destructive"
-                                : atencao
-                                  ? "bg-warning"
-                                  : "bg-muted-foreground/40"
-                            }`}
-                          />
-                          <div className="min-w-0">
-                            <Link
-                              to="/painel/$id"
-                              params={{ id: a.id }}
-                              onClick={() => enfileirar()}
-                              className="block truncate font-medium text-foreground hover:underline"
-                            >
-                              {a.respondent_name}
-                            </Link>
-                            <div className="text-xs text-muted-foreground">
-                              {a.respondent_age != null
-                                ? `${a.respondent_age} anos`
-                                : "idade não informada"}
-                              {multiClinica && a.clinic_name ? ` · ${a.clinic_name}` : ""}
-                            </div>
-                            <span className="mt-1 flex flex-wrap gap-1">
-                              {risco && (
-                                <span className="inline-flex rounded-full border border-destructive/40 bg-destructive/10 px-2 py-0.5 text-[11px] font-semibold text-destructive">
-                                  Via de risco
-                                </span>
-                              )}
-                              {a.doctor_name && (
-                                <span className="inline-flex rounded-full border border-primary/40 bg-primary/10 px-2 py-0.5 text-[11px] font-medium text-primary">
-                                  → {a.doctor_name}
-                                </span>
-                              )}
-                            </span>
-                          </div>
-                        </div>
-                      </td>
-                      <td className="whitespace-nowrap px-3 py-3 text-xs text-muted-foreground">
-                        {new Date(a.submitted_at).toLocaleString("pt-BR")}
-                      </td>
-                      <td className="px-3 py-3 text-xs text-muted-foreground">
-                        {a.respondent_type === "familiar"
-                          ? `Familiar/responsável${
-                              a.informant_name ? ` — ${a.informant_name}` : ""
-                            }${a.informant_relation ? ` (${a.informant_relation})` : ""}`
-                          : "O próprio paciente"}
-                      </td>
-                      <td className="px-3 py-3">
-                        <div className="flex flex-wrap gap-1.5">
-                          {a.scales.length === 0 && (
-                            <span className="text-xs text-muted-foreground">
-                              Sem escalas aplicadas
-                            </span>
-                          )}
-                          {a.scales.map((s) => (
-                            <BandBadge
-                              key={s.scale_code}
-                              level={s.band_level ?? 0}
-                              label={`${s.scale_code}: ${s.score ?? "—"}${
-                                s.band ? ` · ${s.band}` : ""
-                              }`}
-                            />
-                          ))}
-                        </div>
-                      </td>
-                      <td className="px-3 py-3">
-                        <div className="flex flex-wrap justify-end gap-2">
-                          <Button
-                            variant={feito ? "secondary" : "ghost"}
-                            size="sm"
-                            onClick={() => setRevisados(toggleReviewed(a.id))}
-                          >
-                            {feito ? "Revisado ✓" : "Revisado"}
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            disabled={pdfBusy === `${a.id}:clinico`}
-                            onClick={() => baixarPdf(a.id, "clinico")}
-                          >
-                            {pdfBusy === `${a.id}:clinico` ? "Gerando…" : "PDF"}
-                          </Button>
-                        </div>
-                      </td>
-                    </motion.tr>
-                  );
-                })}
-              </motion.tbody>
-            </table>
-          </div>
-        </Card>
+        <PainelTabelaFila
+          itens={pagina_itens}
+          prefersReduced={prefersReduced}
+          multiClinica={multiClinica}
+          selecionados={selecionados}
+          todosSelecionados={todosSelecionados}
+          revisados={revisados}
+          pdfBusy={pdfBusy}
+          onToggleTodos={alternarTodos}
+          onToggleSelecao={alternarSelecao}
+          onToggleRevisado={(id) => setRevisados(toggleReviewed(id))}
+          onAbrir={() => enfileirar()}
+          onBaixarPdf={(id, tipo) => void baixarPdf(id, tipo)}
+        />
       ) : (
         <div className="space-y-3">
           {pagina_itens.map((a) => (
@@ -912,55 +748,18 @@ function PainelLista() {
         </div>
       )}
 
-      {listaOrdenada.length > 0 &&
-        (isMobile ? (
-          /* Mobile: carregar mais acumulando */
-          <div className="mt-4">
-            {paginaAtual < totalPaginas ? (
-              <Button
-                variant="outline"
-                className="min-h-11 w-full"
-                onClick={() => setPagina(paginaAtual + 1)}
-              >
-                Carregar mais ({listaOrdenada.length - pagina_itens.length} restantes)
-              </Button>
-            ) : (
-              <p className="text-center text-xs text-muted-foreground">
-                {listaOrdenada.length} triagem(ns) exibidas
-              </p>
-            )}
-          </div>
-        ) : (
-          /* Desktop: paginação clássica */
-          <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
-            <span className="text-xs text-muted-foreground">
-              Mostrando {inicio + 1}–{Math.min(inicio + porPagina, listaOrdenada.length)} de{" "}
-              {listaOrdenada.length}
-            </span>
-
-            <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                disabled={paginaAtual <= 1}
-                onClick={() => setPagina(paginaAtual - 1)}
-              >
-                Anterior
-              </Button>
-              <span className="text-xs text-muted-foreground">
-                Página {paginaAtual} de {totalPaginas}
-              </span>
-              <Button
-                variant="outline"
-                size="sm"
-                disabled={paginaAtual >= totalPaginas}
-                onClick={() => setPagina(paginaAtual + 1)}
-              >
-                Próxima
-              </Button>
-            </div>
-          </div>
-        ))}
+      <PainelPaginacao
+        isMobile={isMobile === true}
+        paginaAtual={paginaAtual}
+        totalPaginas={totalPaginas}
+        totalItens={listaOrdenada.length}
+        itensExibidos={pagina_itens.length}
+        inicio={inicio}
+        porPagina={porPagina}
+        onCarregarMais={() => setPagina(paginaAtual + 1)}
+        onPaginaAnterior={() => setPagina(paginaAtual - 1)}
+        onProximaPagina={() => setPagina(paginaAtual + 1)}
+      />
 
       {/* Mobile: impacto e métricas abaixo da lista, recolhíveis */}
       {isMobile === true && (
