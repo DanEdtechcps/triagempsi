@@ -427,16 +427,6 @@ export function resolveScaleForAnswers(
   return current;
 }
 
-/** Ordem inicial para consulta psiquiátrica adulto (Protocolo p.41) */
-export const INITIAL_ADULT_FLOW: string[] = [
-  "PHQ-2",
-  "GAD-2",
-  "ASQ",
-  "AUDIT-C",
-  "PC-PTSD-5",
-  "PHQ-15",
-];
-
 export function getItemOptions(scale: Scale, itemId: string): LikertOption[] {
   // Opções declaradas no próprio item (ScaleItem.options) são a fonte de
   // verdade quando existem — usadas por itens de pontuação reversa (ex.:

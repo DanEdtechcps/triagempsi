@@ -249,12 +249,6 @@ export function mergeAuditScore(results: ScaleResult[]): ScaleResult[] {
   return results.map((r, i) => (i === auditIdx ? merged : r));
 }
 
-export function shouldTrigger(scaleCode: string, result: ScaleResult): string | null {
-  const scale = SCALE_BY_CODE[scaleCode];
-  if (!scale?.triggersScale || scale.positiveCutoff == null) return null;
-  return result.score >= scale.positiveCutoff ? scale.triggersScale : null;
-}
-
 export function summarize(
   results: ScaleResult[],
   extra?: {
