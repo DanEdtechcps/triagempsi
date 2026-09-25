@@ -107,9 +107,3 @@ export function analyzeChange(code: string, baseline: number, latest: number): C
 
   return { code, baseline, latest, delta, verdict, label: VERDICT_LABEL[verdict], spec, narrative };
 }
-
-export function verdictTone(v: ChangeVerdict): "bom" | "ruim" | "neutro" {
-  if (v === "melhora_confiavel" || v === "melhora_parcial") return "bom";
-  if (v === "piora_confiavel" || v === "piora_parcial") return "ruim";
-  return "neutro";
-}

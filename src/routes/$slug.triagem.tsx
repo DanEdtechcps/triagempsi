@@ -47,7 +47,7 @@ import { StepTransition } from "@/components/motion/primitives";
 import { downloadPatientPdf } from "@/lib/pdf-report";
 import { resolveBranding } from "@/config/branding";
 import { evaluatePsychoeducationTriggers, type PsychoTriggerResult } from "@/lib/psychoeducation";
-import { CardsPsicoeducacao } from "@/components/triage/CardsPsicoeducacao";
+import { CardsPsicoeducacao } from "@/components/psicoeducacao/CardsPsicoeducacao";
 import {
   SYMPTOM_QUESTION,
   buildTriagePlan,

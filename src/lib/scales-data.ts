@@ -13,6 +13,7 @@ import { EXTRA_SCALES, ASSIST_V0 } from "./scales-extra";
 import { SCALES_AMPLIADAS } from "./scales-ampliadas";
 import { SCALES_OCUPACIONAL } from "./scales-ocupacional";
 import { OFFICIAL_28_EXTRA_SCALES } from "./scales-official-28";
+import { validateScales } from "./scale-schema";
 export * from "./scales-official-28";
 
 export type { LikertOption, Scale, ScaleItem, ScaleBand, ScaleDomain } from "./scale-types";
@@ -394,6 +395,11 @@ export const ALL_SCALES: Scale[] = [
   ...OFFICIAL_28_EXTRA_SCALES,
 ];
 
+// Falha alta no import: uma escala mal formada (banda com buraco, code
+// duplicado, riskItems apontando pra item inexistente etc.) não deve virar
+// um bug silencioso descoberto só em produção — ver scale-schema.ts.
+validateScales(ALL_SCALES);
+
 export const SCALE_BY_CODE = Object.fromEntries(ALL_SCALES.map((s) => [s.code, s])) as Record<
   string,
   Scale
@@ -426,16 +432,6 @@ export function resolveScaleForAnswers(
   }
   return current;
 }
-
-/** Ordem inicial para consulta psiquiátrica adulto (Protocolo p.41) */
-export const INITIAL_ADULT_FLOW: string[] = [
-  "PHQ-2",
-  "GAD-2",
-  "ASQ",
-  "AUDIT-C",
-  "PC-PTSD-5",
-  "PHQ-15",
-];
 
 export function getItemOptions(scale: Scale, itemId: string): LikertOption[] {
   // Opções declaradas no próprio item (ScaleItem.options) são a fonte de
