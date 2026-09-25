@@ -116,7 +116,14 @@ export function scoreScale(
 
   if (informant === "familiar" && mode === "auto") {
     const cutoff = scale.positiveCutoff;
-    if (cutoff != null && INTERNALIZANTES.has(scale.domain) && score === cutoff - 1) {
+    // score > 0 é obrigatório: a margem existe pra dar benefício da dúvida
+    // a quem o familiar já relatou ALGUM sintoma (subnotificação por
+    // terceiro), nunca pra transformar "nenhum sintoma relatado" em
+    // "rastreio positivo" — isso inverteria o próprio propósito da margem
+    // em escalas com corte baixo (ex.: ASQ/C-SSRS, positiveCutoff 1: sem
+    // este guard, score 0 virava cutoff - 1 === 0 e era inflado pro corte,
+    // achado #35 da auditoria).
+    if (cutoff != null && score > 0 && INTERNALIZANTES.has(scale.domain) && score === cutoff - 1) {
       adjusted = cutoff;
       note =
         "Respondido por familiar/responsável em escala de autorrelato: aplicada margem de sensibilidade de 1 ponto (sintomas internalizantes costumam ser subnotificados por terceiros). Escore bruto " +

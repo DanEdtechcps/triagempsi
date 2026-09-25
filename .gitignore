@@ -45,6 +45,13 @@ playwright-report/
 *.aac
 temp_audio/
 
-# Relatórios de auditoria do ECC — ficam em documentação viva/, só locais
+# Documentação gerada (auditorias, achados, guias de onboarding, specs) —
+# fica em documentação viva/ só como referência local, nunca vai pro GitHub.
 documentação viva/AUDITORIA_*.md
 documentação viva/PENDENCIAS_CLINICAS_*.md
+documentação viva/ACHADOS_*.md
+documentação viva/VALIDACAO_*.md
+documentação viva/ONBOARDING_*.md
+documentação viva/ROADMAP_*.md
+documentação viva/specs/
+openspec/
