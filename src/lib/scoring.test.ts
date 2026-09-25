@@ -192,4 +192,17 @@ describe("ajuste por informante", () => {
     expect(r.score_adjusted).toBe(6);
     expect(r.informant_note).toMatch(/heteroinformado/i);
   });
+
+  it("achado #35: familiar negando tudo no ASQ (positiveCutoff 1) não vira falso-positivo de risco", () => {
+    // Corte 1: a margem antiga (score === cutoff - 1) virava score === 0 —
+    // ou seja, a resposta totalmente negativa era a que disparava o
+    // ajuste, inflando 0 para 1 (o próprio corte de "positivo"), marcando
+    // risco de suicídio e ativando a tela de crise pra quem não relatou
+    // nenhum sintoma.
+    const r = scoreScale("ASQ", { "1": 0, "2": 0, "3": 0, "4": 0 }, "familiar");
+    expect(r.score).toBe(0);
+    expect(r.score_adjusted).toBe(0);
+    expect(r.band_level).toBe(0);
+    expect(r.risk).toBe(false);
+  });
 });
