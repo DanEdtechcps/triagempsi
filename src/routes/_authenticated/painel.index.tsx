@@ -49,6 +49,18 @@ import {
   type PainelFiltrosProps,
 } from "@/components/painel/PainelFiltros";
 import { useIsMobile } from "@/hooks/use-mobile";
+import {
+  isRiskFlagged,
+  isAttentionFlagged,
+  filterAssessments,
+  sortAssessments,
+  computeQueueCounts,
+  getEscalasDisponiveis,
+  getMedicosDisponiveis,
+  toggleSelection,
+  toggleAllSelection,
+  type PainelFilterState,
+} from "@/lib/painel-fila";
 
 export const Route = createFileRoute("/_authenticated/painel/")({
   head: () => ({
@@ -298,81 +310,25 @@ function PainelLista() {
 
   const multiClinica = (access?.clinics.length ?? 0) > 1;
 
-  const escalasDisponiveis = Array.from(
-    new Set((data ?? []).flatMap((a) => a.scales.map((s) => s.scale_code))),
-  ).sort();
-
-  const medicosDisponiveis = Array.from(
-    new Map(
-      (data ?? [])
-        .filter((a) => a.doctor_id && a.doctor_name)
-        .map((a) => [a.doctor_id as string, a.doctor_name as string]),
-    ),
-  ).sort((x, y) => x[1].localeCompare(y[1], "pt-BR"));
+  const escalasDisponiveis = getEscalasDisponiveis(data ?? []);
+  const medicosDisponiveis = getMedicosDisponiveis(data ?? []);
 
   const termo = busca.trim().toLowerCase();
-  const lista = (data ?? []).filter((a) => {
-    if (clinicFilter !== "todas" && a.clinic_id !== clinicFilter) return false;
+  const filtrosParaConsulta: PainelFilterState = {
+    clinicFilter,
+    busca,
+    riscoFilter,
+    escalaFilter,
+    statusFilter,
+    informanteFilter,
+    medicoFilter,
+    campoData,
+    dataDe,
+    dataAte,
+  };
+  const lista = filterAssessments(data ?? [], filtrosParaConsulta);
 
-    const risco = a.risk_flags.length > 0 || a.summary?.risk_pathway === true;
-    const atencao = a.scales.some((s) => (s.band_level ?? 0) >= 2);
-    if (riscoFilter === "risco" && !risco) return false;
-    if (riscoFilter === "atencao" && (risco || !atencao)) return false;
-    if (riscoFilter === "sem" && (risco || atencao)) return false;
-
-    if (escalaFilter !== "todas" && !a.scales.some((s) => s.scale_code === escalaFilter))
-      return false;
-
-    if (dataDe || dataAte) {
-      const bruto = campoData === "created" ? a.created_at : a.submitted_at;
-      const dia = new Date(bruto).toLocaleDateString("sv-SE");
-      if (dataDe && dia < dataDe) return false;
-      if (dataAte && dia > dataAte) return false;
-    }
-
-    if (informanteFilter !== "todos" && a.respondent_type !== informanteFilter) return false;
-
-    if (medicoFilter === "nenhum" && a.doctor_id) return false;
-    if (medicoFilter !== "todos" && medicoFilter !== "nenhum" && a.doctor_id !== medicoFilter)
-      return false;
-
-    const enviado = a.status === "completed";
-    if (statusFilter === "enviado" && !enviado) return false;
-    if (statusFilter === "pendente" && enviado) return false;
-
-    if (termo) {
-      const alvo = [
-        a.respondent_name,
-        a.respondent_email ?? "",
-        a.clinic_name ?? "",
-        a.informant_name ?? "",
-        a.informant_relation ?? "",
-        a.respondent_type === "familiar" ? "familiar responsavel" : "paciente",
-        ...a.scales.map((s) => s.scale_code),
-      ]
-        .join(" ")
-        .toLowerCase();
-      if (!alvo.includes(termo)) return false;
-    }
-    return true;
-  });
-
-  const listaOrdenada = [...lista].sort((a, b) => {
-    switch (ordem) {
-      case "submitted_asc":
-        return a.submitted_at.localeCompare(b.submitted_at);
-      case "created_desc":
-        return b.created_at.localeCompare(a.created_at);
-      case "created_asc":
-        return a.created_at.localeCompare(b.created_at);
-      case "nome_asc":
-        return a.respondent_name.localeCompare(b.respondent_name, "pt-BR");
-      case "nome_desc":
-        return b.respondent_name.localeCompare(a.respondent_name, "pt-BR");
-      default:
-        return b.submitted_at.localeCompare(a.submitted_at);
-    }
-  });
+  const listaOrdenada = sortAssessments(lista, ordem);
 
   const totalPaginas = Math.max(1, Math.ceil(listaOrdenada.length / porPagina));
   const paginaAtual = Math.min(pagina, totalPaginas);
@@ -388,17 +344,11 @@ function PainelLista() {
   const todosSelecionados = idsPagina.length > 0 && selecionadosPagina.length === idsPagina.length;
 
   function alternarSelecao(id: string) {
-    setSelecionados((atual) =>
-      atual.includes(id) ? atual.filter((x) => x !== id) : [...atual, id],
-    );
+    setSelecionados((atual) => toggleSelection(atual, id));
   }
 
   function alternarTodos() {
-    setSelecionados((atual) =>
-      todosSelecionados
-        ? atual.filter((id) => !idsPagina.includes(id))
-        : Array.from(new Set([...atual, ...idsPagina])),
-    );
+    setSelecionados((atual) => toggleAllSelection(atual, idsPagina));
   }
 
   async function confirmarLote() {
@@ -434,21 +384,12 @@ function PainelLista() {
   }
 
   const base = (data ?? []).filter((a) => clinicFilter === "todas" || a.clinic_id === clinicFilter);
-  const contagem = {
-    total: base.length,
-    risco: base.filter((a) => a.risk_flags.length > 0 || a.summary?.risk_pathway === true).length,
-    atencao: base.filter(
-      (a) =>
-        !(a.risk_flags.length > 0 || a.summary?.risk_pathway === true) &&
-        a.scales.some((s) => (s.band_level ?? 0) >= 2),
-    ).length,
-    revisados: base.filter((a) => revisados.includes(a.id)).length,
-  };
+  const contagem = computeQueueCounts(base, revisados);
   const impactoFila = computeQueueImpact(
     base.map((a) => ({
       id: a.id,
       submitted_at: a.submitted_at,
-      risk: a.risk_flags.length > 0 || a.summary?.risk_pathway === true,
+      risk: isRiskFlagged(a),
       level: Math.max(0, ...a.scales.map((s) => s.band_level ?? 0)),
     })),
   );
@@ -829,8 +770,8 @@ function PainelLista() {
                 }}
               >
                 {pagina_itens.map((a) => {
-                  const risco = a.risk_flags.length > 0 || a.summary?.risk_pathway;
-                  const atencao = a.scales.some((s) => (s.band_level ?? 0) >= 2);
+                  const risco = isRiskFlagged(a);
+                  const atencao = isAttentionFlagged(a);
                   const feito = revisados.includes(a.id);
                   return (
                     <motion.tr
