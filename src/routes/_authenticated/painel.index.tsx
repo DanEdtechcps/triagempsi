@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { buildPdfPayload } from "@/lib/pdf-payload";
 import { logReportExport } from "@/lib/audit.functions";
 import { downloadClinicianPdf, downloadPatientPdf } from "@/lib/pdf-report";
+import { resolveBranding, type ClinicBrandingRow } from "@/config/branding";
 import {
   describeView,
   loadSavedViews,
@@ -252,8 +253,11 @@ function PainelLista() {
       const full = await fetchOne({ data: { id } });
       if (!full) return;
       const payload = buildPdfPayload(full as never);
-      if (tipo === "clinico") downloadClinicianPdf(payload);
-      else downloadPatientPdf(payload);
+      const branding = resolveBranding(
+        (full as { clinics?: ClinicBrandingRow | null }).clinics ?? null,
+      );
+      if (tipo === "clinico") downloadClinicianPdf(payload, branding);
+      else downloadPatientPdf(payload, branding);
       void logExport({ data: { assessment_id: id, kind: tipo } }).catch(() => {});
     } finally {
       setPdfBusy(null);

@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { BRANDING } from "@/config/branding";
 import { checkIsStaff } from "@/lib/staff";
 
 export const Route = createFileRoute("/auth")({
@@ -106,7 +105,7 @@ function AuthPage() {
           Acesso do profissional
         </h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          {BRANDING.clinicName} — área restrita da equipe clínica.
+          TriagemPsi — área restrita da equipe clínica.
         </p>
 
         <form onSubmit={handleSubmit} className="mt-6 space-y-4">
@@ -165,9 +164,11 @@ function AuthPage() {
           {mode === "entrar" ? "Não tem conta? Criar acesso" : "Já tem conta? Entrar"}
         </button>
 
+        {/* Antes de autenticar não há como saber a clínica do usuário (só
+        resolvida via user_roles após o login) — "início" aqui é a landing
+        da plataforma, não a triagem pública de uma clínica específica. */}
         <Link
-          to="/$slug"
-          params={{ slug: BRANDING.clinicSlug }}
+          to="/"
           className="mt-6 block text-center text-xs text-muted-foreground hover:text-foreground"
         >
           Voltar ao início

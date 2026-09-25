@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { BRANDING, GENERIC_BRANDING, resolveBranding } from "./branding";
+import { GENERIC_BRANDING, resolveBranding } from "./branding";
 
 // Achado #3 do ROADMAP_ESCALA_SAAS_2026-09-24.md: resolveBranding() caía no
 // fallback "Saraiva" pra qualquer campo ausente de QUALQUER clínica nova —
@@ -81,7 +81,19 @@ describe("resolveBranding", () => {
         "Muito obrigado por dedicar seu tempo. Suas informações foram enviadas com segurança ao Dr. Saraiva e servirão de base para a sua consulta.",
     };
 
-    expect(resolveBranding(saraivaRow)).toEqual(BRANDING);
+    const branding = resolveBranding(saraivaRow);
+
+    expect(branding.clinicName).toBe("Saraiva Clínica de Psiquiatria");
+    expect(branding.doctorName).toBe("Dr. José Ribamar Fernandes Saraiva Junior");
+    expect(branding.doctorCredentials).toBe("CRM-RS 29349 | RQE 30038");
+    expect(branding.primaryColor).toBe("#1e4d5c");
+    expect(branding.accentColor).toBe("#3d8b8b");
+    expect(branding.contactEmail).toBe("contato@clinicasaraiva.med.br");
+    // Disclaimer/consentimento/emergência não foram customizados no banco —
+    // seguem o texto genérico compartilhado, igual ao que já mostrava antes.
+    expect(branding.disclaimer).toBe(GENERIC_BRANDING.disclaimer);
+    expect(branding.consentCopy).toBe(GENERIC_BRANDING.consentCopy);
+    expect(branding.emergency).toEqual(GENERIC_BRANDING.emergency);
   });
 
   it("reproduz o branding da Lumina a partir da linha equivalente vinda do banco, sem herdar nada da Saraiva", () => {
@@ -112,19 +124,10 @@ describe("resolveBranding", () => {
     expect(branding.accentColor).toBe("#8b5cf6");
     expect(branding.contactEmail).toBe("contato@lumina.med.br");
     // Disclaimer/consentimento continuam o texto genérico compartilhado —
-    // igual ao que a Lumina já mostrava antes (reusava BRANDING.disclaimer).
-    expect(branding.disclaimer).toBe(BRANDING.disclaimer);
-    expect(branding.consentCopy).toBe(BRANDING.consentCopy);
-    expect(branding.doctorName).not.toBe(BRANDING.doctorName);
-    expect(branding.primaryColor).not.toBe(BRANDING.primaryColor);
-  });
-});
-
-describe("BRANDING (constante legada usada em telas sem contexto de clínica)", () => {
-  it("mantém os dados reais da Saraiva", () => {
-    expect(BRANDING.clinicSlug).toBe("saraiva");
-    expect(BRANDING.clinicName).toBe("Saraiva Clínica de Psiquiatria");
-    expect(BRANDING.emergency.cvvPhone).toBe("188");
-    expect(BRANDING.emergency.samuPhone).toBe("192");
+    // igual ao que a Lumina já mostrava antes (reusava o texto da Saraiva).
+    expect(branding.disclaimer).toBe(GENERIC_BRANDING.disclaimer);
+    expect(branding.consentCopy).toBe(GENERIC_BRANDING.consentCopy);
+    expect(branding.doctorName).not.toBe("Dr. José Ribamar Fernandes Saraiva Junior");
+    expect(branding.primaryColor).not.toBe("#1e4d5c");
   });
 });

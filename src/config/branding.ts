@@ -142,37 +142,13 @@ export function resolveBranding(clinic?: ClinicBrandingRow | null): Branding {
 }
 
 /**
- * Branding padrão usado só nas telas de equipe que ainda não são cientes de
- * clínica (login, redefinição de senha, PDF gerado sem contexto explícito de
- * clínica) — ver `src/routes/auth.tsx`, `src/routes/reset-password.tsx`,
- * `src/lib/pdf-report.ts`, `src/lib/pdf-manual.ts`. Espelha os dados reais
- * da Saraiva, que também estão gravados na tabela `clinics` (mesma migration
- * citada acima), como qualquer outra clínica. Tornar essas telas cientes de
- * clínica é trabalho futuro, fora do escopo deste item — ver achado #3 do
- * roadmap.
- */
-export const BRANDING: Branding = resolveBranding({
-  slug: "saraiva",
-  name: "Saraiva Clínica de Psiquiatria",
-  doctor_name: "Dr. José Ribamar Fernandes Saraiva Junior",
-  doctor_credentials: "CRM-RS 29349 | RQE 30038",
-  tagline: "Cuidado psiquiátrico com escuta, ciência e humanidade",
-  short_tagline: "Psiquiatria que acolhe e orienta",
-  city: "Passo Fundo/RS",
-  primary_color: "#1e4d5c", // Azul-petróleo sóbrio e confiável
-  accent_color: "#3d8b8b", // Verde-azulado suave
-  contact_email: "contato@clinicasaraiva.med.br",
-  intro_copy:
-    "Seja bem-vindo(a). Este questionário breve ajuda o Dr. José Ribamar Fernandes Saraiva Junior a conhecer seu momento antes da consulta. Assim, nosso tempo juntos pode ser dedicado ao que realmente importa: uma escuta atenta e individualizada. Suas respostas são protegidas por sigilo ético.",
-  done_copy:
-    "Muito obrigado por dedicar seu tempo. Suas informações foram enviadas com segurança ao Dr. Saraiva e servirão de base para a sua consulta.",
-});
-
-/**
- * Idem para a Lumina — mantido só por compatibilidade com o motor clínico
- * legado/dormente (`src/lib/clinical-engine/`, achado #1 do roadmap: motor
- * duplicado, decisão de consolidação ainda pendente). Nenhuma tela em
- * produção importa este export hoje.
+ * Dados reais da Lumina, mantidos só por compatibilidade com o motor
+ * clínico legado/dormente (`src/lib/clinical-engine/`, achado #1 do
+ * roadmap: motor duplicado, decisão de consolidação ainda pendente).
+ * Nenhuma tela em produção importa este export hoje — todas as telas de
+ * equipe reais já resolvem a branding real da clínica (via `resolveBranding`
+ * a partir do banco) ou usam `GENERIC_BRANDING` quando não há clínica no
+ * contexto.
  */
 export const LUMINA_BRANDING: Branding = resolveBranding({
   slug: "lumina",

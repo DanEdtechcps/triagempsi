@@ -1,5 +1,5 @@
 import { jsPDF } from "jspdf";
-import { BRANDING, type Branding } from "@/config/branding";
+import { GENERIC_BRANDING, type Branding } from "@/config/branding";
 import {
   MANUAL_SECTIONS,
   MANUAL_VERSION,
@@ -14,6 +14,13 @@ const MARGIN = 48;
 const PAGE_W = 595.28;
 const PAGE_H = 841.89;
 const CONTENT_W = PAGE_W - MARGIN * 2;
+
+/**
+ * Manual do profissional e roadmap do projeto são documentos da plataforma
+ * (iguais pra equipe de qualquer clínica), não de uma clínica específica —
+ * por isso levam a identidade do produto, não a de uma clínica real.
+ */
+const PLATFORM_BRANDING: Branding = { ...GENERIC_BRANDING, clinicName: "TriagemPsi" };
 
 /** Escritor sequencial simples em A4, com quebra automática de página. */
 class Sheet {
@@ -173,7 +180,7 @@ function renderBlock(sheet: Sheet, block: ManualBlock) {
 }
 
 /** Manual de uso do painel para a equipe clínica. */
-export function downloadManualPdf(branding: Branding = BRANDING) {
+export function downloadManualPdf(branding: Branding = PLATFORM_BRANDING) {
   const sheet = new Sheet(
     branding,
     "Manual do profissional — pré-triagem em saúde mental",
@@ -197,7 +204,7 @@ export function downloadManualPdf(branding: Branding = BRANDING) {
 }
 
 /** Roadmap do projeto para equipe e contratante. */
-export function downloadRoadmapPdf(branding: Branding = BRANDING) {
+export function downloadRoadmapPdf(branding: Branding = PLATFORM_BRANDING) {
   const sheet = new Sheet(branding, "Roadmap do projeto de pré-triagem", ROADMAP_VERSION);
   sheet.paragraph(
     "Panorama do que já está entregue, do que está em andamento e das oportunidades priorizadas por impacto clínico e operacional.",

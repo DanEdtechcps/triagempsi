@@ -41,7 +41,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-import { BRANDING } from "@/config/branding";
+import { GENERIC_BRANDING } from "@/config/branding";
 import { GuardAreaProfissional } from "@/components/painel/GuardAreaProfissional";
 import { getMyAccess, type MyAccess } from "@/lib/painel.functions";
 import { TenantProvider, useTenant } from "@/context/TenantContext";
@@ -231,8 +231,11 @@ function PainelShellContent({
   const access = propAccess ?? queryAccess;
 
   const { activeClinic, activeSlug, isGlobalAdmin } = useTenant();
+  // Sem clínica ativa nem admin global (usuário sem vínculo algum, estado de
+  // borda): nome genérico, nunca uma clínica real específica — mesma classe
+  // de achado do ROADMAP_ESCALA_SAAS_2026-09-24.md sobre branding.ts.
   const clinicDisplayName =
-    activeClinic?.name ?? (isGlobalAdmin ? "Todas as Clínicas (Global)" : BRANDING.clinicName);
+    activeClinic?.name ?? (isGlobalAdmin ? "Todas as Clínicas (Global)" : GENERIC_BRANDING.clinicName);
 
   async function signOut() {
     await queryClient.cancelQueries();
@@ -271,9 +274,9 @@ function PainelShellContent({
           {/* Lado Esquerdo: Identidade do Consultório & Tenant Switcher */}
           <div className="flex min-w-0 items-center gap-2 sm:gap-3">
             <Link to="/painel" className="flex items-center gap-2 shrink-0">
-              {BRANDING.logoUrl ? (
+              {GENERIC_BRANDING.logoUrl ? (
                 <img
-                  src={BRANDING.logoUrl}
+                  src={GENERIC_BRANDING.logoUrl}
                   alt=""
                   className="h-8 w-8 shrink-0 rounded-md object-cover"
                 />

@@ -152,7 +152,9 @@ export const getAssessment = createServerFn({ method: "GET" })
   .handler(async ({ data, context }) => {
     const { data: a, error } = await context.supabase
       .from("assessments")
-      .select("*, scale_results(*), doctor_profiles(display_name, specialty)")
+      .select(
+        "*, scale_results(*), doctor_profiles(display_name, specialty), clinics(slug, name, tagline, doctor_name, doctor_credentials, short_tagline, city, logo_url, primary_color, accent_color, contact_email, contact_phone, website_url, intro_copy, done_copy, disclaimer, consent_copy, emergency_message)",
+      )
       .eq("id", data.id)
       .maybeSingle();
 

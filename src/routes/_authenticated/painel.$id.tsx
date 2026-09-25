@@ -9,7 +9,7 @@ import { downloadFhirBundle, type FhirAssessment, type FhirScaleRow } from "@/li
 import { getItemOptions, resolveScaleForAnswers, skippedItemIds } from "@/lib/scales-data";
 import { computeSubscores } from "@/lib/scoring";
 import { DecisionTrail } from "@/components/painel/DecisionTrail";
-import { BRANDING } from "@/config/branding";
+import { resolveBranding, type ClinicBrandingRow } from "@/config/branding";
 import { downloadClinicianPdf, downloadPatientPdf } from "@/lib/pdf-report";
 import { buildPdfPayload } from "@/lib/pdf-payload";
 import { logReportExport } from "@/lib/audit.functions";
@@ -95,12 +95,18 @@ function PainelDetalhe() {
         | null
         | undefined
     )?.doctor_profiles ?? null;
+  // Branding da clínica DONA desta triagem — nunca o fallback hardcoded de
+  // outra clínica (achado relacionado ao item #4 do
+  // ROADMAP_ESCALA_SAAS_2026-09-24.md).
+  const branding = resolveBranding(
+    (a as { clinics?: ClinicBrandingRow | null } | null | undefined)?.clinics ?? null,
+  );
 
   function baixarPdf(tipo: "clinico" | "paciente") {
     if (!a) return;
     const payload = buildPdfPayload(a);
-    if (tipo === "clinico") downloadClinicianPdf(payload);
-    else downloadPatientPdf(payload);
+    if (tipo === "clinico") downloadClinicianPdf(payload, branding);
+    else downloadPatientPdf(payload, branding);
     void logExport({ data: { assessment_id: id, kind: tipo } }).catch((err) =>
       console.error("baixarPdf: falha ao registrar auditoria de exportação (não bloqueia)", err),
     );
@@ -209,7 +215,7 @@ function PainelDetalhe() {
               <p className="mt-1 text-sm text-foreground/80">
                 O paciente sinalizou pensamentos de morte ou autolesão. Sinalizadores:{" "}
                 {riskFlags.join(", ") || "via de sintomas"}. Orientação de emergência exibida ao
-                paciente ({BRANDING.emergency.cvvLabel} — {BRANDING.emergency.cvvPhone}).
+                paciente ({branding.emergency.cvvLabel} — {branding.emergency.cvvPhone}).
               </p>
             </Card>
           )}
@@ -272,7 +278,7 @@ function PainelDetalhe() {
                         <a
                           href={waLink(
                             phoneE164,
-                            `Olá, ${preferredName || a.respondent_name}! Entramos em contato a respeito da sua pré-avaliação na ${BRANDING.clinicName}.`,
+                            `Olá, ${preferredName || a.respondent_name}! Entramos em contato a respeito da sua pré-avaliação na ${branding.clinicName}.`,
                           )}
                           target="_blank"
                           rel="noopener noreferrer"
@@ -454,7 +460,7 @@ function PainelDetalhe() {
             );
           })}
 
-          <p className="text-xs text-muted-foreground">{BRANDING.disclaimer}</p>
+          <p className="text-xs text-muted-foreground">{branding.disclaimer}</p>
         </div>
       )}
     </PainelShell>
