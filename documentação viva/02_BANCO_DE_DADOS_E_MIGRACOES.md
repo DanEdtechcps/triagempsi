@@ -126,10 +126,11 @@ Pontuação psicométrica de cada instrumento acionado:
 | `20260917230000_psychoeducation_module.sql` | Criação das 4 tabelas de psicoeducação, carga dos 10 tópicos com conteúdos em Markdown e vínculo com avaliações. |
 | `20260919200000_provision_lumina_saude.sql` | Provisionamento do **Instituto Lumina de Saúde Mental & Neurociências** (`c0000000-0000-4000-8000-000000000002`), cadastro de Dr. Gustavo Mello (admin) e Dra. Camila Nogueira (doctor), vinculação estrita de médicos por clínica. (Corrigido 2026-09-21 — versão anterior desta doc citava uma Dra. Camila Rocha e um id `b1a1a1a1-...` que não batiam com o arquivo de migration real.) |
 | `20260917200000_unify_roles_and_rls.sql` + `20260917230000_psychoeducation_module.sql` | Nunca tinham sido aplicadas em produção até 2026-09-21 — aplicadas nesta data (função `is_global_admin`, tabela `patient_longitudinal_records`, as 4 tabelas de psicoeducação + 10 temas semeados). |
+| `20260925090000_unify_rls_to_inline_subquery.sql` | **Unifica os dois padrões paralelos de RLS multi-tenant** (item #1, prioridade máxima, do `ROADMAP_ESCALA_SAAS_2026-09-24.md`) — ver seção 4 abaixo. |
 
 ---
 
-## 4. Políticas de Row Level Security (RLS) e Funções Auxiliares
+## 4. Políticas de Row Level Security (RLS) — padrão único (unificado em 2026-09-25)
 
 Todas as tabelas de saúde e dados sensíveis possuem RLS habilitado:
 
@@ -139,46 +140,59 @@ ALTER TABLE public.scale_results ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.assessment_psychoeducation ENABLE ROW LEVEL SECURITY;
 ```
 
-### Funções de Apoio com `SECURITY DEFINER`:
+> **Atualização 2026-09-25 (item #1 do roadmap, resolvido):** até esta data existiam **dois
+> padrões paralelos** de isolamento multi-tenant: (a) subquery inline contra `user_roles`
+> (`assessments`, `contacts`, `invitations`, `scale_results`, `doctor_profiles`,
+> `assessment_notes`, `whatsapp_messages`, `audit_logs`) e (b) as funções helper
+> `has_clinic_access(uuid)` / `is_global_admin()` (`patient_longitudinal_records`,
+> `clinic_subscriptions`, `clinic_psychoeducation_settings`, `assessment_psychoeducation`).
+> O padrão (b) teve `GRANT EXECUTE` revogado de `authenticated` entre 2026-07-28 e 2026-09-23
+> — quase 2 meses sem efeito prático, mascarado só porque o código sempre acessava essas 4
+> tabelas via `supabaseAdmin` (service_role, que ignora RLS). A migration
+> `20260925090000_unify_rls_to_inline_subquery.sql` reescreveu as 6 policies dessas 4 tabelas
+> pro padrão (a) — o único validado ponta-a-ponta em produção — e removeu as funções
+> `has_clinic_access(uuid)` e `is_global_admin()` (sem chamadores restantes, confirmado por
+> grep em `src/` e nas migrations). `has_role(uuid, app_role)` continua existindo e em uso
+> (não é o padrão de isolamento por clínica, é só checagem de papel).
+>
+> **`assessment_notes` sem policy de UPDATE/DELETE:** o roadmap suspeitava que fosse uma
+> lacuna funcional (a tabela tem trigger de `updated_at` mas nenhuma policy de escrita além de
+> INSERT). Investigado com teste real (`src/lib/rls-cross-tenant.test.ts`): a tabela também não
+> tem `GRANT UPDATE/DELETE` pra `authenticated` — ou seja, ninguém consegue alterar ou apagar
+> uma nota clínica já salva, nem o próprio autor, nem staff da mesma clínica. Isso bate com o
+> comentário do próprio código (`src/lib/notes.functions.ts`: "histórico imutável") — **não é
+> uma lacuna, é o comportamento pretendido**, só nunca tinha sido confirmado com um teste real.
+>
+> **Achado novo (não estava no roadmap):** `20260919200000_provision_lumina_saude.sql` declara
+> `v_user_gustavo_id UUID := 'u0000000-0000-4000-8000-000000000001'::UUID` — `'u'` não é dígito
+> hexadecimal válido, então esse cast **sempre falhou**, abortando o bloco `DO $$` inteiro
+> (incluindo o INSERT da própria clínica Lumina, que vem antes no mesmo bloco). Confirmado
+> reproduzindo o erro isoladamente: `invalid input syntax for type uuid`. Ou seja, essa
+> migration nunca gravou nada em produção — reforça (com mais uma causa raiz) o que
+> `20260923080200` já documentava. Fica registrado aqui para a sessão do item #3 do roadmap
+> (provisionamento de clínica), que é quem deve consertar a arquitetura de provisionamento —
+> não foi corrigido nesta sessão por estar fora do escopo de RLS.
 
-> Nota 2026-09-21: as assinaturas abaixo foram corrigidas pra bater com o que está de fato
-> aplicado em produção. A versão anterior desta doc mostrava `is_global_admin()` sem parâmetro
-> e uma função `get_auth_clinic_id()` que nunca existiu — a real é `is_global_admin(_user_id
-> uuid)` (chamada como `is_global_admin(auth.uid())` dentro das policies) e `has_clinic_access
-> (_clinic_id uuid)`. Aceitar `_user_id` como parâmetro deixa a função chamável via RPC público
-> pra checar QUALQUER usuário — por padrão do Postgres/Supabase toda função nova em `public`
-> nasce com EXECUTE liberado pra `anon`. Isso foi descoberto exposto (`anon` conseguia checar
-> se um UUID arbitrário era admin global) e corrigido revogando EXECUTE de `anon` diretamente
-> nessa função. Ainda aceita checar qualquer `_user_id` para usuários `authenticated` — migrar
-> pra uma versão sem parâmetro (usando `auth.uid()` internamente, como a doc original sugeria)
-> fecharia isso de vez, mas exigiria atualizar todas as policies que chamam
-> `is_global_admin(auth.uid())`. Não fizemos essa migração ainda.
+### Padrão único de isolamento (subquery inline contra `user_roles`):
 
 ```sql
--- Versão REAL em produção (não a versão sem parâmetro documentada antes):
-CREATE OR REPLACE FUNCTION public.is_global_admin(_user_id uuid)
-RETURNS boolean
-LANGUAGE sql STABLE SECURITY DEFINER SET search_path = public
-AS $$
-  SELECT EXISTS (
-    SELECT 1 FROM public.user_roles
-    WHERE user_id = _user_id AND role = 'admin'::public.app_role AND clinic_id IS NULL
-  );
-$$;
--- chamada nas policies como: is_global_admin(auth.uid())
+-- Leitura, escoped por clínica (ur.clinic_id IS NULL = admin global, sem restrição):
+USING (EXISTS (
+  SELECT 1 FROM public.user_roles ur
+  WHERE ur.user_id = auth.uid()
+    AND (ur.clinic_id IS NULL OR ur.clinic_id = <tabela>.clinic_id)
+));
 
--- Equivalente real ao que a doc chamava de get_auth_clinic_id():
-CREATE OR REPLACE FUNCTION public.has_clinic_access(_clinic_id uuid)
-RETURNS boolean
-LANGUAGE sql STABLE SECURITY DEFINER SET search_path = public
-AS $$
-  SELECT EXISTS (
-    SELECT 1 FROM public.user_roles
-    WHERE user_id = auth.uid()
-      AND ((role = 'admin'::public.app_role AND clinic_id IS NULL) OR clinic_id = _clinic_id)
-  );
-$$;
+-- Escrita restrita a admin (da própria clínica ou global):
+USING (EXISTS (
+  SELECT 1 FROM public.user_roles ur
+  WHERE ur.user_id = auth.uid() AND ur.role = 'admin'::app_role
+    AND (ur.clinic_id IS NULL OR ur.clinic_id = <tabela>.clinic_id)
+));
 ```
+
+`has_role(uuid, app_role)` (checagem de papel, não de clínica) segue em uso em 1 policy
+(`clinic_psycho_manage`) e está com `GRANT EXECUTE` correto pra `authenticated`.
 
 ### Regras de Acesso à Tabela `assessments`:
 1. **Pacientes Anônimos (`anon`):**
@@ -186,9 +200,19 @@ $$;
 2. **Pacientes Autenticados (`authenticated`):**
    * Podem ler apenas as triagens cujo `respondent_email` seja idêntico a `auth.jwt() ->> 'email'`.
 3. **Médicos e Equipe (`authenticated` com papel associado):**
-   * Podem ler e atualizar apenas avaliações com `clinic_id = public.get_auth_clinic_id()`.
+   * Podem ler e atualizar apenas avaliações da própria clínica (subquery inline acima).
 4. **Superadministrador Global:**
-   * Caso `public.is_global_admin()` seja verdadeiro, tem acesso total de leitura, filtragem e atualização a qualquer triagem de qualquer clínica.
+   * `user_roles.clinic_id IS NULL` remove a restrição de clínica na mesma subquery — acesso
+     total de leitura/atualização a qualquer triagem de qualquer clínica.
+
+### Teste de integração de isolamento cross-tenant
+
+`src/lib/rls-cross-tenant.test.ts` (+ `src/lib/rls-cross-tenant.bootstrap.sql`) é o primeiro
+teste real deste projeto que ataca RLS de verdade contra Postgres (não lógica em memória): sobe
+um Postgres efêmero via Docker, replaya as migrations reais, e tenta ler/escrever cross-tenant
+como usuário `authenticated` de verdade (role trocado + claim de JWT via `set_config`, igual ao
+que o PostgREST faz) nas 9 tabelas em escopo. Roda como parte de `bun run test`; se Docker não
+estiver disponível, a suíte é pulada com aviso em vez de quebrar o gate.
 
 ---
 
