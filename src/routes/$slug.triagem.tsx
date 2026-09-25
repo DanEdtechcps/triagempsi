@@ -116,6 +116,8 @@ type Saved = {
   itemIndex: number;
   answers: Record<string, Record<string, number>>;
   results: ScaleResult[];
+  /** Item em que cada escala concluída realmente parou (ver scaleLastIndex). */
+  scaleLastIndex?: Record<string, number>;
 };
 
 function TriagemPage() {
@@ -131,6 +133,12 @@ function TriagemPage() {
   const [plan, setPlan] = useState<TriagePlan | null>(null);
   const [scaleIndex, setScaleIndex] = useState(0);
   const [itemIndex, setItemIndex] = useState(0);
+  // Item em que cada escala concluída realmente parou (respondida até o fim
+  // ou encerrada por parada adaptativa) — usado pelo "Voltar" pra retornar
+  // exatamente pra lá, em vez de recalcular uma posição a partir do
+  // conjunto final de respostas (que diverge depois de parada adaptativa,
+  // já que itens pulados/estimados entram nesse conjunto final).
+  const [scaleLastIndex, setScaleLastIndex] = useState<Record<string, number>>({});
   const [answers, setAnswers] = useState<Record<string, Record<string, number>>>({});
   const [results, setResults] = useState<ScaleResult[]>([]);
   const [submitting, setSubmitting] = useState(false);
@@ -171,6 +179,7 @@ function TriagemPage() {
     setItemIndex(0);
     setAnswers({});
     setResults([]);
+    setScaleLastIndex({});
     setErrorMsg(null);
   }
 
@@ -228,6 +237,7 @@ function TriagemPage() {
           setItemIndex(s.itemIndex ?? 0);
           setAnswers(cleanedAnswers);
           setResults(cleanedResults);
+          setScaleLastIndex(s.scaleLastIndex ?? {});
         }
       }
     } catch {
@@ -257,6 +267,7 @@ function TriagemPage() {
       itemIndex,
       answers,
       results,
+      scaleLastIndex,
     };
     try {
       localStorage.setItem(storageKey, JSON.stringify(payload));
@@ -266,6 +277,7 @@ function TriagemPage() {
   }, [
     restored,
     storageKey,
+    scaleLastIndex,
     phase,
     respondent,
     symptoms,
@@ -346,6 +358,7 @@ function TriagemPage() {
     setItemIndex(0);
     setAnswers({});
     setResults([]);
+    setScaleLastIndex({});
     if (p.flow.length === 0) {
       void finalize([], p, cleanedSelected);
     } else {
@@ -526,6 +539,11 @@ function TriagemPage() {
     };
     const nextResults = [...results.filter((r) => r.scale_code !== code), result];
     setResults(nextResults);
+    // Registra o item real em que esta escala parou — "Voltar" a partir da
+    // próxima escala usa isso em vez de recalcular pelo conjunto final de
+    // respostas (que diverge após parada adaptativa: itens pulados/
+    // estimados entram nesse conjunto sem terem sido de fato exibidos).
+    setScaleLastIndex((prev) => ({ ...prev, [code]: itemIndex }));
 
     // Encaminhamento condicional: o resultado decide as próximas escalas.
     let nextPlan = applyEscalations(
@@ -570,14 +588,24 @@ function TriagemPage() {
     if (scaleIndex > 0) {
       const prevCode = plan!.flow[scaleIndex - 1];
       const prevScale = SCALE_BY_CODE[prevCode];
-      let last = Math.max((prevScale?.items.length ?? 1) - 1, 0);
-      if (prevScale) {
-        const prevVisible = prevItemIndex(
-          prevScale,
-          prevScale.items.length,
-          answers[prevCode] ?? {},
-        );
-        if (prevVisible !== -1) last = prevVisible;
+      // Preferir o item real em que a escala anterior parou (gravado em
+      // scaleLastIndex ao concluí-la). Recalcular pelo conjunto final de
+      // respostas só serve de fallback pra sessões restauradas de antes
+      // desse registro existir — depois de uma parada adaptativa, esse
+      // recálculo pode apontar pra um item diferente do que foi de fato
+      // exibido por último, porque o conjunto final inclui itens
+      // pulados/estimados que nunca apareceram na tela.
+      let last = scaleLastIndex[prevCode];
+      if (last === undefined) {
+        last = Math.max((prevScale?.items.length ?? 1) - 1, 0);
+        if (prevScale) {
+          const prevVisible = prevItemIndex(
+            prevScale,
+            prevScale.items.length,
+            answers[prevCode] ?? {},
+          );
+          if (prevVisible !== -1) last = prevVisible;
+        }
       }
       setScaleIndex(scaleIndex - 1);
       setItemIndex(last);
