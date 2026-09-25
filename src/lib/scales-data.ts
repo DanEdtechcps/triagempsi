@@ -13,6 +13,7 @@ import { EXTRA_SCALES, ASSIST_V0 } from "./scales-extra";
 import { SCALES_AMPLIADAS } from "./scales-ampliadas";
 import { SCALES_OCUPACIONAL } from "./scales-ocupacional";
 import { OFFICIAL_28_EXTRA_SCALES } from "./scales-official-28";
+import { validateScales } from "./scale-schema";
 export * from "./scales-official-28";
 
 export type { LikertOption, Scale, ScaleItem, ScaleBand, ScaleDomain } from "./scale-types";
@@ -393,6 +394,11 @@ export const ALL_SCALES: Scale[] = [
   ...SCALES_OCUPACIONAL,
   ...OFFICIAL_28_EXTRA_SCALES,
 ];
+
+// Falha alta no import: uma escala mal formada (banda com buraco, code
+// duplicado, riskItems apontando pra item inexistente etc.) não deve virar
+// um bug silencioso descoberto só em produção — ver scale-schema.ts.
+validateScales(ALL_SCALES);
 
 export const SCALE_BY_CODE = Object.fromEntries(ALL_SCALES.map((s) => [s.code, s])) as Record<
   string,
