@@ -129,20 +129,20 @@ export const createClinicAdmin = createServerFn({ method: "POST" })
     await requireGlobalAdmin(context.supabase, context.userId);
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-    const { data: inserted, error } = await supabaseAdmin
-      .from("clinics")
-      .insert({
-        name: data.name,
-        slug: data.slug,
-        tagline: data.tagline || null,
-        contact_email: data.contact_email || null,
-        contact_phone: data.contact_phone || null,
-        primary_color: data.primary_color,
-        accent_color: data.accent_color,
-        is_active: true,
-      })
-      .select("id, slug")
-      .single();
+    // Único caminho de criação de clínica: provision_new_clinic() cria
+    // clinics + clinic_subscriptions + clinic_psychoeducation_settings numa
+    // única transação de função (tudo ou nada). Um INSERT simples aqui (como
+    // antes) deixava a clínica sem assinatura e sem temas de psicoeducação —
+    // ver roadmap 2026-09-24, item #3.
+    const { data: clinicId, error } = await supabaseAdmin.rpc("provision_new_clinic", {
+      p_slug: data.slug,
+      p_name: data.name,
+      p_tagline: data.tagline || "",
+      p_primary_color: data.primary_color ?? undefined,
+      p_accent_color: data.accent_color ?? undefined,
+      p_contact_email: data.contact_email || undefined,
+      p_contact_phone: data.contact_phone || undefined,
+    });
 
     if (error) {
       if (error.code === "23505")
@@ -154,15 +154,15 @@ export const createClinicAdmin = createServerFn({ method: "POST" })
     const { recordAudit } = await import("@/lib/audit.server");
     await recordAudit({
       action: "clinic_created",
-      clinicId: inserted.id,
+      clinicId: clinicId as string,
       actorUserId: context.userId,
       actorEmail: (context.claims as { email?: string })?.email ?? null,
       entityType: "clinic",
-      entityId: inserted.id,
+      entityId: clinicId as string,
       details: { name: data.name, slug: data.slug },
     });
 
-    return { id: inserted.id as string, slug: inserted.slug as string };
+    return { id: clinicId as string, slug: data.slug };
   });
 
 export const setClinicActiveAdmin = createServerFn({ method: "POST" })
@@ -192,6 +192,63 @@ export const setClinicActiveAdmin = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+export type StaffLimitSubscription = {
+  status: string;
+  maxProfessionals: number | null;
+} | null;
+
+/**
+ * Decide se um novo profissional pode ser vinculado a uma clínica, dado o
+ * estado da assinatura. Fail-closed em todo estado que não seja "assinatura
+ * ativa com vaga livre" — nunca deve ser possível burlar o limite do plano
+ * silenciosamente.
+ *
+ * Antes desta correção (roadmap 2026-09-24, item #3), uma clínica sem linha
+ * em clinic_subscriptions (criada pelo INSERT simples que createClinicAdmin
+ * usava) fazia `sub` vir `null` sem erro — e o bloco de enforcement inteiro
+ * era pulado, deixando a clínica com vagas ilimitadas por omissão. Toda
+ * clínica nova agora sempre ganha uma assinatura no provisionamento
+ * (provision_new_clinic), então `subscription === null` aqui só deveria
+ * acontecer pra uma clínica legada incompleta — e isso também precisa negar
+ * com um erro claro, não prosseguir silenciosamente.
+ */
+export function evaluateStaffLimit(params: {
+  subscriptionQueryFailed: boolean;
+  subscription: StaffLimitSubscription;
+  currentDistinctStaffCount: number;
+}): { allowed: true } | { allowed: false; reason: string } {
+  const { subscriptionQueryFailed, subscription, currentDistinctStaffCount } = params;
+
+  if (subscriptionQueryFailed) {
+    return {
+      allowed: false,
+      reason: "Não foi possível verificar o limite do plano agora. Tente novamente em instantes.",
+    };
+  }
+
+  if (!subscription) {
+    return {
+      allowed: false,
+      reason:
+        "Este consultório não tem uma assinatura configurada — dado legado incompleto. " +
+        "Contate o suporte para regularizar o plano antes de adicionar profissionais.",
+    };
+  }
+
+  if (subscription.status === "cancelada" || subscription.maxProfessionals == null) {
+    return { allowed: true };
+  }
+
+  if (currentDistinctStaffCount >= subscription.maxProfessionals) {
+    return {
+      allowed: false,
+      reason: `O plano atual permite até ${subscription.maxProfessionals} profissionais por consultório. Para ampliar a equipe, ajuste o plano na área Comercial.`,
+    };
+  }
+
+  return { allowed: true };
+}
+
 /** Cria (ou reaproveita) o usuário e vincula o papel ao consultório. */
 export const addStaffAdmin = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -211,36 +268,47 @@ export const addStaffAdmin = createServerFn({ method: "POST" })
     const email = data.email.toLowerCase();
 
     // Enforcement do plano: limite de profissionais por consultório.
+    // Fail-closed em todo estado que não seja "assinatura ativa com vaga
+    // livre" — ver evaluateStaffLimit() para a decisão completa, incluindo
+    // o caso de clínica legada sem nenhuma linha em clinic_subscriptions.
     if (data.clinic_id) {
       const { data: sub, error: subError } = await supabaseAdmin
         .from("clinic_subscriptions")
         .select("status, plans(max_professionals)")
         .eq("clinic_id", data.clinic_id)
         .maybeSingle();
-      // Falha na consulta não pode virar "sem limite" — sub viria undefined
-      // e o enforcement inteiro seria pulado silenciosamente, deixando uma
-      // clínica com plano limitado ganhar vagas ilimitadas numa falha
-      // transitória do banco. Falha fechado: nega em vez de prosseguir.
-      if (subError) {
-        throw new Error(
-          "Não foi possível verificar o limite do plano agora. Tente novamente em instantes.",
-        );
-      }
-      const limit =
-        (sub?.plans as { max_professionals: number | null } | null)?.max_professionals ?? null;
-      if (sub && limit != null && sub.status !== "cancelada") {
+
+      const subscription: StaffLimitSubscription = sub
+        ? {
+            status: sub.status,
+            maxProfessionals:
+              (sub.plans as { max_professionals: number | null } | null)?.max_professionals ?? null,
+          }
+        : null;
+
+      let currentDistinctStaffCount = 0;
+      if (
+        !subError &&
+        subscription &&
+        subscription.status !== "cancelada" &&
+        subscription.maxProfessionals != null
+      ) {
         const { data: staffRows } = await supabaseAdmin
           .from("user_roles")
           .select("user_id")
           .eq("clinic_id", data.clinic_id);
-        const distinct = new Set(
+        currentDistinctStaffCount = new Set(
           ((staffRows ?? []) as { user_id: string }[]).map((r) => r.user_id),
-        );
-        if (distinct.size >= limit) {
-          throw new Error(
-            `O plano atual permite até ${limit} profissionais por consultório. Para ampliar a equipe, ajuste o plano na área Comercial.`,
-          );
-        }
+        ).size;
+      }
+
+      const decision = evaluateStaffLimit({
+        subscriptionQueryFailed: !!subError,
+        subscription,
+        currentDistinctStaffCount,
+      });
+      if (!decision.allowed) {
+        throw new Error(decision.reason);
       }
     }
 

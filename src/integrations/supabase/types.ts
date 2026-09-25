@@ -981,6 +981,7 @@ export type Database = {
         Args: {
           p_accent_color?: string;
           p_contact_email?: string;
+          p_contact_phone?: string;
           p_name: string;
           p_primary_color?: string;
           p_slug: string;
