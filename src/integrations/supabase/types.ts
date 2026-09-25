@@ -968,7 +968,6 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
-      has_clinic_access: { Args: { _clinic_id: string }; Returns: boolean };
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"];
@@ -976,7 +975,6 @@ export type Database = {
         };
         Returns: boolean;
       };
-      is_global_admin: { Args: never; Returns: boolean };
       provision_new_clinic: {
         Args: {
           p_accent_color?: string;

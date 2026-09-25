@@ -10,6 +10,8 @@ type Props = {
   total?: number;
   /** rótulo do grupo de ramificação do item atual (ex.: "Tabaco") */
   groupLabel?: string;
+  /** aviso opcional exibido no início da escala (ex.: explicação de encadeamento) */
+  continuationNote?: string;
   value: number | undefined;
   onAnswer: (value: number) => void;
   onBack?: () => void;
@@ -25,6 +27,7 @@ export function QuestionScreen({
   position,
   total,
   groupLabel,
+  continuationNote,
   value,
   onAnswer,
   onBack,
@@ -36,6 +39,11 @@ export function QuestionScreen({
   return (
     <div className="space-y-6">
       <div>
+        {continuationNote && (
+          <div className="mb-4 rounded-lg border border-primary/20 bg-primary/5 px-3 py-2 text-sm leading-relaxed text-foreground">
+            {continuationNote}
+          </div>
+        )}
         <div className="text-xs font-medium uppercase tracking-wider text-muted-foreground">
           {scale.name} · pergunta {position ?? itemIndex + 1} de {total ?? scale.items.length}
         </div>

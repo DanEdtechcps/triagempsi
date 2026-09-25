@@ -146,6 +146,10 @@ function TriagemPage() {
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [restored, setRestored] = useState(false);
   const reduceMotion = useReducedMotion();
+  // Escalas presentes no plano assim que ele foi montado (por sintoma/idade),
+  // antes de qualquer escalonamento — usado só para explicar ao paciente,
+  // na tela, quando uma escala apareceu por causa de uma resposta anterior.
+  const initialFlowRef = useRef<Set<string>>(new Set());
 
   const submit = useServerFn(submitAssessment);
   const fetchDoctors = useServerFn(listClinicDoctors);
@@ -219,6 +223,11 @@ function TriagemPage() {
           if (cleanedPlan && nextScaleIdx >= cleanedPlan.flow.length) {
             nextScaleIdx = Math.max(0, cleanedPlan.flow.length - 1);
           }
+
+          // Sessão retomada: não temos mais o plano original pré-escalonamento,
+          // então tratamos o que já está no fluxo salvo como "ponto de partida"
+          // — qualquer escalonamento novo a partir daqui ainda é detectado certo.
+          initialFlowRef.current = new Set(cleanedPlan?.flow ?? []);
 
           setPhase(s.phase);
           setRespondent(resp);
@@ -298,6 +307,16 @@ function TriagemPage() {
 
   const currentScale = plan?.flow[scaleIndex] ? SCALE_BY_CODE[plan.flow[scaleIndex]] : null;
 
+  // Explica ao paciente, na própria tela, quando uma escala apareceu por
+  // causa de uma resposta anterior (encadeamento/escalonamento) — hoje isso
+  // só era contado depois, no PDF. Só aparece na primeira pergunta da escala.
+  const currentScaleCode = plan?.flow[scaleIndex];
+  const isEscalatedScale =
+    scaleIndex > 0 &&
+    itemIndex === 0 &&
+    !!currentScaleCode &&
+    !initialFlowRef.current.has(currentScaleCode);
+
   // Se o item atual ficou pulado pela ramificação (sessão restaurada ou
   // pergunta-porta alterada no caminho de volta), ajusta para um item visível.
   useEffect(() => {
@@ -332,6 +351,7 @@ function TriagemPage() {
   function startFlow(selected: string[]) {
     const cleanedSelected = isMale ? selected.filter((s) => s !== "perinatal") : selected;
     const p = buildTriagePlan(cleanedSelected, age, respondent.respondent_sex);
+    initialFlowRef.current = new Set(p.flow);
     setPlan(p);
     setSymptoms(cleanedSelected);
     setScaleIndex(0);
@@ -681,6 +701,11 @@ function TriagemPage() {
               <QuestionScreen
                 scale={currentScale}
                 itemIndex={itemIndex}
+                continuationNote={
+                  isEscalatedScale
+                    ? "Essa próxima parte apareceu a partir de uma resposta sua — é assim que ajustamos as perguntas ao que você compartilhou, sem te fazer perguntas desnecessárias."
+                    : undefined
+                }
                 position={
                   visibleProgress(currentScale, itemIndex, answers[currentScale.code] ?? {})
                     .position
