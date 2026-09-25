@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { requireGlobalAdmin } from "@/lib/admin-guard.server";
+import type { SubscriptionStatus } from "@/lib/billing.functions";
 
 export type AdminClinic = {
   id: string;
@@ -26,6 +27,41 @@ export type AdminStaff = {
   created_at: string;
   last_sign_in_at: string | null;
 };
+
+export type StaffLimitSubscription = {
+  status: SubscriptionStatus;
+  maxProfessionals: number | null;
+} | null;
+
+export type StaffLimitEvaluation = { allowed: true } | { allowed: false; reason: string };
+
+/**
+ * Decide se um novo profissional pode ser vinculado ao consultório.
+ * Assinatura cancelada bloqueia qualquer novo vínculo (a clínica já é
+ * desativada nesse status — ver upsertSubscriptionAdmin em billing.functions.ts),
+ * independente do limite de profissionais do plano contratado.
+ */
+export function evaluateStaffLimit(
+  subscription: StaffLimitSubscription,
+  currentStaffCount: number,
+): StaffLimitEvaluation {
+  if (!subscription) return { allowed: true };
+  if (subscription.status === "cancelada") {
+    return {
+      allowed: false,
+      reason:
+        "A assinatura deste consultório está cancelada. Reative o plano na área Comercial para adicionar profissionais.",
+    };
+  }
+  if (subscription.maxProfessionals == null) return { allowed: true };
+  if (currentStaffCount >= subscription.maxProfessionals) {
+    return {
+      allowed: false,
+      reason: `O plano atual permite até ${subscription.maxProfessionals} profissionais por consultório. Para ampliar a equipe, ajuste o plano na área Comercial.`,
+    };
+  }
+  return { allowed: true };
+}
 
 export const listClinicsAdmin = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
@@ -226,21 +262,24 @@ export const addStaffAdmin = createServerFn({ method: "POST" })
           "Não foi possível verificar o limite do plano agora. Tente novamente em instantes.",
         );
       }
-      const limit =
-        (sub?.plans as { max_professionals: number | null } | null)?.max_professionals ?? null;
-      if (sub && limit != null && sub.status !== "cancelada") {
+      let currentStaffCount = 0;
+      if (sub) {
         const { data: staffRows } = await supabaseAdmin
           .from("user_roles")
           .select("user_id")
           .eq("clinic_id", data.clinic_id);
-        const distinct = new Set(
+        currentStaffCount = new Set(
           ((staffRows ?? []) as { user_id: string }[]).map((r) => r.user_id),
-        );
-        if (distinct.size >= limit) {
-          throw new Error(
-            `O plano atual permite até ${limit} profissionais por consultório. Para ampliar a equipe, ajuste o plano na área Comercial.`,
-          );
-        }
+        ).size;
+      }
+      const maxProfessionals =
+        (sub?.plans as { max_professionals: number | null } | null)?.max_professionals ?? null;
+      const evaluation = evaluateStaffLimit(
+        sub ? { status: sub.status as SubscriptionStatus, maxProfessionals } : null,
+        currentStaffCount,
+      );
+      if (!evaluation.allowed) {
+        throw new Error(evaluation.reason);
       }
     }
 
