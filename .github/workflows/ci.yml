@@ -1,0 +1,37 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  quality-gates:
+    name: 3 portões (tsc / test / build)
+    runs-on: ubuntu-latest
+    env:
+      # Valores públicos (já expostos em wrangler.json) — não são segredo.
+      SUPABASE_URL: https://ffyjjkouscnabyxjxexu.supabase.co
+      SUPABASE_PUBLISHABLE_KEY: sb_publishable_3F04VCYRIoUVH0mXyZBOEg_EQsVTMaT
+      SUPABASE_PROJECT_ID: ffyjjkouscnabyxjxexu
+      VITE_SUPABASE_URL: https://ffyjjkouscnabyxjxexu.supabase.co
+      VITE_SUPABASE_PUBLISHABLE_KEY: sb_publishable_3F04VCYRIoUVH0mXyZBOEg_EQsVTMaT
+      VITE_SUPABASE_PROJECT_ID: ffyjjkouscnabyxjxexu
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: latest
+
+      - name: Instalar dependências
+        run: bun install --frozen-lockfile
+
+      - name: Portão 1 — tsc --noEmit
+        run: bun x tsc --noEmit
+
+      - name: Portão 2 — testes (vitest)
+        run: bun run test
+
+      - name: Portão 3 — build (Nitro + Vite)
+        run: bun run build
