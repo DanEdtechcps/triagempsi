@@ -10,6 +10,7 @@ Plataforma clínica multi-tenant de pré-triagem psiquiátrica (Saraiva Clínica
   bun run test         # meta: 204 testes
   bun run build        # Nitro + Vite
   ```
+  <!-- adicionado por onboarding em 2026-09-24: rodei `bun run test` e hoje passam 234 testes (21 arquivos) — a meta de "204" acima está desatualizada (mesmo número desatualizado aparece em README.md); mantive o texto original e só registrei o número real aqui para não fazer suposição no meio da regra. -->
 - [02_BANCO_DE_DADOS_E_MIGRACOES.md](documentação%20viva/02_BANCO_DE_DADOS_E_MIGRACOES.md) — schema, RLS obrigatório em toda tabela nova (`ALTER TABLE ... ENABLE ROW LEVEL SECURITY`), convenções de migração.
 - [06_RUNBOOK_REPRODUCAO_DO_ZERO.md](documentação%20viva/06_RUNBOOK_REPRODUCAO_DO_ZERO.md) — como reconstruir o ambiente do zero.
 - [10_ANTI_FREEZE_E_MEMORIA_OPERACIONAL.md](documentação%20viva/10_ANTI_FREEZE_E_MEMORIA_OPERACIONAL.md) — regra de persistência frequente (commits atômicos, nunca acumular trabalho não salvo) e diagnóstico de instabilidade de hardware desta máquina.
