@@ -47,9 +47,10 @@ describe("ScaleSchema — as 44 escalas reais", () => {
     expect(() => validateScales(ALL_SCALES)).not.toThrow();
   });
 
-  it("AUDIT e AUDIT-C passam mesmo com options: [] — suas opções reais vivem em mapas externos "
-    + "(AUDIT_OPTIONS/AUDIT_C_OPTIONS) invisíveis ao tipo Scale; a checagem de soma total é pulada "
-    + "para essas duas escalas por não ser derivável, não porque os dados estejam errados",
+  it(
+    "AUDIT e AUDIT-C passam mesmo com options: [] — suas opções reais vivem em mapas externos " +
+      "(AUDIT_OPTIONS/AUDIT_C_OPTIONS) invisíveis ao tipo Scale; a checagem de soma total é pulada " +
+      "para essas duas escalas por não ser derivável, não porque os dados estejam errados",
     () => {
       const auditC = SCALE_BY_CODE["AUDIT-C"];
       const audit = SCALE_BY_CODE["AUDIT"];
@@ -60,8 +61,9 @@ describe("ScaleSchema — as 44 escalas reais", () => {
     },
   );
 
-  it("code duplicado entre ASSIST (ativo) e ASSIST_V0 (legado) é exceção documentada, "
-    + "não entra em ALL_SCALES/validateScales",
+  it(
+    "code duplicado entre ASSIST (ativo) e ASSIST_V0 (legado) é exceção documentada, " +
+      "não entra em ALL_SCALES/validateScales",
     () => {
       const codes = ALL_SCALES.map((s) => s.code);
       expect(codes.filter((c) => c === "ASSIST")).toHaveLength(1);
@@ -155,7 +157,9 @@ describe("ScaleSchema — invariantes rejeitam escala sintética inválida", () 
     expect(result.success).toBe(false);
     if (!result.success) {
       expect(
-        result.error.issues.some((i) => i.message.includes("riskItems referencia item inexistente")),
+        result.error.issues.some((i) =>
+          i.message.includes("riskItems referencia item inexistente"),
+        ),
       ).toBe(true);
     }
   });
@@ -182,9 +186,9 @@ describe("ScaleSchema — invariantes rejeitam escala sintética inválida", () 
     const result = ScaleSchema.safeParse(scale);
     expect(result.success).toBe(false);
     if (!result.success) {
-      expect(
-        result.error.issues.some((i) => i.message.includes("não tem pergunta-porta")),
-      ).toBe(true);
+      expect(result.error.issues.some((i) => i.message.includes("não tem pergunta-porta"))).toBe(
+        true,
+      );
     }
   });
 
@@ -214,9 +218,9 @@ describe("ScaleSchema — invariantes rejeitam escala sintética inválida", () 
     const result = ScaleSchema.safeParse(scale);
     expect(result.success).toBe(false);
     if (!result.success) {
-      expect(
-        result.error.issues.some((i) => i.message.includes("isGateway sem branchGroup")),
-      ).toBe(true);
+      expect(result.error.issues.some((i) => i.message.includes("isGateway sem branchGroup"))).toBe(
+        true,
+      );
     }
   });
 
@@ -275,7 +279,7 @@ describe("ScaleSchema — invariantes rejeitam escala sintética inválida", () 
     if (!result.success) {
       expect(
         result.error.issues.some((i) =>
-          i.message.includes("subescala \"SUB1\": bandas não cobrem 0..max contiguamente"),
+          i.message.includes('subescala "SUB1": bandas não cobrem 0..max contiguamente'),
         ),
       ).toBe(true);
     }
