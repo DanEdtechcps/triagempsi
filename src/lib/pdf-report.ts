@@ -1,5 +1,5 @@
 import { jsPDF } from "jspdf";
-import { BRANDING, type Branding } from "@/config/branding";
+import type { Branding } from "@/config/branding";
 import { getItemOptions, resolveScaleForAnswers, skippedItemIds } from "@/lib/scales-data";
 import { computeSubscores } from "@/lib/scoring";
 import { SYMPTOM_QUESTION } from "@/config/triage-tree";
@@ -276,7 +276,7 @@ function safeName(name: string) {
 }
 
 /** Relatório simplificado entregue ao paciente. Sem hipótese diagnóstica. */
-export function buildPatientPdf(data: PdfReportData, branding: Branding = BRANDING) {
+export function buildPatientPdf(data: PdfReportData, branding: Branding) {
   const b = new Doc(branding, "Resumo da sua pré-avaliação");
 
   b.field("Nome", data.respondent_name);
@@ -371,7 +371,7 @@ export function buildPatientPdf(data: PdfReportData, branding: Branding = BRANDI
 }
 
 /** Relatório completo para a equipe clínica / contratante. */
-export function buildClinicianPdf(data: PdfReportData, branding: Branding = BRANDING) {
+export function buildClinicianPdf(data: PdfReportData, branding: Branding) {
   const b = new Doc(branding, "Relatório de pré-triagem — uso clínico");
 
   if (data.riskPathway || data.riskFlags?.length) {
@@ -496,10 +496,10 @@ export function buildClinicianPdf(data: PdfReportData, branding: Branding = BRAN
   return b.finish(`${branding.disclaimer} Documento gerado para anexo ao prontuário.`);
 }
 
-export function downloadPatientPdf(data: PdfReportData, branding?: Branding) {
+export function downloadPatientPdf(data: PdfReportData, branding: Branding) {
   buildPatientPdf(data, branding).save(`pre-avaliacao-${safeName(data.respondent_name)}.pdf`);
 }
 
-export function downloadClinicianPdf(data: PdfReportData, branding?: Branding) {
+export function downloadClinicianPdf(data: PdfReportData, branding: Branding) {
   buildClinicianPdf(data, branding).save(`triagem-${safeName(data.respondent_name)}.pdf`);
 }

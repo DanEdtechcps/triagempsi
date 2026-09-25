@@ -3,6 +3,7 @@ import { z } from "zod";
 
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { requireGlobalAdmin } from "@/lib/admin-guard.server";
+import { LANDING_URL } from "@/lib/landing-meta";
 
 export type LandingSettings = {
   eyebrow: string;
@@ -120,7 +121,9 @@ export const uploadLandingImage = createServerFn({ method: "POST" })
       .upload(path, bytes, { contentType: data.contentType, upsert: true });
     if (error) throw new Error("Não foi possível enviar a imagem.");
 
-    const url = "https://triagemmedica.lovable.app/api/public/og-landing";
+    // Deriva de LANDING_URL (fonte única do domínio público, landing-meta.ts)
+    // em vez de duplicar o host aqui.
+    const url = new URL("/api/public/og-landing", LANDING_URL).toString();
     const id = await currentRowId();
     const { data: current } = await supabaseAdmin
       .from("landing_settings")

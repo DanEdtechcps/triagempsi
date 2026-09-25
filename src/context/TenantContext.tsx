@@ -60,9 +60,13 @@ export function TenantProvider({
     return clinics.find((c) => c.id === activeClinicId) ?? null;
   }, [clinics, activeClinicId]);
 
+  // Sem clínica ativa nem nenhuma clínica na lista (usuário sem vínculo
+  // algum): string vazia em vez de assumir uma clínica específica — ver
+  // achado #3 do ROADMAP_ESCALA_SAAS_2026-09-24.md sobre contaminação
+  // cruzada de branding entre clínicas.
   const activeSlug = useMemo(() => {
     if (activeClinic) return activeClinic.slug;
-    return clinics[0]?.slug ?? "saraiva";
+    return clinics[0]?.slug ?? "";
   }, [activeClinic, clinics]);
 
   const value = useMemo(

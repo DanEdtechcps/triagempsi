@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { BRANDING } from "@/config/branding";
 import { validateNewPassword, MIN_PASSWORD_LENGTH } from "@/lib/password";
 import { PasswordStrengthMeter } from "@/components/PasswordStrengthMeter";
 
@@ -149,7 +148,7 @@ function ResetPasswordPage() {
       <Card className="w-full max-w-md border-border bg-card p-6 sm:p-8">
         <h1 className="font-serif text-2xl font-semibold text-foreground">Definir nova senha</h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          {BRANDING.clinicName} — escolha uma senha com pelo menos 8 caracteres.
+          TriagemPsi — escolha uma senha com pelo menos 8 caracteres.
         </p>
 
         {!ready && <p className="mt-6 text-sm text-muted-foreground">Verificando o link…</p>}

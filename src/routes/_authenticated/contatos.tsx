@@ -16,7 +16,7 @@ import {
 } from "@/lib/contacts.functions";
 import { toE164BR, waLink } from "@/lib/phone";
 import { maskPhoneBR, isValidPhoneBR, isValidEmail } from "@/lib/masks";
-import { BRANDING } from "@/config/branding";
+import { GENERIC_BRANDING } from "@/config/branding";
 
 export const Route = createFileRoute("/_authenticated/contatos")({
   head: () => ({
@@ -114,7 +114,7 @@ function ContatosPage() {
       const inv = await makeInvite({ data: { contact_id: contactId } });
       const url = `${window.location.origin}/${inv.clinic_slug}/triagem?t=${inv.token}`;
       const body =
-        `Olá, ${inv.contact_name}! Aqui é da ${inv.clinic_name ?? BRANDING.clinicName}. ` +
+        `Olá, ${inv.contact_name}! Aqui é da ${inv.clinic_name ?? GENERIC_BRANDING.clinicName}. ` +
         `Antes da sua consulta, responda este questionário rápido de pré-avaliação (leva poucos minutos): ${url}\n\n` +
         `É confidencial e ajuda o médico a aproveitar melhor o tempo da consulta.`;
       window.open(waLink(inv.phone_e164, body), "_blank", "noopener");
