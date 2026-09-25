@@ -7,7 +7,15 @@
  * banco, `resolveBranding` usa `GENERIC_BRANDING` — genérico e seguro, sem
  * nome, CRM ou texto legal de nenhuma clínica real (achado #3 do
  * documentação viva/ROADMAP_ESCALA_SAAS_2026-09-24.md).
+ *
+ * Headline, cards de destaque, preset de fonte e imagem de hero da landing
+ * por clínica vêm de `clinics.landing_*` (migration
+ * 20260925110000_add_clinic_landing_customization_fields.sql) — antes disso
+ * eram hardcoded em src/routes/$slug.index.tsx, iguais para toda clínica.
  */
+import { z } from "zod";
+import type { FontPresetKey } from "@/config/font-presets";
+import type { Json } from "@/integrations/supabase/types";
 
 export type Branding = {
   clinicSlug: string;
@@ -37,7 +45,20 @@ export type Branding = {
     samuPhone: string;
     message: string;
   };
+  /** Título principal da landing pública (H1) */
+  landingHeadline: string;
+  /** Preset de fonte (heading+body) aplicado via ClinicTheme */
+  landingFontPreset: FontPresetKey;
+  /** Cards de destaque da landing pública, de 2 a 5 itens */
+  featureCards: { title: string; description: string }[];
+  /** Imagem de destaque opcional ao lado do hero da landing */
+  heroImageUrl: string | null;
 };
+
+const FeatureCardSchema = z
+  .array(z.object({ title: z.string().min(1), description: z.string().min(1) }))
+  .min(2)
+  .max(5);
 
 /** Cores neutras do design system — nunca a cor de uma clínica específica. */
 const NEUTRAL_PRIMARY_COLOR = "#334155"; // slate-700
@@ -89,6 +110,23 @@ export const GENERIC_BRANDING: Branding = {
     samuPhone: "192",
     message: GENERIC_EMERGENCY_MESSAGE,
   },
+  landingHeadline: "Uma primeira consulta mais produtiva começa aqui.",
+  landingFontPreset: "default",
+  featureCards: [
+    {
+      title: "Confidencial",
+      description: "Suas respostas ficam disponíveis apenas para a equipe clínica responsável.",
+    },
+    {
+      title: "Instrumentos validados",
+      description: "Escalas de rastreio reconhecidas, abertas conforme o que você relatar.",
+    },
+    {
+      title: "No seu tempo",
+      description: "Responda pelo celular, no seu ritmo. Se parar, retomamos de onde ficou.",
+    },
+  ],
+  heroImageUrl: null,
 };
 
 /** Shape dos campos de branding vindos da tabela `clinics`. */
@@ -111,6 +149,10 @@ export type ClinicBrandingRow = Partial<{
   disclaimer: string | null;
   consent_copy: string | null;
   emergency_message: string | null;
+  landing_headline: string | null;
+  landing_font_preset: string | null;
+  landing_feature_cards: Json | null;
+  landing_hero_image_url: string | null;
 }>;
 
 /** Monta o branding inteiramente a partir dos dados da clínica vindos do banco. */
@@ -138,7 +180,23 @@ export function resolveBranding(clinic?: ClinicBrandingRow | null): Branding {
       ...GENERIC_BRANDING.emergency,
       message: clinic.emergency_message ?? GENERIC_BRANDING.emergency.message,
     },
+    landingHeadline: clinic.landing_headline ?? GENERIC_BRANDING.landingHeadline,
+    landingFontPreset:
+      (clinic.landing_font_preset as FontPresetKey | null) ?? GENERIC_BRANDING.landingFontPreset,
+    featureCards: resolveFeatureCards(clinic.landing_feature_cards),
+    heroImageUrl: clinic.landing_hero_image_url ?? GENERIC_BRANDING.heroImageUrl,
   };
+}
+
+/**
+ * `landing_feature_cards` chega do banco como jsonb (tipo `unknown`). Um
+ * valor malformado não pode quebrar a landing pública — cai no fallback
+ * genérico em vez de propagar o erro.
+ */
+function resolveFeatureCards(raw: unknown): Branding["featureCards"] {
+  if (raw == null) return GENERIC_BRANDING.featureCards;
+  const parsed = FeatureCardSchema.safeParse(raw);
+  return parsed.success ? parsed.data : GENERIC_BRANDING.featureCards;
 }
 
 /**

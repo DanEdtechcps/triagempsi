@@ -30,6 +30,13 @@ describe("resolveBranding", () => {
     expect(branding.doctorName).not.toBe("Dr. Gustavo Mello");
     expect(branding.primaryColor).not.toBe("#1e4d5c"); // cor da Saraiva
     expect(branding.primaryColor).not.toBe("#4c1d95"); // cor da Lumina
+
+    // Landing: headline/cards/fonte/hero também caem no fallback genérico —
+    // era o que $slug.index.tsx hardcodava antes de vir do banco.
+    expect(branding.landingHeadline).toBe(GENERIC_BRANDING.landingHeadline);
+    expect(branding.landingFontPreset).toBe("default");
+    expect(branding.featureCards).toEqual(GENERIC_BRANDING.featureCards);
+    expect(branding.heroImageUrl).toBeNull();
   });
 
   it("CVV e SAMU são sempre os números nacionais fixos, independente da clínica", () => {
@@ -129,5 +136,50 @@ describe("resolveBranding", () => {
     expect(branding.consentCopy).toBe(GENERIC_BRANDING.consentCopy);
     expect(branding.doctorName).not.toBe("Dr. José Ribamar Fernandes Saraiva Junior");
     expect(branding.primaryColor).not.toBe("#1e4d5c");
+  });
+
+  it("usa headline, cards de destaque, preset de fonte e hero image customizados quando presentes", () => {
+    const branding = resolveBranding({
+      slug: "clinica-nova",
+      name: "Clínica Nova",
+      landing_headline: "Cuidado psiquiátrico sem espera.",
+      landing_font_preset: "modern-sans",
+      landing_feature_cards: [
+        { title: "Card A", description: "Descrição A" },
+        { title: "Card B", description: "Descrição B" },
+      ],
+      landing_hero_image_url: "https://cdn.exemplo.com/hero.jpg",
+    });
+
+    expect(branding.landingHeadline).toBe("Cuidado psiquiátrico sem espera.");
+    expect(branding.landingFontPreset).toBe("modern-sans");
+    expect(branding.featureCards).toEqual([
+      { title: "Card A", description: "Descrição A" },
+      { title: "Card B", description: "Descrição B" },
+    ]);
+    expect(branding.heroImageUrl).toBe("https://cdn.exemplo.com/hero.jpg");
+  });
+
+  it("cai no fallback genérico de featureCards quando o jsonb do banco está malformado (não quebra a landing pública)", () => {
+    const menosDeDoisItens = resolveBranding({
+      slug: "clinica-nova",
+      name: "Clínica Nova",
+      landing_feature_cards: [{ title: "Só um card", description: "Menos que o mínimo de 2" }],
+    });
+    expect(menosDeDoisItens.featureCards).toEqual(GENERIC_BRANDING.featureCards);
+
+    const formatoErrado = resolveBranding({
+      slug: "clinica-nova",
+      name: "Clínica Nova",
+      landing_feature_cards: { isto: "não é um array" },
+    });
+    expect(formatoErrado.featureCards).toEqual(GENERIC_BRANDING.featureCards);
+
+    const itemSemDescricao = resolveBranding({
+      slug: "clinica-nova",
+      name: "Clínica Nova",
+      landing_feature_cards: [{ title: "A" }, { title: "B" }],
+    });
+    expect(itemSemDescricao.featureCards).toEqual(GENERIC_BRANDING.featureCards);
   });
 });

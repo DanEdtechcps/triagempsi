@@ -39,6 +39,7 @@ import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/
 import { Route as SlugTriagemRouteImport } from './routes/$slug.triagem'
 import { Route as AuthenticatedPainelIndexRouteImport } from './routes/_authenticated/painel.index'
 import { Route as ApiPublicOgLandingRouteImport } from './routes/api/public/og-landing'
+import { Route as ApiPublicClinicAssetRouteImport } from './routes/api/public/clinic-asset'
 import { Route as AuthenticatedPainelIdRouteImport } from './routes/_authenticated/painel.$id'
 
 const TriagemRoute = TriagemRouteImport.update({
@@ -195,6 +196,11 @@ const ApiPublicOgLandingRoute = ApiPublicOgLandingRouteImport.update({
   path: '/api/public/og-landing',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicClinicAssetRoute = ApiPublicClinicAssetRouteImport.update({
+  id: '/api/public/clinic-asset',
+  path: '/api/public/clinic-asset',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedPainelIdRoute = AuthenticatedPainelIdRouteImport.update({
   id: '/painel/$id',
   path: '/painel/$id',
@@ -230,6 +236,7 @@ export interface FileRoutesByFullPath {
   '/senha': typeof AuthenticatedSenhaRoute
   '/$slug/': typeof SlugIndexRoute
   '/painel/$id': typeof AuthenticatedPainelIdRoute
+  '/api/public/clinic-asset': typeof ApiPublicClinicAssetRoute
   '/api/public/og-landing': typeof ApiPublicOgLandingRoute
   '/painel/': typeof AuthenticatedPainelIndexRoute
 }
@@ -261,6 +268,7 @@ export interface FileRoutesByTo {
   '/senha': typeof AuthenticatedSenhaRoute
   '/$slug': typeof SlugIndexRoute
   '/painel/$id': typeof AuthenticatedPainelIdRoute
+  '/api/public/clinic-asset': typeof ApiPublicClinicAssetRoute
   '/api/public/og-landing': typeof ApiPublicOgLandingRoute
   '/painel': typeof AuthenticatedPainelIndexRoute
 }
@@ -295,6 +303,7 @@ export interface FileRoutesById {
   '/_authenticated/senha': typeof AuthenticatedSenhaRoute
   '/$slug/': typeof SlugIndexRoute
   '/_authenticated/painel/$id': typeof AuthenticatedPainelIdRoute
+  '/api/public/clinic-asset': typeof ApiPublicClinicAssetRoute
   '/api/public/og-landing': typeof ApiPublicOgLandingRoute
   '/_authenticated/painel/': typeof AuthenticatedPainelIndexRoute
 }
@@ -329,6 +338,7 @@ export interface FileRouteTypes {
     | '/senha'
     | '/$slug/'
     | '/painel/$id'
+    | '/api/public/clinic-asset'
     | '/api/public/og-landing'
     | '/painel/'
   fileRoutesByTo: FileRoutesByTo
@@ -360,6 +370,7 @@ export interface FileRouteTypes {
     | '/senha'
     | '/$slug'
     | '/painel/$id'
+    | '/api/public/clinic-asset'
     | '/api/public/og-landing'
     | '/painel'
   id:
@@ -393,6 +404,7 @@ export interface FileRouteTypes {
     | '/_authenticated/senha'
     | '/$slug/'
     | '/_authenticated/painel/$id'
+    | '/api/public/clinic-asset'
     | '/api/public/og-landing'
     | '/_authenticated/painel/'
   fileRoutesById: FileRoutesById
@@ -407,6 +419,7 @@ export interface RootRouteChildren {
   PrimeiroAcessoRoute: typeof PrimeiroAcessoRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   TriagemRoute: typeof TriagemRoute
+  ApiPublicClinicAssetRoute: typeof ApiPublicClinicAssetRoute
   ApiPublicOgLandingRoute: typeof ApiPublicOgLandingRoute
 }
 
@@ -622,6 +635,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicOgLandingRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/clinic-asset': {
+      id: '/api/public/clinic-asset'
+      path: '/api/public/clinic-asset'
+      fullPath: '/api/public/clinic-asset'
+      preLoaderRoute: typeof ApiPublicClinicAssetRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/painel/$id': {
       id: '/_authenticated/painel/$id'
       path: '/painel/$id'
@@ -701,6 +721,7 @@ const rootRouteChildren: RootRouteChildren = {
   PrimeiroAcessoRoute: PrimeiroAcessoRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   TriagemRoute: TriagemRoute,
+  ApiPublicClinicAssetRoute: ApiPublicClinicAssetRoute,
   ApiPublicOgLandingRoute: ApiPublicOgLandingRoute,
 }
 export const routeTree = rootRouteImport

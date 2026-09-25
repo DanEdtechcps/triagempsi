@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { requireGlobalAdmin } from "@/lib/admin-guard.server";
+import type { Json } from "@/integrations/supabase/types";
 
 export type AdminClinic = {
   id: string;
@@ -15,6 +16,22 @@ export type AdminClinic = {
   is_active: boolean;
   created_at: string;
   staff_count: number;
+  // Campos de branding/landing por clínica — só existiam via SQL manual até
+  // agora (ver updateClinicAdmin abaixo). Expostos aqui para a UI de edição.
+  short_tagline: string | null;
+  doctor_name: string | null;
+  doctor_credentials: string | null;
+  city: string | null;
+  website_url: string | null;
+  logo_url: string | null;
+  about: string | null;
+  intro_copy: string | null;
+  done_copy: string | null;
+  disclaimer: string | null;
+  landing_headline: string | null;
+  landing_font_preset: string;
+  landing_feature_cards: Json | null;
+  landing_hero_image_url: string | null;
 };
 
 export type AdminStaff = {
@@ -37,7 +54,7 @@ export const listClinicsAdmin = createServerFn({ method: "GET" })
       supabaseAdmin
         .from("clinics")
         .select(
-          "id, slug, name, tagline, contact_email, contact_phone, primary_color, accent_color, is_active, created_at",
+          "id, slug, name, tagline, contact_email, contact_phone, primary_color, accent_color, is_active, created_at, short_tagline, doctor_name, doctor_credentials, city, website_url, logo_url, about, intro_copy, done_copy, disclaimer, landing_headline, landing_font_preset, landing_feature_cards, landing_hero_image_url",
         )
         .order("created_at", { ascending: false }),
       supabaseAdmin.from("user_roles").select("clinic_id"),
@@ -190,6 +207,154 @@ export const setClinicActiveAdmin = createServerFn({ method: "POST" })
       details: { is_active: data.is_active },
     });
     return { ok: true };
+  });
+
+const FeatureCardInputSchema = z
+  .object({
+    title: z.string().trim().min(1).max(60),
+    description: z.string().trim().min(1).max(160),
+  })
+  .array()
+  .min(2)
+  .max(5);
+
+// Logo/hero image aceitam URL absoluta OU path relativo começando com "/"
+// — é o formato devolvido por uploadClinicAsset
+// (/api/public/clinic-asset?path=...), já que o bucket é privado e não tem
+// getPublicUrl válida pro visitante anônimo da landing.
+const OptionalAssetUrlSchema = z
+  .string()
+  .trim()
+  .max(500)
+  .refine((v) => v === "" || v.startsWith("/") || /^https?:\/\//.test(v), {
+    message: "Informe uma URL válida.",
+  })
+  .optional()
+  .nullable()
+  .or(z.literal(""));
+// website_url é sempre um site externo — exige URL absoluta de verdade.
+const OptionalUrlSchema = z.string().trim().url().max(300).optional().nullable().or(z.literal(""));
+const OptionalTextSchema = (max: number) => z.string().trim().max(max).optional().nullable();
+
+/**
+ * Edita as características de uma clínica já criada — cor, fonte, logo,
+ * textos da jornada e da landing pública. Antes desta função, os únicos
+ * caminhos de escrita em `clinics` eram a criação (createClinicAdmin) e o
+ * toggle de ativo/inativo (setClinicActiveAdmin); qualquer outro campo só
+ * mudava via SQL/migration manual. Slug e nome de rota ficam de fora do
+ * schema de propósito — trocar o slug quebraria links de `/$slug` já
+ * distribuídos às clínicas.
+ */
+export const updateClinicAdmin = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((raw: unknown) =>
+    z
+      .object({
+        id: z.string().uuid(),
+        name: z.string().trim().min(2).max(120),
+        tagline: OptionalTextSchema(160),
+        short_tagline: OptionalTextSchema(120),
+        doctor_name: OptionalTextSchema(120),
+        doctor_credentials: OptionalTextSchema(160),
+        city: OptionalTextSchema(80),
+        contact_email: z.string().trim().email().max(200).optional().nullable().or(z.literal("")),
+        contact_phone: OptionalTextSchema(40),
+        website_url: OptionalUrlSchema,
+        primary_color: ColorSchema,
+        accent_color: ColorSchema,
+        logo_url: OptionalAssetUrlSchema,
+        about: OptionalTextSchema(2000),
+        intro_copy: OptionalTextSchema(2000),
+        done_copy: OptionalTextSchema(2000),
+        // NOT NULL no banco (migration 20260925100000) — nunca pode virar
+        // null aqui, só ficar com o texto genérico se o admin não trocar.
+        disclaimer: z.string().trim().min(1).max(2000),
+        landing_headline: OptionalTextSchema(160),
+        landing_font_preset: z.enum([
+          "default",
+          "editorial-serif",
+          "modern-sans",
+          "warm-humanist",
+          "bold-grotesk",
+        ]),
+        landing_feature_cards: FeatureCardInputSchema,
+        landing_hero_image_url: OptionalAssetUrlSchema,
+      })
+      .parse(raw),
+  )
+  .handler(async ({ data, context }) => {
+    await requireGlobalAdmin(context.supabase, context.userId);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { id, ...fields } = data;
+    const { error } = await supabaseAdmin
+      .from("clinics")
+      .update({
+        ...fields,
+        contact_email: fields.contact_email || null,
+        website_url: fields.website_url || null,
+        logo_url: fields.logo_url || null,
+        landing_hero_image_url: fields.landing_hero_image_url || null,
+      })
+      .eq("id", id);
+    if (error) {
+      console.error("updateClinicAdmin", error);
+      throw new Error("Não foi possível salvar as alterações do consultório.");
+    }
+
+    const { recordAudit } = await import("@/lib/audit.server");
+    await recordAudit({
+      action: "clinic_updated",
+      clinicId: id,
+      actorUserId: context.userId,
+      actorEmail: (context.claims as { email?: string })?.email ?? null,
+      entityType: "clinic",
+      entityId: id,
+      details: { fields: Object.keys(fields) },
+    });
+    return { ok: true };
+  });
+
+const assetUploadSchema = z.object({
+  clinic_id: z.string().uuid(),
+  /** Prefixo de path dentro do bucket — mantém logo e hero image separados. */
+  kind: z.enum(["logos", "hero"]),
+  fileName: z.string().trim().min(1).max(200),
+  contentType: z.enum(["image/jpeg", "image/png", "image/webp"]),
+  /** Conteúdo do arquivo em base64 (sem prefixo data:). */
+  base64: z.string().min(16).max(9_000_000),
+});
+
+/**
+ * Sobe o logo (ou imagem de hero) de uma clínica pro bucket Storage
+ * `landing` — mesmo bucket já usado por uploadLandingImage para a imagem OG
+ * da landing comercial (policies checam só o papel de admin global, não o
+ * prefixo do path, então não precisa de storage policy nova). O bucket é
+ * PRIVADO (ver comentário em src/routes/api/public/og-landing.ts) — por
+ * isso a URL devolvida aponta para a rota proxy pública
+ * `/api/public/clinic-asset`, nunca para `getPublicUrl` (que 403aria pro
+ * visitante anônimo da landing).
+ */
+export const uploadClinicAsset = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((raw: unknown) => assetUploadSchema.parse(raw))
+  .handler(async ({ data, context }): Promise<{ url: string }> => {
+    await requireGlobalAdmin(context.supabase, context.userId);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const bytes = Buffer.from(data.base64, "base64");
+    if (bytes.byteLength > 5_000_000) {
+      throw new Error("A imagem precisa ter no máximo 5 MB.");
+    }
+    const ext =
+      data.contentType === "image/png" ? "png" : data.contentType === "image/webp" ? "webp" : "jpg";
+    const path = `${data.kind}/${data.clinic_id}-${Date.now()}.${ext}`;
+
+    const { error: uploadError } = await supabaseAdmin.storage
+      .from("landing")
+      .upload(path, bytes, { contentType: data.contentType, upsert: true });
+    if (uploadError) throw new Error("Não foi possível enviar a imagem.");
+
+    return { url: `/api/public/clinic-asset?path=${encodeURIComponent(path)}` };
   });
 
 export type StaffLimitSubscription = {
