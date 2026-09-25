@@ -235,7 +235,19 @@ export function evaluateStaffLimit(params: {
     };
   }
 
-  if (subscription.status === "cancelada" || subscription.maxProfessionals == null) {
+  // "cancelada" bloqueia sempre, mesmo em plano sem limite de profissionais
+  // (maxProfessionals null) — checar isso ANTES do maxProfessionals é
+  // essencial: a ordem invertida foi um bug real (achado do roadmap #3)
+  // que permitia vínculos ilimitados numa assinatura cancelada.
+  if (subscription.status === "cancelada") {
+    return {
+      allowed: false,
+      reason:
+        "A assinatura deste consultório está cancelada. Reative o plano na área Comercial para adicionar profissionais.",
+    };
+  }
+
+  if (subscription.maxProfessionals == null) {
     return { allowed: true };
   }
 
@@ -286,21 +298,13 @@ export const addStaffAdmin = createServerFn({ method: "POST" })
           }
         : null;
 
-      let currentDistinctStaffCount = 0;
-      if (
-        !subError &&
-        subscription &&
-        subscription.status !== "cancelada" &&
-        subscription.maxProfessionals != null
-      ) {
-        const { data: staffRows } = await supabaseAdmin
-          .from("user_roles")
-          .select("user_id")
-          .eq("clinic_id", data.clinic_id);
-        currentDistinctStaffCount = new Set(
-          ((staffRows ?? []) as { user_id: string }[]).map((r) => r.user_id),
-        ).size;
-      }
+      const { data: staffRows } = await supabaseAdmin
+        .from("user_roles")
+        .select("user_id")
+        .eq("clinic_id", data.clinic_id);
+      const currentDistinctStaffCount = new Set(
+        ((staffRows ?? []) as { user_id: string }[]).map((r) => r.user_id),
+      ).size;
 
       const decision = evaluateStaffLimit({
         subscriptionQueryFailed: !!subError,
