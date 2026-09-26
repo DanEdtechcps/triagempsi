@@ -26,6 +26,21 @@ pip install -r requirements.txt
 cp .env.example .env   # preencher DATABASE_URL/RUNNER_TOKEN reais
 ```
 
+Se `python3 -m venv .venv && pip install ...` numa linha só der
+`externally-managed-environment` (Ubuntu 24.04+/PEP 668), é porque o `pip`
+rodou fora do venv — usar `.venv/bin/pip install -r requirements.txt`
+direto, ou lembrar de `source .venv/bin/activate` antes.
+
+**`DATABASE_URL` precisa usar o connection pooler, não o host direto.** O
+host direto (`db.<ref>.supabase.co`) só resolve em IPv6 — a maioria das
+redes domésticas/ISP não tem saída IPv6 e a conexão trava em
+"Connection timed out" (visto em produção 2026-09-26). Usar o pooler
+(IPv4), com o usuário no formato `<role>.<project_ref>` (o pooler recusa
+com `ENOIDENTIFIER` se faltar o sufixo do projeto):
+```
+postgresql://psychoeducation_runner.ffyjjkouscnabyxjxexu:<senha>@aws-0-us-west-2.pooler.supabase.com:5432/postgres
+```
+
 As credenciais reais (`DATABASE_URL` com a senha da role
 `psychoeducation_runner`, `RUNNER_TOKEN`) foram geradas e configuradas nesta
 sessão — conferir com quem rodou a implementação se precisar delas de novo

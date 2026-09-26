@@ -8,7 +8,7 @@ import { z } from "zod";
  *
  * Por quê existe: a role de banco dedicada do runner
  * (`psychoeducation_runner`, ver migração
- * 20260926044909_psychoeducation_runner_role_and_media_bucket.sql) só fala
+ * 20260927020000_psychoeducation_runner_role_and_media_bucket.sql) só fala
  * Postgres direto — não consegue chamar a API HTTP do Supabase Storage
  * (que exige um JWT com claim de role reconhecido pelo PostgREST/Storage,
  * não uma credencial de Postgres). Em vez de dar `service_role` ao runner
@@ -81,12 +81,17 @@ export const Route = createFileRoute("/api/internal/psychoeducation-media-upload
         }
 
         const mediaUrl = `/api/public/psychoeducation-asset?path=${encodeURIComponent(path)}`;
-        const { error: assetError } = await supabaseAdmin.from("psychoeducation_generated_assets").upsert(
-          { job_id: data.job_id, kind: data.kind, media_url: mediaUrl },
-          { onConflict: "job_id, kind" },
-        );
+        const { error: assetError } = await supabaseAdmin
+          .from("psychoeducation_generated_assets")
+          .upsert(
+            { job_id: data.job_id, kind: data.kind, media_url: mediaUrl },
+            { onConflict: "job_id, kind" },
+          );
         if (assetError) {
-          return Response.json({ error: "Upload ok, mas falhou ao registrar o asset." }, { status: 500 });
+          return Response.json(
+            { error: "Upload ok, mas falhou ao registrar o asset." },
+            { status: 500 },
+          );
         }
 
         return Response.json({ ok: true, media_url: mediaUrl });
