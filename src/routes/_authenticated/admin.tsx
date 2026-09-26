@@ -9,6 +9,7 @@ import { Stat } from "@/components/admin/Stat";
 import { ColorField } from "@/components/admin/ColorField";
 import { DoctorProfilesCard } from "@/components/admin/DoctorProfilesCard";
 import { ClinicEditDialog } from "@/components/admin/ClinicEditDialog";
+import { ManagerAccessDialog } from "@/components/admin/ManagerAccessDialog";
 
 import { isAccessDenied, accessDeniedMessage } from "@/lib/access-error";
 import { Button } from "@/components/ui/button";
@@ -28,6 +29,7 @@ import {
   Pencil,
   Plus,
   Trash2,
+  UserPlus,
   Users,
 } from "lucide-react";
 import {
@@ -102,6 +104,10 @@ function AdminPage() {
   const [contactPhone, setContactPhone] = useState("");
   const [primary, setPrimary] = useState("#0f766e");
   const [accent, setAccent] = useState("#ccfbf1");
+  const [planCode, setPlanCode] = useState<"consultorio" | "clinica" | "instituicao">(
+    "consultorio",
+  );
+  const [subscriptionStatus, setSubscriptionStatus] = useState<"trial" | "ativa">("trial");
   const [savingClinic, setSavingClinic] = useState(false);
   const [clinicMsg, setClinicMsg] = useState<string | null>(null);
   const [novoConsultorioAberto, setNovoConsultorioAberto] = useState(false);
@@ -116,6 +122,7 @@ function AdminPage() {
 
   const [copiadoId, setCopiadoId] = useState<string | null>(null);
   const [editingClinicId, setEditingClinicId] = useState<string | null>(null);
+  const [managerAccessClinicId, setManagerAccessClinicId] = useState<string | null>(null);
 
   const list = clinics.data ?? [];
   const activeCount = useMemo(() => list.filter((c) => c.is_active).length, [list]);
@@ -149,6 +156,8 @@ function AdminPage() {
           contact_phone: contactPhone.trim() || null,
           primary_color: primary,
           accent_color: accent,
+          plan_code: planCode,
+          subscription_status: subscriptionStatus,
         },
       });
       setName("");
@@ -157,6 +166,8 @@ function AdminPage() {
       setTagline("");
       setContactEmail("");
       setContactPhone("");
+      setPlanCode("consultorio");
+      setSubscriptionStatus("trial");
       setClinicMsg("Consultório cadastrado com sucesso!");
       setNovoConsultorioAberto(false);
       await queryClient.invalidateQueries({ queryKey: ["admin-clinics"] });
@@ -415,6 +426,41 @@ function AdminPage() {
                   </div>
                 </div>
 
+                {/* Plano e status da assinatura contratada */}
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <div className="space-y-1.5">
+                    <Label htmlFor="c-plan" className="text-xs">
+                      Plano contratado
+                    </Label>
+                    <select
+                      id="c-plan"
+                      value={planCode}
+                      onChange={(e) => setPlanCode(e.target.value as typeof planCode)}
+                      className="h-10 w-full rounded-xl border border-input bg-background px-3 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+                    >
+                      <option value="consultorio">Consultório — R$ 890/mês</option>
+                      <option value="clinica">Clínica — R$ 2.400/mês</option>
+                      <option value="instituicao">Instituição — sob consulta</option>
+                    </select>
+                  </div>
+                  <div className="space-y-1.5">
+                    <Label htmlFor="c-status" className="text-xs">
+                      Status da assinatura
+                    </Label>
+                    <select
+                      id="c-status"
+                      value={subscriptionStatus}
+                      onChange={(e) =>
+                        setSubscriptionStatus(e.target.value as typeof subscriptionStatus)
+                      }
+                      className="h-10 w-full rounded-xl border border-input bg-background px-3 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
+                    >
+                      <option value="trial">Período de teste (30 dias)</option>
+                      <option value="ativa">Assinatura ativa (já contratado)</option>
+                    </select>
+                  </div>
+                </div>
+
                 {/* Seletor com Presets de Cores */}
                 <div className="space-y-2">
                   <Label className="text-xs">Paleta de cores recomendada</Label>
@@ -532,6 +578,11 @@ function AdminPage() {
                                 >
                                   {c.is_active ? "Ativo" : "Inativo"}
                                 </span>
+                                {c.staff_count === 0 && (
+                                  <span className="rounded-full border border-amber-500/30 bg-amber-500/10 px-2 py-0.5 text-[10px] font-medium text-amber-700 shrink-0 dark:text-amber-400">
+                                    Sem acesso criado
+                                  </span>
+                                )}
                               </div>
                               <p className="truncate text-xs text-muted-foreground mt-0.5 font-mono">
                                 /{c.slug} · {c.staff_count} profissional(is)
@@ -545,6 +596,18 @@ function AdminPage() {
                           </div>
                         </div>
 
+                        {c.staff_count === 0 && (
+                          <Button
+                            type="button"
+                            size="sm"
+                            onClick={() => setManagerAccessClinicId(c.id)}
+                            className="mt-3 min-h-10 w-full gap-1.5 text-xs font-medium"
+                          >
+                            <UserPlus className="h-3.5 w-3.5" />
+                            Criar acesso do gestor
+                          </Button>
+                        )}
+
                         <div className="mt-4 flex flex-col gap-2 pt-2 border-t border-border/60 sm:flex-row sm:items-center">
                           <Button
                             variant="outline"
@@ -555,6 +618,17 @@ function AdminPage() {
                             <Pencil className="h-3.5 w-3.5" />
                             Editar
                           </Button>
+                          {c.staff_count > 0 && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => setManagerAccessClinicId(c.id)}
+                              className="min-h-10 flex-1 gap-1.5 text-xs font-medium"
+                            >
+                              <UserPlus className="h-3.5 w-3.5" />
+                              Novo acesso
+                            </Button>
+                          )}
                           <Button
                             variant="outline"
                             size="sm"
@@ -606,6 +680,11 @@ function AdminPage() {
                         clinic={c}
                         open={editingClinicId === c.id}
                         onOpenChange={(open) => setEditingClinicId(open ? c.id : null)}
+                      />
+                      <ManagerAccessDialog
+                        clinic={c}
+                        open={managerAccessClinicId === c.id}
+                        onOpenChange={(open) => setManagerAccessClinicId(open ? c.id : null)}
                       />
                     </StaggerItem>
                   ))}
@@ -691,8 +770,18 @@ function AdminPage() {
                   >
                     <option value="doctor">Médico(a)</option>
                     <option value="staff">Equipe de Apoio / Recepção</option>
-                    <option value="admin">Administrador Geral</option>
+                    <option value="admin">
+                      {staffClinic
+                        ? "Gestor(a) deste consultório"
+                        : "Administrador Geral da plataforma (todas as clínicas)"}
+                    </option>
                   </select>
+                  {staffRole === "admin" && !staffClinic && (
+                    <p className="text-[11px] text-amber-700 dark:text-amber-400">
+                      Acesso irrestrito a todas as clínicas — para o gestor de UM consultório só,
+                      selecione o consultório acima antes de escolher este papel.
+                    </p>
+                  )}
                 </div>
 
                 <div className="space-y-1.5">
