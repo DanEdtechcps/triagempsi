@@ -119,7 +119,14 @@ const requestSchema = z
     clinic_id: z.string().uuid().nullable().optional(),
     topic_id: z.string().uuid().nullable().optional(),
     topic_title_draft: z.string().trim().min(3).max(160).nullable().optional(),
-    source_material: z.string().trim().min(50).max(20_000),
+    // Sem limite máximo de propósito (pedido explícito) — material muito
+    // grande estourar o contexto do modelo é um problema do lado da
+    // geração (vira status "erro" no job com a mensagem real), não algo
+    // que a validação de entrada deva bloquear preventivamente.
+    source_material: z
+      .string()
+      .trim()
+      .min(50, { message: "O material precisa ter pelo menos 50 caracteres." }),
     confirmed_no_patient_data: z.literal(true, {
       errorMap: () => ({
         message: "É preciso confirmar que o material não contém dado de paciente.",
@@ -132,6 +139,31 @@ const requestSchema = z
     message: "Escolha um tópico existente ou informe o título de um tópico novo.",
     path: ["topic_id"],
   });
+
+/**
+ * Extrai uma mensagem legível de um erro de server function.
+ *
+ * O `inputValidator` usa `schema.parse(raw)` (mesmo padrão de
+ * `admin.functions.ts`), e quando a validação falha o `.message` do erro que
+ * chega ao cliente é o JSON bruto dos issues do Zod (ex.:
+ * `[{"code":"too_big","message":"...",...}]`) — ilegível para o usuário
+ * final. Detecta esse formato e mostra só as mensagens; senão, devolve a
+ * mensagem original (ou um texto genérico).
+ */
+export function humanizeServerFnError(err: unknown): string {
+  const raw = err instanceof Error ? err.message : String(err ?? "");
+  const trimmed = raw.trim();
+  if (trimmed.startsWith("[")) {
+    try {
+      const issues = JSON.parse(trimmed) as Array<{ message?: string }>;
+      const messages = issues.map((i) => i.message).filter((m): m is string => Boolean(m));
+      if (messages.length > 0) return messages.join(" ");
+    } catch {
+      // não era JSON de issues do Zod — cai no retorno padrão abaixo
+    }
+  }
+  return raw || "Não foi possível concluir a operação.";
+}
 
 export type PsychoeducationGenerationJob = {
   id: string;
