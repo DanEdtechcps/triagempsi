@@ -28,6 +28,7 @@ import {
   MEDIA_FORMATS,
   type TextFormat,
   type MediaFormat,
+  type PsychoeducationGeneratedAsset,
 } from "@/lib/psychoeducation-generation.functions";
 
 const FORMAT_LABEL: Record<TextFormat | MediaFormat, string> = {
@@ -404,28 +405,9 @@ export function PsychoeducationGenerationPanel() {
               )}
 
               {expandedJobId === job.id && expandedAssets && (
-                <div className="mt-2 space-y-2 border-t border-border pt-2">
+                <div className="mt-2 space-y-3 border-t border-border pt-3">
                   {expandedAssets.map((asset) => (
-                    <div key={asset.id} className="rounded border border-border/60 bg-muted/30 p-2">
-                      <div className="text-[10px] font-semibold uppercase text-muted-foreground">
-                        {asset.kind}
-                      </div>
-                      {asset.body_md && (
-                        <p className="mt-1 whitespace-pre-line text-[11px] text-foreground/90">
-                          {asset.body_md}
-                        </p>
-                      )}
-                      {asset.data_json != null && (
-                        <pre className="mt-1 max-h-40 overflow-auto text-[10px] text-foreground/80">
-                          {JSON.stringify(asset.data_json, null, 2)}
-                        </pre>
-                      )}
-                      {asset.media_url && (
-                        <p className="mt-1 text-[11px] text-muted-foreground">
-                          Mídia: {asset.media_url}
-                        </p>
-                      )}
-                    </div>
+                    <AssetPreview key={asset.id} asset={asset} />
                   ))}
                 </div>
               )}
@@ -434,5 +416,131 @@ export function PsychoeducationGenerationPanel() {
         </div>
       </div>
     </Card>
+  );
+}
+
+type QuizItem = {
+  question: string;
+  options: string[];
+  correct_index: number;
+  explanation?: string;
+};
+type FlashcardItem = { front: string; back: string };
+
+function isQuizItem(v: unknown): v is QuizItem {
+  return (
+    Boolean(v) &&
+    typeof v === "object" &&
+    "question" in (v as object) &&
+    "options" in (v as object)
+  );
+}
+function isFlashcardItem(v: unknown): v is FlashcardItem {
+  return Boolean(v) && typeof v === "object" && "front" in (v as object) && "back" in (v as object);
+}
+
+/**
+ * Prévia de um asset gerado, no formato mais próximo do que o paciente veria
+ * — não o JSON cru. "leitura" já é exatamente o texto que vai pro paciente
+ * (vira psychoeducation_contents.body_md na aprovação); quiz/flashcards
+ * ainda NÃO têm tela própria no portal do paciente (só a leitura é
+ * publicada hoje), então esta prévia é um adiantamento de como ficariam,
+ * não uma garantia de como aparecerão — ver nota abaixo do card.
+ */
+function AssetPreview({ asset }: { asset: PsychoeducationGeneratedAsset }) {
+  const kindLabel = FORMAT_LABEL[asset.kind as TextFormat | MediaFormat] ?? asset.kind;
+
+  if (asset.kind === "leitura" && asset.body_md) {
+    return (
+      <div className="rounded-xl border border-border bg-card/60 p-4">
+        <PreviewLabel text={`Prévia — ${kindLabel} (como o paciente vai ler)`} />
+        <div className="prose prose-sm dark:prose-invert mt-2 max-w-none whitespace-pre-line text-sm text-foreground/90">
+          {asset.body_md}
+        </div>
+      </div>
+    );
+  }
+
+  if (asset.kind === "quiz" && Array.isArray(asset.data_json)) {
+    const items = asset.data_json.filter(isQuizItem);
+    if (items.length > 0) {
+      return (
+        <div className="space-y-2 rounded-xl border border-border bg-card/60 p-4">
+          <PreviewLabel
+            text={`Prévia — Quiz (${items.length} pergunta${items.length === 1 ? "" : "s"})`}
+          />
+          {items.map((q, i) => (
+            <div key={i} className="rounded-lg border border-border/60 bg-background/60 p-3">
+              <p className="text-xs font-medium text-foreground">
+                {i + 1}. {q.question}
+              </p>
+              <ul className="mt-1.5 space-y-1">
+                {(q.options ?? []).map((opt, oi) => (
+                  <li
+                    key={oi}
+                    className={`rounded px-2 py-1 text-[11px] ${
+                      oi === q.correct_index
+                        ? "bg-emerald-500/15 font-semibold text-emerald-700 dark:text-emerald-300"
+                        : "text-foreground/80"
+                    }`}
+                  >
+                    {oi === q.correct_index ? "✓ " : ""}
+                    {opt}
+                  </li>
+                ))}
+              </ul>
+              {q.explanation && (
+                <p className="mt-1.5 text-[10px] italic text-muted-foreground">{q.explanation}</p>
+              )}
+            </div>
+          ))}
+        </div>
+      );
+    }
+  }
+
+  if (asset.kind === "flashcards" && Array.isArray(asset.data_json)) {
+    const items = asset.data_json.filter(isFlashcardItem);
+    if (items.length > 0) {
+      return (
+        <div className="rounded-xl border border-border bg-card/60 p-4">
+          <PreviewLabel text={`Prévia — Flashcards (${items.length})`} />
+          <div className="mt-2 grid gap-2 sm:grid-cols-2">
+            {items.map((c, i) => (
+              <div key={i} className="rounded-lg border border-border/60 bg-background/60 p-3">
+                <p className="text-xs font-semibold text-primary">{c.front}</p>
+                <div className="my-1.5 border-t border-dashed border-border" />
+                <p className="text-xs text-foreground/80">{c.back}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+    }
+  }
+
+  // Fallback: formato inesperado (a IA não seguiu o schema pedido) — mostra
+  // o JSON cru pra não esconder o problema, mas sinaliza que precisa de
+  // revisão manual em vez de fingir que está tudo certo.
+  return (
+    <div className="rounded-xl border border-amber-500/40 bg-amber-500/5 p-4">
+      <PreviewLabel text={`${kindLabel} — formato inesperado, revisar manualmente`} />
+      {asset.media_url && (
+        <p className="mt-1 text-[11px] text-muted-foreground">Mídia: {asset.media_url}</p>
+      )}
+      {asset.data_json != null && (
+        <pre className="mt-1 max-h-40 overflow-auto text-[10px] text-foreground/80">
+          {JSON.stringify(asset.data_json, null, 2)}
+        </pre>
+      )}
+    </div>
+  );
+}
+
+function PreviewLabel({ text }: { text: string }) {
+  return (
+    <p className="text-[10px] font-semibold uppercase tracking-wide text-muted-foreground">
+      {text}
+    </p>
   );
 }
