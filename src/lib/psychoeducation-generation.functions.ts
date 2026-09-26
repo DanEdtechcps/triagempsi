@@ -47,8 +47,16 @@ export function partitionRequestedFormats(formats: readonly string[]): {
  * Extrai o primeiro array JSON válido de uma resposta de LLM em texto livre
  * (modelos de texto geram markdown/comentário ao redor do JSON pedido, então
  * `JSON.parse` direto falha na maioria das respostas reais).
+ *
+ * Aceita `unknown`, não `string`: o Workers AI já foi observado devolvendo
+ * `response` num formato que não é string pura para alguns prompts (bug
+ * real em produção — "raw.match is not a function"), então qualquer entrada
+ * que não seja string ou array precisa virar `null` em vez de estourar.
  */
-export function extractJsonArray(raw: string): Json[] | null {
+export function extractJsonArray(raw: unknown): Json[] | null {
+  if (Array.isArray(raw)) return raw as Json[];
+  if (typeof raw !== "string") return null;
+
   try {
     const direct = JSON.parse(raw) as unknown;
     if (Array.isArray(direct)) return direct as Json[];
@@ -95,7 +103,9 @@ export function buildWorkersAiPrompt(sourceMaterial: string, format: TextFormat)
   }
 }
 
-type WorkersAiTextResult = { response?: string };
+// `response` é tipado como `unknown` de propósito — o binding do Workers AI
+// já foi observado devolvendo algo que não é string pura pra este modelo.
+type WorkersAiTextResult = { response?: unknown };
 
 // @cf/meta/llama-3.1-8b-instruct (sem sufixo) foi descontinuado pela
 // Cloudflare em 2026-05-30 e passou a resolver silenciosamente para uma
@@ -125,12 +135,16 @@ async function runWorkersAiTextFormat(
     prompt,
     max_tokens: MAX_TOKENS_BY_FORMAT[format],
   })) as WorkersAiTextResult;
-  const text = result?.response ?? "";
+  // response nem sempre é string pura (bug real em produção — ver
+  // extractJsonArray) — nunca chama .trim()/.match() sem checar o tipo
+  // primeiro.
+  const rawResponse = result?.response;
 
   if (format === "leitura") {
+    const text = typeof rawResponse === "string" ? rawResponse : "";
     return { body_md: text.trim(), data_json: null };
   }
-  return { body_md: null, data_json: extractJsonArray(text) };
+  return { body_md: null, data_json: extractJsonArray(rawResponse) };
 }
 
 const requestSchema = z

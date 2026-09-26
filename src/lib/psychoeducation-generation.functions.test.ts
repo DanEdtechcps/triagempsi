@@ -63,6 +63,29 @@ describe("extractJsonArray", () => {
     // Assert
     expect(result).toBeNull();
   });
+
+  // Regressão do incidente de 2026-09-26: o job "burnout 2" quebrou com
+  // "raw.match is not a function" porque o Workers AI devolveu `response`
+  // num formato que não era string pura, e o código chamava .match() sem
+  // checar o tipo antes.
+  test("não estoura quando a resposta já vem como array (em vez de string)", () => {
+    // Arrange
+    const raw = [{ front: "a", back: "b" }];
+
+    // Act
+    const result = extractJsonArray(raw);
+
+    // Assert
+    expect(result).toEqual([{ front: "a", back: "b" }]);
+  });
+
+  test("retorna null em vez de estourar quando a resposta não é string nem array", () => {
+    // Arrange / Act / Assert — não deve lançar "raw.match is not a function"
+    expect(extractJsonArray(undefined)).toBeNull();
+    expect(extractJsonArray(null)).toBeNull();
+    expect(extractJsonArray(42)).toBeNull();
+    expect(extractJsonArray({ question: "q1" })).toBeNull();
+  });
 });
 
 describe("buildWorkersAiPrompt", () => {

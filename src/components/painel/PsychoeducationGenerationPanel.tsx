@@ -6,7 +6,15 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Sparkles, CheckCircle2, XCircle, Loader2, AlertTriangle, Upload, RotateCcw } from "lucide-react";
+import {
+  Sparkles,
+  CheckCircle2,
+  XCircle,
+  Loader2,
+  AlertTriangle,
+  Upload,
+  RotateCcw,
+} from "lucide-react";
 import {
   requestPsychoeducationGeneration,
   listPsychoeducationGenerationJobs,
@@ -236,9 +244,9 @@ export function PsychoeducationGenerationPanel() {
             className="mt-1"
           />
           <p className="mt-1 text-[10px] text-muted-foreground">
-            {sourceMaterial.trim().length.toLocaleString("pt-BR")} caracteres. Sem limite de
-            tamanho — material muito grande pode estourar o contexto do modelo e o job termina
-            como "erro" (a peça é regenerável depois de ajustar o texto).
+            {sourceMaterial.trim().length.toLocaleString("pt-BR")} caracteres. Sem limite de tamanho
+            — material muito grande pode estourar o contexto do modelo e o job termina como "erro"
+            (a peça é regenerável depois de ajustar o texto).
           </p>
         </div>
 
