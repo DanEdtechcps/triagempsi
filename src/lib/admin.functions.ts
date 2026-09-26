@@ -139,6 +139,11 @@ export const createClinicAdmin = createServerFn({ method: "POST" })
         contact_phone: z.string().trim().max(40).optional().nullable(),
         primary_color: ColorSchema,
         accent_color: ColorSchema,
+        // Plano e status contratados pelo cliente pagante no onboarding —
+        // antes ficavam fixos em 'consultorio'/'trial' dentro da RPC, sem
+        // jeito de refletir o que foi realmente vendido.
+        plan_code: z.enum(["consultorio", "clinica", "instituicao"]).default("consultorio"),
+        subscription_status: z.enum(["trial", "ativa"]).default("trial"),
       })
       .parse(raw),
   )
@@ -159,6 +164,8 @@ export const createClinicAdmin = createServerFn({ method: "POST" })
       p_accent_color: data.accent_color ?? undefined,
       p_contact_email: data.contact_email || undefined,
       p_contact_phone: data.contact_phone || undefined,
+      p_plan_code: data.plan_code,
+      p_status: data.subscription_status,
     });
 
     if (error) {
@@ -176,7 +183,12 @@ export const createClinicAdmin = createServerFn({ method: "POST" })
       actorEmail: (context.claims as { email?: string })?.email ?? null,
       entityType: "clinic",
       entityId: clinicId as string,
-      details: { name: data.name, slug: data.slug },
+      details: {
+        name: data.name,
+        slug: data.slug,
+        plan_code: data.plan_code,
+        subscription_status: data.subscription_status,
+      },
     });
 
     return { id: clinicId as string, slug: data.slug };
