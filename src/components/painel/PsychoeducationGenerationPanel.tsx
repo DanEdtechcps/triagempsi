@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Sparkles, CheckCircle2, XCircle, Loader2, AlertTriangle, Upload } from "lucide-react";
+import { Sparkles, CheckCircle2, XCircle, Loader2, AlertTriangle, Upload, RotateCcw } from "lucide-react";
 import {
   requestPsychoeducationGeneration,
   listPsychoeducationGenerationJobs,
@@ -14,6 +14,7 @@ import {
   listPsychoeducationTopicsAdmin,
   approvePsychoeducationGenerationJob,
   rejectPsychoeducationGenerationJob,
+  retryPsychoeducationGenerationJob,
   humanizeServerFnError,
   TEXT_FORMATS,
   MEDIA_FORMATS,
@@ -47,6 +48,7 @@ export function PsychoeducationGenerationPanel() {
   const requestGeneration = useServerFn(requestPsychoeducationGeneration);
   const approveJob = useServerFn(approvePsychoeducationGenerationJob);
   const rejectJob = useServerFn(rejectPsychoeducationGenerationJob);
+  const retryJob = useServerFn(retryPsychoeducationGenerationJob);
 
   const [topicMode, setTopicMode] = useState<"existing" | "new">("new");
   const [topicId, setTopicId] = useState("");
@@ -111,6 +113,16 @@ export function PsychoeducationGenerationPanel() {
       rejectJob({ data: { job_id: jobId, reason: "Rejeitado pelo painel" } }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["psychoeducation-generation-jobs"] });
+    },
+  });
+
+  const retryMutation = useMutation({
+    mutationFn: (jobId: string) => retryJob({ data: { job_id: jobId } }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["psychoeducation-generation-jobs"] });
+    },
+    onError: (err) => {
+      setMsg(humanizeServerFnError(err));
     },
   });
 
@@ -332,6 +344,25 @@ export function PsychoeducationGenerationPanel() {
 
               {job.error_message && (
                 <p className="mt-1 text-[11px] text-destructive">{job.error_message}</p>
+              )}
+
+              {job.status === "erro" && job.engine === "workers_ai" && (
+                <div className="mt-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="h-7 gap-1 text-[11px]"
+                    disabled={retryMutation.isPending}
+                    onClick={() => retryMutation.mutate(job.id)}
+                  >
+                    {retryMutation.isPending ? (
+                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                    ) : (
+                      <RotateCcw className="h-3.5 w-3.5" />
+                    )}
+                    Tentar novamente
+                  </Button>
+                </div>
               )}
 
               {job.status === "aguardando_aprovacao" && (

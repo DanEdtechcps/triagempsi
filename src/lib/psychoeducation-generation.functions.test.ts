@@ -4,6 +4,7 @@ import {
   extractJsonArray,
   humanizeServerFnError,
   partitionRequestedFormats,
+  WORKERS_AI_TEXT_MODEL,
 } from "@/lib/psychoeducation-generation.functions";
 
 describe("partitionRequestedFormats", () => {
@@ -145,5 +146,17 @@ describe("humanizeServerFnError", () => {
 
     // Assert
     expect(result).toBe("Não foi possível concluir a operação.");
+  });
+});
+
+// Regressão do incidente de 2026-09-26: @cf/meta/llama-3.1-8b-instruct
+// (sem sufixo) foi descontinuado pela Cloudflare e resolvia silenciosamente
+// para uma variante "infire" também descontinuada, fazendo todo job cair em
+// "erro". Trava o nome exato do modelo pra um erro de digitação/regressão
+// não reintroduzir silenciosamente um alias descontinuado.
+describe("WORKERS_AI_TEXT_MODEL", () => {
+  test("não é o alias descontinuado que já quebrou em produção", () => {
+    expect(WORKERS_AI_TEXT_MODEL).not.toBe("@cf/meta/llama-3.1-8b-instruct");
+    expect(WORKERS_AI_TEXT_MODEL).not.toContain("infire");
   });
 });

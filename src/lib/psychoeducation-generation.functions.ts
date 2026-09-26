@@ -97,14 +97,33 @@ export function buildWorkersAiPrompt(sourceMaterial: string, format: TextFormat)
 
 type WorkersAiTextResult = { response?: string };
 
+// @cf/meta/llama-3.1-8b-instruct (sem sufixo) foi descontinuado pela
+// Cloudflare em 2026-05-30 e passou a resolver silenciosamente para uma
+// variante "infire" também descontinuada — todo job caía em "erro". Usar o
+// nome exato do catálogo vigente (`wrangler ai models list`), não o alias
+// antigo. Llama 3.3 70B fp8-fast: melhor qualidade de português que o 8B
+// para texto clínico, e "fast" porque é otimizado pra latência apesar do
+// tamanho.
+export const WORKERS_AI_TEXT_MODEL = "@cf/meta/llama-3.3-70b-instruct-fp8-fast";
+
+// O default do modelo é max_tokens=256 — curto demais até pra um único
+// parágrafo de leitura, e cortaria o JSON de quiz/flashcards no meio,
+// quebrando o parse. Cada formato tem seu próprio teto generoso.
+const MAX_TOKENS_BY_FORMAT: Record<TextFormat, number> = {
+  leitura: 900,
+  quiz: 1400,
+  flashcards: 1200,
+};
+
 async function runWorkersAiTextFormat(
   ai: ReturnType<typeof getWorkersAI>,
   sourceMaterial: string,
   format: TextFormat,
 ): Promise<{ body_md: string | null; data_json: Json[] | null }> {
   const prompt = buildWorkersAiPrompt(sourceMaterial, format);
-  const result = (await ai.run("@cf/meta/llama-3.1-8b-instruct", {
+  const result = (await ai.run(WORKERS_AI_TEXT_MODEL, {
     prompt,
+    max_tokens: MAX_TOKENS_BY_FORMAT[format],
   })) as WorkersAiTextResult;
   const text = result?.response ?? "";
 
@@ -489,6 +508,47 @@ export const rejectPsychoeducationGenerationJob = createServerFn({ method: "POST
       entityId: data.job_id,
       details: { reason: data.reason ?? null },
     });
+
+    return { ok: true };
+  });
+
+export const retryPsychoeducationGenerationJob = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((raw: unknown) => z.object({ job_id: z.string().uuid() }).parse(raw))
+  .handler(async ({ data, context }): Promise<{ ok: true }> => {
+    await requireGlobalAdmin(context.supabase, context.userId);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const { data: job, error: jobError } = await supabaseAdmin
+      .from("psychoeducation_generation_jobs")
+      .select("id, engine, status, source_material, requested_formats")
+      .eq("id", data.job_id)
+      .maybeSingle();
+    if (jobError || !job) throw new Error("Job de geração não encontrado.");
+    if (job.status !== "erro") throw new Error("Só é possível reprocessar jobs com status 'erro'.");
+    if (job.engine !== "workers_ai") {
+      throw new Error("Reprocessamento automático só existe para o motor Workers AI (Fase 1).");
+    }
+
+    // Limpa qualquer asset parcial de uma tentativa anterior antes de regerar
+    // — evita colidir com a UNIQUE (job_id, kind) se algum formato já tinha
+    // sido gravado antes do erro.
+    await supabaseAdmin.from("psychoeducation_generated_assets").delete().eq("job_id", job.id);
+    await supabaseAdmin
+      .from("psychoeducation_generation_jobs")
+      .update({ status: "gerando", error_message: null, updated_at: new Date().toISOString() })
+      .eq("id", job.id);
+
+    // is_crisis_topic não é persistido no job — na pior hipótese o texto
+    // regerado ainda passa pela detecção por palavra-chave do QC (ver
+    // CRISIS_KEYWORDS em psychoeducation-qc.ts), só perde o reforço extra
+    // de quando o admin marcou o tópico como crise explicitamente.
+    await runTextGenerationJob(
+      job.id,
+      job.source_material,
+      job.requested_formats as TextFormat[],
+      false,
+    );
 
     return { ok: true };
   });
