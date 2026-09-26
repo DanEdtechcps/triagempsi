@@ -540,13 +540,28 @@ export const retryPsychoeducationGenerationJob = createServerFn({ method: "POST"
       .maybeSingle();
     if (jobError || !job) throw new Error("Job de geração não encontrado.");
     if (job.status !== "erro") throw new Error("Só é possível reprocessar jobs com status 'erro'.");
-    if (job.engine !== "workers_ai") {
-      throw new Error("Reprocessamento automático só existe para o motor Workers AI (Fase 1).");
+
+    if (job.engine === "notebooklm") {
+      // Fase 2: a geração de verdade roda no runner externo
+      // (content-pipeline/), não aqui. Só reabre o job pra fila que o
+      // runner consulta (status pendente/gerando) — nunca apaga assets já
+      // gravados com sucesso por um formato anterior, já que
+      // notebooklm_client.py é idempotente por formato (adota trabalho em
+      // andamento em vez de recriar).
+      await supabaseAdmin
+        .from("psychoeducation_generation_jobs")
+        .update({ status: "pendente", error_message: null, updated_at: new Date().toISOString() })
+        .eq("id", job.id);
+      return { ok: true };
     }
 
-    // Limpa qualquer asset parcial de uma tentativa anterior antes de regerar
-    // — evita colidir com a UNIQUE (job_id, kind) se algum formato já tinha
-    // sido gravado antes do erro.
+    if (job.engine !== "workers_ai") {
+      throw new Error(`Motor desconhecido: ${job.engine}`);
+    }
+
+    // Fase 1: limpa qualquer asset parcial de uma tentativa anterior antes
+    // de regerar — evita colidir com a UNIQUE (job_id, kind) se algum
+    // formato já tinha sido gravado antes do erro.
     await supabaseAdmin.from("psychoeducation_generated_assets").delete().eq("job_id", job.id);
     await supabaseAdmin
       .from("psychoeducation_generation_jobs")

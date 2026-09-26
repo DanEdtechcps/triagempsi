@@ -355,7 +355,7 @@ export function PsychoeducationGenerationPanel() {
                 <p className="mt-1 text-[11px] text-destructive">{job.error_message}</p>
               )}
 
-              {job.status === "erro" && job.engine === "workers_ai" && (
+              {job.status === "erro" && (
                 <div className="mt-2">
                   <Button
                     size="sm"
@@ -429,10 +429,7 @@ type FlashcardItem = { front: string; back: string };
 
 function isQuizItem(v: unknown): v is QuizItem {
   return (
-    Boolean(v) &&
-    typeof v === "object" &&
-    "question" in (v as object) &&
-    "options" in (v as object)
+    Boolean(v) && typeof v === "object" && "question" in (v as object) && "options" in (v as object)
   );
 }
 function isFlashcardItem(v: unknown): v is FlashcardItem {

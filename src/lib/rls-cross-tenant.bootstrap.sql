@@ -77,16 +77,24 @@ GRANT SELECT ON auth.users TO anon, authenticated, service_role;
 
 -- ====================================================================
 -- Schema storage (stub mínimo — só o necessário pra migration
--- 20260812020233, que cria policies em storage.objects pro bucket 'landing')
+-- 20260812020233, que cria policies em storage.objects pro bucket 'landing',
+-- e pra 20260927020000, que faz INSERT em storage.buckets pro bucket
+-- 'psychoeducation-media')
 -- ====================================================================
 CREATE SCHEMA IF NOT EXISTS storage;
 CREATE TABLE IF NOT EXISTS storage.objects (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   bucket_id text
 );
+CREATE TABLE IF NOT EXISTS storage.buckets (
+  id text PRIMARY KEY,
+  name text,
+  public boolean DEFAULT false
+);
 ALTER TABLE storage.objects ENABLE ROW LEVEL SECURITY;
 GRANT USAGE ON SCHEMA storage TO anon, authenticated, service_role;
 GRANT ALL ON storage.objects TO service_role;
+GRANT ALL ON storage.buckets TO service_role;
 
 -- ====================================================================
 -- Placeholders para UUIDs de produção hardcoded em migrations antigas que
