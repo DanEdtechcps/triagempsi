@@ -10,6 +10,9 @@
     "directory": ".output/public",
     "binding": "ASSETS"
   },
+  "ai": {
+    "binding": "AI"
+  },
   "vars": {
     "SUPABASE_PROJECT_ID": "ffyjjkouscnabyxjxexu",
     "SUPABASE_PUBLISHABLE_KEY": "sb_publishable_3F04VCYRIoUVH0mXyZBOEg_EQsVTMaT",
