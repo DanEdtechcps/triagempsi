@@ -596,19 +596,9 @@ function AdminPage() {
                           </div>
                         </div>
 
-                        {c.staff_count === 0 && (
-                          <Button
-                            type="button"
-                            size="sm"
-                            onClick={() => setManagerAccessClinicId(c.id)}
-                            className="mt-3 min-h-10 w-full gap-1.5 text-xs font-medium"
-                          >
-                            <UserPlus className="h-3.5 w-3.5" />
-                            Criar acesso do gestor
-                          </Button>
-                        )}
-
-                        <div className="mt-4 flex flex-col gap-2 pt-2 border-t border-border/60 sm:flex-row sm:items-center">
+                        {/* Fileira 1 — ações primárias, sempre as mesmas 3, nunca condicional
+                            (inserir/remover um botão aqui já quebrou a altura dos cards uma vez). */}
+                        <div className="mt-4 flex flex-col gap-2 pt-2 border-t border-border/60 sm:flex-row">
                           <Button
                             variant="outline"
                             size="sm"
@@ -618,17 +608,15 @@ function AdminPage() {
                             <Pencil className="h-3.5 w-3.5" />
                             Editar
                           </Button>
-                          {c.staff_count > 0 && (
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => setManagerAccessClinicId(c.id)}
-                              className="min-h-10 flex-1 gap-1.5 text-xs font-medium"
-                            >
-                              <UserPlus className="h-3.5 w-3.5" />
-                              Novo acesso
-                            </Button>
-                          )}
+                          <Button
+                            variant={c.staff_count === 0 ? "default" : "outline"}
+                            size="sm"
+                            onClick={() => setManagerAccessClinicId(c.id)}
+                            className="min-h-10 flex-1 gap-1.5 text-xs font-medium"
+                          >
+                            <UserPlus className="h-3.5 w-3.5" />
+                            {c.staff_count === 0 ? "Criar acesso do gestor" : "Novo acesso"}
+                          </Button>
                           <Button
                             variant="outline"
                             size="sm"
@@ -647,15 +635,20 @@ function AdminPage() {
                               </>
                             )}
                           </Button>
+                        </div>
+
+                        {/* Fileira 2 — ações secundárias, largura própria, sempre presentes
+                            (flex-wrap evita que sumam quando o card é mais estreito). */}
+                        <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1">
                           <Button
                             variant="ghost"
                             size="sm"
                             asChild
-                            className="min-h-10 gap-1.5 text-xs"
+                            className="h-8 gap-1.5 px-2 text-xs"
                           >
                             <a href={`/${c.slug}`} target="_blank" rel="noopener noreferrer">
                               <ExternalLink className="h-3.5 w-3.5" />
-                              <span className="hidden sm:inline">Ver landing</span>
+                              Ver landing
                             </a>
                           </Button>
                           <Button
@@ -669,7 +662,7 @@ function AdminPage() {
                                 queryKey: ["admin-clinics"],
                               });
                             }}
-                            className="min-h-10 text-xs text-muted-foreground hover:text-foreground"
+                            className="h-8 px-2 text-xs text-muted-foreground hover:text-foreground"
                           >
                             {c.is_active ? "Desativar" : "Reativar"}
                           </Button>
