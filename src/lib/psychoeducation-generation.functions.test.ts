@@ -2,6 +2,7 @@ import { describe, expect, test } from "vitest";
 import {
   buildWorkersAiPrompt,
   extractJsonArray,
+  humanizeServerFnError,
   partitionRequestedFormats,
 } from "@/lib/psychoeducation-generation.functions";
 
@@ -90,5 +91,59 @@ describe("buildWorkersAiPrompt", () => {
     expect(quizPrompt).toContain("JSON");
     expect(flashcardsPrompt).toContain("JSON");
     expect(leituraPrompt).not.toContain("JSON");
+  });
+});
+
+describe("humanizeServerFnError", () => {
+  test("extrai a mensagem legível de um array de issues do Zod (o bug real reportado)", () => {
+    // Arrange — exatamente o formato que .parse() lança e o cliente recebe
+    const zodIssue = [
+      {
+        code: "too_small",
+        message: "O material precisa ter pelo menos 50 caracteres.",
+        path: ["source_material"],
+      },
+    ];
+    const err = new Error(JSON.stringify(zodIssue));
+
+    // Act
+    const result = humanizeServerFnError(err);
+
+    // Assert
+    expect(result).toBe("O material precisa ter pelo menos 50 caracteres.");
+  });
+
+  test("junta várias mensagens de issues quando há mais de uma", () => {
+    // Arrange
+    const zodIssues = [
+      { code: "custom", message: "Primeira mensagem." },
+      { code: "custom", message: "Segunda mensagem." },
+    ];
+    const err = new Error(JSON.stringify(zodIssues));
+
+    // Act
+    const result = humanizeServerFnError(err);
+
+    // Assert
+    expect(result).toBe("Primeira mensagem. Segunda mensagem.");
+  });
+
+  test("devolve a mensagem original quando não é um array JSON de issues", () => {
+    // Arrange
+    const err = new Error("Não foi possível salvar as alterações.");
+
+    // Act
+    const result = humanizeServerFnError(err);
+
+    // Assert
+    expect(result).toBe("Não foi possível salvar as alterações.");
+  });
+
+  test("devolve um texto genérico quando o erro não tem mensagem", () => {
+    // Arrange / Act
+    const result = humanizeServerFnError(undefined);
+
+    // Assert
+    expect(result).toBe("Não foi possível concluir a operação.");
   });
 });

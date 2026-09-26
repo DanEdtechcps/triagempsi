@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Sparkles, CheckCircle2, XCircle, Loader2, AlertTriangle } from "lucide-react";
+import { Sparkles, CheckCircle2, XCircle, Loader2, AlertTriangle, Upload } from "lucide-react";
 import {
   requestPsychoeducationGeneration,
   listPsychoeducationGenerationJobs,
@@ -14,6 +14,7 @@ import {
   listPsychoeducationTopicsAdmin,
   approvePsychoeducationGenerationJob,
   rejectPsychoeducationGenerationJob,
+  humanizeServerFnError,
   TEXT_FORMATS,
   MEDIA_FORMATS,
   type TextFormat,
@@ -94,7 +95,7 @@ export function PsychoeducationGenerationPanel() {
       queryClient.invalidateQueries({ queryKey: ["psychoeducation-generation-jobs"] });
     },
     onError: (err) => {
-      setMsg(err instanceof Error ? err.message : "Não foi possível criar o job de geração.");
+      setMsg(humanizeServerFnError(err));
     },
   });
 
@@ -192,14 +193,41 @@ export function PsychoeducationGenerationPanel() {
         )}
 
         <div>
-          <Label className="text-xs">Material bruto (diretriz clínica genérica)</Label>
+          <div className="flex items-center justify-between gap-2">
+            <Label className="text-xs">Material bruto (diretriz clínica genérica)</Label>
+            <label className="inline-flex cursor-pointer items-center gap-1 text-[11px] text-primary hover:underline">
+              <Upload className="h-3 w-3" />
+              Carregar arquivo (.txt/.md)
+              <input
+                type="file"
+                accept=".txt,.md,text/plain,text/markdown"
+                className="hidden"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (!file) return;
+                  const reader = new FileReader();
+                  reader.onload = () => {
+                    const text = typeof reader.result === "string" ? reader.result : "";
+                    setSourceMaterial((prev) => (prev ? `${prev}\n\n${text}` : text));
+                  };
+                  reader.readAsText(file);
+                  e.target.value = "";
+                }}
+              />
+            </label>
+          </div>
           <Textarea
             value={sourceMaterial}
             onChange={(e) => setSourceMaterial(e.target.value)}
             rows={6}
-            placeholder="Cole aqui o texto da diretriz clínica que servirá de base para a geração…"
+            placeholder="Cole aqui o texto da diretriz clínica que servirá de base para a geração, ou carregue um arquivo .txt/.md acima…"
             className="mt-1"
           />
+          <p className="mt-1 text-[10px] text-muted-foreground">
+            {sourceMaterial.trim().length.toLocaleString("pt-BR")} caracteres. Sem limite de
+            tamanho — material muito grande pode estourar o contexto do modelo e o job termina
+            como "erro" (a peça é regenerável depois de ajustar o texto).
+          </p>
         </div>
 
         <div>
