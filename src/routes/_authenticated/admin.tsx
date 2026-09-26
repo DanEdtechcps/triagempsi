@@ -5,6 +5,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { PainelShell } from "@/components/painel/PainelShell";
 import { AcessoNegado } from "@/components/painel/AcessoNegado";
 import { LandingSettingsForm } from "@/components/painel/LandingSettingsForm";
+import { PsychoeducationGenerationPanel } from "@/components/painel/PsychoeducationGenerationPanel";
 import { Stat } from "@/components/admin/Stat";
 import { ColorField } from "@/components/admin/ColorField";
 import { DoctorProfilesCard } from "@/components/admin/DoctorProfilesCard";
@@ -297,7 +298,7 @@ function AdminPage() {
 
       {/* Tabs com estilo pílula e rolagem controlada */}
       <Tabs defaultValue="consultorios" className="mt-6">
-        <TabsList className="grid w-full grid-cols-3 sm:inline-flex sm:w-auto h-auto p-1 bg-muted rounded-xl">
+        <TabsList className="grid w-full grid-cols-4 sm:inline-flex sm:w-auto h-auto p-1 bg-muted rounded-xl">
           <TabsTrigger value="consultorios" className="py-2 text-xs sm:text-sm font-medium">
             Consultórios
           </TabsTrigger>
@@ -307,10 +308,17 @@ function AdminPage() {
           <TabsTrigger value="landing" className="py-2 text-xs sm:text-sm font-medium">
             Landing page
           </TabsTrigger>
+          <TabsTrigger value="conteudo" className="py-2 text-xs sm:text-sm font-medium">
+            Conteúdo (IA)
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="landing" className="mt-4">
           <LandingSettingsForm />
+        </TabsContent>
+
+        <TabsContent value="conteudo" className="mt-4">
+          <PsychoeducationGenerationPanel />
         </TabsContent>
 
         {/* ABA: CONSULTÓRIOS */}

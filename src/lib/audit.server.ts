@@ -24,7 +24,10 @@ export type AuditAction =
   | "doctor_profile_removed"
   | "portal_patient_view"
   | "subscription_created"
-  | "subscription_updated";
+  | "subscription_updated"
+  | "psychoeducation_generation_requested"
+  | "psychoeducation_generation_approved"
+  | "psychoeducation_generation_rejected";
 
 export const AUDIT_ACTION_LABEL: Record<string, string> = {
   assessment_viewed: "Acessou uma triagem",
@@ -47,6 +50,9 @@ export const AUDIT_ACTION_LABEL: Record<string, string> = {
   portal_patient_view: "Paciente viu o próprio resumo no portal",
   subscription_created: "Criou a assinatura de um consultório",
   subscription_updated: "Atualizou a assinatura de um consultório",
+  psychoeducation_generation_requested: "Solicitou geração de material de psicoeducação por IA",
+  psychoeducation_generation_approved: "Aprovou material de psicoeducação gerado por IA",
+  psychoeducation_generation_rejected: "Rejeitou material de psicoeducação gerado por IA",
 };
 
 export async function recordAudit(input: {

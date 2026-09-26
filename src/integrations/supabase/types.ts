@@ -796,6 +796,132 @@ export type Database = {
           },
         ];
       };
+      psychoeducation_generated_assets: {
+        Row: {
+          body_md: string | null;
+          content_id: string | null;
+          created_at: string;
+          data_json: Json | null;
+          id: string;
+          job_id: string;
+          kind: string;
+          media_url: string | null;
+          status: string;
+        };
+        Insert: {
+          body_md?: string | null;
+          content_id?: string | null;
+          created_at?: string;
+          data_json?: Json | null;
+          id?: string;
+          job_id: string;
+          kind: string;
+          media_url?: string | null;
+          status?: string;
+        };
+        Update: {
+          body_md?: string | null;
+          content_id?: string | null;
+          created_at?: string;
+          data_json?: Json | null;
+          id?: string;
+          job_id?: string;
+          kind?: string;
+          media_url?: string | null;
+          status?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "psychoeducation_generated_assets_content_id_fkey";
+            columns: ["content_id"];
+            isOneToOne: false;
+            referencedRelation: "psychoeducation_contents";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "psychoeducation_generated_assets_job_id_fkey";
+            columns: ["job_id"];
+            isOneToOne: false;
+            referencedRelation: "psychoeducation_generation_jobs";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      psychoeducation_generation_jobs: {
+        Row: {
+          clinic_id: string | null;
+          confirmed_no_patient_data: boolean;
+          created_at: string;
+          engine: string;
+          error_message: string | null;
+          id: string;
+          notebook_id: string | null;
+          qc_notes: string[] | null;
+          rejection_reason: string | null;
+          requested_by: string | null;
+          requested_formats: string[];
+          reviewed_by: string | null;
+          source_material: string;
+          status: string;
+          topic_id: string | null;
+          topic_title_draft: string | null;
+          updated_at: string;
+        };
+        Insert: {
+          clinic_id?: string | null;
+          confirmed_no_patient_data?: boolean;
+          created_at?: string;
+          engine: string;
+          error_message?: string | null;
+          id?: string;
+          notebook_id?: string | null;
+          qc_notes?: string[] | null;
+          rejection_reason?: string | null;
+          requested_by?: string | null;
+          requested_formats: string[];
+          reviewed_by?: string | null;
+          source_material: string;
+          status?: string;
+          topic_id?: string | null;
+          topic_title_draft?: string | null;
+          updated_at?: string;
+        };
+        Update: {
+          clinic_id?: string | null;
+          confirmed_no_patient_data?: boolean;
+          created_at?: string;
+          engine?: string;
+          error_message?: string | null;
+          id?: string;
+          notebook_id?: string | null;
+          qc_notes?: string[] | null;
+          rejection_reason?: string | null;
+          requested_by?: string | null;
+          requested_formats?: string[];
+          reviewed_by?: string | null;
+          source_material?: string;
+          status?: string;
+          topic_id?: string | null;
+          topic_title_draft?: string | null;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "psychoeducation_generation_jobs_clinic_id_fkey";
+            columns: ["clinic_id"];
+            isOneToOne: false;
+            referencedRelation: "clinics";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "psychoeducation_generation_jobs_topic_id_fkey";
+            columns: ["topic_id"];
+            isOneToOne: false;
+            referencedRelation: "psychoeducation_topics";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       psychoeducation_topics: {
         Row: {
           created_at: string | null;

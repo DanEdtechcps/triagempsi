@@ -53,5 +53,10 @@ documentação viva/ACHADOS_*.md
 documentação viva/VALIDACAO_*.md
 documentação viva/ONBOARDING_*.md
 documentação viva/ROADMAP_*.md
+documentação viva/PESQUISA_*.md
+
+# Runner externo da Fase 2 de geração de psicoeducação (NotebookLM) — ainda
+# não implementado; a credencial usada por ele nunca pode ir pro Git.
+content-pipeline/.env
 documentação viva/specs/
 openspec/
