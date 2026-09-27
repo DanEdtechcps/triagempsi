@@ -47,8 +47,20 @@ const ASSET_LABEL: Record<AssetKind, string> = {
   leitura: "Leitura/Relatório",
 };
 
-type QuizData = { questions?: Array<{ question: string }> };
-type FlashData = { cards?: Array<{ front: string }> };
+type AnswerOption = { text: string; isCorrect: boolean; rationale: string };
+type QuizQuestion = {
+  type: string;
+  question: string;
+  answerOptions?: AnswerOption[];
+  bestAnswer?: string;
+  acceptableAnswers?: string[];
+  rationale?: string;
+  grading?: { modelAnswer: string; rationale: string };
+  hint?: string;
+};
+type QuizData = { title?: string; questions?: QuizQuestion[] };
+type FlashCard = { front: string; back: string };
+type FlashData = { title?: string; cards?: FlashCard[] };
 
 /** Busca e faz cache do conteúdo de um asset JSON (quiz/flashcards) a
  * partir do `media_url` — o backend só grava `media_url` pra todo asset
@@ -74,6 +86,172 @@ function useJsonAsset<T>(url: string | null | undefined): T | null {
   return data;
 }
 
+function QuizQuestionView({ q, index }: { q: QuizQuestion; index: number }) {
+  const [selected, setSelected] = useState<Set<number>>(new Set());
+  const [revealed, setRevealed] = useState(false);
+  const [textAnswer, setTextAnswer] = useState("");
+
+  const isChoice = q.type === "multiple_choice" || q.type === "multiple_select";
+  const isFillBlank = q.type === "fill_in_the_blank";
+  const isShortAnswer = q.type === "short_answer";
+
+  const toggleOption = (i: number) => {
+    if (revealed) return;
+    const next = new Set(selected);
+    if (q.type === "multiple_choice") {
+      next.clear();
+      next.add(i);
+    } else if (next.has(i)) {
+      next.delete(i);
+    } else {
+      next.add(i);
+    }
+    setSelected(next);
+  };
+
+  const checkFillBlank = () => {
+    const norm = (s: string) => s.trim().toLowerCase();
+    const ok = (q.acceptableAnswers ?? [q.bestAnswer ?? ""]).some((a) => norm(a) === norm(textAnswer));
+    setRevealed(true);
+    return ok;
+  };
+
+  return (
+    <li className="space-y-2 border-b border-border pb-3 last:border-0">
+      <p>
+        {index + 1}. {q.question}
+      </p>
+
+      {isChoice && q.answerOptions && (
+        <div className="space-y-1">
+          {q.answerOptions.map((opt, i) => {
+            const isSelected = selected.has(i);
+            const showState = revealed && (isSelected || opt.isCorrect);
+            return (
+              <button
+                key={i}
+                type="button"
+                onClick={() => toggleOption(i)}
+                className={`block w-full rounded-md border px-3 py-2 text-left text-sm transition-colors ${
+                  showState
+                    ? opt.isCorrect
+                      ? "border-emerald-400 bg-emerald-50 text-emerald-900"
+                      : "border-red-300 bg-red-50 text-red-900"
+                    : isSelected
+                      ? "border-primary bg-primary/5"
+                      : "border-border hover:bg-muted"
+                }`}
+              >
+                {opt.text}
+                {showState && (
+                  <span className="mt-1 block text-xs text-muted-foreground">{opt.rationale}</span>
+                )}
+              </button>
+            );
+          })}
+          {!revealed && selected.size > 0 && (
+            <button
+              type="button"
+              onClick={() => setRevealed(true)}
+              className="text-xs font-medium text-primary underline"
+            >
+              Conferir resposta
+            </button>
+          )}
+        </div>
+      )}
+
+      {isFillBlank && (
+        <div className="space-y-1">
+          <input
+            type="text"
+            value={textAnswer}
+            onChange={(e) => setTextAnswer(e.target.value)}
+            disabled={revealed}
+            placeholder="Sua resposta…"
+            className="w-full rounded-md border border-border px-3 py-2 text-sm"
+          />
+          {!revealed ? (
+            <button
+              type="button"
+              onClick={checkFillBlank}
+              className="text-xs font-medium text-primary underline"
+            >
+              Conferir resposta
+            </button>
+          ) : (
+            <p className="text-xs text-muted-foreground">
+              Resposta esperada: <strong>{q.bestAnswer}</strong> — {q.rationale}
+            </p>
+          )}
+        </div>
+      )}
+
+      {isShortAnswer && (
+        <div className="space-y-1">
+          <textarea
+            value={textAnswer}
+            onChange={(e) => setTextAnswer(e.target.value)}
+            disabled={revealed}
+            placeholder="Sua resposta…"
+            className="w-full rounded-md border border-border px-3 py-2 text-sm"
+            rows={2}
+          />
+          {!revealed ? (
+            <button
+              type="button"
+              onClick={() => setRevealed(true)}
+              className="text-xs font-medium text-primary underline"
+            >
+              Ver resposta modelo
+            </button>
+          ) : (
+            <p className="text-xs text-muted-foreground">
+              Resposta modelo: {q.grading?.modelAnswer}
+            </p>
+          )}
+        </div>
+      )}
+
+      {q.hint && !revealed && <p className="text-xs italic text-muted-foreground">Dica: {q.hint}</p>}
+    </li>
+  );
+}
+
+function FlashcardsView({ cards }: { cards: FlashCard[] }) {
+  const [index, setIndex] = useState(0);
+  const [flipped, setFlipped] = useState(false);
+  const card = cards[index];
+
+  const go = (delta: number) => {
+    setIndex((i) => (i + delta + cards.length) % cards.length);
+    setFlipped(false);
+  };
+
+  return (
+    <div className="space-y-2">
+      <button
+        type="button"
+        onClick={() => setFlipped((f) => !f)}
+        className="flex min-h-28 w-full items-center justify-center rounded-lg border border-border bg-muted/40 p-4 text-center text-sm"
+      >
+        {flipped ? card.back : card.front}
+      </button>
+      <div className="flex items-center justify-between text-xs text-muted-foreground">
+        <button type="button" onClick={() => go(-1)} className="underline">
+          ← anterior
+        </button>
+        <span>
+          {index + 1} / {cards.length} — clique no card pra {flipped ? "ver a pergunta" : "ver a resposta"}
+        </span>
+        <button type="button" onClick={() => go(1)} className="underline">
+          próximo →
+        </button>
+      </div>
+    </div>
+  );
+}
+
 function TriagemItem({ item }: { item: PreviewItem }) {
   const video = item.assets.find((a) => a.kind === "video");
   const infografico = item.assets.find((a) => a.kind === "infografico");
@@ -94,25 +272,24 @@ function TriagemItem({ item }: { item: PreviewItem }) {
       {quizData?.questions && (
         <details className="text-sm">
           <summary className="cursor-pointer font-medium">
-            {ASSET_LABEL.quiz} ({quizData.questions.length} perguntas)
+            {ASSET_LABEL.quiz} ({quizData.questions.length} perguntas) — clique numa alternativa pra
+            responder
           </summary>
-          <ol className="list-decimal space-y-1 pl-5 pt-2 text-muted-foreground">
+          <ol className="space-y-3 pt-3">
             {quizData.questions.map((q, i) => (
-              <li key={i}>{q.question}</li>
+              <QuizQuestionView key={i} q={q} index={i} />
             ))}
           </ol>
         </details>
       )}
-      {flashData?.cards && (
+      {flashData?.cards && flashData.cards.length > 0 && (
         <details className="text-sm">
           <summary className="cursor-pointer font-medium">
-            {ASSET_LABEL.flashcards} ({flashData.cards.length})
+            {ASSET_LABEL.flashcards} ({flashData.cards.length}) — clique no card pra virar
           </summary>
-          <ul className="list-disc space-y-1 pl-5 pt-2 text-muted-foreground">
-            {flashData.cards.map((c, i) => (
-              <li key={i}>{c.front}</li>
-            ))}
-          </ul>
+          <div className="pt-3">
+            <FlashcardsView cards={flashData.cards} />
+          </div>
         </details>
       )}
     </Card>
