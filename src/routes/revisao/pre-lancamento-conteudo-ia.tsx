@@ -111,7 +111,9 @@ function QuizQuestionView({ q, index }: { q: QuizQuestion; index: number }) {
 
   const checkFillBlank = () => {
     const norm = (s: string) => s.trim().toLowerCase();
-    const ok = (q.acceptableAnswers ?? [q.bestAnswer ?? ""]).some((a) => norm(a) === norm(textAnswer));
+    const ok = (q.acceptableAnswers ?? [q.bestAnswer ?? ""]).some(
+      (a) => norm(a) === norm(textAnswer),
+    );
     setRevealed(true);
     return ok;
   };
@@ -213,7 +215,9 @@ function QuizQuestionView({ q, index }: { q: QuizQuestion; index: number }) {
         </div>
       )}
 
-      {q.hint && !revealed && <p className="text-xs italic text-muted-foreground">Dica: {q.hint}</p>}
+      {q.hint && !revealed && (
+        <p className="text-xs italic text-muted-foreground">Dica: {q.hint}</p>
+      )}
     </li>
   );
 }
@@ -242,7 +246,8 @@ function FlashcardsView({ cards }: { cards: FlashCard[] }) {
           ← anterior
         </button>
         <span>
-          {index + 1} / {cards.length} — clique no card pra {flipped ? "ver a pergunta" : "ver a resposta"}
+          {index + 1} / {cards.length} — clique no card pra{" "}
+          {flipped ? "ver a pergunta" : "ver a resposta"}
         </span>
         <button type="button" onClick={() => go(1)} className="underline">
           próximo →
@@ -369,10 +374,12 @@ function RevisaoPage() {
             Trilha: Formação gratuita SUS — Médico de Família e Equipe (mhGAP)
           </p>
           <p className="text-sm text-muted-foreground">
-            Vídeo explicativo (~8 min) e podcast aprofundado (~25 min) sobre o modelo mhGAP da OMS,
-            com foco explícito no papel de cada membro da equipe de atenção primária (agente
-            comunitário, enfermagem, médico de família) — não é conteúdo só pro médico sozinho.
-            Arquivos em <code>documentos/conteudo-gerado/sus-medico-familia-mhgap/</code>.
+            Vídeo explicativo (~8 min), podcast aprofundado (~25 min) e slide-deck em PDF (20
+            slides, formato apresentador) sobre o modelo mhGAP da OMS, com foco explícito no papel
+            de cada membro da equipe de atenção primária (agente comunitário, enfermagem, médico de
+            família) — não é conteúdo só pro médico sozinho. Todas as peças geradas nativamente pelo
+            NotebookLM (sem custo adicional, dentro da cota da conta). Arquivos em{" "}
+            <code>documentos/conteudo-gerado/sus-medico-familia-mhgap/</code>.
           </p>
         </Card>
       </section>
