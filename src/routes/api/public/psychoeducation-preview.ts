@@ -21,35 +21,52 @@ export const Route = createFileRoute("/api/public/psychoeducation-preview")({
     handlers: {
       GET: async ({ request }) => {
         const jobId = new URL(request.url).searchParams.get("job_id");
-        if (!jobId || !/^[0-9a-f-]{36}$/i.test(jobId)) {
-          return Response.json({ error: "job_id inválido." }, { status: 400 });
-        }
-
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
-        const { data: job, error: jobError } = await supabaseAdmin
+        // Sem job_id: lista TODOS os jobs elegíveis (usado pela página de
+        // revisão pra ir mostrando conteúdo novo conforme sai da esteira,
+        // sem precisar hardcodar um ID por vez).
+        let jobsQuery = supabaseAdmin
           .from("psychoeducation_generation_jobs")
           .select("id, status, topic_id, psychoeducation_topics(slug, title)")
-          .eq("id", jobId)
+          .eq("engine", "notebooklm")
           .in("status", ["aguardando_aprovacao", "aprovado"])
-          .maybeSingle();
-        if (jobError || !job) {
+          .order("created_at", { ascending: false });
+        if (jobId) {
+          if (!/^[0-9a-f-]{36}$/i.test(jobId)) {
+            return Response.json({ error: "job_id inválido." }, { status: 400 });
+          }
+          jobsQuery = jobsQuery.eq("id", jobId);
+        }
+
+        const { data: jobs, error: jobsError } = await jobsQuery;
+        if (jobsError) {
+          return Response.json({ error: "Falha ao carregar prévia." }, { status: 500 });
+        }
+        if (jobId && (!jobs || jobs.length === 0)) {
           return Response.json({ error: "Prévia não encontrada." }, { status: 404 });
         }
 
-        const { data: assets, error: assetsError } = await supabaseAdmin
-          .from("psychoeducation_generated_assets")
-          .select("kind, media_url, data_json, body_md, status")
-          .eq("job_id", jobId);
+        const jobIds = (jobs ?? []).map((j) => j.id);
+        const { data: assets, error: assetsError } = jobIds.length
+          ? await supabaseAdmin
+              .from("psychoeducation_generated_assets")
+              .select("job_id, kind, media_url, data_json, body_md, status")
+              .in("job_id", jobIds)
+          : { data: [], error: null };
         if (assetsError) {
           return Response.json({ error: "Falha ao carregar prévia." }, { status: 500 });
         }
 
-        return Response.json({
+        const items = (jobs ?? []).map((job) => ({
           job_id: job.id,
           topic: job.psychoeducation_topics,
-          assets: assets ?? [],
-        });
+          assets: (assets ?? []).filter((a) => a.job_id === job.id),
+        }));
+
+        // Compat: com job_id, devolve o formato antigo (objeto único);
+        // sem job_id, devolve a lista completa em `items`.
+        return Response.json(jobId ? items[0] : { items });
       },
     },
   },

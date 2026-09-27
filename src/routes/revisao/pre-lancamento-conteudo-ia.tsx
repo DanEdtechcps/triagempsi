@@ -3,11 +3,16 @@ import { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
 
 /**
- * Página de revisão externa (Dr. Saraiva comparando o par
- * paciente/triagem-medica vs. médico/Corte 800 gerado a partir do MESMO
- * material-base) — link não listado, nunca em navegação nem sitemap.
- * "Segurança" é só obscuridade de URL, de propósito (pedido do usuário
- * 2026-09-27): quem revisa não é necessariamente usuário do sistema.
+ * Página de revisão externa (Dr. Saraiva comparando as trilhas geradas por
+ * IA — paciente/triagem-medica vs. médico/Corte 800) — link não listado,
+ * nunca em navegação nem sitemap. "Segurança" é só obscuridade de URL, de
+ * propósito (pedido do usuário 2026-09-27): quem revisa não é
+ * necessariamente usuário do sistema.
+ *
+ * Lista TODOS os jobs em aguardando_aprovacao/aprovado automaticamente
+ * (via /api/public/psychoeducation-preview sem job_id) — conforme a
+ * esteira produz conteúdo novo, ele aparece aqui sozinho, sem precisar
+ * editar este arquivo por peça.
  */
 export const Route = createFileRoute("/revisao/pre-lancamento-conteudo-ia")({
   ssr: false,
@@ -20,34 +25,74 @@ export const Route = createFileRoute("/revisao/pre-lancamento-conteudo-ia")({
   component: RevisaoPage,
 });
 
-const TRIAGEM_JOB_ID = "eaa4fc58-ea27-4aba-9dd7-b5c27882f7a6";
-
 type AssetKind = "video" | "infografico" | "quiz" | "podcast" | "leitura" | "flashcards";
-type Asset = {
-  kind: AssetKind;
-  media_url: string | null;
-  data_json: unknown;
-  body_md: string | null;
+type Asset = { kind: AssetKind; media_url: string | null; data_json: unknown; body_md: string | null };
+type PreviewItem = { job_id: string; topic: { slug: string; title: string } | null; assets: Asset[] };
+
+const ASSET_LABEL: Record<AssetKind, string> = {
+  video: "Vídeo",
+  infografico: "Infográfico",
+  quiz: "Quiz",
+  flashcards: "Flashcards",
+  podcast: "Áudio",
+  leitura: "Leitura/Relatório",
 };
-type PreviewResponse = { job_id: string; topic: { title: string } | null; assets: Asset[] };
+
+function TriagemItem({ item }: { item: PreviewItem }) {
+  const video = item.assets.find((a) => a.kind === "video");
+  const infografico = item.assets.find((a) => a.kind === "infografico");
+  const quiz = item.assets.find((a) => a.kind === "quiz");
+  const flashcards = item.assets.find((a) => a.kind === "flashcards");
+  const quizData = quiz?.data_json as { questions?: Array<{ question: string }> } | undefined;
+  const flashData = flashcards?.data_json as { cards?: Array<{ front: string }> } | undefined;
+
+  return (
+    <Card className="space-y-3 p-4">
+      <p className="font-medium">{item.topic?.title ?? "(tópico sem título)"}</p>
+      {video?.media_url && (
+        <video controls className="w-full max-w-xs rounded-lg" src={video.media_url} />
+      )}
+      {infografico?.media_url && (
+        <img src={infografico.media_url} alt="" className="w-full max-w-sm rounded-lg" />
+      )}
+      {quizData?.questions && (
+        <details className="text-sm">
+          <summary className="cursor-pointer font-medium">
+            {ASSET_LABEL.quiz} ({quizData.questions.length} perguntas)
+          </summary>
+          <ol className="list-decimal space-y-1 pl-5 pt-2 text-muted-foreground">
+            {quizData.questions.map((q, i) => (
+              <li key={i}>{q.question}</li>
+            ))}
+          </ol>
+        </details>
+      )}
+      {flashData?.cards && (
+        <details className="text-sm">
+          <summary className="cursor-pointer font-medium">
+            {ASSET_LABEL.flashcards} ({flashData.cards.length})
+          </summary>
+          <ul className="list-disc space-y-1 pl-5 pt-2 text-muted-foreground">
+            {flashData.cards.map((c, i) => (
+              <li key={i}>{c.front}</li>
+            ))}
+          </ul>
+        </details>
+      )}
+    </Card>
+  );
+}
 
 function RevisaoPage() {
-  const [preview, setPreview] = useState<PreviewResponse | null>(null);
+  const [items, setItems] = useState<PreviewItem[] | null>(null);
   const [loadError, setLoadError] = useState<string | null>(null);
 
   useEffect(() => {
-    fetch(`/api/public/psychoeducation-preview?job_id=${TRIAGEM_JOB_ID}`)
+    fetch("/api/public/psychoeducation-preview")
       .then((r) => (r.ok ? r.json() : Promise.reject(new Error("not ok"))))
-      .then(setPreview)
+      .then((d) => setItems(d.items ?? []))
       .catch(() => setLoadError("Não consegui carregar a prévia do triagem-medica agora."));
   }, []);
-
-  const video = preview?.assets.find((a) => a.kind === "video");
-  const infografico = preview?.assets.find((a) => a.kind === "infografico");
-  const quiz = preview?.assets.find((a) => a.kind === "quiz");
-  const quizData = quiz?.data_json as
-    | { title?: string; questions?: Array<{ question: string }> }
-    | undefined;
 
   return (
     <div className="mx-auto max-w-3xl space-y-10 px-4 py-12">
@@ -56,90 +101,65 @@ function RevisaoPage() {
           Revisão externa — não indexado, link não divulgado
         </p>
         <h1 className="text-2xl font-semibold">
-          Mesmo material-base, dois públicos: paciente (Saraiva Clínica) vs. médico (Corte 800)
+          Conteúdo gerado por IA (NotebookLM) — todas as trilhas em rascunho
         </h1>
         <p className="text-muted-foreground">
-          Conteúdo sobre Terapia em Grupo e Terapia Comunitária Integrativa, gerado por IA
-          (NotebookLM) a partir da mesma síntese de evidências — em rascunho, aguardando sua
-          aprovação antes de qualquer publicação.
+          Mesmo material-base pode virar registros diferentes conforme o público: pílula pro
+          paciente (triagem-medica), formação continuada, pré-prova de residência, ou formação
+          gratuita pra equipes do SUS (Corte 800). Nada aqui está publicado — tudo aguarda sua
+          aprovação.
         </p>
       </header>
 
       <section className="space-y-4">
-        <h2 className="text-lg font-semibold">Paciente — Saraiva Clínica de Psiquiatria</h2>
-
+        <h2 className="text-lg font-semibold">
+          Paciente — Saraiva Clínica de Psiquiatria (pílulas semanais)
+        </h2>
         {loadError && <p className="text-sm text-destructive">{loadError}</p>}
-
-        {video?.media_url && (
-          <Card className="space-y-2 p-4">
-            <p className="text-sm font-medium">Vídeo-pílula (formato vertical curto)</p>
-            <video controls className="w-full max-w-xs rounded-lg" src={video.media_url} />
-          </Card>
+        {items === null && !loadError && (
+          <p className="text-sm text-muted-foreground">Carregando…</p>
         )}
-
-        {infografico?.media_url && (
-          <Card className="space-y-2 p-4">
-            <p className="text-sm font-medium">Infográfico</p>
-            <img
-              src={infografico.media_url}
-              alt="Infográfico gerado sobre grupoterapia"
-              className="w-full rounded-lg"
-            />
-          </Card>
+        {items?.length === 0 && (
+          <p className="text-sm text-muted-foreground">Nenhum item aguardando aprovação ainda.</p>
         )}
-
-        {quizData?.questions && (
-          <Card className="space-y-2 p-4">
-            <p className="text-sm font-medium">
-              Quiz ({quizData.questions.length} perguntas) — ⚠️ ver ressalva abaixo
-            </p>
-            <ol className="list-decimal space-y-1 pl-5 text-sm text-muted-foreground">
-              {quizData.questions.map((q, i) => (
-                <li key={i}>{q.question}</li>
-              ))}
-            </ol>
-          </Card>
-        )}
-
-        <p className="rounded-md border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900">
-          ⚠️ O quiz acima ainda testa citação acadêmica ("segundo Huntley et al. 2012…") em vez de
-          conceito prático em linguagem simples — está sendo corrigido antes da produção dos
-          próximos conteúdos. Avalie vídeo e infográfico independentemente disso.
-        </p>
+        {items?.map((item) => (
+          <TriagemItem key={item.job_id} item={item} />
+        ))}
       </section>
 
       <section className="space-y-4">
-        <h2 className="text-lg font-semibold">Médico — Corte 800 (formação continuada)</h2>
-        <Card className="prose prose-sm max-w-none space-y-3 p-4">
-          <h3>
-            Guia Clínico: Terapia Comunitária Integrativa (TCI) e Práticas de Grupo na Atenção
-            Primária
-          </h3>
-          <p>
-            <strong>1. Fundamentação e Histórico:</strong> A TCI é uma tecnologia de cuidado
-            genuinamente brasileira, sistematizada pelo psiquiatra e antropólogo Adalberto de Paula
-            Barreto, a partir do trabalho com migrantes no Nordeste. Desde 2010 integra a Política
-            Nacional de Práticas Integrativas e Complementares, com mais de 30 mil terapeutas
-            comunitários formados no país.
+        <h2 className="text-lg font-semibold">Médico — Corte 800</h2>
+
+        <Card className="space-y-2 p-4">
+          <p className="font-medium">
+            Trilha: Formação continuada — Terapia em Grupo e TCI (relatório)
           </p>
-          <p>
-            <strong>2. Estrutura da roda:</strong> acolhimento (regras de sigilo e escuta) → escolha
-            do tema → aprofundamento (identificação do "mote") → problematização (partilha de
-            estratégias de superação) → encerramento reflexivo.
+          <p className="text-sm text-muted-foreground">
+            Guia clínico completo (briefing-doc) sobre Terapia Comunitária Integrativa e evidência
+            de grupoterapia — tom clínico-acadêmico, citações conferidas contra a fonte. Arquivo
+            completo em <code>documentos/conteudo-gerado/terapia-grupo-tci/</code> no repositório
+            saraiva-lms.
           </p>
-          <p>
-            <strong>3. Evidências citadas</strong> (com autor/ano, nunca inventadas): Huntley, Araya
-            & Salisbury (2012); Krishna et al. (2013); Raya-Tena et al. (2021, 2023); Yin, Wan &
-            Wang (2025); Mattos et al. (2022); Pawluk, Ward & Niyyati (2026).
+        </Card>
+
+        <Card className="space-y-2 p-4">
+          <p className="font-medium">Trilha: Pré-prova (residência/Revalida) — quiz técnico</p>
+          <p className="text-sm text-muted-foreground">
+            Mesmo material-base de TCI/terapia em grupo, mas em formato de vinheta clínica
+            objetiva, dificuldade alta — testa critério e conduta, não decoreba de citação. Arquivo
+            em <code>documentos/conteudo-gerado/pre-prova-tci-grupo/</code>.
           </p>
-          <p>
-            <strong>4. Aplicabilidade prática:</strong> recomenda ciclos mais curtos e
-            over-recruitment diante da baixa adesão em seguimento longo, estratégias ativas pra
-            engajar participantes homens, e atenção a barreiras estruturais de agenda/espaço.
+        </Card>
+
+        <Card className="space-y-2 p-4">
+          <p className="font-medium">
+            Trilha: Formação gratuita SUS — Médico de Família e Equipe (mhGAP)
           </p>
-          <p className="text-xs text-muted-foreground">
-            Documento completo gerado disponível em <code>content-pipeline/outputs</code> /
-            repositório saraiva-lms — este resumo é só pra comparação rápida de tom nesta página.
+          <p className="text-sm text-muted-foreground">
+            Vídeo explicativo (~8 min) e podcast aprofundado (~25 min) sobre o modelo mhGAP da OMS,
+            com foco explícito no papel de cada membro da equipe de atenção primária (agente
+            comunitário, enfermagem, médico de família) — não é conteúdo só pro médico sozinho.
+            Arquivos em <code>documentos/conteudo-gerado/sus-medico-familia-mhgap/</code>.
           </p>
         </Card>
       </section>
