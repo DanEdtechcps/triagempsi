@@ -60,19 +60,28 @@ DAILY_QUOTA_RELATORIOS = 100
 # cli_type: subcomando de "generate"/"download" (ex.: "audio", "quiz").
 # dl_flag: nome do tipo como aparece em "download <tipo>" (igual a cli_type
 # em todos os casos hoje, mantido separado só por clareza).
-# ext, balde_de_cota — balde confirmado contra NOTEBOOKLM_PIPELINE.md do
-# CENE (linha 12): áudio e vídeo normal = "padrao" (20/dia); infográfico e
-# slides = "relatorios" (100/dia, bem mais folgado). Quiz/flashcards/report
-# não achamos referência de cota do CENE — tratados como "relatorios" (mais
-# folgado) até haver dado real em contrário. Vídeo "cinemático" (balde de
-# 2/dia) é opt-in separado, não gerado por este runner.
-PECAS_CFG: dict[str, tuple[str, str, str, str]] = {
-    "podcast": ("audio", "audio", ".mp3", "padrao"),
-    "video": ("video", "video", ".mp4", "padrao"),
-    "infografico": ("infographic", "infographic", ".png", "relatorios"),
-    "quiz": ("quiz", "quiz", ".json", "relatorios"),
-    "flashcards": ("flashcards", "flashcards", ".json", "relatorios"),
-    "relatorio": ("report", "report", ".md", "relatorios"),
+# ext, balde_de_cota, extra_args — balde confirmado contra
+# NOTEBOOKLM_PIPELINE.md do CENE (linha 12): áudio e vídeo normal = "padrao"
+# (20/dia); infográfico e slides = "relatorios" (100/dia, bem mais folgado).
+# Quiz/flashcards/report não achamos referência de cota do CENE — tratados
+# como "relatorios" (mais folgado) até haver dado real em contrário. Vídeo
+# "cinemático" (balde de 2/dia) é opt-in separado, não gerado por este
+# runner.
+#
+# "video_pilula" (--format short, vídeo vertical curto) é o formato
+# principal pra psicoeducação a partir de 2026-09-27 — decisão do usuário:
+# não quer vídeo longo por padrão, quer "pílulas" pra publicar semanalmente.
+# "video" (explainer, formato longo) fica só pra tópicos que exigem mais
+# profundidade — não é o padrão.
+PECAS_CFG: dict[str, tuple[str, str, str, str, list[str]]] = {
+    "podcast": ("audio", "audio", ".mp3", "padrao", ["--language", "pt_BR"]),
+    "podcast_curto": ("audio", "audio", ".mp3", "padrao", ["--format", "brief", "--length", "short", "--language", "pt_BR"]),
+    "video": ("video", "video", ".mp4", "padrao", ["--format", "explainer", "--language", "pt_BR"]),
+    "video_pilula": ("video", "video", ".mp4", "padrao", ["--format", "short", "--language", "pt_BR"]),
+    "infografico": ("infographic", "infographic", ".png", "relatorios", ["--language", "pt_BR"]),
+    "quiz": ("quiz", "quiz", ".json", "relatorios", ["--language", "pt_BR"]),
+    "flashcards": ("flashcards", "flashcards", ".json", "relatorios", ["--language", "pt_BR"]),
+    "relatorio": ("report", "report", ".md", "relatorios", ["--format", "briefing-doc", "--language", "pt_BR"]),
 }
 
 
@@ -200,14 +209,14 @@ def generate_piece(
     um `--prompt-file` por peça, nunca dispara geração "pelada"). Vira um
     arquivo temporário passado como `--prompt-file` pro comando de geração.
     """
-    cli_type, dl_type, ext, balde = PECAS_CFG[kind]
+    cli_type, dl_type, ext, balde, format_args = PECAS_CFG[kind]
 
     check_quota(balde)
-    extra_args: list[str] = []
+    extra_args: list[str] = list(format_args)
     if guidance_prompt:
         prompt_file = Path(tempfile.gettempdir()) / f"triagem_prompt_{notebook_id}_{kind}.md"
         prompt_file.write_text(guidance_prompt, encoding="utf-8")
-        extra_args = ["--prompt-file", str(prompt_file)]
+        extra_args += ["--prompt-file", str(prompt_file)]
 
     gen = _run("generate", cli_type, "-n", notebook_id, *extra_args,
                "--wait", "--timeout", "1700", "--json", timeout=1800)

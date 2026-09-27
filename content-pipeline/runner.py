@@ -27,6 +27,7 @@ from dotenv import load_dotenv  # noqa: E402
 load_dotenv(Path(__file__).resolve().parent / ".env")
 
 import notebooklm_client as nlm  # noqa: E402
+import output_archive  # noqa: E402
 import supabase_client as db  # noqa: E402
 
 ACCOUNT = os.environ.get("NOTEBOOKLM_ACCOUNT", "coletivoaruatemvoz")
@@ -34,7 +35,30 @@ ACCOUNT = os.environ.get("NOTEBOOKLM_ACCOUNT", "coletivoaruatemvoz")
 # Todo job desta tabela é conteúdo pra paciente do triagem-medica — sempre a
 # marca "Saraiva Clínica de Psiquiatria" (o Corte 800 não usa esta tabela,
 # tem seu próprio script de geração fora daqui).
-BRAND_PROMPT = (Path(__file__).resolve().parent / "prompts" / "saraiva-clinica.md").read_text(encoding="utf-8")
+PROMPT_PATH = Path(__file__).resolve().parent / "prompts" / "saraiva-clinica.md"
+BRAND_PROMPT = PROMPT_PATH.read_text(encoding="utf-8")
+
+# psychoeducation_generated_assets.kind (e o enum do endpoint de upload) só
+# conhece leitura/quiz/flashcards/podcast/infografico/video — os formatos
+# mais específicos do PECAS_CFG (video_pilula, podcast_curto) são só um
+# detalhe de COMO geramos, não mudam o QUE é pro resto do sistema.
+DB_KIND_BY_PECA = {
+    "video_pilula": "video",
+    "podcast_curto": "podcast",
+    "relatorio": "leitura",
+}
+
+
+def _db_kind(kind: str) -> str:
+    return DB_KIND_BY_PECA.get(kind, kind)
+
+
+def _slug(text: str) -> str:
+    import re
+    import unicodedata
+
+    text = unicodedata.normalize("NFKD", text).encode("ascii", "ignore").decode("ascii")
+    return re.sub(r"[^a-z0-9]+", "-", text.lower()).strip("-")
 
 
 def log(job_id: str, msg: str) -> None:
@@ -77,9 +101,23 @@ def process_job(job: dict, dry_run: bool) -> None:
                     out_path = nlm.generate_piece(
                         notebook_id, kind, tmp_dir, guidance_prompt=BRAND_PROMPT
                     )
-                    media_url = db.upload_media(job_id, kind, out_path)
+                    topic_slug = _slug(job.get("topic_title_draft") or job["topic_id"])
+                    output_archive.archive(
+                        output_archive.TRIAGEM_OUTPUT_ROOT,
+                        topic_slug,
+                        kind,
+                        out_path,
+                        notebook_id=notebook_id,
+                        job_id=job_id,
+                        guidance_prompt_path=PROMPT_PATH,
+                        source_summary=job["source_material"][:300],
+                    )
+                    # Arquivar localmente PRIMEIRO: se o upload falhar, a
+                    # peça gerada não se perde (nunca dependemos só do
+                    # upload pra ter uma cópia).
+                    media_url = db.upload_media(job_id, _db_kind(kind), out_path)
                     log(job_id, f"{kind}: ok — {media_url}")
-                except nlm.NotebookLMError as e:
+                except Exception as e:  # noqa: BLE001 — falha de UMA peça não pode abortar as outras do mesmo job
                     falhas.append(f"{kind}: {e}")
                     log(job_id, f"{kind}: ERRO — {e}")
 

@@ -19,3 +19,11 @@ Tom e conteúdo (vale para qualquer formato — áudio, texto, infográfico):
   risco.
 - Baseado no material de referência fornecido nas fontes do notebook — não
   inventar dado clínico que não esteja lá.
+
+Formato "pílula" (vídeo curto vertical, quiz, flashcards):
+- Um único conceito por peça — não tentar cobrir o tópico inteiro. Pense em
+  "o que uma pessoa aprende em 60-90 segundos", não num resumo completo.
+- Comece pela ideia central nos primeiros segundos (sem introdução longa) —
+  formato pensado pra consumo rápido, cadência semanal.
+- Terminar com um convite claro à ação pequena (ex.: "experimente hoje",
+  "anote essa técnica"), nunca com uma lista extensa de próximos passos.

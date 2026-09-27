@@ -25,7 +25,10 @@ import { z } from "zod";
  */
 const bodySchema = z.object({
   job_id: z.string().uuid(),
-  kind: z.enum(["podcast", "infografico", "video"]),
+  // Mesmo enum do CHECK de psychoeducation_generated_assets.kind — estava
+  // desatualizado (só tinha podcast/infografico/video) e rejeitava quiz e
+  // flashcards, que o banco já suporta desde a migration original.
+  kind: z.enum(["leitura", "quiz", "flashcards", "podcast", "infografico", "video"]),
   content_type: z.string().min(1).max(100),
   base64: z.string().min(16),
 });
@@ -36,6 +39,7 @@ const EXT_BY_CONTENT_TYPE: Record<string, string> = {
   "image/png": "png",
   "image/jpeg": "jpg",
   "video/mp4": "mp4",
+  "application/json": "json",
 };
 
 export const Route = createFileRoute("/api/internal/psychoeducation-media-upload")({

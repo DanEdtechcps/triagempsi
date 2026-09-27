@@ -24,6 +24,7 @@ CONTENT_TYPE_BY_EXT = {
     ".png": "image/png",
     ".jpg": "image/jpeg",
     ".mp4": "video/mp4",
+    ".json": "application/json",
 }
 
 
