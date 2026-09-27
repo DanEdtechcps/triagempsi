@@ -130,15 +130,51 @@ def bump_quota(kind: str = "padrao") -> None:
     f.write_text(json.dumps(data))
 
 
+def _find_notebook_by_title(title: str) -> str | None:
+    r = _run("list", "--json", timeout=60)
+    try:
+        d = json.loads(r.stdout)
+    except Exception:
+        return None
+    notebooks = d if isinstance(d, list) else (d.get("notebooks") or [])
+    matches = [nb for nb in notebooks if nb.get("title") == title]
+    if not matches:
+        return None
+    # Se por algum motivo já existir mais de um com o mesmo título (não
+    # devia, mas é exatamente o cenário que este helper existe pra evitar
+    # repetir), adota o mais antigo — o mais novo é o duplicado acidental.
+    return sorted(matches, key=lambda nb: nb.get("created_at", ""))[0]["id"]
+
+
 def ensure_notebook(existing_notebook_id: str | None, title: str) -> tuple[str, bool]:
     """Retorna (notebook_id, criado_agora). NUNCA cria um segundo notebook
-    quando existing_notebook_id já está preenchido."""
+    quando existing_notebook_id já está preenchido — e, antes de criar,
+    verifica por título se um notebook com o mesmo nome já existe na conta.
+
+    Essa segunda trava existe por causa de um incidente real (2026-09-27):
+    o `create` retornou erro de transporte de rede (timeout na resposta),
+    mas o notebook tinha sido criado de verdade do lado do Google — como o
+    ID nunca chegou até nós, nunca foi persistido, e um retry criou um
+    SEGUNDO notebook (duplicata órfã, vazia, nunca referenciada por nenhum
+    job). Verificar por título antes de criar detecta esse caso mesmo
+    quando o registro do notebook_id no banco falhou.
+    """
     if existing_notebook_id:
         return existing_notebook_id, False
+
+    existing = _find_notebook_by_title(title)
+    if existing:
+        return existing, False
+
     r = _run("create", title, "--json", timeout=120)
     try:
         nbid = json.loads(r.stdout)["notebook"]["id"]
     except Exception as e:
+        # Mesmo aqui: antes de admitir falha, checa de novo por título —
+        # cobre exatamente o caso "criou no servidor, mas a resposta falhou".
+        recovered = _find_notebook_by_title(title)
+        if recovered:
+            return recovered, False
         raise NotebookLMError(f"Falha ao criar notebook: {(r.stderr or r.stdout)[:200]}") from e
     return nbid, True
 
