@@ -33,15 +33,23 @@ def _connect():
 
 
 def fetch_pending_notebooklm_jobs() -> list[dict[str, Any]]:
-    """Jobs da Fase 2 (engine='notebooklm') ainda não processados."""
+    """Jobs da Fase 2 (engine='notebooklm') ainda não processados.
+
+    Faz join com psychoeducation_topics pra trazer o slug real do tópico —
+    topic_title_draft costuma vir NULL (job criado direto pro tópico já
+    existente, sem passar por rascunho de título), e sem isso o arquivamento
+    local (output_archive) caía no fallback de usar o topic_id (UUID) como
+    nome de pasta, ilegível.
+    """
     with _connect() as conn, conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
         cur.execute(
             """
-            select id, topic_id, topic_title_draft, source_material,
-                   requested_formats, notebook_id, status
-            from psychoeducation_generation_jobs
-            where engine = 'notebooklm' and status in ('pendente', 'gerando')
-            order by created_at asc
+            select j.id, j.topic_id, j.topic_title_draft, j.source_material,
+                   j.requested_formats, j.notebook_id, j.status, t.slug as topic_slug
+            from psychoeducation_generation_jobs j
+            left join psychoeducation_topics t on t.id = j.topic_id
+            where j.engine = 'notebooklm' and j.status in ('pendente', 'gerando')
+            order by j.created_at asc
             """
         )
         return cur.fetchall()

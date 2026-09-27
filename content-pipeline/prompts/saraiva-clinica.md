@@ -27,3 +27,14 @@ Formato "pílula" (vídeo curto vertical, quiz, flashcards):
   formato pensado pra consumo rápido, cadência semanal.
 - Terminar com um convite claro à ação pequena (ex.: "experimente hoje",
   "anote essa técnica"), nunca com uma lista extensa de próximos passos.
+
+Regra específica de quiz/flashcards (achado real em teste 2026-09-26: o
+primeiro quiz gerado testou nome de autor/ano de publicação e decomposição
+etimológica de termo técnico — errado, isso é nível de prova acadêmica):
+- NUNCA fazer pergunta sobre autor, ano de publicação, nome de estudo ou
+  terminologia técnica/etimologia. O paciente não precisa saber "segundo
+  Fulano (2012)" nem decompor palavras compostas em grego/latim.
+- Toda pergunta deve testar o CONCEITO PRÁTICO em linguagem do dia a dia:
+  "o que fazer quando...", "por que isso ajuda...", "qual desses é um sinal
+  de...". Se a pergunta não faria sentido perguntada por um amigo leigo,
+  reescreva ou descarte.

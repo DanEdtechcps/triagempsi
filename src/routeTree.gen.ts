@@ -19,6 +19,7 @@ import { Route as SlugRouteImport } from './routes/$slug'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as SlugIndexRouteImport } from './routes/$slug.index'
+import { Route as RevisaoPreLancamentoConteudoIaRouteImport } from './routes/revisao/pre-lancamento-conteudo-ia'
 import { Route as AuthenticatedSenhaRouteImport } from './routes/_authenticated/senha'
 import { Route as AuthenticatedRoadmapRouteImport } from './routes/_authenticated/roadmap'
 import { Route as AuthenticatedResumoRouteImport } from './routes/_authenticated/resumo'
@@ -38,6 +39,7 @@ import { Route as AuthenticatedAjudaRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as SlugTriagemRouteImport } from './routes/$slug.triagem'
 import { Route as AuthenticatedPainelIndexRouteImport } from './routes/_authenticated/painel.index'
+import { Route as ApiPublicPsychoeducationPreviewRouteImport } from './routes/api/public/psychoeducation-preview'
 import { Route as ApiPublicPsychoeducationAssetRouteImport } from './routes/api/public/psychoeducation-asset'
 import { Route as ApiPublicOgLandingRouteImport } from './routes/api/public/og-landing'
 import { Route as ApiPublicClinicAssetRouteImport } from './routes/api/public/clinic-asset'
@@ -93,6 +95,12 @@ const SlugIndexRoute = SlugIndexRouteImport.update({
   path: '/',
   getParentRoute: () => SlugRoute,
 } as any)
+const RevisaoPreLancamentoConteudoIaRoute =
+  RevisaoPreLancamentoConteudoIaRouteImport.update({
+    id: '/revisao/pre-lancamento-conteudo-ia',
+    path: '/revisao/pre-lancamento-conteudo-ia',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const AuthenticatedSenhaRoute = AuthenticatedSenhaRouteImport.update({
   id: '/senha',
   path: '/senha',
@@ -193,6 +201,12 @@ const AuthenticatedPainelIndexRoute =
     path: '/painel/',
     getParentRoute: () => AuthenticatedRouteRoute,
   } as any)
+const ApiPublicPsychoeducationPreviewRoute =
+  ApiPublicPsychoeducationPreviewRouteImport.update({
+    id: '/api/public/psychoeducation-preview',
+    path: '/api/public/psychoeducation-preview',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicPsychoeducationAssetRoute =
   ApiPublicPsychoeducationAssetRouteImport.update({
     id: '/api/public/psychoeducation-asset',
@@ -248,12 +262,14 @@ export interface FileRoutesByFullPath {
   '/resumo': typeof AuthenticatedResumoRoute
   '/roadmap': typeof AuthenticatedRoadmapRoute
   '/senha': typeof AuthenticatedSenhaRoute
+  '/revisao/pre-lancamento-conteudo-ia': typeof RevisaoPreLancamentoConteudoIaRoute
   '/$slug/': typeof SlugIndexRoute
   '/painel/$id': typeof AuthenticatedPainelIdRoute
   '/api/internal/psychoeducation-media-upload': typeof ApiInternalPsychoeducationMediaUploadRoute
   '/api/public/clinic-asset': typeof ApiPublicClinicAssetRoute
   '/api/public/og-landing': typeof ApiPublicOgLandingRoute
   '/api/public/psychoeducation-asset': typeof ApiPublicPsychoeducationAssetRoute
+  '/api/public/psychoeducation-preview': typeof ApiPublicPsychoeducationPreviewRoute
   '/painel/': typeof AuthenticatedPainelIndexRoute
 }
 export interface FileRoutesByTo {
@@ -282,12 +298,14 @@ export interface FileRoutesByTo {
   '/resumo': typeof AuthenticatedResumoRoute
   '/roadmap': typeof AuthenticatedRoadmapRoute
   '/senha': typeof AuthenticatedSenhaRoute
+  '/revisao/pre-lancamento-conteudo-ia': typeof RevisaoPreLancamentoConteudoIaRoute
   '/$slug': typeof SlugIndexRoute
   '/painel/$id': typeof AuthenticatedPainelIdRoute
   '/api/internal/psychoeducation-media-upload': typeof ApiInternalPsychoeducationMediaUploadRoute
   '/api/public/clinic-asset': typeof ApiPublicClinicAssetRoute
   '/api/public/og-landing': typeof ApiPublicOgLandingRoute
   '/api/public/psychoeducation-asset': typeof ApiPublicPsychoeducationAssetRoute
+  '/api/public/psychoeducation-preview': typeof ApiPublicPsychoeducationPreviewRoute
   '/painel': typeof AuthenticatedPainelIndexRoute
 }
 export interface FileRoutesById {
@@ -319,12 +337,14 @@ export interface FileRoutesById {
   '/_authenticated/resumo': typeof AuthenticatedResumoRoute
   '/_authenticated/roadmap': typeof AuthenticatedRoadmapRoute
   '/_authenticated/senha': typeof AuthenticatedSenhaRoute
+  '/revisao/pre-lancamento-conteudo-ia': typeof RevisaoPreLancamentoConteudoIaRoute
   '/$slug/': typeof SlugIndexRoute
   '/_authenticated/painel/$id': typeof AuthenticatedPainelIdRoute
   '/api/internal/psychoeducation-media-upload': typeof ApiInternalPsychoeducationMediaUploadRoute
   '/api/public/clinic-asset': typeof ApiPublicClinicAssetRoute
   '/api/public/og-landing': typeof ApiPublicOgLandingRoute
   '/api/public/psychoeducation-asset': typeof ApiPublicPsychoeducationAssetRoute
+  '/api/public/psychoeducation-preview': typeof ApiPublicPsychoeducationPreviewRoute
   '/_authenticated/painel/': typeof AuthenticatedPainelIndexRoute
 }
 export interface FileRouteTypes {
@@ -356,12 +376,14 @@ export interface FileRouteTypes {
     | '/resumo'
     | '/roadmap'
     | '/senha'
+    | '/revisao/pre-lancamento-conteudo-ia'
     | '/$slug/'
     | '/painel/$id'
     | '/api/internal/psychoeducation-media-upload'
     | '/api/public/clinic-asset'
     | '/api/public/og-landing'
     | '/api/public/psychoeducation-asset'
+    | '/api/public/psychoeducation-preview'
     | '/painel/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -390,12 +412,14 @@ export interface FileRouteTypes {
     | '/resumo'
     | '/roadmap'
     | '/senha'
+    | '/revisao/pre-lancamento-conteudo-ia'
     | '/$slug'
     | '/painel/$id'
     | '/api/internal/psychoeducation-media-upload'
     | '/api/public/clinic-asset'
     | '/api/public/og-landing'
     | '/api/public/psychoeducation-asset'
+    | '/api/public/psychoeducation-preview'
     | '/painel'
   id:
     | '__root__'
@@ -426,12 +450,14 @@ export interface FileRouteTypes {
     | '/_authenticated/resumo'
     | '/_authenticated/roadmap'
     | '/_authenticated/senha'
+    | '/revisao/pre-lancamento-conteudo-ia'
     | '/$slug/'
     | '/_authenticated/painel/$id'
     | '/api/internal/psychoeducation-media-upload'
     | '/api/public/clinic-asset'
     | '/api/public/og-landing'
     | '/api/public/psychoeducation-asset'
+    | '/api/public/psychoeducation-preview'
     | '/_authenticated/painel/'
   fileRoutesById: FileRoutesById
 }
@@ -445,10 +471,12 @@ export interface RootRouteChildren {
   PrimeiroAcessoRoute: typeof PrimeiroAcessoRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   TriagemRoute: typeof TriagemRoute
+  RevisaoPreLancamentoConteudoIaRoute: typeof RevisaoPreLancamentoConteudoIaRoute
   ApiInternalPsychoeducationMediaUploadRoute: typeof ApiInternalPsychoeducationMediaUploadRoute
   ApiPublicClinicAssetRoute: typeof ApiPublicClinicAssetRoute
   ApiPublicOgLandingRoute: typeof ApiPublicOgLandingRoute
   ApiPublicPsychoeducationAssetRoute: typeof ApiPublicPsychoeducationAssetRoute
+  ApiPublicPsychoeducationPreviewRoute: typeof ApiPublicPsychoeducationPreviewRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -522,6 +550,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/$slug/'
       preLoaderRoute: typeof SlugIndexRouteImport
       parentRoute: typeof SlugRoute
+    }
+    '/revisao/pre-lancamento-conteudo-ia': {
+      id: '/revisao/pre-lancamento-conteudo-ia'
+      path: '/revisao/pre-lancamento-conteudo-ia'
+      fullPath: '/revisao/pre-lancamento-conteudo-ia'
+      preLoaderRoute: typeof RevisaoPreLancamentoConteudoIaRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/_authenticated/senha': {
       id: '/_authenticated/senha'
@@ -656,6 +691,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedPainelIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/api/public/psychoeducation-preview': {
+      id: '/api/public/psychoeducation-preview'
+      path: '/api/public/psychoeducation-preview'
+      fullPath: '/api/public/psychoeducation-preview'
+      preLoaderRoute: typeof ApiPublicPsychoeducationPreviewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/psychoeducation-asset': {
       id: '/api/public/psychoeducation-asset'
       path: '/api/public/psychoeducation-asset'
@@ -763,11 +805,13 @@ const rootRouteChildren: RootRouteChildren = {
   PrimeiroAcessoRoute: PrimeiroAcessoRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   TriagemRoute: TriagemRoute,
+  RevisaoPreLancamentoConteudoIaRoute: RevisaoPreLancamentoConteudoIaRoute,
   ApiInternalPsychoeducationMediaUploadRoute:
     ApiInternalPsychoeducationMediaUploadRoute,
   ApiPublicClinicAssetRoute: ApiPublicClinicAssetRoute,
   ApiPublicOgLandingRoute: ApiPublicOgLandingRoute,
   ApiPublicPsychoeducationAssetRoute: ApiPublicPsychoeducationAssetRoute,
+  ApiPublicPsychoeducationPreviewRoute: ApiPublicPsychoeducationPreviewRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

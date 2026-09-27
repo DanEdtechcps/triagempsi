@@ -37,10 +37,17 @@ def archive(
 ) -> Path:
     """Copia `file_path` pra `output_root/topic_slug/` e grava um `.md` de
     metadados ao lado (mesmo nome-base, extensão `.md`). Retorna o caminho
-    do arquivo copiado."""
+    do arquivo copiado.
+
+    O arquivo de destino é renomeado pra `{topic_slug}_{kind}{ext}` — o
+    NotebookLM sempre nomeia genérico ("video.mp4", "infografico.png"), e
+    isso vira ilegível assim que o arquivo sai da pasta (ex.: enviado
+    avulso, listado fora de contexto). O nome tem que carregar do que se
+    trata mesmo sozinho.
+    """
     dest_dir = output_root / topic_slug
     dest_dir.mkdir(parents=True, exist_ok=True)
-    dest_file = dest_dir / file_path.name
+    dest_file = dest_dir / f"{topic_slug}_{kind}{file_path.suffix}"
     shutil.copy(file_path, dest_file)
 
     meta_lines = [

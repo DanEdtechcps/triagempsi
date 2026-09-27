@@ -101,7 +101,7 @@ def process_job(job: dict, dry_run: bool) -> None:
                     out_path = nlm.generate_piece(
                         notebook_id, kind, tmp_dir, guidance_prompt=BRAND_PROMPT
                     )
-                    topic_slug = _slug(job.get("topic_title_draft") or job["topic_id"])
+                    topic_slug = job.get("topic_slug") or _slug(job.get("topic_title_draft") or job["topic_id"])
                     output_archive.archive(
                         output_archive.TRIAGEM_OUTPUT_ROOT,
                         topic_slug,
