@@ -53,7 +53,7 @@ def process_job(job: dict, dry_run: bool) -> None:
     try:
         nlm.check_auth(ACCOUNT)
 
-        notebook_id, criado_agora = nlm.ensure_notebook(ACCOUNT, job.get("notebook_id"), title)
+        notebook_id, criado_agora = nlm.ensure_notebook(job.get("notebook_id"), title)
         if criado_agora:
             # Trava contra o bug de notebook duplicado: persiste ANTES de
             # subir fonte ou gerar qualquer coisa.
@@ -63,7 +63,7 @@ def process_job(job: dict, dry_run: bool) -> None:
             log(job_id, f"reaproveitando notebook existente: {notebook_id}")
 
         db.mark_job_status(job_id, "gerando")
-        nlm.ensure_sources(ACCOUNT, notebook_id, job["source_material"])
+        nlm.ensure_sources(notebook_id, job["source_material"])
         log(job_id, "fontes confirmadas no notebook")
 
         with tempfile.TemporaryDirectory() as tmp:
@@ -75,7 +75,7 @@ def process_job(job: dict, dry_run: bool) -> None:
                 try:
                     log(job_id, f"{kind}: gerando…")
                     out_path = nlm.generate_piece(
-                        ACCOUNT, notebook_id, kind, tmp_dir, guidance_prompt=BRAND_PROMPT
+                        notebook_id, kind, tmp_dir, guidance_prompt=BRAND_PROMPT
                     )
                     media_url = db.upload_media(job_id, kind, out_path)
                     log(job_id, f"{kind}: ok — {media_url}")

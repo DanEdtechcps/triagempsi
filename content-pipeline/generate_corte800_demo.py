@@ -71,16 +71,16 @@ def main() -> int:
     print("OK — autenticado.")
 
     print("Criando notebook...")
-    notebook_id, _ = nlm.ensure_notebook(ACCOUNT, None, "Corte 800 — mhGAP Overview (demo)")
+    notebook_id, _ = nlm.ensure_notebook(None, "Corte 800 — mhGAP Overview (demo)")
     print(f"Notebook: {notebook_id}")
 
     print("Subindo fonte...")
-    nlm.ensure_sources(ACCOUNT, notebook_id, SOURCE_MATERIAL)
+    nlm.ensure_sources(notebook_id, SOURCE_MATERIAL)
     print("Fonte confirmada.")
 
     out_dir = Path(__file__).resolve().parent / "output-corte800-demo"
     print("Gerando infográfico (balde de cota: relatorios, 100/dia)...")
-    out_path = nlm.generate_piece(ACCOUNT, notebook_id, "infografico", out_dir, guidance_prompt=BRAND_PROMPT)
+    out_path = nlm.generate_piece(notebook_id, "infografico", out_dir, guidance_prompt=BRAND_PROMPT)
     print(f"Pronto: {out_path}")
     print(f"notebook_id (guardar caso precise reprocessar): {notebook_id}")
     return 0

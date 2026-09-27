@@ -1,4 +1,4 @@
 psycopg2-binary==2.9.9
 requests==2.32.3
 python-dotenv==1.0.1
-notebooklm-py[cookies]==0.7.1
+notebooklm-py[cookies,headless,browser]==0.8.3
