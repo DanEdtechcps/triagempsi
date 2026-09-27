@@ -31,6 +31,11 @@ import supabase_client as db  # noqa: E402
 
 ACCOUNT = os.environ.get("NOTEBOOKLM_ACCOUNT", "coletivoaruatemvoz")
 
+# Todo job desta tabela é conteúdo pra paciente do triagem-medica — sempre a
+# marca "Saraiva Clínica de Psiquiatria" (o Corte 800 não usa esta tabela,
+# tem seu próprio script de geração fora daqui).
+BRAND_PROMPT = (Path(__file__).resolve().parent / "prompts" / "saraiva-clinica.md").read_text(encoding="utf-8")
+
 
 def log(job_id: str, msg: str) -> None:
     print(f"[{job_id[:8]}] {msg}", flush=True)
@@ -69,7 +74,9 @@ def process_job(job: dict, dry_run: bool) -> None:
                     continue
                 try:
                     log(job_id, f"{kind}: gerando…")
-                    out_path = nlm.generate_piece(ACCOUNT, notebook_id, kind, tmp_dir)
+                    out_path = nlm.generate_piece(
+                        ACCOUNT, notebook_id, kind, tmp_dir, guidance_prompt=BRAND_PROMPT
+                    )
                     media_url = db.upload_media(job_id, kind, out_path)
                     log(job_id, f"{kind}: ok — {media_url}")
                 except nlm.NotebookLMError as e:

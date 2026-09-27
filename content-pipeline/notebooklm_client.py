@@ -1,6 +1,15 @@
 """Wrapper fino sobre o CLI `notebooklm` (notebooklm-py), adaptado de
 /mnt/armazenamento/CENE/conteudo/src/gerar_trilha_conta.py e
-preflight_geracao.py — reaproveitando a MESMA conta/cota do CENE.
+preflight_geracao.py.
+
+Instalação PRÓPRIA (não usa o venv do CENE — decisão do usuário
+2026-09-27, o venv do CENE está com o interpretador quebrado e ele não
+quis remendar isso via symlink): `pip install -r requirements.txt` dentro
+de `content-pipeline/.venv` instala o mesmo `notebooklm-py`, e o login
+(cookie do Chrome) é feito uma vez, independente do CENE. A CONTA Google
+(`coletivoaruatemvoz`) e a COTA continuam sendo as mesmas do CENE — é a
+mesma conta real, então o contador de uso tem que ser único mesmo com
+instalações de software separadas (ver QUOTA_DIR abaixo).
 
 Regras de ouro (não são só comentário — são o motivo de cada função
 existir, depois de um incidente real de produção no CENE relatado pelo
@@ -30,15 +39,25 @@ import tempfile
 import time
 from pathlib import Path
 
-CENE_BASE = Path("/mnt/armazenamento/CENE/conteudo")
-CLI = str(CENE_BASE / ".venv" / "bin" / "notebooklm")
-QUOTA_DIR = CENE_BASE / "integracao"
+# CLI local, própria deste projeto — NUNCA aponta pro venv do CENE (estava
+# quebrado, e o usuário decidiu não depender dele em vez de consertar).
+CLI = str(Path(__file__).resolve().parent / ".venv" / "bin" / "notebooklm")
+# A cota, porém, é da CONTA Google real — a mesma usada pelo CENE — então o
+# arquivo de contagem continua sendo o mesmo, senão os dois softwares
+# achariam ter 20/dia cada um quando na verdade dividem um único limite.
+QUOTA_DIR = Path("/mnt/armazenamento/CENE/conteudo/integracao")
 DAILY_QUOTA_PADRAO = 20
+DAILY_QUOTA_RELATORIOS = 100
 
-PECAS_CFG: dict[str, tuple[list[str], str, list[str], str]] = {
-    "podcast": (["generate", "audio", "--language", "pt_BR"], "audio", ["download", "audio"], ".mp3"),
-    "video": (["generate", "video", "--language", "pt_BR"], "video", ["download", "video"], ".mp4"),
-    "infografico": (["generate", "infographic"], "infographic", ["download", "infographic"], ".png"),
+# gen_args, type_id, dl_args, ext, balde_de_cota — balde confirmado contra
+# NOTEBOOKLM_PIPELINE.md do CENE (linha 12): áudio e vídeo normal = "padrao"
+# (20/dia); infográfico e slides = "relatorios" (100/dia, bem mais folgado).
+# Vídeo "cinemático" (balde de 2/dia) é um opt-in separado que este runner
+# não gera hoje — só vídeo normal, que cai no balde padrão.
+PECAS_CFG: dict[str, tuple[list[str], str, list[str], str, str]] = {
+    "podcast": (["generate", "audio", "--language", "pt_BR"], "audio", ["download", "audio"], ".mp3", "padrao"),
+    "video": (["generate", "video", "--language", "pt_BR"], "video", ["download", "video"], ".mp4", "padrao"),
+    "infografico": (["generate", "infographic"], "infographic", ["download", "infographic"], ".png", "relatorios"),
 }
 
 
@@ -65,12 +84,13 @@ def _quota_file() -> Path:
     return QUOTA_DIR / f"cota_principal_{datetime.date.today()}.json"
 
 
-def check_quota() -> None:
+def check_quota(balde: str = "padrao") -> None:
     f = _quota_file()
     data = json.loads(f.read_text()) if f.exists() else {"padrao": 0, "cinematico": 0, "relatorios": 0}
-    if data.get("padrao", 0) >= DAILY_QUOTA_PADRAO:
+    limite = DAILY_QUOTA_RELATORIOS if balde == "relatorios" else DAILY_QUOTA_PADRAO
+    if data.get(balde, 0) >= limite:
         raise NotebookLMError(
-            "Cota diária da conta (20 gerações/dia — COMPARTILHADA com o CENE) "
+            f"Cota diária do balde '{balde}' ({limite}/dia — COMPARTILHADA com o CENE) "
             "já esgotada hoje. Aguardar amanhã; nunca trocar de conta."
         )
 
@@ -148,11 +168,23 @@ def _list_artifacts(account: str, notebook_id: str) -> list[dict]:
     return d if isinstance(d, list) else (d.get("artifacts") or d.get("items") or [])
 
 
-def generate_piece(account: str, notebook_id: str, kind: str, output_dir: Path) -> Path:
+def generate_piece(
+    account: str,
+    notebook_id: str,
+    kind: str,
+    output_dir: Path,
+    guidance_prompt: str | None = None,
+) -> Path:
     """Gera (ou adota uma geração já em andamento/concluída) e baixa a
     peça. Nunca recria o notebook em caso de timeout — só levanta erro pro
-    job ficar pendente de reprocessamento."""
-    gen_args, type_id, dl_args, ext = PECAS_CFG[kind]
+    job ficar pendente de reprocessamento.
+
+    `guidance_prompt`: instrução de marca/guardrail (tom, paleta, regras de
+    conteúdo) — igual ao padrão do CENE (gerar_trilha_conta.py sempre passa
+    um `--prompt-file` por peça, nunca dispara geração "pelada"). Vira um
+    arquivo temporário passado como `--prompt-file` pro comando de geração.
+    """
+    gen_args, type_id, dl_args, ext, balde = PECAS_CFG[kind]
 
     adotaveis = [
         a for a in _list_artifacts(account, notebook_id)
@@ -162,9 +194,14 @@ def generate_piece(account: str, notebook_id: str, kind: str, output_dir: Path) 
         aid = sorted(adotaveis, key=lambda a: a.get("created_at", ""))[-1]["id"]
     else:
         antes = {a["id"] for a in _list_artifacts(account, notebook_id) if a.get("type_id") == type_id}
-        check_quota()
-        _run(account, *gen_args, "-n", notebook_id, "--json", timeout=300)
-        bump_quota("cinematico" if kind == "video" else "padrao")
+        check_quota(balde)
+        extra_args: list[str] = []
+        if guidance_prompt:
+            prompt_file = Path(tempfile.gettempdir()) / f"triagem_prompt_{notebook_id}_{kind}.md"
+            prompt_file.write_text(guidance_prompt, encoding="utf-8")
+            extra_args = ["--prompt-file", str(prompt_file)]
+        _run(account, *gen_args, "-n", notebook_id, *extra_args, "--json", timeout=300)
+        bump_quota(balde)
         aid = None
         for _ in range(48):  # ~4 min pro artefato aparecer na lista
             time.sleep(5)
