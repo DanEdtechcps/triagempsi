@@ -44,6 +44,7 @@ import { Route as ApiPublicPsychoeducationAssetRouteImport } from './routes/api/
 import { Route as ApiPublicOgLandingRouteImport } from './routes/api/public/og-landing'
 import { Route as ApiPublicClinicAssetRouteImport } from './routes/api/public/clinic-asset'
 import { Route as ApiInternalPsychoeducationMediaUploadRouteImport } from './routes/api/internal/psychoeducation-media-upload'
+import { Route as ApiInternalCorte800MediaUploadRouteImport } from './routes/api/internal/corte800-media-upload'
 import { Route as AuthenticatedPainelIdRouteImport } from './routes/_authenticated/painel.$id'
 
 const TriagemRoute = TriagemRouteImport.update({
@@ -229,6 +230,12 @@ const ApiInternalPsychoeducationMediaUploadRoute =
     path: '/api/internal/psychoeducation-media-upload',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiInternalCorte800MediaUploadRoute =
+  ApiInternalCorte800MediaUploadRouteImport.update({
+    id: '/api/internal/corte800-media-upload',
+    path: '/api/internal/corte800-media-upload',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const AuthenticatedPainelIdRoute = AuthenticatedPainelIdRouteImport.update({
   id: '/painel/$id',
   path: '/painel/$id',
@@ -265,6 +272,7 @@ export interface FileRoutesByFullPath {
   '/revisao/pre-lancamento-conteudo-ia': typeof RevisaoPreLancamentoConteudoIaRoute
   '/$slug/': typeof SlugIndexRoute
   '/painel/$id': typeof AuthenticatedPainelIdRoute
+  '/api/internal/corte800-media-upload': typeof ApiInternalCorte800MediaUploadRoute
   '/api/internal/psychoeducation-media-upload': typeof ApiInternalPsychoeducationMediaUploadRoute
   '/api/public/clinic-asset': typeof ApiPublicClinicAssetRoute
   '/api/public/og-landing': typeof ApiPublicOgLandingRoute
@@ -301,6 +309,7 @@ export interface FileRoutesByTo {
   '/revisao/pre-lancamento-conteudo-ia': typeof RevisaoPreLancamentoConteudoIaRoute
   '/$slug': typeof SlugIndexRoute
   '/painel/$id': typeof AuthenticatedPainelIdRoute
+  '/api/internal/corte800-media-upload': typeof ApiInternalCorte800MediaUploadRoute
   '/api/internal/psychoeducation-media-upload': typeof ApiInternalPsychoeducationMediaUploadRoute
   '/api/public/clinic-asset': typeof ApiPublicClinicAssetRoute
   '/api/public/og-landing': typeof ApiPublicOgLandingRoute
@@ -340,6 +349,7 @@ export interface FileRoutesById {
   '/revisao/pre-lancamento-conteudo-ia': typeof RevisaoPreLancamentoConteudoIaRoute
   '/$slug/': typeof SlugIndexRoute
   '/_authenticated/painel/$id': typeof AuthenticatedPainelIdRoute
+  '/api/internal/corte800-media-upload': typeof ApiInternalCorte800MediaUploadRoute
   '/api/internal/psychoeducation-media-upload': typeof ApiInternalPsychoeducationMediaUploadRoute
   '/api/public/clinic-asset': typeof ApiPublicClinicAssetRoute
   '/api/public/og-landing': typeof ApiPublicOgLandingRoute
@@ -379,6 +389,7 @@ export interface FileRouteTypes {
     | '/revisao/pre-lancamento-conteudo-ia'
     | '/$slug/'
     | '/painel/$id'
+    | '/api/internal/corte800-media-upload'
     | '/api/internal/psychoeducation-media-upload'
     | '/api/public/clinic-asset'
     | '/api/public/og-landing'
@@ -415,6 +426,7 @@ export interface FileRouteTypes {
     | '/revisao/pre-lancamento-conteudo-ia'
     | '/$slug'
     | '/painel/$id'
+    | '/api/internal/corte800-media-upload'
     | '/api/internal/psychoeducation-media-upload'
     | '/api/public/clinic-asset'
     | '/api/public/og-landing'
@@ -453,6 +465,7 @@ export interface FileRouteTypes {
     | '/revisao/pre-lancamento-conteudo-ia'
     | '/$slug/'
     | '/_authenticated/painel/$id'
+    | '/api/internal/corte800-media-upload'
     | '/api/internal/psychoeducation-media-upload'
     | '/api/public/clinic-asset'
     | '/api/public/og-landing'
@@ -472,6 +485,7 @@ export interface RootRouteChildren {
   ResetPasswordRoute: typeof ResetPasswordRoute
   TriagemRoute: typeof TriagemRoute
   RevisaoPreLancamentoConteudoIaRoute: typeof RevisaoPreLancamentoConteudoIaRoute
+  ApiInternalCorte800MediaUploadRoute: typeof ApiInternalCorte800MediaUploadRoute
   ApiInternalPsychoeducationMediaUploadRoute: typeof ApiInternalPsychoeducationMediaUploadRoute
   ApiPublicClinicAssetRoute: typeof ApiPublicClinicAssetRoute
   ApiPublicOgLandingRoute: typeof ApiPublicOgLandingRoute
@@ -726,6 +740,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiInternalPsychoeducationMediaUploadRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/internal/corte800-media-upload': {
+      id: '/api/internal/corte800-media-upload'
+      path: '/api/internal/corte800-media-upload'
+      fullPath: '/api/internal/corte800-media-upload'
+      preLoaderRoute: typeof ApiInternalCorte800MediaUploadRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/painel/$id': {
       id: '/_authenticated/painel/$id'
       path: '/painel/$id'
@@ -806,6 +827,7 @@ const rootRouteChildren: RootRouteChildren = {
   ResetPasswordRoute: ResetPasswordRoute,
   TriagemRoute: TriagemRoute,
   RevisaoPreLancamentoConteudoIaRoute: RevisaoPreLancamentoConteudoIaRoute,
+  ApiInternalCorte800MediaUploadRoute: ApiInternalCorte800MediaUploadRoute,
   ApiInternalPsychoeducationMediaUploadRoute:
     ApiInternalPsychoeducationMediaUploadRoute,
   ApiPublicClinicAssetRoute: ApiPublicClinicAssetRoute,

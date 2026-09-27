@@ -8,7 +8,8 @@ import { createFileRoute } from "@tanstack/react-router";
  * nesse bucket; esta rota só lê via `supabaseAdmin` e repassa. `path` é
  * validado por allowlist estrita — nunca vira leitura arbitrária de arquivo.
  */
-const PATH_PATTERN = /^(leitura|quiz|flashcards|podcast|infografico|video)\/[A-Za-z0-9._-]+$/;
+const PATH_PATTERN =
+  /^(leitura|quiz|flashcards|podcast|infografico|video)\/[A-Za-z0-9._-]+$|^corte800\/[a-z0-9-]+\/[A-Za-z0-9._-]+$/;
 
 export const Route = createFileRoute("/api/public/psychoeducation-asset")({
   server: {
