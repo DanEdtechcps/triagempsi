@@ -85,6 +85,9 @@ PECAS_CFG: dict[str, tuple[str, str, str, str, list[str]]] = {
     "quiz": ("quiz", "quiz", ".json", "relatorios", ["--difficulty", "easy"]),
     "flashcards": ("flashcards", "flashcards", ".json", "relatorios", ["--difficulty", "easy"]),
     "relatorio": ("report", "report", ".md", "relatorios", ["--format", "briefing-doc", "--language", "pt_BR"]),
+    "slide_deck": ("slide-deck", "slide-deck", ".pdf", "relatorios", ["--format", "presenter", "--language", "pt_BR"]),
+    "mind_map": ("mind-map", "mind-map", ".json", "relatorios", []),
+    "data_table": ("data-table", "data-table", ".csv", "relatorios", ["--language", "pt_BR"]),
 }
 
 
