@@ -79,8 +79,11 @@ PECAS_CFG: dict[str, tuple[str, str, str, str, list[str]]] = {
     "video": ("video", "video", ".mp4", "padrao", ["--format", "explainer", "--language", "pt_BR"]),
     "video_pilula": ("video", "video", ".mp4", "padrao", ["--format", "short", "--language", "pt_BR"]),
     "infografico": ("infographic", "infographic", ".png", "relatorios", ["--language", "pt_BR"]),
-    "quiz": ("quiz", "quiz", ".json", "relatorios", ["--language", "pt_BR"]),
-    "flashcards": ("flashcards", "flashcards", ".json", "relatorios", ["--language", "pt_BR"]),
+    # quiz/flashcards não têm --language na CLI (só --quantity/--difficulty)
+    # — confirmado via --help, não documentado no README. "easy" por padrão
+    # pra conteúdo de paciente (público leigo, não quer se sentir testado).
+    "quiz": ("quiz", "quiz", ".json", "relatorios", ["--difficulty", "easy"]),
+    "flashcards": ("flashcards", "flashcards", ".json", "relatorios", ["--difficulty", "easy"]),
     "relatorio": ("report", "report", ".md", "relatorios", ["--format", "briefing-doc", "--language", "pt_BR"]),
 }
 
@@ -247,4 +250,39 @@ def generate_piece(
     r = _run("download", dl_type, "--latest", "-n", notebook_id, str(out), "--force", timeout=600)
     if r.returncode != 0 or not out.exists():
         raise NotebookLMError(f"{kind}: download falhou: {(r.stderr or r.stdout)[:200]}")
+
+    if dl_type == "video":
+        _trim_gemini_notebook_outro(out)
+
     return out
+
+
+# O vídeo gerado sempre termina com um cartão de marca "Gemini Notebook"
+# (ex-NotebookLM) de ~2.5s — não removível via API/CLI, só assinando o plano
+# AI Ultra (confirmado por pesquisa em 2026-09-27, sem opção pra conta
+# gratuita/Plus). Corte automático, medido empiricamente no primeiro vídeo
+# de teste (73.3s de conteúdo nosso em 76.7s totais — a transição pro
+# cartão começa entre 73.2s e 74s). Corta 3.3s do final com margem segura.
+_GEMINI_NOTEBOOK_OUTRO_SECONDS = 3.3
+
+
+def _trim_gemini_notebook_outro(video_path: Path) -> None:
+    probe = subprocess.run(
+        ["ffprobe", "-v", "error", "-show_entries", "format=duration",
+         "-of", "default=noprint_wrappers=1:nokey=1", str(video_path)],
+        capture_output=True, text=True, timeout=30,
+    )
+    try:
+        duration = float(probe.stdout.strip())
+    except ValueError:
+        return  # não conseguiu medir — mantém o vídeo como veio, não arrisca cortar errado
+    novo_fim = duration - _GEMINI_NOTEBOOK_OUTRO_SECONDS
+    if novo_fim <= 1.0:
+        return  # vídeo curto demais pra confiar no corte fixo — mantém como veio
+    tmp_out = video_path.with_suffix(".trim.mp4")
+    result = subprocess.run(
+        ["ffmpeg", "-y", "-i", str(video_path), "-t", f"{novo_fim:.2f}", "-c", "copy", str(tmp_out)],
+        capture_output=True, text=True, timeout=60,
+    )
+    if result.returncode == 0 and tmp_out.exists():
+        tmp_out.replace(video_path)
