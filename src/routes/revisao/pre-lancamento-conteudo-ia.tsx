@@ -86,6 +86,26 @@ function useJsonAsset<T>(url: string | null | undefined): T | null {
   return data;
 }
 
+function useTextAsset(url: string | null | undefined): string | null {
+  const [text, setText] = useState<string | null>(null);
+  useEffect(() => {
+    if (!url) return;
+    let cancelled = false;
+    fetch(url)
+      .then((r) => (r.ok ? r.text() : Promise.reject(new Error("not ok"))))
+      .then((t) => {
+        if (!cancelled) setText(t);
+      })
+      .catch(() => {
+        /* silencioso */
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [url]);
+  return text;
+}
+
 function QuizQuestionView({ q, index }: { q: QuizQuestion; index: number }) {
   const [selected, setSelected] = useState<Set<number>>(new Set());
   const [revealed, setRevealed] = useState(false);
@@ -257,6 +277,41 @@ function FlashcardsView({ cards }: { cards: FlashCard[] }) {
   );
 }
 
+const CORTE800_RELATORIO_URL =
+  "/api/public/psychoeducation-asset?path=corte800%2Fterapia-grupo-tci%2Fterapia-grupo-tci_relatorio.md";
+const CORTE800_PRE_PROVA_QUIZ_URL =
+  "/api/public/psychoeducation-asset?path=corte800%2Fpre-prova-tci-grupo%2Fpre-prova-tci-grupo_quiz.json";
+
+function RelatorioTciView() {
+  const md = useTextAsset(CORTE800_RELATORIO_URL);
+  if (!md) return <p className="text-sm text-muted-foreground">Carregando…</p>;
+  return (
+    <details className="text-sm">
+      <summary className="cursor-pointer font-medium">Ler relatório completo</summary>
+      <pre className="mt-2 max-h-96 overflow-y-auto whitespace-pre-wrap rounded-md bg-muted/40 p-3 text-xs">
+        {md}
+      </pre>
+    </details>
+  );
+}
+
+function PreProvaQuizView() {
+  const quizData = useJsonAsset<QuizData>(CORTE800_PRE_PROVA_QUIZ_URL);
+  if (!quizData?.questions) return <p className="text-sm text-muted-foreground">Carregando…</p>;
+  return (
+    <details className="text-sm">
+      <summary className="cursor-pointer font-medium">
+        Fazer o quiz ({quizData.questions.length} perguntas)
+      </summary>
+      <ol className="space-y-3 pt-3">
+        {quizData.questions.map((q, i) => (
+          <QuizQuestionView key={i} q={q} index={i} />
+        ))}
+      </ol>
+    </details>
+  );
+}
+
 function TriagemItem({ item }: { item: PreviewItem }) {
   const video = item.assets.find((a) => a.kind === "video");
   const infografico = item.assets.find((a) => a.kind === "infografico");
@@ -352,35 +407,46 @@ function RevisaoPage() {
           <p className="font-medium">
             Trilha: Formação continuada — Terapia em Grupo e TCI (relatório)
           </p>
-          <p className="text-sm text-muted-foreground">
-            Guia clínico completo (briefing-doc) sobre Terapia Comunitária Integrativa e evidência
-            de grupoterapia — tom clínico-acadêmico, citações conferidas contra a fonte. Arquivo
-            completo em <code>documentos/conteudo-gerado/terapia-grupo-tci/</code> no repositório
-            saraiva-lms.
-          </p>
+          <RelatorioTciView />
         </Card>
 
         <Card className="space-y-2 p-4">
           <p className="font-medium">Trilha: Pré-prova (residência/Revalida) — quiz técnico</p>
           <p className="text-sm text-muted-foreground">
-            Mesmo material-base de TCI/terapia em grupo, mas em formato de vinheta clínica objetiva,
-            dificuldade alta — testa critério e conduta, não decoreba de citação. Arquivo em{" "}
-            <code>documentos/conteudo-gerado/pre-prova-tci-grupo/</code>.
+            Mesmo material-base de TCI/terapia em grupo, formato de vinheta clínica objetiva,
+            dificuldade alta — testa critério e conduta, não decoreba de citação.
           </p>
+          <PreProvaQuizView />
         </Card>
 
-        <Card className="space-y-2 p-4">
+        <Card className="space-y-3 p-4">
           <p className="font-medium">
             Trilha: Formação gratuita SUS — Médico de Família e Equipe (mhGAP)
           </p>
           <p className="text-sm text-muted-foreground">
-            Vídeo explicativo (~8 min), podcast aprofundado (~25 min) e slide-deck em PDF (20
-            slides, formato apresentador) sobre o modelo mhGAP da OMS, com foco explícito no papel
-            de cada membro da equipe de atenção primária (agente comunitário, enfermagem, médico de
-            família) — não é conteúdo só pro médico sozinho. Todas as peças geradas nativamente pelo
-            NotebookLM (sem custo adicional, dentro da cota da conta). Arquivos em{" "}
-            <code>documentos/conteudo-gerado/sus-medico-familia-mhgap/</code>.
+            Foco explícito no papel de cada membro da equipe de atenção primária (agente
+            comunitário, enfermagem, médico de família) — não é conteúdo só pro médico sozinho.
+            Todas as peças geradas nativamente pelo NotebookLM (sem custo adicional, dentro da cota
+            da conta).
           </p>
+          <video
+            controls
+            className="w-full max-w-md rounded-lg"
+            src="/api/public/psychoeducation-asset?path=corte800%2Fsus-medico-familia-mhgap%2Fsus-medico-familia-mhgap_video.mp4"
+          />
+          <audio
+            controls
+            className="w-full"
+            src="/api/public/psychoeducation-asset?path=corte800%2Fsus-medico-familia-mhgap%2Fsus-medico-familia-mhgap_podcast.mp3"
+          />
+          <a
+            href="/api/public/psychoeducation-asset?path=corte800%2Fsus-medico-familia-mhgap%2Fsus-medico-familia-mhgap_slide_deck.pdf"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-sm font-medium text-primary underline"
+          >
+            Abrir slide-deck (PDF, 20 slides) ↗
+          </a>
         </Card>
       </section>
     </div>
