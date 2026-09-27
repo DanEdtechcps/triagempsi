@@ -16,6 +16,17 @@ dist-ssr
 .nitro
 *.local
 
+# Python venvs e cache (content-pipeline/, scripts/pipeline/)
+.venv/
+__pycache__/
+*.pyc
+
+# PDFs originais brutos do Dr. Saraiva (110MB+, material com direitos
+# autorais de terceiros — OMS/UNICEF — nunca vai pro Git; as versões
+# convertidas para Markdown ficam em data/saraiva-material/ e essas sim
+# são versionadas)
+MATER-AL-PSICOEDUCA/
+
 # Environment variables
 .env
 .env.*
