@@ -26,8 +26,17 @@ export const Route = createFileRoute("/revisao/pre-lancamento-conteudo-ia")({
 });
 
 type AssetKind = "video" | "infografico" | "quiz" | "podcast" | "leitura" | "flashcards";
-type Asset = { kind: AssetKind; media_url: string | null; data_json: unknown; body_md: string | null };
-type PreviewItem = { job_id: string; topic: { slug: string; title: string } | null; assets: Asset[] };
+type Asset = {
+  kind: AssetKind;
+  media_url: string | null;
+  data_json: unknown;
+  body_md: string | null;
+};
+type PreviewItem = {
+  job_id: string;
+  topic: { slug: string; title: string } | null;
+  assets: Asset[];
+};
 
 const ASSET_LABEL: Record<AssetKind, string> = {
   video: "Vídeo",
@@ -38,13 +47,40 @@ const ASSET_LABEL: Record<AssetKind, string> = {
   leitura: "Leitura/Relatório",
 };
 
+type QuizData = { questions?: Array<{ question: string }> };
+type FlashData = { cards?: Array<{ front: string }> };
+
+/** Busca e faz cache do conteúdo de um asset JSON (quiz/flashcards) a
+ * partir do `media_url` — o backend só grava `media_url` pra todo asset
+ * (mesmo os que são JSON, não mídia binária), nunca `data_json`; a página
+ * tem que baixar o arquivo pra ler o conteúdo, igual faria pra vídeo/imagem. */
+function useJsonAsset<T>(url: string | null | undefined): T | null {
+  const [data, setData] = useState<T | null>(null);
+  useEffect(() => {
+    if (!url) return;
+    let cancelled = false;
+    fetch(url)
+      .then((r) => (r.ok ? r.json() : Promise.reject(new Error("not ok"))))
+      .then((d) => {
+        if (!cancelled) setData(d);
+      })
+      .catch(() => {
+        /* silencioso — a peça só não aparece na prévia */
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [url]);
+  return data;
+}
+
 function TriagemItem({ item }: { item: PreviewItem }) {
   const video = item.assets.find((a) => a.kind === "video");
   const infografico = item.assets.find((a) => a.kind === "infografico");
   const quiz = item.assets.find((a) => a.kind === "quiz");
   const flashcards = item.assets.find((a) => a.kind === "flashcards");
-  const quizData = quiz?.data_json as { questions?: Array<{ question: string }> } | undefined;
-  const flashData = flashcards?.data_json as { cards?: Array<{ front: string }> } | undefined;
+  const quizData = useJsonAsset<QuizData>(quiz?.media_url);
+  const flashData = useJsonAsset<FlashData>(flashcards?.media_url);
 
   return (
     <Card className="space-y-3 p-4">
@@ -145,9 +181,9 @@ function RevisaoPage() {
         <Card className="space-y-2 p-4">
           <p className="font-medium">Trilha: Pré-prova (residência/Revalida) — quiz técnico</p>
           <p className="text-sm text-muted-foreground">
-            Mesmo material-base de TCI/terapia em grupo, mas em formato de vinheta clínica
-            objetiva, dificuldade alta — testa critério e conduta, não decoreba de citação. Arquivo
-            em <code>documentos/conteudo-gerado/pre-prova-tci-grupo/</code>.
+            Mesmo material-base de TCI/terapia em grupo, mas em formato de vinheta clínica objetiva,
+            dificuldade alta — testa critério e conduta, não decoreba de citação. Arquivo em{" "}
+            <code>documentos/conteudo-gerado/pre-prova-tci-grupo/</code>.
           </p>
         </Card>
 
