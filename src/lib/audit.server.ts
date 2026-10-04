@@ -27,7 +27,9 @@ export type AuditAction =
   | "subscription_updated"
   | "psychoeducation_generation_requested"
   | "psychoeducation_generation_approved"
-  | "psychoeducation_generation_rejected";
+  | "psychoeducation_generation_rejected"
+  | "risk_alert_sent"
+  | "risk_alert_failed";
 
 export const AUDIT_ACTION_LABEL: Record<string, string> = {
   assessment_viewed: "Acessou uma triagem",
@@ -53,6 +55,8 @@ export const AUDIT_ACTION_LABEL: Record<string, string> = {
   psychoeducation_generation_requested: "Solicitou geração de material de psicoeducação por IA",
   psychoeducation_generation_approved: "Aprovou material de psicoeducação gerado por IA",
   psychoeducation_generation_rejected: "Rejeitou material de psicoeducação gerado por IA",
+  risk_alert_sent: "Alerta de triagem com risco enviado à equipe",
+  risk_alert_failed: "Falha ao alertar a equipe sobre triagem com risco",
 };
 
 export async function recordAudit(input: {

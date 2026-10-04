@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { isRiskSubmission } from "@/lib/risk-alert";
 
 const AnswerRecord = z.record(z.string(), z.number().int().min(0).max(10));
 
@@ -57,6 +58,9 @@ const SubmitSchema = z.object({
   consent_at: z.string().trim().max(40).optional().nullable(),
   invitation_token: z.string().trim().max(120).optional().nullable(),
   doctor_id: z.string().uuid().optional().nullable(),
+  // Gerado no cliente a cada triagem. Torna o reenvio idempotente: se a
+  // resposta do servidor se perder, o retry não grava a triagem duas vezes.
+  submission_id: z.string().uuid().optional(),
   symptom_path: z.array(z.string().max(80)).max(60).default([]),
   results: z.array(ScaleResultInput).min(0).max(50),
   summary: z.object({
@@ -114,6 +118,8 @@ const SubmitSchema = z.object({
   }),
 });
 
+export type SubmitInput = z.input<typeof SubmitSchema>;
+
 export const submitAssessment = createServerFn({ method: "POST" })
   .inputValidator((raw: unknown) => SubmitSchema.parse(raw))
   .handler(async ({ data }) => {
@@ -131,6 +137,17 @@ export const submitAssessment = createServerFn({ method: "POST" })
       throw new Error("Clínica inválida.");
     }
     const clinicId = clinic.id;
+
+    // Reenvio da mesma triagem (resposta anterior perdida): devolve a já gravada.
+    if (data.submission_id) {
+      const { data: existing } = await supabaseAdmin
+        .from("assessments")
+        .select("id")
+        .eq("clinic_id", clinicId)
+        .eq("summary->>submission_id", data.submission_id)
+        .maybeSingle();
+      if (existing) return { ok: true, assessment_id: existing.id, duplicate: true };
+    }
 
     // Resolver convite se houver token (deve pertencer à mesma clínica)
     let invitationId: string | null = null;
@@ -183,7 +200,9 @@ export const submitAssessment = createServerFn({ method: "POST" })
         contact_id: contactId,
         doctor_id: doctorId,
         risk_flags: data.summary.risk_flags,
-        summary: data.summary,
+        summary: data.submission_id
+          ? { ...data.summary, submission_id: data.submission_id }
+          : data.summary,
         status: "submitted",
       })
       .select("id")
@@ -277,6 +296,20 @@ export const submitAssessment = createServerFn({ method: "POST" })
             : "o próprio paciente",
       },
     });
+
+    // Alerta ativo: o médico não pode depender de abrir o painel para saber
+    // que há risco. Nunca falha o envio; o resultado vai para audit_logs.
+    if (isRiskSubmission(data)) {
+      const { dispatchRiskAlert } = await import("@/lib/risk-alert.server");
+      await Promise.race([
+        dispatchRiskAlert({
+          clinicId: clinicId as string,
+          assessmentId: assessment.id as string,
+          doctorId,
+        }),
+        new Promise((resolve) => setTimeout(resolve, 12_000)),
+      ]);
+    }
 
     return { ok: true, assessment_id: assessment.id };
   });

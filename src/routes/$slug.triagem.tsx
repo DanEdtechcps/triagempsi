@@ -1,5 +1,5 @@
 import { createFileRoute, useSearch, getRouteApi, Link } from "@tanstack/react-router";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useReducedMotion } from "motion/react";
 import { z } from "zod";
 import { useQuery } from "@tanstack/react-query";
@@ -40,7 +40,8 @@ import {
   type Informant,
   type ScaleResult,
 } from "@/lib/scoring";
-import { submitAssessment } from "@/lib/assessment.functions";
+import { submitAssessment, type SubmitInput } from "@/lib/assessment.functions";
+import { clearOutbox, deliverWithRetry, loadOutbox, saveOutbox } from "@/lib/submit-outbox";
 import { listClinicDoctors, type ClinicDoctor } from "@/lib/doctors.functions";
 import { QuestionScreen } from "@/components/triagem/QuestionScreen";
 import { StepTransition } from "@/components/motion/primitives";
@@ -71,6 +72,8 @@ export const Route = createFileRoute("/$slug/triagem")({
   component: TriagemPage,
 });
 
+type DeliveryStatus = "idle" | "sending" | "sent" | "pending";
+type SubmitPayload = SubmitInput;
 type Phase = "boas-vindas" | "dados" | "sintomas" | "escalas" | "risco" | "fim" | "erro";
 
 type RespondentData = {
@@ -152,6 +155,47 @@ function TriagemPage() {
   const initialFlowRef = useRef<Set<string>>(new Set());
 
   const submit = useServerFn(submitAssessment);
+  const [deliveryStatus, setDeliveryStatus] = useState<DeliveryStatus>("idle");
+  const deliveringRef = useRef(false);
+  const unmountedRef = useRef(false);
+
+  /** Entrega a triagem de risco guardada na caixa de saída (com recuo). */
+  const deliverOutbox = useCallback(async () => {
+    if (deliveringRef.current) return;
+    const entry = loadOutbox<SubmitPayload>(localStorage, slug);
+    if (!entry) return;
+    deliveringRef.current = true;
+    setDeliveryStatus("sending");
+    try {
+      const r = await deliverWithRetry(() => submit({ data: entry.payload }), {
+        shouldStop: () => unmountedRef.current,
+        // Já na primeira falha o paciente vê que NÃO foi enviado (e o CVV/SAMU),
+        // enquanto as tentativas continuam em segundo plano.
+        onFailure: () => setDeliveryStatus("pending"),
+      });
+      if (r.ok) {
+        clearOutbox(localStorage, slug);
+        setDeliveryStatus("sent");
+      } else {
+        console.error("Triagem de risco ainda não entregue; permanece na caixa de saída.");
+        setDeliveryStatus("pending");
+      }
+    } finally {
+      deliveringRef.current = false;
+    }
+  }, [slug, submit]);
+
+  // Reabriu a página ou a conexão voltou: tenta entregar o que ficou pendente.
+  useEffect(() => {
+    unmountedRef.current = false;
+    void deliverOutbox();
+    const onOnline = () => void deliverOutbox();
+    window.addEventListener("online", onOnline);
+    return () => {
+      unmountedRef.current = true;
+      window.removeEventListener("online", onOnline);
+    };
+  }, [deliverOutbox]);
   const fetchDoctors = useServerFn(listClinicDoctors);
   const clinicId = clinic?.id ?? null;
   const { data: doctorsData } = useQuery({
@@ -406,9 +450,10 @@ function TriagemPage() {
         pronouns: respondent.pronouns?.trim() || null,
       };
 
-      await submit({
-        data: {
+      const submissionId = crypto.randomUUID();
+      const payload: SubmitPayload = {
           clinic_slug: slug,
+          submission_id: submissionId,
           respondent_name: respondent.respondent_name.trim(),
           respondent_email: respondent.respondent_email.trim(),
           respondent_phone: respondent.respondent_phone.trim() || null,
@@ -426,9 +471,18 @@ function TriagemPage() {
           symptom_path: usedSymptoms,
           results: mergedResults,
           summary,
-        },
-      });
-      if (!riskPathway) {
+      };
+      if (riskPathway) {
+        // Triagem com risco nunca se perde: guarda antes de enviar, tenta de
+        // novo com recuo e só apaga depois da confirmação do servidor.
+        saveOutbox(localStorage, slug, {
+          submission_id: submissionId,
+          payload,
+          created_at: Date.now(),
+        });
+        await deliverOutbox();
+      } else {
+        await submit({ data: payload });
         setPhase("fim");
       }
     } catch (e) {
@@ -437,9 +491,8 @@ function TriagemPage() {
         // A tela de risco já está visível (setada acima) e continua —
         // uma falha de envio aqui não deve nunca esconder o plano de
         // segurança do paciente. Só registramos a falha de persistência.
-        console.error(
-          "Falha ao persistir triagem de risco no servidor; tela de segurança mantida.",
-        );
+        console.error("Falha inesperada na entrega da triagem de risco; tela de segurança mantida.");
+        setDeliveryStatus("pending");
       } else {
         setErrorMsg(
           e instanceof Error ? e.message : "Não foi possível enviar sua triagem. Tente novamente.",
@@ -734,6 +787,8 @@ function TriagemPage() {
               branding={branding}
               recommendations={psychoRecommendations}
               onDownload={handleDownloadPdf}
+              deliveryStatus={deliveryStatus}
+              onRetry={() => void deliverOutbox()}
             />
           )}
 
@@ -1258,10 +1313,14 @@ function TelaRisco({
   branding,
   recommendations,
   onDownload,
+  deliveryStatus,
+  onRetry,
 }: {
   branding: BrandingType;
   recommendations: PsychoTriggerResult[];
   onDownload: () => void;
+  deliveryStatus: DeliveryStatus;
+  onRetry: () => void;
 }) {
   return (
     <div className="space-y-4">
@@ -1297,9 +1356,28 @@ function TelaRisco({
       </Card>
 
       <Card className="p-6">
-        <p className="text-sm text-foreground/80">
-          Suas respostas foram enviadas e a equipe clínica será avisada com prioridade.
-        </p>
+        {deliveryStatus === "sent" && (
+          <p className="text-sm text-foreground/80">
+            Suas respostas foram enviadas e a equipe clínica será avisada com prioridade.
+          </p>
+        )}
+        {(deliveryStatus === "sending" || deliveryStatus === "idle") && (
+          <p className="text-sm text-foreground/80" role="status">
+            Enviando suas respostas à equipe clínica…
+          </p>
+        )}
+        {deliveryStatus === "pending" && (
+          <div role="alert" className="space-y-3">
+            <p className="text-sm font-medium text-foreground">
+              Ainda não conseguimos enviar suas respostas à equipe. Elas ficam salvas neste
+              aparelho e tentaremos de novo automaticamente. Não espere: se estiver em risco,
+              ligue agora para o CVV 188 ou SAMU 192.
+            </p>
+            <Button variant="outline" onClick={onRetry} className="w-full sm:w-auto">
+              Tentar enviar agora
+            </Button>
+          </div>
+        )}
         <Button variant="outline" onClick={onDownload} className="mt-4 w-full sm:w-auto">
           Baixar meu resumo em PDF
         </Button>

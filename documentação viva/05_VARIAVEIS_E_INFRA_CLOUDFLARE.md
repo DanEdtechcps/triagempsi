@@ -18,6 +18,8 @@
 | `SUPABASE_PROJECT_ID` | Servidor (Nitro SSR) | String | Pública / Servidor | ID do projeto no servidor. | `ffyjjkouscnabyxjxexu` |
 | `SUPABASE_SERVICE_ROLE_KEY` | Servidor (Nitro SSR) | String | **SECRETA CRÍTICA** | Chave mestra de administração (ignora RLS para tarefas administrativas). **NUNCA no Git ou no wrangler.json `vars`**. | Armazenada exclusivamente via `wrangler secret put` |
 | `RESEND_API_KEY` | Servidor (Nitro SSR) | String | Opcional / Secreta | Chave para disparos de e-mails transacionais. | `re_...` |
+| `RISK_ALERT_FROM` | Servidor (Nitro SSR) | String | Obrigatória p/ alerta de risco | Remetente do **alerta ativo de triagem com risco** (domínio verificado no Resend, com SPF/DKIM). Sem `RESEND_API_KEY` + `RISK_ALERT_FROM`, o alerta cai no e-mail legado do Lovable (`LOVABLE_API_KEY`); sem nenhum dos dois, grava `risk_alert_failed` (`no_provider`) em `audit_logs`. | `TriagemPsi <alertas@psiqway.com.br>` |
+| `APP_BASE_URL` | Servidor (Nitro SSR) | String | Recomendada | URL base usada no link do alerta de risco (`<base>/painel/<id>`). Padrão: `https://triagempsi.pontocomumtus.workers.dev`. | `https://psiqway.com.br` |
 
 ---
 
