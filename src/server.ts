@@ -52,7 +52,7 @@ export function applyEdgeSecurityHeaders(response: Response): Response {
     // hidratacao SSR como <script> inline sem nonce hoje; migrar pra CSP
     // por nonce exigiria plumbing de nonce por requisicao no pipeline SSR
     // do Nitro/Cloudflare Worker (fora do escopo deste hardening pontual).
-    `default-src 'self'; script-src 'self' 'unsafe-inline' ${supabaseHttps}; connect-src 'self' ${supabaseHttps} ${supabaseWss}; img-src 'self' data: blob: https:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; frame-ancestors 'self';`,
+    `default-src 'self'; script-src 'self' 'unsafe-inline' ${supabaseHttps} https://challenges.cloudflare.com; connect-src 'self' ${supabaseHttps} ${supabaseWss} https://challenges.cloudflare.com; frame-src https://challenges.cloudflare.com; img-src 'self' data: blob: https:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; frame-ancestors 'self';`,
   );
 
   return new Response(response.body, {

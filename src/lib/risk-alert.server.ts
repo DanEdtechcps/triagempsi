@@ -115,6 +115,18 @@ export async function dispatchRiskAlert(input: {
       });
       return { sent: false, reason: "no_recipients" };
     }
+    // Teto de e-mails por clínica/hora (anti-inundação por envios forjados).
+    const { bumpBucket } = await import("@/lib/submit-guard.server");
+    if (!(await bumpBucket("alerta", `clinica:${input.clinicId}`))) {
+      await recordAudit({
+        action: "risk_alert_failed",
+        clinicId: input.clinicId,
+        entityType: "assessment",
+        entityId: input.assessmentId,
+        details: { reason: "alert_throttled" },
+      });
+      return { sent: false, reason: "alert_throttled" };
+    }
     const mail = buildRiskAlertEmail({
       clinicName,
       assessmentId: input.assessmentId,

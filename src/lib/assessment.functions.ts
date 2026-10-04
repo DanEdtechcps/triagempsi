@@ -61,6 +61,9 @@ const SubmitSchema = z.object({
   // Gerado no cliente a cada triagem. Torna o reenvio idempotente: se a
   // resposta do servidor se perder, o retry não grava a triagem duas vezes.
   submission_id: z.string().uuid().optional(),
+  // Token do Turnstile (captcha). Obrigatório só para triagem SEM risco e só
+  // quando TURNSTILE_SECRET_KEY está configurado no servidor.
+  captcha_token: z.string().max(4096).optional().nullable(),
   symptom_path: z.array(z.string().max(80)).max(60).default([]),
   results: z.array(ScaleResultInput).min(0).max(50),
   summary: z.object({
@@ -123,6 +126,17 @@ export type SubmitInput = z.input<typeof SubmitSchema>;
 export const submitAssessment = createServerFn({ method: "POST" })
   .inputValidator((raw: unknown) => SubmitSchema.parse(raw))
   .handler(async ({ data }) => {
+    // Anti-abuso ANTES de qualquer consulta ao banco: captcha (só sem risco) e
+    // limite de requisições. Triagem com risco nunca é barrada por captcha.
+    const { guardPublicSubmit } = await import("@/lib/submit-guard.server");
+    const guard = await guardPublicSubmit({
+      clinicSlug: data.clinic_slug,
+      email: data.respondent_email,
+      isRisk: isRiskSubmission(data),
+      captchaToken: data.captcha_token,
+    });
+    if (!guard.allow) throw new Error(guard.message);
+
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     // Resolver clínica pelo slug
@@ -287,6 +301,7 @@ export const submitAssessment = createServerFn({ method: "POST" })
         respondent_name: data.respondent_name,
         risk: (data.summary.risk_flags ?? []).length > 0,
         origem: invitationId ? "convite" : "link publico",
+        captcha: guard.captcha,
         medico_escolhido: doctorName,
         preenchido_por:
           data.respondent_type === "familiar"

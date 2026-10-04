@@ -42,6 +42,7 @@ import {
 } from "@/lib/scoring";
 import { submitAssessment, type SubmitInput } from "@/lib/assessment.functions";
 import { clearOutbox, deliverWithRetry, loadOutbox, saveOutbox } from "@/lib/submit-outbox";
+import { getTurnstileToken, preloadTurnstile } from "@/lib/turnstile-client";
 import { listClinicDoctors, type ClinicDoctor } from "@/lib/doctors.functions";
 import { QuestionScreen } from "@/components/triagem/QuestionScreen";
 import { StepTransition } from "@/components/motion/primitives";
@@ -184,6 +185,11 @@ function TriagemPage() {
       deliveringRef.current = false;
     }
   }, [slug, submit]);
+
+  // Pré-carrega o captcha (se configurado) para o token sair rápido no envio.
+  useEffect(() => {
+    preloadTurnstile();
+  }, []);
 
   // Reabriu a página ou a conexão voltou: tenta entregar o que ficou pendente.
   useEffect(() => {
@@ -482,7 +488,9 @@ function TriagemPage() {
         });
         await deliverOutbox();
       } else {
-        await submit({ data: payload });
+        // Captcha só para triagem SEM risco, pedido agora (o token vale ~5 min).
+        const captcha_token = await getTurnstileToken();
+        await submit({ data: { ...payload, captcha_token } });
         setPhase("fim");
       }
     } catch (e) {

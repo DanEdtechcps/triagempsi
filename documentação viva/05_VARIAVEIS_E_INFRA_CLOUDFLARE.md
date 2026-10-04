@@ -20,6 +20,9 @@
 | `RESEND_API_KEY` | Servidor (Nitro SSR) | String | Opcional / Secreta | Chave para disparos de e-mails transacionais. | `re_...` |
 | `RISK_ALERT_FROM` | Servidor (Nitro SSR) | String | Obrigatória p/ alerta de risco | Remetente do **alerta ativo de triagem com risco** (domínio verificado no Resend, com SPF/DKIM). Sem `RESEND_API_KEY` + `RISK_ALERT_FROM`, o alerta cai no e-mail legado do Lovable (`LOVABLE_API_KEY`); sem nenhum dos dois, grava `risk_alert_failed` (`no_provider`) em `audit_logs`. | `TriagemPsi <alertas@psiqway.com.br>` |
 | `APP_BASE_URL` | Servidor (Nitro SSR) | String | Recomendada | URL base usada no link do alerta de risco (`<base>/painel/<id>`). Padrão: `https://triagempsi.pontocomumtus.workers.dev`. | `https://psiqway.com.br` |
+| `TURNSTILE_SECRET_KEY` | Servidor (Nitro SSR) | String | **SECRETA** (obrigatória p/ abrir ao público) | Segredo do Cloudflare Turnstile (captcha) do envio de triagem. Sem ela, o captcha fica **desligado** (`nao_configurado`) e só o limite de requisições protege. Triagem **com risco** nunca exige captcha. Criar o widget no painel Cloudflare → Turnstile, com os hostnames `psiqway.com.br` e `triagempsi.pontocomumtus.workers.dev`. | `wrangler secret put TURNSTILE_SECRET_KEY` |
+| `VITE_TURNSTILE_SITE_KEY` | Frontend / Client | String | Pública | Chave pública do widget Turnstile (build-time). Sem ela, o widget não é carregado. | `0x4AAAA...` |
+| `RATE_LIMIT_SALT` | Servidor (Nitro SSR) | String | Opcional / Secreta | Sal do hash de IP/e-mail nas chaves do limitador (o IP cru nunca é gravado). Padrão: `SUPABASE_PROJECT_ID`. | string aleatória longa |
 
 ---
 
