@@ -65,6 +65,9 @@ documentação viva/VALIDACAO_*.md
 documentação viva/ONBOARDING_*.md
 documentação viva/ROADMAP_*.md
 documentação viva/PESQUISA_*.md
+documentação viva/11_LGPD_*.md
+documentação viva/DEPLOY_*.md
+documentação viva/SESSAO_*.md
 
 # Runner externo da Fase 2 de geração de psicoeducação (NotebookLM) — ainda
 # não implementado; a credencial usada por ele nunca pode ir pro Git.
