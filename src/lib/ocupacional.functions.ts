@@ -49,6 +49,16 @@ export const getOcupacionalReport = createServerFn({ method: "GET" })
       console.error("getOcupacionalReport error", error);
       throw new Error("Não foi possível montar o relatório ocupacional.");
     }
+    {
+      const { recordReadAudit } = await import("@/lib/audit.server");
+      await recordReadAudit({
+        action: "ocupacional_viewed",
+        actorUserId: context.userId,
+        actorEmail: (context.claims as { email?: string })?.email ?? null,
+        entityType: "assessment_list",
+        details: { count: data?.length ?? 0 },
+      });
+    }
 
     type Row = {
       clinic_id: string;

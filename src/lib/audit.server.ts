@@ -29,7 +29,13 @@ export type AuditAction =
   | "psychoeducation_generation_approved"
   | "psychoeducation_generation_rejected"
   | "risk_alert_sent"
-  | "risk_alert_failed";
+  | "risk_alert_failed"
+  | "assessments_listed"
+  | "notes_viewed"
+  | "longitudinal_viewed"
+  | "ocupacional_viewed"
+  | "data_anonymized"
+  | "data_erased";
 
 export const AUDIT_ACTION_LABEL: Record<string, string> = {
   assessment_viewed: "Acessou uma triagem",
@@ -57,6 +63,12 @@ export const AUDIT_ACTION_LABEL: Record<string, string> = {
   psychoeducation_generation_rejected: "Rejeitou material de psicoeducação gerado por IA",
   risk_alert_sent: "Alerta de triagem com risco enviado à equipe",
   risk_alert_failed: "Falha ao alertar a equipe sobre triagem com risco",
+  assessments_listed: "Abriu a lista de triagens",
+  notes_viewed: "Leu os pareceres de uma triagem",
+  longitudinal_viewed: "Consultou o acompanhamento longitudinal",
+  ocupacional_viewed: "Consultou o relatório ocupacional",
+  data_anonymized: "Anonimizou os dados de um titular",
+  data_erased: "Excluiu os dados de um titular",
 };
 
 export async function recordAudit(input: {
@@ -82,5 +94,41 @@ export async function recordAudit(input: {
     if (error) console.error("recordAudit error", error);
   } catch (e) {
     console.error("recordAudit failed", e);
+  }
+}
+
+/**
+ * Auditoria de LEITURA de dado clínico. Igual a recordAudit (nunca lança, não
+ * bloqueia a leitura — um médico não pode ficar sem ver um paciente em risco por
+ * falha de log; a falha fica no log do servidor), mas não repete a mesma leitura
+ * (mesmo usuário + ação + entidade) dentro de `dedupeMinutes`, porque o painel
+ * recarrega listas com frequência e isso encheria a trilha de ruído.
+ */
+export async function recordReadAudit(input: {
+  action: AuditAction;
+  actorUserId: string;
+  actorEmail?: string | null;
+  clinicId?: string | null;
+  entityType?: string | null;
+  entityId?: string | null;
+  details?: Record<string, unknown>;
+  dedupeMinutes?: number;
+}) {
+  try {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const since = new Date(Date.now() - (input.dedupeMinutes ?? 10) * 60_000).toISOString();
+    let q = supabaseAdmin
+      .from("audit_logs")
+      .select("id")
+      .eq("actor_user_id", input.actorUserId)
+      .eq("action", input.action)
+      .gte("created_at", since)
+      .limit(1);
+    q = input.entityId ? q.eq("entity_id", input.entityId) : q.is("entity_id", null);
+    const { data: recent } = await q;
+    if (recent && recent.length > 0) return;
+    await recordAudit(input);
+  } catch (e) {
+    console.error("recordReadAudit failed", e);
   }
 }

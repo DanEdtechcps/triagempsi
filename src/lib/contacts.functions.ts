@@ -91,7 +91,7 @@ export const createContact = createServerFn({ method: "POST" })
       actorEmail: (context.claims as { email?: string })?.email ?? null,
       entityType: "contact",
       entityId: row.id as string,
-      details: { name: data.name, phone: data.phone_e164 },
+      details: {},
     });
     return { id: row.id as string };
   });
@@ -148,8 +148,6 @@ export const createWhatsappInvite = createServerFn({ method: "POST" })
       entityType: "invitation",
       entityId: inv.id as string,
       details: {
-        contact_name: contact.name as string,
-        phone: contact.phone_e164 as string,
         expires_at: expires,
       },
     });
@@ -234,7 +232,7 @@ export const logWhatsappSend = createServerFn({ method: "POST" })
       actorEmail: (context.claims as { email?: string })?.email ?? null,
       entityType: "invitation",
       entityId: data.invitation_id,
-      details: { to_phone: data.to_phone },
+      details: { canal: "whatsapp" },
     });
     return { ok: true };
   });
@@ -349,8 +347,6 @@ export const resendAssessmentInvite = createServerFn({ method: "POST" })
       entityType: "assessment",
       entityId: a.id as string,
       details: {
-        respondent_name: a.respondent_name as string,
-        to_phone: e164,
         invitation_id: inv.id as string,
         resent_at: resentAt,
         expires_at: expires,

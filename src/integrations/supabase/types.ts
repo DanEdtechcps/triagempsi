@@ -109,6 +109,9 @@ export type Database = {
           birth_date: string | null;
           clinic_id: string;
           consent_at: string | null;
+          consent_copy: string | null;
+          consent_copy_sha256: string | null;
+          consent_server_at: string | null;
           consent_ip: string | null;
           consent_lgpd: boolean;
           contact_id: string | null;
@@ -135,6 +138,9 @@ export type Database = {
           birth_date?: string | null;
           clinic_id: string;
           consent_at?: string | null;
+          consent_copy?: string | null;
+          consent_copy_sha256?: string | null;
+          consent_server_at?: string | null;
           consent_ip?: string | null;
           consent_lgpd?: boolean;
           contact_id?: string | null;
@@ -161,6 +167,9 @@ export type Database = {
           birth_date?: string | null;
           clinic_id?: string;
           consent_at?: string | null;
+          consent_copy?: string | null;
+          consent_copy_sha256?: string | null;
+          consent_server_at?: string | null;
           consent_ip?: string | null;
           consent_lgpd?: boolean;
           contact_id?: string | null;

@@ -67,7 +67,7 @@ export const logReportExport = createServerFn({ method: "POST" })
       actorEmail: (context.claims as { email?: string })?.email ?? null,
       entityType: "assessment",
       entityId: a.id as string,
-      details: { kind: data.kind, respondent_name: a.respondent_name },
+      details: { kind: data.kind },
     });
     return { ok: true };
   });

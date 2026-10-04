@@ -123,6 +123,16 @@ export const listSeries = createServerFn({ method: "GET" })
       console.error("listSeries error", error);
       throw new Error("Não foi possível carregar o acompanhamento longitudinal.");
     }
+    {
+      const { recordReadAudit } = await import("@/lib/audit.server");
+      await recordReadAudit({
+        action: "longitudinal_viewed",
+        actorUserId: context.userId,
+        actorEmail: (context.claims as { email?: string })?.email ?? null,
+        entityType: "assessment_list",
+        details: { count: data?.length ?? 0 },
+      });
+    }
     return buildSeries((data ?? []) as unknown as Row[]);
   });
 
@@ -155,6 +165,18 @@ export const getSerieForAssessment = createServerFn({ method: "GET" })
     if (error) {
       console.error("getSerieForAssessment error", error);
       return null;
+    }
+    {
+      const { recordReadAudit } = await import("@/lib/audit.server");
+      await recordReadAudit({
+        action: "longitudinal_viewed",
+        actorUserId: context.userId,
+        actorEmail: (context.claims as { email?: string })?.email ?? null,
+        clinicId: base.clinic_id as string,
+        entityType: "assessment",
+        entityId: data.id,
+        details: { count: rows?.length ?? 0 },
+      });
     }
     return buildSeries((rows ?? []) as unknown as Row[])[0] ?? null;
   });

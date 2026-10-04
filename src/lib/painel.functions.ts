@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { fillerLabel } from "@/lib/consent";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 export type AssessmentListItem = {
@@ -131,6 +132,17 @@ export const listAssessments = createServerFn({ method: "GET" })
         []) as AssessmentListItem["scales"],
     })) satisfies AssessmentListItem[];
 
+    {
+      const { recordReadAudit } = await import("@/lib/audit.server");
+      await recordReadAudit({
+        action: "assessments_listed",
+        actorUserId: context.userId,
+        actorEmail: (context.claims as { email?: string })?.email ?? null,
+        entityType: "assessment_list",
+        details: { count: rows.length },
+      });
+    }
+
     // Risco sempre no topo
     rows.sort((x, y) => {
       const rx = hasRisk(x) ? 1 : 0;
@@ -181,19 +193,7 @@ export const getAssessment = createServerFn({ method: "GET" })
         entityType: "assessment",
         entityId: data.id,
         details: {
-          respondent_name: (a as { respondent_name?: string }).respondent_name ?? null,
-          preenchido_por:
-            (a as { respondent_type?: string }).respondent_type === "familiar"
-              ? `familiar/responsável${
-                  (a as { informant_name?: string }).informant_name
-                    ? ` — ${(a as { informant_name?: string }).informant_name}`
-                    : ""
-                }${
-                  (a as { informant_relation?: string }).informant_relation
-                    ? ` (${(a as { informant_relation?: string }).informant_relation})`
-                    : ""
-                }`
-              : "o próprio paciente",
+          preenchido_por: fillerLabel((a as { respondent_type?: string }).respondent_type),
         },
       });
     }

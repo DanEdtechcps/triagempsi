@@ -25,6 +25,23 @@ export const listAssessmentNotes = createServerFn({ method: "GET" })
       console.error("listAssessmentNotes error", error);
       throw new Error("Não foi possível carregar os pareceres.");
     }
+    {
+      const { data: owner } = await context.supabase
+        .from("assessments")
+        .select("clinic_id")
+        .eq("id", data.assessment_id)
+        .maybeSingle();
+      const { recordReadAudit } = await import("@/lib/audit.server");
+      await recordReadAudit({
+        action: "notes_viewed",
+        actorUserId: context.userId,
+        actorEmail: (context.claims as { email?: string })?.email ?? null,
+        clinicId: (owner?.clinic_id as string | undefined) ?? null,
+        entityType: "assessment",
+        entityId: data.assessment_id,
+        details: { count: rows?.length ?? 0 },
+      });
+    }
     return (rows ?? []) as AssessmentNote[];
   });
 
@@ -75,7 +92,6 @@ export const addAssessmentNote = createServerFn({ method: "POST" })
       entityType: "assessment",
       entityId: a.id as string,
       details: {
-        respondent_name: a.respondent_name,
         chars: data.body.length,
       },
     });

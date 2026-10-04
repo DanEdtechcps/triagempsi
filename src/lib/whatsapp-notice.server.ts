@@ -77,9 +77,7 @@ export async function notifyResultsByWhatsapp(
     entityType: "assessment",
     entityId: a.id as string,
     details: {
-      to_phone: e164,
       publico: params.audience,
-      respondent_name: a.respondent_name as string,
     },
   });
 

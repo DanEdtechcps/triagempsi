@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { isRiskSubmission } from "@/lib/risk-alert";
+import { fillerLabel, pickClientIp, resolveConsentAt, sha256Hex } from "@/lib/consent";
 
 const AnswerRecord = z.record(z.string(), z.number().int().min(0).max(10));
 
@@ -142,7 +143,7 @@ export const submitAssessment = createServerFn({ method: "POST" })
     // Resolver clínica pelo slug
     const { data: clinic, error: cErr } = await supabaseAdmin
       .from("clinics")
-      .select("id")
+      .select("id, consent_copy")
       .eq("slug", data.clinic_slug)
       .eq("is_active", true)
       .maybeSingle();
@@ -193,6 +194,17 @@ export const submitAssessment = createServerFn({ method: "POST" })
       doctorName = (doc?.display_name as string | undefined) ?? null;
     }
 
+    // Prova de consentimento: a fonte de verdade é o servidor (texto da clínica
+    // no banco, IP do cabeçalho do Cloudflare, horário de recebimento).
+    const { getRequest } = await import("@tanstack/react-start/server");
+    const reqHeaders = getRequest()?.headers;
+    const consentIp = pickClientIp(
+      reqHeaders?.get("cf-connecting-ip") ?? reqHeaders?.get("x-forwarded-for"),
+    );
+    const consentCopy = ((clinic as { consent_copy?: string | null }).consent_copy ?? "").trim();
+    const consentCopySha = consentCopy ? await sha256Hex(consentCopy) : null;
+    const receivedAt = new Date();
+
     const { data: assessment, error: aErr } = await supabaseAdmin
       .from("assessments")
       .insert({
@@ -208,7 +220,11 @@ export const submitAssessment = createServerFn({ method: "POST" })
         informant_relation: data.respondent_type === "familiar" ? data.informant_relation : null,
         main_complaint: data.main_complaint,
         consent_lgpd: data.consent_lgpd,
-        consent_at: data.consent_at ?? new Date().toISOString(),
+        consent_at: resolveConsentAt(data.consent_at, receivedAt),
+        consent_server_at: receivedAt.toISOString(),
+        consent_ip: consentIp,
+        consent_copy: consentCopy || null,
+        consent_copy_sha256: consentCopySha,
         symptom_path: data.symptom_path,
         invitation_id: invitationId,
         contact_id: contactId,
@@ -298,17 +314,11 @@ export const submitAssessment = createServerFn({ method: "POST" })
       entityType: "assessment",
       entityId: assessment.id as string,
       details: {
-        respondent_name: data.respondent_name,
         risk: (data.summary.risk_flags ?? []).length > 0,
         origem: invitationId ? "convite" : "link publico",
         captcha: guard.captcha,
         medico_escolhido: doctorName,
-        preenchido_por:
-          data.respondent_type === "familiar"
-            ? `familiar/responsável${
-                data.informant_name ? ` — ${data.informant_name}` : ""
-              }${data.informant_relation ? ` (${data.informant_relation})` : ""}`
-            : "o próprio paciente",
+        preenchido_por: fillerLabel(data.respondent_type),
       },
     });
 

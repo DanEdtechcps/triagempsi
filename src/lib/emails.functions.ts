@@ -150,10 +150,8 @@ export const resendResultsEmail = createServerFn({ method: "POST" })
       details: {
         triagem_id: data.assessment_id,
         destinatario_id: built.contactId,
-        destinatario: to,
         tentativa: attempt,
         publico: data.audience,
-        respondent_name: a.respondent_name,
         provedor: sent.provider,
         ...(sent.ok ? { message_id: sent.message_id } : { erro: sent.reason, codigo: sent.code }),
       },
