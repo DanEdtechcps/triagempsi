@@ -4,6 +4,7 @@ import {
   AUTH_EMAIL_KEYS,
   AUTH_EMAILS,
   NOTIFICATIONS_TO_ENABLE,
+  SMTP_LIMITS,
   authConfigPayload,
   renderAuthEmail,
 } from "@/lib/supabase-auth-emails";
@@ -92,5 +93,11 @@ describe("os 13 e-mails do Supabase Auth", () => {
     }
     for (const f of NOTIFICATIONS_TO_ENABLE) expect(p[f]).toBe(true);
     expect(Object.keys(p).filter((x) => x.startsWith("mailer_templates_"))).toHaveLength(13);
+  });
+
+  it("os limites de envio não ficam em 0 (sem intervalo = rajada de e-mails para a caixa de outra pessoa)", () => {
+    expect(SMTP_LIMITS.smtp_max_frequency).toBeGreaterThanOrEqual(60);
+    expect(SMTP_LIMITS.rate_limit_email_sent).toBeGreaterThan(0);
+    expect(SMTP_LIMITS.rate_limit_email_sent).toBeLessThanOrEqual(200);
   });
 });

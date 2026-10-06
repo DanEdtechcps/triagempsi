@@ -91,6 +91,9 @@ async function push() {
   console.log(
     `SMTP próprio: ${after.smtp_host ? `ligado (${after.smtp_host})` : "NÃO configurado"}`,
   );
+  console.log(
+    `Intervalo mínimo por usuário: ${after.smtp_max_frequency ?? "?"} s | e-mails por hora: ${after.rate_limit_email_sent ?? "?"}`,
+  );
   console.log(`Backup da configuração anterior: ${backupPath}`);
 }
 
