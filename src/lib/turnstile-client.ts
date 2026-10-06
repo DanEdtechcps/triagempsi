@@ -62,10 +62,24 @@ export async function getTurnstileToken(timeoutMs = 10_000): Promise<string | nu
   if (!api) return null;
 
   return new Promise<string | null>((resolve) => {
+    // Camada própria, escondida até o Cloudflare pedir um clique: aí vira um aviso
+    // centralizado (não cobre as alternativas) com texto claro.
+    const overlay = document.createElement("div");
+    overlay.style.cssText =
+      "display:none;position:fixed;inset:0;z-index:70;align-items:center;justify-content:center;background:rgba(20,30,35,.45);padding:16px";
+    const card = document.createElement("div");
+    card.setAttribute("role", "dialog");
+    card.setAttribute("aria-live", "polite");
+    card.style.cssText =
+      "background:#fff;color:#26343b;border-radius:12px;padding:20px;max-width:340px;width:100%;text-align:center;font:15px/1.5 system-ui,sans-serif;box-shadow:0 10px 30px rgba(0,0,0,.25)";
+    const msg = document.createElement("p");
+    msg.textContent = "Confirme abaixo que você é uma pessoa para enviar suas respostas.";
+    msg.style.cssText = "margin:0 0 14px";
     const host = document.createElement("div");
-    host.style.cssText =
-      "position:fixed;bottom:16px;left:50%;transform:translateX(-50%);z-index:70";
-    document.body.appendChild(host);
+    host.style.cssText = "display:flex;justify-content:center;min-height:65px";
+    card.append(msg, host);
+    overlay.appendChild(card);
+    document.body.appendChild(overlay);
 
     let widgetId: string | null = null;
     let settled = false;
@@ -78,7 +92,7 @@ export async function getTurnstileToken(timeoutMs = 10_000): Promise<string | nu
       } catch {
         /* ignora */
       }
-      host.remove();
+      overlay.remove();
       resolve(token);
     };
     let timer = setTimeout(() => finish(null), timeoutMs);
@@ -91,6 +105,7 @@ export async function getTurnstileToken(timeoutMs = 10_000): Promise<string | nu
         // O desafio precisa de um clique: dá tempo à pessoa em vez de desistir em 10 s.
         "before-interactive-callback": () => {
           if (settled) return;
+          overlay.style.display = "flex";
           clearTimeout(timer);
           timer = setTimeout(() => finish(null), INTERACTION_TIMEOUT_MS);
         },
