@@ -52,6 +52,9 @@ export function preloadTurnstile(): void {
   if (turnstileSiteKey()) void loadScript();
 }
 
+/** Tempo extra quando o Cloudflare pede um clique do paciente (o widget aparece). */
+const INTERACTION_TIMEOUT_MS = 90_000;
+
 export async function getTurnstileToken(timeoutMs = 10_000): Promise<string | null> {
   const siteKey = turnstileSiteKey();
   if (!siteKey) return null;
@@ -78,13 +81,19 @@ export async function getTurnstileToken(timeoutMs = 10_000): Promise<string | nu
       host.remove();
       resolve(token);
     };
-    const timer = setTimeout(() => finish(null), timeoutMs);
+    let timer = setTimeout(() => finish(null), timeoutMs);
 
     try {
       widgetId = api.render(host, {
         sitekey: siteKey,
         appearance: "interaction-only",
         callback: (token: string) => finish(token),
+        // O desafio precisa de um clique: dá tempo à pessoa em vez de desistir em 10 s.
+        "before-interactive-callback": () => {
+          if (settled) return;
+          clearTimeout(timer);
+          timer = setTimeout(() => finish(null), INTERACTION_TIMEOUT_MS);
+        },
         "error-callback": () => finish(null),
         "timeout-callback": () => finish(null),
       });
