@@ -25,6 +25,7 @@ import { Route as AuthenticatedRoadmapRouteImport } from './routes/_authenticate
 import { Route as AuthenticatedResumoRouteImport } from './routes/_authenticated/resumo'
 import { Route as AuthenticatedReferenciasRouteImport } from './routes/_authenticated/referencias'
 import { Route as AuthenticatedProtocoloRouteImport } from './routes/_authenticated/protocolo'
+import { Route as AuthenticatedPesquisaRouteImport } from './routes/_authenticated/pesquisa'
 import { Route as AuthenticatedOcupacionalRouteImport } from './routes/_authenticated/ocupacional'
 import { Route as AuthenticatedMetaLandingRouteImport } from './routes/_authenticated/meta-landing'
 import { Route as AuthenticatedMateriaisRouteImport } from './routes/_authenticated/materiais'
@@ -126,6 +127,11 @@ const AuthenticatedReferenciasRoute =
 const AuthenticatedProtocoloRoute = AuthenticatedProtocoloRouteImport.update({
   id: '/protocolo',
   path: '/protocolo',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedPesquisaRoute = AuthenticatedPesquisaRouteImport.update({
+  id: '/pesquisa',
+  path: '/pesquisa',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedOcupacionalRoute =
@@ -264,6 +270,7 @@ export interface FileRoutesByFullPath {
   '/materiais': typeof AuthenticatedMateriaisRoute
   '/meta-landing': typeof AuthenticatedMetaLandingRoute
   '/ocupacional': typeof AuthenticatedOcupacionalRoute
+  '/pesquisa': typeof AuthenticatedPesquisaRoute
   '/protocolo': typeof AuthenticatedProtocoloRoute
   '/referencias': typeof AuthenticatedReferenciasRoute
   '/resumo': typeof AuthenticatedResumoRoute
@@ -301,6 +308,7 @@ export interface FileRoutesByTo {
   '/materiais': typeof AuthenticatedMateriaisRoute
   '/meta-landing': typeof AuthenticatedMetaLandingRoute
   '/ocupacional': typeof AuthenticatedOcupacionalRoute
+  '/pesquisa': typeof AuthenticatedPesquisaRoute
   '/protocolo': typeof AuthenticatedProtocoloRoute
   '/referencias': typeof AuthenticatedReferenciasRoute
   '/resumo': typeof AuthenticatedResumoRoute
@@ -341,6 +349,7 @@ export interface FileRoutesById {
   '/_authenticated/materiais': typeof AuthenticatedMateriaisRoute
   '/_authenticated/meta-landing': typeof AuthenticatedMetaLandingRoute
   '/_authenticated/ocupacional': typeof AuthenticatedOcupacionalRoute
+  '/_authenticated/pesquisa': typeof AuthenticatedPesquisaRoute
   '/_authenticated/protocolo': typeof AuthenticatedProtocoloRoute
   '/_authenticated/referencias': typeof AuthenticatedReferenciasRoute
   '/_authenticated/resumo': typeof AuthenticatedResumoRoute
@@ -381,6 +390,7 @@ export interface FileRouteTypes {
     | '/materiais'
     | '/meta-landing'
     | '/ocupacional'
+    | '/pesquisa'
     | '/protocolo'
     | '/referencias'
     | '/resumo'
@@ -418,6 +428,7 @@ export interface FileRouteTypes {
     | '/materiais'
     | '/meta-landing'
     | '/ocupacional'
+    | '/pesquisa'
     | '/protocolo'
     | '/referencias'
     | '/resumo'
@@ -457,6 +468,7 @@ export interface FileRouteTypes {
     | '/_authenticated/materiais'
     | '/_authenticated/meta-landing'
     | '/_authenticated/ocupacional'
+    | '/_authenticated/pesquisa'
     | '/_authenticated/protocolo'
     | '/_authenticated/referencias'
     | '/_authenticated/resumo'
@@ -605,6 +617,13 @@ declare module '@tanstack/react-router' {
       path: '/protocolo'
       fullPath: '/protocolo'
       preLoaderRoute: typeof AuthenticatedProtocoloRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/pesquisa': {
+      id: '/_authenticated/pesquisa'
+      path: '/pesquisa'
+      fullPath: '/pesquisa'
+      preLoaderRoute: typeof AuthenticatedPesquisaRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
     '/_authenticated/ocupacional': {
@@ -770,6 +789,7 @@ interface AuthenticatedRouteRouteChildren {
   AuthenticatedMateriaisRoute: typeof AuthenticatedMateriaisRoute
   AuthenticatedMetaLandingRoute: typeof AuthenticatedMetaLandingRoute
   AuthenticatedOcupacionalRoute: typeof AuthenticatedOcupacionalRoute
+  AuthenticatedPesquisaRoute: typeof AuthenticatedPesquisaRoute
   AuthenticatedProtocoloRoute: typeof AuthenticatedProtocoloRoute
   AuthenticatedReferenciasRoute: typeof AuthenticatedReferenciasRoute
   AuthenticatedResumoRoute: typeof AuthenticatedResumoRoute
@@ -792,6 +812,7 @@ const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedMateriaisRoute: AuthenticatedMateriaisRoute,
   AuthenticatedMetaLandingRoute: AuthenticatedMetaLandingRoute,
   AuthenticatedOcupacionalRoute: AuthenticatedOcupacionalRoute,
+  AuthenticatedPesquisaRoute: AuthenticatedPesquisaRoute,
   AuthenticatedProtocoloRoute: AuthenticatedProtocoloRoute,
   AuthenticatedReferenciasRoute: AuthenticatedReferenciasRoute,
   AuthenticatedResumoRoute: AuthenticatedResumoRoute,

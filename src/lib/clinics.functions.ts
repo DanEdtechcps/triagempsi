@@ -54,8 +54,10 @@ export const getClinicBySlug = createServerFn({ method: "GET" })
       return null;
     }
     if (!clinic) return null;
-    // Consulta separada: se as colunas de pesquisa ainda não existem, a página segue sem elas.
-    const { data: research, error: rErr } = await supabase
+    // Pesquisa: lida pelo SERVIDOR (chave de serviço), sem liberar as colunas a `anon`.
+    // Consulta separada: se as colunas ainda não existem, a página segue sem elas.
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: research, error: rErr } = await supabaseAdmin
       .from("clinics")
       .select("research_enabled, research_protocol, research_tcle_text, research_tcle_version")
       .eq("id", (clinic as { id: string }).id)

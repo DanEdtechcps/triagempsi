@@ -145,7 +145,5 @@ CREATE POLICY assessment_outcomes_clinician_update ON public.assessment_outcomes
       AND (ur.clinic_id IS NULL OR ur.clinic_id = assessment_outcomes.clinic_id)
   ));
 
--- O paciente (anon) precisa LER o TCLE e o protocolo para decidir; nada secreto aqui.
--- (clinics só libera colunas específicas a anon — ver 20260812020233.)
-GRANT SELECT (research_enabled, research_protocol, research_tcle_text, research_tcle_version)
-  ON public.clinics TO anon;
+-- Observação: nenhuma coluna de pesquisa é liberada a `anon`. O TCLE é lido pelo servidor
+-- (getClinicBySlug usa a chave de serviço só para esses campos) e entregue ao paciente.

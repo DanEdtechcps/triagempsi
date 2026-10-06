@@ -28,6 +28,7 @@ import {
   TrendingUp,
   User,
   Users,
+  FlaskConical,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -180,6 +181,11 @@ const MOBILE_MENU_GROUPS: { title: string; links: NavLink[] }[] = [
         to: "/emails",
         label: "Histórico de E-mails",
         icon: <Mail className="h-4 w-4 text-muted-foreground" />,
+      },
+      {
+        to: "/pesquisa",
+        label: "Pesquisa & Acurácia",
+        icon: <FlaskConical className="h-4 w-4 text-muted-foreground" />,
       },
       {
         to: "/meta-landing",
@@ -391,6 +397,12 @@ function PainelShellContent({
                     <Link to="/emails" className="cursor-pointer gap-2">
                       <Mail className="h-4 w-4 text-muted-foreground" />
                       E-mails
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link to="/pesquisa" className="cursor-pointer gap-2">
+                      <FlaskConical className="h-4 w-4 text-muted-foreground" />
+                      Pesquisa & Acurácia
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuItem asChild>
