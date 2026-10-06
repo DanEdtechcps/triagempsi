@@ -22,14 +22,5 @@
     "VITE_SUPABASE_URL": "https://ffyjjkouscnabyxjxexu.supabase.co",
     "APP_BASE_URL": "https://psiqway.com.br"
   },
-  "routes": [
-    {
-      "pattern": "psiqway.com.br",
-      "custom_domain": true
-    },
-    {
-      "pattern": "www.psiqway.com.br",
-      "custom_domain": true
-    }
-  ]
+  "workers_dev": true
 }
