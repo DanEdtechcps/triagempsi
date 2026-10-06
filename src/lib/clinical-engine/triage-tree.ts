@@ -29,6 +29,16 @@ export const SYMPTOM_QUESTION = {
   options: [
     { id: "tristeza", label: "Triste, desanimado(a) ou sem vontade" },
     { id: "ansiedade", label: "Ansioso(a), preocupado(a) ou tenso(a)" },
+    {
+      id: "panico",
+      label: "Com crises de medo intenso, coração disparado ou falta de ar que surgem de repente",
+      hint: "Crises que chegam a durar alguns minutos, às vezes com medo de perder o controle.",
+    },
+    {
+      id: "social",
+      label: "Com muito medo de ser julgado(a) ou de passar vergonha diante de outras pessoas",
+      hint: "Evitar falar em público, conhecer gente nova ou situações em que você se sente observado(a).",
+    },
     { id: "angustia", label: "Angustiado(a), com o corpo pesado ou sem energia" },
     {
       id: "somatico",
@@ -145,6 +155,28 @@ export const ROUTING_RULES: RoutingRule[] = [
     },
     noteByBand: {
       crianca: "Avaliação de ansiedade infantil deve ser feita com o responsável",
+    },
+  },
+  {
+    symptom: "panico",
+    byBand: {
+      adolescente: ["PDSS-SR"],
+      adulto: ["PDSS-SR"],
+      idoso: ["PDSS-SR"],
+    },
+    noteByBand: {
+      crianca: "Crises de medo intenso em menores de 12 anos — avaliar na consulta com o responsável",
+    },
+  },
+  {
+    symptom: "social",
+    byBand: {
+      adolescente: ["SPIN"],
+      adulto: ["SPIN"],
+      idoso: ["SPIN"],
+    },
+    noteByBand: {
+      crianca: "Medo intenso de situações sociais em menores de 12 anos — avaliar na consulta com o responsável",
     },
   },
   {
@@ -392,8 +424,8 @@ export const ESCALATION_RULES: EscalationRule[] = [
   {
     from: "ASQ",
     when: (r) => r.score >= 1,
-    add: [],
-    reason: "ASQ positivo — via de risco ativada",
+    add: ["C-SSRS"],
+    reason: "ASQ positivo — via de risco ativada; C-SSRS para medir a gravidade (ideação, plano, intenção)",
     riskPathway: true,
   },
   {
@@ -551,6 +583,7 @@ export const ESCALATION_RULES: EscalationRule[] = [
 /** Ordem preferencial de aplicação. */
 const ORDER = [
   "ASQ",
+  "C-SSRS",
   "RISCO-ADO",
   "SRQ-20",
   "PHQ-2",
@@ -560,6 +593,8 @@ const ORDER = [
   "AD-8",
   "GAD-2",
   "GAD-7",
+  "PDSS-SR",
+  "SPIN",
   "EPDS",
   "ISI",
   "SCOFF",

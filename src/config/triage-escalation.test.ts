@@ -105,11 +105,42 @@ describe("escalonamento por resultado", () => {
     expect(pos.flow).toContain("GAD-2");
   });
 
-  it("ASQ positivo mantém a via de risco sem adicionar escalas", () => {
+  it("ASQ positivo mantém a via de risco e acrescenta o C-SSRS logo depois, para medir a gravidade", () => {
     const plan = buildTriagePlan(["morte"], 40);
     const next = advance(plan, resultWithScore("ASQ", 1), 40);
     expect(next.riskPathway).toBe(true);
-    expect(next.flow).toEqual(plan.flow);
+    expect(next.flow).toContain("C-SSRS");
+    expect(next.flow.indexOf("C-SSRS")).toBe(next.flow.indexOf("ASQ") + 1);
+  });
+
+  it("ASQ negativo não acrescenta o C-SSRS", () => {
+    const plan = buildTriagePlan(["morte"], 40);
+    const next = advance(plan, resultWithScore("ASQ", 0), 40);
+    expect(next.flow).not.toContain("C-SSRS");
+  });
+
+  it("C-SSRS não é repetido se já foi respondido", () => {
+    const plan = buildTriagePlan(["morte"], 40);
+    const next = advance(plan, resultWithScore("ASQ", 2), 40, ["C-SSRS"]);
+    expect(next.flow.filter((c) => c === "C-SSRS")).toHaveLength(0);
+  });
+
+  it("sintoma de pânico leva ao PDSS-SR e o de medo social ao SPIN (adolescente a idoso)", () => {
+    for (const age of [14, 30, 70]) {
+      expect(buildTriagePlan(["panico"], age).flow).toContain("PDSS-SR");
+      expect(buildTriagePlan(["social"], age).flow).toContain("SPIN");
+    }
+  });
+
+  it("menor de 12 anos não recebe PDSS-SR/SPIN: vira orientação ao profissional", () => {
+    const p = buildTriagePlan(["panico", "social"], 9);
+    expect(p.flow).not.toContain("PDSS-SR");
+    expect(p.flow).not.toContain("SPIN");
+    expect(p.indicated.length).toBeGreaterThan(0);
+  });
+
+  it("pânico e medo social não ligam a via de risco por si sós", () => {
+    expect(buildTriagePlan(["panico", "social"], 30).riskPathway).toBe(false);
   });
 
   it("ASSIST-Lite: álcool ≥ 2 dispara AUDIT completo; 1 não dispara", () => {
