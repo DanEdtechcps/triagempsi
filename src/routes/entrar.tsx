@@ -1,7 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { useServerFn } from "@tanstack/react-start";
-import { requestPasswordReset } from "@/lib/password-reset.functions";
+import { RecuperarSenha } from "@/components/auth/RecuperarSenha";
 import { ArrowLeft } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { checkIsStaff } from "@/lib/staff";
@@ -40,12 +39,11 @@ export const Route = createFileRoute("/entrar")({
  * /painel automaticamente; paciente vai direto ao /portal.
  */
 function EntrarPage() {
-  const requestReset = useServerFn(requestPasswordReset);
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [msg, setMsg] = useState<string | null>(null);
-  const [info, setInfo] = useState<string | null>(null);
+  const [view, setView] = useState<"login" | "recuperar">("login");
   const [loading, setLoading] = useState(false);
 
   // Sessão existente entra direto, cada papel no seu território.
@@ -61,7 +59,6 @@ function EntrarPage() {
     e.preventDefault();
     setLoading(true);
     setMsg(null);
-    setInfo(null);
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
@@ -77,24 +74,6 @@ function EntrarPage() {
           ? "E-mail ou senha incorretos."
           : raw || "Não foi possível continuar.",
       );
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  async function handleReset() {
-    setMsg(null);
-    setInfo(null);
-    if (!email) {
-      setMsg("Digite seu e-mail acima para receber o link de redefinição.");
-      return;
-    }
-    setLoading(true);
-    try {
-      await requestReset({ data: { email } });
-      setInfo("Se este e-mail estiver cadastrado, enviamos um link para criar uma nova senha.");
-    } catch {
-      setMsg("Não foi possível enviar o link agora. Tente em instantes.");
     } finally {
       setLoading(false);
     }
@@ -121,54 +100,59 @@ function EntrarPage() {
             ao responder a pré-avaliação para ver o resumo básico dos seus resultados.
           </p>
 
-          <form onSubmit={handleSubmit} className="mt-6 space-y-4">
-            <div>
-              <Label htmlFor="entrar-email">E-mail</Label>
-              <Input
-                id="entrar-email"
-                type="email"
-                autoComplete="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="text-base"
-                placeholder="voce@exemplo.com"
-              />
-            </div>
-            <div>
-              <Label htmlFor="entrar-password">Senha</Label>
-              <PasswordInput
-                id="entrar-password"
-                autoComplete="current-password"
-                required
-                minLength={8}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="text-base"
-              />
-            </div>
-            {msg && <p className="text-sm text-destructive">{msg}</p>}
-            {info && <p className="text-sm text-foreground">{info}</p>}
-            <Button type="submit" disabled={loading} className="w-full">
-              {loading ? "Aguarde…" : "Entrar no portal"}
-            </Button>
-          </form>
+          {view === "recuperar" ? (
+            <RecuperarSenha initialEmail={email} onBack={() => setView("login")} />
+          ) : (
+            <>
+              <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+                <div>
+                  <Label htmlFor="entrar-email">E-mail</Label>
+                  <Input
+                    id="entrar-email"
+                    type="email"
+                    autoComplete="email"
+                    required
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    className="text-base"
+                    placeholder="voce@exemplo.com"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="entrar-password">Senha</Label>
+                  <PasswordInput
+                    id="entrar-password"
+                    autoComplete="current-password"
+                    required
+                    minLength={8}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    className="text-base"
+                  />
+                </div>
+                {msg && <p className="text-sm text-destructive">{msg}</p>}
+                <Button type="submit" disabled={loading} className="w-full">
+                  {loading ? "Aguarde…" : "Entrar no portal"}
+                </Button>
+              </form>
 
-          <button
-            type="button"
-            onClick={handleReset}
-            disabled={loading}
-            className="mt-4 w-full text-sm text-primary underline-offset-4 hover:underline"
-          >
-            Esqueci minha senha
-          </button>
+              <button
+                type="button"
+                onClick={() => setView("recuperar")}
+                disabled={loading}
+                className="mt-4 w-full text-sm text-primary underline-offset-4 hover:underline"
+              >
+                Esqueci minha senha
+              </button>
 
-          <Link
-            to="/primeiro-acesso"
-            className="mt-3 block w-full text-center text-sm text-muted-foreground hover:text-foreground"
-          >
-            Primeira vez aqui? Veja o passo a passo e crie seu acesso
-          </Link>
+              <Link
+                to="/primeiro-acesso"
+                className="mt-3 block w-full text-center text-sm text-muted-foreground hover:text-foreground"
+              >
+                Primeira vez aqui? Veja o passo a passo e crie seu acesso
+              </Link>
+            </>
+          )}
 
           <p className="mt-6 border-t border-border pt-4 text-center text-xs text-muted-foreground">
             É da equipe clínica?{" "}

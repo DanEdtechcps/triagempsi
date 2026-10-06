@@ -1,7 +1,6 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { useServerFn } from "@tanstack/react-start";
-import { requestPasswordReset } from "@/lib/password-reset.functions";
+import { RecuperarSenha } from "@/components/auth/RecuperarSenha";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -33,13 +32,12 @@ export const Route = createFileRoute("/auth")({
 });
 
 function AuthPage() {
-  const requestReset = useServerFn(requestPasswordReset);
   const navigate = useNavigate();
   const [mode, setMode] = useState<"entrar" | "criar">("entrar");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [msg, setMsg] = useState<string | null>(null);
-  const [info, setInfo] = useState<string | null>(null);
+  const [view, setView] = useState<"login" | "recuperar">("login");
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -55,7 +53,6 @@ function AuthPage() {
     e.preventDefault();
     setLoading(true);
     setMsg(null);
-    setInfo(null);
     try {
       if (mode === "entrar") {
         const { data, error } = await supabase.auth.signInWithPassword({ email, password });
@@ -81,26 +78,6 @@ function AuthPage() {
     }
   }
 
-  async function handleReset() {
-    setMsg(null);
-    setInfo(null);
-    if (!email) {
-      setMsg("Digite seu e-mail acima para receber o link de redefinição.");
-      return;
-    }
-    setLoading(true);
-    try {
-      await requestReset({ data: { email } });
-      setInfo(
-        "Se este e-mail estiver cadastrado, enviamos um link para criar a nova senha. Abra-o para continuar.",
-      );
-    } catch (err) {
-      setMsg(err instanceof Error ? err.message : "Não foi possível enviar o link.");
-    } finally {
-      setLoading(false);
-    }
-  }
-
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4 py-10">
       <Card className="w-full max-w-md border-border bg-card p-6 sm:p-8">
@@ -111,60 +88,64 @@ function AuthPage() {
           TriagemPsi — área restrita da equipe clínica.
         </p>
 
-        <form onSubmit={handleSubmit} className="mt-6 space-y-4">
-          <div>
-            <Label htmlFor="email">E-mail</Label>
-            <Input
-              id="email"
-              type="email"
-              autoComplete="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="text-base"
-            />
-          </div>
-          <div>
-            <Label htmlFor="password">Senha</Label>
-            <PasswordInput
-              id="password"
-              autoComplete={mode === "entrar" ? "current-password" : "new-password"}
-              required
-              minLength={8}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="text-base"
-            />
-          </div>
-          {msg && <p className="text-sm text-destructive">{msg}</p>}
-          {info && <p className="text-sm text-foreground">{info}</p>}
-          <Button type="submit" disabled={loading} className="w-full">
-            {loading ? "Aguarde…" : mode === "entrar" ? "Entrar" : "Criar conta"}
-          </Button>
-        </form>
+        {view === "recuperar" ? (
+          <RecuperarSenha initialEmail={email} onBack={() => setView("login")} />
+        ) : (
+          <>
+            <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+              <div>
+                <Label htmlFor="email">E-mail</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  autoComplete="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  className="text-base"
+                />
+              </div>
+              <div>
+                <Label htmlFor="password">Senha</Label>
+                <PasswordInput
+                  id="password"
+                  autoComplete={mode === "entrar" ? "current-password" : "new-password"}
+                  required
+                  minLength={8}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="text-base"
+                />
+              </div>
+              {msg && <p className="text-sm text-destructive">{msg}</p>}
+              <Button type="submit" disabled={loading} className="w-full">
+                {loading ? "Aguarde…" : mode === "entrar" ? "Entrar" : "Criar conta"}
+              </Button>
+            </form>
 
-        {mode === "entrar" && (
-          <button
-            type="button"
-            onClick={handleReset}
-            disabled={loading}
-            className="mt-4 w-full text-sm text-primary underline-offset-4 hover:underline"
-          >
-            Esqueci minha senha / trocar senha provisória
-          </button>
+            {mode === "entrar" && (
+              <button
+                type="button"
+                onClick={() => setView("recuperar")}
+                disabled={loading}
+                className="mt-4 w-full text-sm text-primary underline-offset-4 hover:underline"
+              >
+                Esqueci minha senha
+              </button>
+            )}
+
+            <button
+              type="button"
+              onClick={() => {
+                setMode(mode === "entrar" ? "criar" : "entrar");
+                setMsg(null);
+              }}
+              className="mt-3 w-full text-sm text-muted-foreground hover:text-foreground"
+            >
+              {mode === "entrar" ? "Não tem conta? Criar acesso" : "Já tem conta? Entrar"}
+            </button>
+          </>
         )}
-
-        <button
-          type="button"
-          onClick={() => {
-            setMode(mode === "entrar" ? "criar" : "entrar");
-            setMsg(null);
-            setInfo(null);
-          }}
-          className="mt-3 w-full text-sm text-muted-foreground hover:text-foreground"
-        >
-          {mode === "entrar" ? "Não tem conta? Criar acesso" : "Já tem conta? Entrar"}
-        </button>
 
         {/* Antes de autenticar não há como saber a clínica do usuário (só
         resolvida via user_roles após o login) — "início" aqui é a landing
