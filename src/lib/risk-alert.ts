@@ -6,6 +6,8 @@
  * não é canal seguro para PHI.
  */
 
+import { renderEmail } from "@/lib/email-layout";
+
 export const MAX_ALERT_RECIPIENTS = 10;
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -17,9 +19,7 @@ export function isRiskSubmission(data: {
 }): boolean {
   const s = data.summary ?? data;
   return Boolean(
-    s.risk_pathway ||
-      (s.risk_flags?.length ?? 0) > 0 ||
-      (data.results ?? []).some((r) => r.risk),
+    s.risk_pathway || (s.risk_flags?.length ?? 0) > 0 || (data.results ?? []).some((r) => r.risk),
   );
 }
 
@@ -34,14 +34,6 @@ export function normalizeRecipients(raw: (string | null | undefined)[]): string[
   return [...seen];
 }
 
-function escapeHtml(s: string): string {
-  return s
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;");
-}
-
 export function buildRiskAlertEmail(input: {
   clinicName: string;
   assessmentId: string;
@@ -51,20 +43,19 @@ export function buildRiskAlertEmail(input: {
   const link = `${base}/painel/${encodeURIComponent(input.assessmentId)}`;
   const clinic = input.clinicName.trim() || "sua clínica";
   const subject = `[Prioridade] Nova triagem com sinal de risco — ${clinic}`;
-  const text = [
-    `Uma nova triagem com sinal de risco foi enviada para ${clinic}.`,
-    "",
-    "Abra o painel para ver os detalhes e decidir a conduta:",
-    link,
-    "",
-    "Este aviso não contém dados do paciente. Entre no painel com seu login.",
-    "Se for emergência: CVV 188 (24h) ou SAMU 192.",
-  ].join("\n");
-  const html = `<!doctype html><html lang="pt-BR"><body style="font-family:Arial,sans-serif;line-height:1.5;color:#111">
-<h2 style="color:#b00020;margin:0 0 12px">Nova triagem com sinal de risco</h2>
-<p>Uma nova triagem com sinal de risco foi enviada para <strong>${escapeHtml(clinic)}</strong>.</p>
-<p><a href="${escapeHtml(link)}" style="display:inline-block;background:#b00020;color:#fff;padding:10px 16px;border-radius:6px;text-decoration:none">Abrir no painel</a></p>
-<p style="color:#555;font-size:13px">Este aviso não contém dados do paciente. Entre no painel com seu login.<br>Se for emergência: CVV 188 (24h) ou SAMU 192.</p>
-</body></html>`;
+  const { html, text } = renderEmail({
+    tone: "risk",
+    preheader: "Abra o painel para ver e decidir a conduta.",
+    title: "Nova triagem com sinal de risco",
+    paragraphs: [
+      `Uma nova triagem com sinal de risco foi enviada para **${clinic}**.`,
+      "Abra o painel para ver os detalhes e decidir a conduta:",
+    ],
+    button: { label: "Abrir no painel", href: link },
+    notes: [
+      "Este aviso não contém dados do paciente. Entre no painel com seu login.",
+      "Se for emergência: CVV 188 (24h) ou SAMU 192.",
+    ],
+  });
   return { subject, html, text, link };
 }
