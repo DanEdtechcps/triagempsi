@@ -2,6 +2,8 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { isRiskSubmission } from "@/lib/risk-alert";
 import { fillerLabel, pickClientIp, resolveConsentAt, sha256Hex } from "@/lib/consent";
+import { engineVersionLabel } from "@/lib/engine-version";
+import { resolveResearchConsent } from "@/lib/research";
 
 const AnswerRecord = z.record(z.string(), z.number().int().min(0).max(10));
 
@@ -57,6 +59,9 @@ const SubmitSchema = z.object({
   main_complaint: z.string().trim().max(2000).optional().nullable(),
   consent_lgpd: z.literal(true),
   consent_at: z.string().trim().max(40).optional().nullable(),
+  // Consentimento de pesquisa (opcional, separado). O servidor só o aceita se a clínica
+  // tiver a pesquisa habilitada com TCLE (ver resolveResearchConsent).
+  research_consent: z.boolean().optional().default(false),
   invitation_token: z.string().trim().max(120).optional().nullable(),
   doctor_id: z.string().uuid().optional().nullable(),
   // Gerado no cliente a cada triagem. Torna o reenvio idempotente: se a
@@ -117,6 +122,19 @@ const SubmitSchema = z.object({
       .default([]),
     risk_pathway: z.boolean().default(false),
     risk_flags: z.array(z.string()),
+    // Tempo REAL por item medido no navegador (nunca estimado). Só números e ids.
+    telemetry_records: z
+      .array(
+        z.object({
+          scale_code: z.string().max(30),
+          item_id: z.string().max(20),
+          response_time_ms: z.number().int().min(0).max(120000),
+          value: z.number().int().min(0).max(10),
+          is_risk_item: z.boolean().optional(),
+        }),
+      )
+      .max(600)
+      .optional(),
     preferred_name: z.string().max(120).optional().nullable(),
     pronouns: z.string().max(60).optional().nullable(),
   }),
@@ -205,6 +223,22 @@ export const submitAssessment = createServerFn({ method: "POST" })
     const consentCopySha = consentCopy ? await sha256Hex(consentCopy) : null;
     const receivedAt = new Date();
 
+    // Consentimento de pesquisa: só vale se a clínica estiver habilitada (protocolo + TCLE).
+    // A consulta é separada e tolerante: se as colunas ainda não existirem, não bloqueia a triagem.
+    let researchRecord: Awaited<ReturnType<typeof resolveResearchConsent>> | null = null;
+    if (data.research_consent) {
+      const { data: rc, error: rcErr } = await supabaseAdmin
+        .from("clinics")
+        .select("research_enabled, research_tcle_text, research_tcle_version")
+        .eq("id", clinicId)
+        .maybeSingle();
+      if (!rcErr) researchRecord = await resolveResearchConsent(true, rc, receivedAt);
+      else console.warn("submitAssessment: pesquisa indisponível (colunas?)", rcErr.message);
+    }
+
+    // Versão + impressão digital do motor que classificou esta triagem (rastro de execução).
+    const engineVersion = await engineVersionLabel();
+
     const { data: assessment, error: aErr } = await supabaseAdmin
       .from("assessments")
       .insert({
@@ -230,9 +264,12 @@ export const submitAssessment = createServerFn({ method: "POST" })
         contact_id: contactId,
         doctor_id: doctorId,
         risk_flags: data.summary.risk_flags,
-        summary: data.submission_id
-          ? { ...data.summary, submission_id: data.submission_id }
-          : data.summary,
+        ...(researchRecord?.research_consent ? researchRecord : {}),
+        summary: {
+          ...data.summary,
+          engine_version: engineVersion,
+          ...(data.submission_id ? { submission_id: data.submission_id } : {}),
+        },
         status: "submitted",
       })
       .select("id")
@@ -319,6 +356,7 @@ export const submitAssessment = createServerFn({ method: "POST" })
         captcha: guard.captcha,
         medico_escolhido: doctorName,
         preenchido_por: fillerLabel(data.respondent_type),
+        pesquisa: Boolean(researchRecord?.research_consent),
       },
     });
 

@@ -49,6 +49,57 @@ export type Database = {
           },
         ];
       };
+      assessment_outcomes: {
+        Row: {
+          assessment_id: string;
+          clinic_id: string;
+          concordance: string;
+          created_at: string;
+          final_dx_icd10: string[] | null;
+          id: string;
+          recorded_by: string | null;
+          risk_assessment: string;
+          updated_at: string;
+        };
+        Insert: {
+          assessment_id: string;
+          clinic_id?: string;
+          concordance: string;
+          created_at?: string;
+          final_dx_icd10?: string[] | null;
+          id?: string;
+          recorded_by?: string | null;
+          risk_assessment?: string;
+          updated_at?: string;
+        };
+        Update: {
+          assessment_id?: string;
+          clinic_id?: string;
+          concordance?: string;
+          created_at?: string;
+          final_dx_icd10?: string[] | null;
+          id?: string;
+          recorded_by?: string | null;
+          risk_assessment?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "assessment_outcomes_assessment_id_fkey";
+            columns: ["assessment_id"];
+            isOneToOne: true;
+            referencedRelation: "assessments";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "assessment_outcomes_clinic_id_fkey";
+            columns: ["clinic_id"];
+            isOneToOne: false;
+            referencedRelation: "clinics";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       assessment_psychoeducation: {
         Row: {
           assessment_id: string;
@@ -110,6 +161,10 @@ export type Database = {
           clinic_id: string;
           consent_at: string | null;
           consent_copy: string | null;
+          research_consent: boolean;
+          research_consent_at: string | null;
+          research_consent_version: string | null;
+          research_consent_sha256: string | null;
           consent_copy_sha256: string | null;
           consent_server_at: string | null;
           consent_ip: string | null;
@@ -139,6 +194,10 @@ export type Database = {
           clinic_id: string;
           consent_at?: string | null;
           consent_copy?: string | null;
+          research_consent?: boolean;
+          research_consent_at?: string | null;
+          research_consent_version?: string | null;
+          research_consent_sha256?: string | null;
           consent_copy_sha256?: string | null;
           consent_server_at?: string | null;
           consent_ip?: string | null;
@@ -168,6 +227,10 @@ export type Database = {
           clinic_id?: string;
           consent_at?: string | null;
           consent_copy?: string | null;
+          research_consent?: boolean;
+          research_consent_at?: string | null;
+          research_consent_version?: string | null;
+          research_consent_sha256?: string | null;
           consent_copy_sha256?: string | null;
           consent_server_at?: string | null;
           consent_ip?: string | null;
@@ -373,6 +436,10 @@ export type Database = {
           accent_color: string | null;
           city: string | null;
           consent_copy: string;
+          research_enabled: boolean;
+          research_protocol: string | null;
+          research_tcle_text: string | null;
+          research_tcle_version: string | null;
           contact_email: string | null;
           contact_phone: string | null;
           created_at: string;
@@ -403,6 +470,10 @@ export type Database = {
           accent_color?: string | null;
           city?: string | null;
           consent_copy?: string;
+          research_enabled?: boolean;
+          research_protocol?: string | null;
+          research_tcle_text?: string | null;
+          research_tcle_version?: string | null;
           contact_email?: string | null;
           contact_phone?: string | null;
           created_at?: string;
@@ -433,6 +504,10 @@ export type Database = {
           accent_color?: string | null;
           city?: string | null;
           consent_copy?: string;
+          research_enabled?: boolean;
+          research_protocol?: string | null;
+          research_tcle_text?: string | null;
+          research_tcle_version?: string | null;
           contact_email?: string | null;
           contact_phone?: string | null;
           created_at?: string;

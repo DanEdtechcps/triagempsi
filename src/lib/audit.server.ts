@@ -36,7 +36,11 @@ export type AuditAction =
   | "ocupacional_viewed"
   | "data_anonymized"
   | "data_erased"
-  | "password_reset_requested";
+  | "password_reset_requested"
+  | "outcome_recorded"
+  | "research_settings_updated"
+  | "research_export"
+  | "research_consent_withdrawn";
 
 export const AUDIT_ACTION_LABEL: Record<string, string> = {
   assessment_viewed: "Acessou uma triagem",
@@ -71,6 +75,10 @@ export const AUDIT_ACTION_LABEL: Record<string, string> = {
   data_anonymized: "Anonimizou os dados de um titular",
   data_erased: "Excluiu os dados de um titular",
   password_reset_requested: "Pediu recuperação de senha",
+  outcome_recorded: "Registrou o desfecho clínico de uma triagem",
+  research_settings_updated: "Alterou a configuração de pesquisa de uma clínica",
+  research_export: "Exportou o conjunto de dados de pesquisa (anonimizado)",
+  research_consent_withdrawn: "Retirou o consentimento de pesquisa de um titular",
 };
 
 export async function recordAudit(input: {

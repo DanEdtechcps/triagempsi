@@ -28,6 +28,11 @@ export type Clinic = {
   landing_font_preset: string | null;
   landing_feature_cards: Json | null;
   landing_hero_image_url: string | null;
+  /** Pesquisa científica (só ligada com protocolo do CEP + TCLE; ver migração 20261006100000). */
+  research_enabled?: boolean;
+  research_protocol?: string | null;
+  research_tcle_text?: string | null;
+  research_tcle_version?: string | null;
 };
 
 const SlugSchema = z.object({ slug: z.string().trim().min(1).max(80) });
@@ -48,5 +53,12 @@ export const getClinicBySlug = createServerFn({ method: "GET" })
       console.error("getClinicBySlug error", error);
       return null;
     }
-    return (clinic as Clinic | null) ?? null;
+    if (!clinic) return null;
+    // Consulta separada: se as colunas de pesquisa ainda não existem, a página segue sem elas.
+    const { data: research, error: rErr } = await supabase
+      .from("clinics")
+      .select("research_enabled, research_protocol, research_tcle_text, research_tcle_version")
+      .eq("id", (clinic as { id: string }).id)
+      .maybeSingle();
+    return { ...(clinic as Clinic), ...(rErr ? {} : (research ?? {})) };
   });

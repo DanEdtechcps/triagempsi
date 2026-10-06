@@ -22,6 +22,7 @@ import { QueueNav } from "@/components/painel/QueueNav";
 import { HistoricoRevisoes } from "@/components/painel/HistoricoRevisoes";
 import { PainelPsicoeducacao } from "@/components/painel/PainelPsicoeducacao";
 import { DireitosDoTitular } from "@/components/painel/DireitosDoTitular";
+import { DesfechoClinico } from "@/components/painel/DesfechoClinico";
 import { TelemetryCard } from "@/components/medical/TelemetryCard";
 import { PsychoeducationTracker } from "@/components/medical/PsychoeducationTracker";
 import { AcessoNegado } from "@/components/painel/AcessoNegado";
@@ -460,6 +461,8 @@ function PainelDetalhe() {
               </Card>
             );
           })}
+
+          <DesfechoClinico assessmentId={id} />
 
           <DireitosDoTitular assessmentId={id} />
 

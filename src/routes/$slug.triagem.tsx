@@ -92,6 +92,8 @@ type RespondentData = {
   doctor_id: string | null;
   consent_lgpd: boolean;
   consent_at: string | null;
+  /** Consentimento OPCIONAL de pesquisa (só oferecido se a clínica o habilitou). */
+  research_consent: boolean;
 };
 
 const EMPTY_RESPONDENT: RespondentData = {
@@ -109,6 +111,7 @@ const EMPTY_RESPONDENT: RespondentData = {
   doctor_id: null,
   consent_lgpd: false,
   consent_at: null,
+  research_consent: false,
 };
 
 type Saved = {
@@ -147,6 +150,13 @@ function TriagemPage() {
   const [results, setResults] = useState<ScaleResult[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const submittingRef = useRef(false);
+  // Telemetria REAL: tempo entre exibir o item e a resposta, descontando o tempo com a aba oculta.
+  const itemShownAtRef = useRef<number>(0);
+  const hiddenMsRef = useRef<number>(0);
+  const hiddenSinceRef = useRef<number | null>(null);
+  const telemetryRef = useRef<
+    Map<string, { scale_code: string; item_id: string; response_time_ms: number; value: number; is_risk_item?: boolean }>
+  >(new Map());
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [restored, setRestored] = useState(false);
   const reduceMotion = useReducedMotion();
@@ -215,7 +225,29 @@ function TriagemPage() {
 
   const isMale = isMalePatient(respondent);
 
+  // Aba oculta não conta como tempo de leitura.
+  useEffect(() => {
+    const onVis = () => {
+      if (document.hidden) {
+        hiddenSinceRef.current = performance.now();
+      } else if (hiddenSinceRef.current !== null) {
+        hiddenMsRef.current += performance.now() - hiddenSinceRef.current;
+        hiddenSinceRef.current = null;
+      }
+    };
+    document.addEventListener("visibilitychange", onVis);
+    return () => document.removeEventListener("visibilitychange", onVis);
+  }, []);
+
+  // Um novo item foi exibido: zera o cronômetro.
+  useEffect(() => {
+    itemShownAtRef.current = performance.now();
+    hiddenMsRef.current = 0;
+    hiddenSinceRef.current = typeof document !== "undefined" && document.hidden ? performance.now() : null;
+  }, [phase, scaleIndex, itemIndex]);
+
   function handleReset() {
+    telemetryRef.current = new Map();
     try {
       localStorage.removeItem(storageKey);
     } catch {
@@ -454,6 +486,7 @@ function TriagemPage() {
         ...baseSummary,
         preferred_name: respondent.preferred_name?.trim() || null,
         pronouns: respondent.pronouns?.trim() || null,
+        telemetry_records: [...telemetryRef.current.values()],
       };
 
       const submissionId = crypto.randomUUID();
@@ -472,6 +505,8 @@ function TriagemPage() {
           main_complaint: respondent.main_complaint.trim() || null,
           consent_lgpd: true,
           consent_at: respondent.consent_at ?? new Date().toISOString(),
+          // O servidor revalida: só vale se a clínica tem a pesquisa habilitada (protocolo + TCLE).
+          research_consent: Boolean(clinic?.research_enabled) && respondent.research_consent,
           invitation_token: search.t ?? null,
           doctor_id: respondent.doctor_id,
           symptom_path: usedSymptoms,
@@ -562,6 +597,19 @@ function TriagemPage() {
     if (submitting || submittingRef.current) return;
     const code = currentScale.code;
     const item = currentScale.items[itemIndex];
+    {
+      const now = performance.now();
+      const hidden =
+        hiddenMsRef.current + (hiddenSinceRef.current !== null ? now - hiddenSinceRef.current : 0);
+      const elapsed = Math.max(0, Math.min(120000, Math.round(now - itemShownAtRef.current - hidden)));
+      telemetryRef.current.set(`${code}:${item.id}`, {
+        scale_code: code,
+        item_id: item.id,
+        response_time_ms: elapsed,
+        value,
+        is_risk_item: (currentScale.riskItems ?? []).includes(item.id) || undefined,
+      });
+    }
     const scaleAnswers = { ...(answers[code] ?? {}), [item.id]: value };
     const nextAnswers = { ...answers, [code]: scaleAnswers };
     setAnswers(nextAnswers);
@@ -727,6 +775,15 @@ function TriagemPage() {
         <StepTransition stepKey={stepKey} direction={stepDirection}>
           {phase === "boas-vindas" && (
             <BoasVindas
+              research={
+                clinic?.research_enabled && clinic.research_tcle_text
+                  ? {
+                      protocol: clinic.research_protocol ?? "",
+                      version: clinic.research_tcle_version ?? "",
+                      text: clinic.research_tcle_text,
+                    }
+                  : null
+              }
               branding={branding}
               respondent={respondent}
               onChange={setRespondent}
@@ -837,7 +894,9 @@ function BoasVindas({
   respondent,
   onChange,
   onStart,
+  research,
 }: {
+  research: { protocol: string; version: string; text: string } | null;
   branding: BrandingType;
   respondent: RespondentData;
   onChange: (d: RespondentData) => void;
@@ -875,6 +934,38 @@ function BoasVindas({
         />
         <span className="text-foreground/80">{branding.consentCopy}</span>
       </label>
+
+      {research && (
+        <div className="mt-4 rounded-lg border border-border p-4 text-sm" data-testid="research-consent">
+          <p className="font-medium text-foreground">Pesquisa científica (opcional)</p>
+          <p className="mt-1 text-foreground/70">
+            Você pode, se quiser, autorizar que suas respostas sejam usadas de forma anônima em uma
+            pesquisa científica. Participar <strong>não muda o seu atendimento</strong> e você pode
+            recusar sem qualquer prejuízo.
+          </p>
+          <details className="mt-2">
+            <summary className="cursor-pointer text-primary underline">
+              Ler o Termo de Consentimento (TCLE)
+            </summary>
+            <div className="mt-2 max-h-56 overflow-y-auto whitespace-pre-line rounded bg-muted/40 p-3 text-xs text-foreground/80">
+              {research.text}
+            </div>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Protocolo do Comitê de Ética: {research.protocol} · versão {research.version}
+            </p>
+          </details>
+          <label className="mt-3 flex cursor-pointer items-start gap-3">
+            <Checkbox
+              checked={respondent.research_consent}
+              onCheckedChange={(v) => onChange({ ...respondent, research_consent: Boolean(v) })}
+              className="mt-0.5"
+            />
+            <span className="text-foreground/80">
+              Li o TCLE e autorizo o uso anônimo dos meus dados nesta pesquisa.
+            </span>
+          </label>
+        </div>
+      )}
 
       <Button
         size="lg"

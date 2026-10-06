@@ -16,4 +16,8 @@ export const AUDIT_ACTION_LABEL: Record<string, string> = {
   portal_patient_view: "Paciente viu o próprio resumo no portal",
   subscription_created: "Criou a assinatura de um consultório",
   subscription_updated: "Atualizou a assinatura de um consultório",
+  outcome_recorded: "Registrou o desfecho clínico de uma triagem",
+  research_settings_updated: "Alterou a configuração de pesquisa de uma clínica",
+  research_export: "Exportou o conjunto de dados de pesquisa (anonimizado)",
+  research_consent_withdrawn: "Retirou o consentimento de pesquisa de um titular",
 };
