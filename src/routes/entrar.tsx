@@ -1,11 +1,14 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
+import { requestPasswordReset } from "@/lib/password-reset.functions";
 import { ArrowLeft } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { checkIsStaff } from "@/lib/staff";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
 
 export const Route = createFileRoute("/entrar")({
@@ -37,6 +40,7 @@ export const Route = createFileRoute("/entrar")({
  * /painel automaticamente; paciente vai direto ao /portal.
  */
 function EntrarPage() {
+  const requestReset = useServerFn(requestPasswordReset);
   const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -87,10 +91,7 @@ function EntrarPage() {
     }
     setLoading(true);
     try {
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: window.location.origin + "/reset-password",
-      });
-      if (error) throw error;
+      await requestReset({ data: { email } });
       setInfo("Se este e-mail estiver cadastrado, enviamos um link para criar uma nova senha.");
     } catch {
       setMsg("Não foi possível enviar o link agora. Tente em instantes.");
@@ -136,9 +137,8 @@ function EntrarPage() {
             </div>
             <div>
               <Label htmlFor="entrar-password">Senha</Label>
-              <Input
+              <PasswordInput
                 id="entrar-password"
-                type="password"
                 autoComplete="current-password"
                 required
                 minLength={8}

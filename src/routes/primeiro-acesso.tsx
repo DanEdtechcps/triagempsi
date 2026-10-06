@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
 import { PasswordStrengthMeter } from "@/components/PasswordStrengthMeter";
 import { useStaffRole } from "@/lib/staff";
@@ -215,9 +216,8 @@ function PrimeiroAcessoPage() {
               </div>
               <div>
                 <Label htmlFor="pa-password">Escolha uma senha</Label>
-                <Input
+                <PasswordInput
                   id="pa-password"
-                  type="password"
                   autoComplete="new-password"
                   required
                   minLength={8}

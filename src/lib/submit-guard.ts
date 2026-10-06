@@ -6,7 +6,7 @@
  * Perder um aviso de risco de suicídio é pior do que aceitar um envio falso.
  */
 
-export type RateBucket = "geral" | "risco" | "email" | "alerta";
+export type RateBucket = "geral" | "risco" | "email" | "alerta" | "senha_email" | "senha_ip";
 
 export const RATE_POLICY: Record<RateBucket, { limit: number; windowSeconds: number }> = {
   // Por IP + clínica. Folgado de propósito: a recepção de uma clínica pode ter
@@ -21,6 +21,10 @@ export const RATE_POLICY: Record<RateBucket, { limit: number; windowSeconds: num
   // E-mails de alerta à equipe, por clínica. Acima disso a triagem continua
   // gravada e no topo do painel, mas o e-mail é suprimido (anti-inundação).
   alerta: { limit: 20, windowSeconds: 3600 },
+  // Recuperação de senha: poucos pedidos por e-mail (não inundar a caixa de ninguém)
+  // e um teto maior por IP.
+  senha_email: { limit: 3, windowSeconds: 3600 },
+  senha_ip: { limit: 10, windowSeconds: 3600 },
 };
 
 export type CaptchaState = "ok" | "ausente" | "invalida" | "nao_configurado";

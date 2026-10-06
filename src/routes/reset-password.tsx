@@ -1,9 +1,12 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
+import { requestPasswordReset } from "@/lib/password-reset.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
 import { validateNewPassword, MIN_PASSWORD_LENGTH } from "@/lib/password";
 import { PasswordStrengthMeter } from "@/components/PasswordStrengthMeter";
@@ -63,6 +66,9 @@ function ResetPasswordPage() {
   const [resendEmail, setResendEmail] = useState("");
   const [resendMsg, setResendMsg] = useState<string | null>(null);
   const [resending, setResending] = useState(false);
+  const requestReset = useServerFn(requestPasswordReset);
+  const verifiedRef = useRef(false);
+  const verifyingRef = useRef(false);
 
   useEffect(() => {
     const problem = readLinkError();
@@ -71,12 +77,38 @@ function ResetPasswordPage() {
       setReady(true);
       return;
     }
-    // Após o link de recuperação, o Supabase cria a sessão a partir do hash da URL.
-    supabase.auth.getSession().then(({ data }) => {
-      setHasSession(Boolean(data.session));
-      setReady(true);
-    });
+    // Link novo (e-mail nosso, em português): ?token_hash=…&type=recovery. O token só é
+    // consumido aqui, no navegador (scanners de e-mail que apenas abrem o link não o gastam).
+    const params = new URLSearchParams(window.location.search);
+    const tokenHash = params.get("token_hash");
+    if (tokenHash && params.get("type") === "recovery") {
+      if (!verifiedRef.current) {
+        verifiedRef.current = true;
+        verifyingRef.current = true;
+        supabase.auth.verifyOtp({ token_hash: tokenHash, type: "recovery" }).then(({ data, error }) => {
+          // Tira o token da barra de endereço (histórico, capturas de tela).
+          window.history.replaceState(null, "", window.location.pathname);
+          verifyingRef.current = false;
+          if (error || !data.session) {
+            setLinkError({
+              title: "Este link expirou ou já foi usado.",
+              detail: "Solicite um novo e-mail de redefinição abaixo.",
+            });
+          } else {
+            setHasSession(true);
+          }
+          setReady(true);
+        });
+      }
+    } else {
+      // Fluxo antigo: o Supabase cria a sessão a partir do hash da URL.
+      supabase.auth.getSession().then(({ data }) => {
+        setHasSession(Boolean(data.session));
+        setReady(true);
+      });
+    }
     const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
+      if (verifyingRef.current) return; // validando o link: não piscar "link inválido"
       setHasSession(Boolean(session));
       setReady(true);
     });
@@ -127,10 +159,7 @@ function ResetPasswordPage() {
     setResendMsg(null);
     setResending(true);
     try {
-      const { error } = await supabase.auth.resetPasswordForEmail(resendEmail, {
-        redirectTo: `${window.location.origin}/reset-password`,
-      });
-      if (error) throw error;
+      await requestReset({ data: { email: resendEmail } });
       setResendMsg(
         "Se este e-mail estiver cadastrado, um novo link foi enviado. Ele vale por 1 hora e pode ser usado uma única vez.",
       );
@@ -196,9 +225,8 @@ function ResetPasswordPage() {
           <form onSubmit={handleSubmit} className="mt-6 space-y-4">
             <div className="space-y-2">
               <Label htmlFor="senha">Nova senha</Label>
-              <Input
+              <PasswordInput
                 id="senha"
-                type="password"
                 autoComplete="new-password"
                 required
                 minLength={MIN_PASSWORD_LENGTH}
@@ -211,9 +239,8 @@ function ResetPasswordPage() {
             </div>
             <div>
               <Label htmlFor="confirmar">Confirmar nova senha</Label>
-              <Input
+              <PasswordInput
                 id="confirmar"
-                type="password"
                 autoComplete="new-password"
                 required
                 minLength={MIN_PASSWORD_LENGTH}

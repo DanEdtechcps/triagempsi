@@ -36,6 +36,20 @@ test.describe("Redefinição de senha por e-mail", () => {
 
   test("reenvio do link confirma envio sem revelar se o e-mail existe", async ({ page }) => {
     await mockAuthApi(page);
+    // O reenvio usa a nossa função de servidor (Resend): mockada para não enviar e-mail real.
+    let pedidos = 0;
+    await page.route(
+      (url) => /_serverFn|serverFn/.test(url.pathname + url.search),
+      (route) => {
+        if (route.request().method() !== "POST") return route.fallback();
+        pedidos++;
+        return route.fulfill({
+          status: 200,
+          contentType: "application/json",
+          body: JSON.stringify({ result: { ok: true } }),
+        });
+      },
+    );
     await signOut(page);
     await page.goto("/reset-password#error_code=otp_expired");
 
@@ -43,6 +57,24 @@ test.describe("Redefinição de senha por e-mail", () => {
     await page.getByRole("button", { name: "Enviar novo link" }).click();
 
     await expect(page.getByText(/Se este e-mail estiver cadastrado/i)).toBeVisible();
+    expect(pedidos).toBe(1);
+  });
+
+  test("botão mostrar/ocultar revela a senha digitada (e volta a esconder)", async ({ page }) => {
+    await mockAuthApi(page);
+    await signInAs(page);
+    await page.goto("/reset-password");
+
+    const nova = page.getByLabel("Nova senha", { exact: true });
+    await nova.fill("Cuidado2026!Forte");
+    await expect(nova).toHaveAttribute("type", "password");
+
+    await page.getByRole("button", { name: "Mostrar senha" }).first().click();
+    await expect(nova).toHaveAttribute("type", "text");
+    await expect(nova).toHaveValue("Cuidado2026!Forte");
+
+    await page.getByRole("button", { name: "Ocultar senha" }).first().click();
+    await expect(nova).toHaveAttribute("type", "password");
   });
 
   test("link de recuperação em qualquer rota redireciona para /reset-password", async ({

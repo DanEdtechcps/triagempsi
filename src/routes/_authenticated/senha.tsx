@@ -5,6 +5,7 @@ import { PainelShell } from "@/components/painel/PainelShell";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
 import { validateNewPassword, MIN_PASSWORD_LENGTH } from "@/lib/password";
 import { PasswordStrengthMeter } from "@/components/PasswordStrengthMeter";
@@ -87,9 +88,8 @@ function TrocarSenhaPage() {
         <form onSubmit={handleSubmit} className="mt-5 space-y-4">
           <div>
             <Label htmlFor="atual">Senha atual</Label>
-            <Input
+            <PasswordInput
               id="atual"
-              type="password"
               autoComplete="current-password"
               required
               value={current}
@@ -99,9 +99,8 @@ function TrocarSenhaPage() {
           </div>
           <div className="space-y-2">
             <Label htmlFor="nova">Nova senha</Label>
-            <Input
+            <PasswordInput
               id="nova"
-              type="password"
               autoComplete="new-password"
               required
               minLength={MIN_PASSWORD_LENGTH}
@@ -114,9 +113,8 @@ function TrocarSenhaPage() {
           </div>
           <div>
             <Label htmlFor="confirmar">Confirmar nova senha</Label>
-            <Input
+            <PasswordInput
               id="confirmar"
-              type="password"
               autoComplete="new-password"
               required
               minLength={MIN_PASSWORD_LENGTH}

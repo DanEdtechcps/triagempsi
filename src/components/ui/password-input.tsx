@@ -1,0 +1,48 @@
+import * as React from "react";
+import { Eye, EyeOff } from "lucide-react";
+
+import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/utils";
+
+type PasswordInputProps = Omit<React.ComponentProps<"input">, "type">;
+
+/**
+ * Campo de senha com botão "mostrar/ocultar". Começa oculto. O botão não
+ * participa do formulário (type="button") e é acessível por teclado e leitor
+ * de tela (aria-pressed + rótulo que muda).
+ */
+const PasswordInput = React.forwardRef<HTMLInputElement, PasswordInputProps>(
+  ({ className, ...props }, ref) => {
+    const [visible, setVisible] = React.useState(false);
+    return (
+      <div className="relative">
+        <Input
+          ref={ref}
+          type={visible ? "text" : "password"}
+          className={cn("pr-11", className)}
+          // Evita que gerenciadores/corretores gravem a senha enquanto visível.
+          autoCapitalize="none"
+          autoCorrect="off"
+          spellCheck={false}
+          {...props}
+        />
+        <button
+          type="button"
+          onClick={() => setVisible((v) => !v)}
+          aria-label={visible ? "Ocultar senha" : "Mostrar senha"}
+          aria-pressed={visible}
+          className="absolute inset-y-0 right-0 flex w-11 items-center justify-center rounded-r-md text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+        >
+          {visible ? (
+            <EyeOff className="h-4 w-4" aria-hidden />
+          ) : (
+            <Eye className="h-4 w-4" aria-hidden />
+          )}
+        </button>
+      </div>
+    );
+  },
+);
+PasswordInput.displayName = "PasswordInput";
+
+export { PasswordInput };

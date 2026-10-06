@@ -1,9 +1,12 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
+import { requestPasswordReset } from "@/lib/password-reset.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { PasswordInput } from "@/components/ui/password-input";
 import { Label } from "@/components/ui/label";
 import { checkIsStaff } from "@/lib/staff";
 
@@ -30,6 +33,7 @@ export const Route = createFileRoute("/auth")({
 });
 
 function AuthPage() {
+  const requestReset = useServerFn(requestPasswordReset);
   const navigate = useNavigate();
   const [mode, setMode] = useState<"entrar" | "criar">("entrar");
   const [email, setEmail] = useState("");
@@ -86,11 +90,10 @@ function AuthPage() {
     }
     setLoading(true);
     try {
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: window.location.origin + "/reset-password",
-      });
-      if (error) throw error;
-      setInfo("Enviamos um link de redefinição para o seu e-mail. Abra-o para criar a nova senha.");
+      await requestReset({ data: { email } });
+      setInfo(
+        "Se este e-mail estiver cadastrado, enviamos um link para criar a nova senha. Abra-o para continuar.",
+      );
     } catch (err) {
       setMsg(err instanceof Error ? err.message : "Não foi possível enviar o link.");
     } finally {
@@ -123,9 +126,8 @@ function AuthPage() {
           </div>
           <div>
             <Label htmlFor="password">Senha</Label>
-            <Input
+            <PasswordInput
               id="password"
-              type="password"
               autoComplete={mode === "entrar" ? "current-password" : "new-password"}
               required
               minLength={8}
