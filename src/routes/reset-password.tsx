@@ -177,7 +177,7 @@ function ResetPasswordPage() {
       <Card className="w-full max-w-md border-border bg-card p-6 sm:p-8">
         <h1 className="font-serif text-2xl font-semibold text-foreground">Definir nova senha</h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          TriagemPsi — escolha uma senha com pelo menos 8 caracteres.
+          Psiqway — escolha uma senha com pelo menos 8 caracteres.
         </p>
 
         {!ready && <p className="mt-6 text-sm text-muted-foreground">Verificando o link…</p>}

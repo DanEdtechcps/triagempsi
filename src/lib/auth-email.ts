@@ -6,6 +6,7 @@
  */
 
 import { renderEmail } from "@/lib/email-layout";
+import { buildFrom } from "@/lib/mail-sender";
 
 export const RESET_LINK_VALIDITY_MINUTES = 60;
 
@@ -23,25 +24,18 @@ export function buildPasswordResetEmail(input: { link: string }): {
   const { html, text } = renderEmail({
     preheader: "Crie uma nova senha de acesso.",
     title: "Redefinir sua senha",
-    paragraphs: ["Recebemos um pedido para criar uma nova senha de acesso ao **TriagemPsi**."],
+    paragraphs: ["Recebemos um pedido para criar uma nova senha de acesso ao **Psiqway**."],
     button: { label: "Criar nova senha", href: input.link },
     notes: [`O link vale por ${RESET_LINK_VALIDITY_MINUTES} minutos e só pode ser usado uma vez.`],
     footnote: "Se você não pediu isso, pode ignorar este e-mail: sua senha continua a mesma.",
   });
-  return { subject: "Redefinir sua senha — TriagemPsi", html, text };
+  return { subject: "Redefinir sua senha — Psiqway", html, text };
 }
 
 /**
  * Remetente dos e-mails de acesso, derivado do remetente já configurado para o
  * alerta de risco (mesmo domínio verificado), trocando só a parte local.
- * "TriagemPsi <alertas@mail.x.com>" -> "TriagemPsi <acesso@mail.x.com>".
  */
 export function deriveAccessSender(riskAlertFrom: string | undefined): string | null {
-  const raw = (riskAlertFrom ?? "").trim();
-  if (!raw) return null;
-  const m = raw.match(/^(.*?)<\s*[^@<>\s]+@([^<>\s]+)\s*>$/);
-  if (m) return `${m[1].trim() || "TriagemPsi"} <acesso@${m[2]}>`;
-  const bare = raw.match(/^[^@<>\s]+@([^<>\s]+)$/);
-  if (bare) return `TriagemPsi <acesso@${bare[1]}>`;
-  return null;
+  return buildFrom(riskAlertFrom, "acesso");
 }

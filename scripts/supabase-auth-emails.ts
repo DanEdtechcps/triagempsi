@@ -1,6 +1,6 @@
 #!/usr/bin/env bun
 /**
- * Gera e carrega os e-mails do Supabase Auth (português, modelo TriagemPsi).
+ * Gera e carrega os e-mails do Supabase Auth (português, modelo Psiqway).
  *
  *   bun scripts/supabase-auth-emails.ts write   → grava supabase/templates/*.html
  *   bun scripts/supabase-auth-emails.ts push    → PATCH /v1/projects/{ref}/config/auth
@@ -73,7 +73,7 @@ async function push() {
       smtp_user: "resend",
       smtp_pass: process.env.RESEND_SMTP_KEY,
       smtp_admin_email: SMTP_FROM,
-      smtp_sender_name: "TriagemPsi",
+      smtp_sender_name: "Psiqway",
       ...SMTP_LIMITS,
     });
   }

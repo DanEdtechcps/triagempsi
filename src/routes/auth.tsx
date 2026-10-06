@@ -85,7 +85,7 @@ function AuthPage() {
           Acesso do profissional
         </h1>
         <p className="mt-2 text-sm text-muted-foreground">
-          TriagemPsi — área restrita da equipe clínica.
+          Psiqway — área restrita da equipe clínica.
         </p>
 
         {view === "recuperar" ? (

@@ -65,7 +65,7 @@ describe("os 13 e-mails do Supabase Auth", () => {
   it("todos estão em português e levam a marca no assunto", () => {
     for (const k of AUTH_EMAIL_KEYS) {
       const { subject, html } = renderAuthEmail(k);
-      expect(subject, k).toMatch(/— TriagemPsi$/);
+      expect(subject, k).toMatch(/— Psiqway$/);
       expect(html, k).toContain('lang="pt-BR"');
       expect(html, k).not.toMatch(/Confirm your|Reset your|Follow this link|Supabase/i);
     }

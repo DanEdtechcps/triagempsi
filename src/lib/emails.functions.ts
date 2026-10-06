@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import type { EmailDelivery } from "@/lib/emails.server";
+import { maskEmail } from "@/lib/auth-ui";
 
 export type EmailDeliveryRow = EmailDelivery;
 
@@ -12,31 +13,42 @@ export type EmailStatusPayload = {
   error: string | null;
 };
 
-/** Estado do envio de e-mails + últimos eventos de entrega (escopo do usuário). */
+/**
+ * Estado do envio de e-mails + últimos envios. O histórico vem da nossa trilha de
+ * auditoria (email_sent / email_failed), já isolada por clínica pelo RLS, e não de um painel
+ * externo. Só guardamos o destinatário MASCARADO (sem PHI).
+ */
 export const getEmailStatus = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }): Promise<EmailStatusPayload> => {
-    const { fetchEmailDeliveries, senderDomain } = await import("@/lib/emails.server");
-    const { getAccessScope, allowedRecipientEmails } = await import("@/lib/painel-access.server");
+    const { senderDomain } = await import("@/lib/emails.server");
     const domainConfigured = Boolean(senderDomain());
-    try {
-      const scope = await getAccessScope(context.supabase, context.userId);
-      const { deliveries, history_starts_at } = await fetchEmailDeliveries(100);
-      let visible = deliveries;
-      if (!scope.global) {
-        // Sem acesso global: só destinatários das clínicas do usuário.
-        const allowed = await allowedRecipientEmails(context.supabase);
-        visible = deliveries.filter((d) => allowed.has((d.recipient ?? "").trim().toLowerCase()));
-      }
-      return { domainConfigured, deliveries: visible, history_starts_at, error: null };
-    } catch (e) {
+    const { data, error } = await context.supabase
+      .from("audit_logs")
+      .select("created_at, action, details")
+      .in("action", ["email_sent", "email_failed"])
+      .order("created_at", { ascending: false })
+      .limit(100);
+    if (error) {
       return {
         domainConfigured,
         deliveries: [],
         history_starts_at: null,
-        error: e instanceof Error ? e.message : "Não foi possível ler o histórico de envios.",
+        error: "Não foi possível ler o histórico de envios.",
       };
     }
+    const deliveries: EmailDeliveryRow[] = (data ?? []).map((r) => {
+      const d = (r.details ?? {}) as Record<string, unknown>;
+      const sent = r.action === "email_sent";
+      return {
+        timestamp: r.created_at as string,
+        recipient: (d["destinatario_mascarado"] as string | undefined) ?? "(não registrado)",
+        event_type: sent ? "sent" : "failed",
+        status: sent ? null : ((d["erro"] as string | undefined) ?? null),
+        message_id: (d["message_id"] as string | undefined) ?? null,
+      };
+    });
+    return { domainConfigured, deliveries, history_starts_at: null, error: null };
   });
 
 /** Triagens recentes disponíveis para (re)envio dos resultados básicos. */
@@ -128,6 +140,9 @@ export const resendResultsEmail = createServerFn({ method: "POST" })
       text: built.text,
       label: `resultados-${data.audience}`,
       idempotencyKey: `resend-${data.assessment_id}-${data.audience}-${Date.now()}`,
+      // White-label: o e-mail sai com o nome da clínica e a resposta cai na caixa dela.
+      fromName: built.clinicName || null,
+      replyTo: built.clinicEmail,
     });
 
     // Número da tentativa: envios anteriores registrados para esta triagem + 1.
@@ -151,6 +166,7 @@ export const resendResultsEmail = createServerFn({ method: "POST" })
         triagem_id: data.assessment_id,
         destinatario_id: built.contactId,
         tentativa: attempt,
+        destinatario_mascarado: maskEmail(to),
         publico: data.audience,
         provedor: sent.provider,
         ...(sent.ok ? { message_id: sent.message_id } : { erro: sent.reason, codigo: sent.code }),

@@ -22,7 +22,7 @@ describe("buildPasswordResetEmail", () => {
   const mail = buildPasswordResetEmail({ link });
 
   it("está em português e fala a validade", () => {
-    expect(mail.subject).toBe("Redefinir sua senha — TriagemPsi");
+    expect(mail.subject).toBe("Redefinir sua senha — Psiqway");
     expect(mail.text).toContain("Recebemos um pedido");
     expect(mail.text).toContain(`${RESET_LINK_VALIDITY_MINUTES} minutos`);
     expect(mail.html).toContain('lang="pt-BR"');
@@ -45,13 +45,13 @@ describe("buildPasswordResetEmail", () => {
 
 describe("deriveAccessSender", () => {
   it("troca só a parte local mantendo o domínio verificado", () => {
-    expect(deriveAccessSender("TriagemPsi <alertas@mail.psiqway.com.br>")).toBe(
-      "TriagemPsi <acesso@mail.psiqway.com.br>",
+    expect(deriveAccessSender("Psiqway <alertas@mail.psiqway.com.br>")).toBe(
+      "Psiqway <acesso@mail.psiqway.com.br>",
     );
   });
   it("aceita endereço puro", () => {
     expect(deriveAccessSender("alertas@mail.psiqway.com.br")).toBe(
-      "TriagemPsi <acesso@mail.psiqway.com.br>",
+      "Psiqway <acesso@mail.psiqway.com.br>",
     );
   });
   it("sem remetente configurado ou inválido → null", () => {

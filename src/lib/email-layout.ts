@@ -1,5 +1,5 @@
 /**
- * Modelo visual único de todos os e-mails do TriagemPsi (acesso, avisos de segurança,
+ * Modelo visual único de todos os e-mails do Psiqway (acesso, avisos de segurança,
  * alerta de risco). Tabelas + CSS inline: é o que Gmail, Outlook e apps de celular
  * renderizam de forma confiável. Largura 560 px, fundo claro explícito (para o modo
  * escuro dos apps não inverter as cores do botão).
@@ -9,7 +9,7 @@
  */
 
 export const BRAND = {
-  nome: "TriagemPsi",
+  nome: "Psiqway",
   tagline: "Pré-triagem em saúde mental",
   cor: "#076b6f",
   corRisco: "#cc272e",

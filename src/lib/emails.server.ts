@@ -1,10 +1,10 @@
 /**
- * Envio e histórico de e-mails — server-only.
+ * Envio de e-mails transacionais do app (resultados, alertas) — server-only.
  *
- * Usa a infraestrutura de e-mail gerenciada da plataforma. Nenhuma fila ou
- * tabela de e-mail é criada no projeto: o histórico vem da API de logs.
+ * Provedor: Resend (RESEND_API_KEY) com remetente do domínio verificado (RISK_ALERT_FROM).
+ * Substitui o serviço de e-mail do Lovable, que deixou de existir após a migração.
  */
-import { listEmailLogs, sendLovableEmail, EmailAPIError } from "@lovable.dev/email-js";
+import { buildFrom, senderDomainOf } from "@/lib/mail-sender";
 
 export type EmailDelivery = {
   timestamp: string;
@@ -14,36 +14,15 @@ export type EmailDelivery = {
   message_id: string | null;
 };
 
-function apiKey() {
-  const key = process.env["LOVABLE_API_KEY"];
-  if (!key) throw new Error("Envio de e-mail não está configurado neste projeto.");
-  return key;
-}
+const SEND_TIMEOUT_MS = 10_000;
 
-/** Domínio remetente verificado, quando já configurado. */
+/** Domínio remetente verificado, ou null quando o envio não está configurado. */
 export function senderDomain(): string | null {
-  return process.env["EMAIL_SENDER_DOMAIN"] ?? process.env["LOVABLE_EMAIL_SENDER_DOMAIN"] ?? null;
+  if (!process.env["RESEND_API_KEY"]) return null;
+  return senderDomainOf(process.env["RISK_ALERT_FROM"]);
 }
 
-/** Últimos eventos de entrega (enviado, recusado, devolvido, bloqueado…). */
-export async function fetchEmailDeliveries(limit = 100): Promise<{
-  deliveries: EmailDelivery[];
-  history_starts_at: string | null;
-}> {
-  const res = await listEmailLogs({ limit }, { apiKey: apiKey() });
-  return {
-    deliveries: (res.data ?? []).map((e) => ({
-      timestamp: e.timestamp,
-      recipient: e.recipient,
-      event_type: e.event_type,
-      status: e.status ?? null,
-      message_id: e.message_id ?? null,
-    })),
-    history_starts_at: res.history_starts_at ?? null,
-  };
-}
-
-/** Payload essencial devolvido pelo provedor de e-mail, para auditoria. */
+/** Payload essencial devolvido pelo provedor, para auditoria. */
 export type ProviderPayload = {
   message_id: string | null;
   status: string | number | null;
@@ -57,94 +36,105 @@ export type SendResult =
   | { ok: true; message_id: string | null; provider: ProviderPayload }
   | { ok: false; reason: string; code: string | null; provider: ProviderPayload };
 
-/** Dispara um e-mail já renderizado, devolvendo o resultado do provedor. */
+function failure(
+  reason: string,
+  code: string | null,
+  status: string | number | null = null,
+): SendResult {
+  return {
+    ok: false,
+    reason,
+    code,
+    provider: {
+      message_id: null,
+      status,
+      code,
+      success: false,
+      retry_after_seconds: null,
+      reason,
+    },
+  };
+}
+
+/**
+ * Dispara um e-mail já renderizado. `fromName` é o nome exibido (a clínica, no white-label;
+ * padrão: Psiqway) e `replyTo` faz a resposta do paciente cair na caixa da clínica.
+ */
 export async function sendRenderedEmail(input: {
-  to: string;
+  to: string | string[];
   subject: string;
   html: string;
   text: string;
   idempotencyKey?: string;
   label?: string;
+  fromName?: string | null;
+  replyTo?: string | null;
 }): Promise<SendResult> {
-  const domain = senderDomain();
-  if (!domain) {
-    const reason =
-      "Nenhum domínio de envio configurado. Configure o domínio para liberar o disparo de e-mails.";
-    return {
-      ok: false,
-      reason,
-      code: "no_email_domain",
-      provider: {
-        message_id: null,
-        status: null,
-        code: "no_email_domain",
-        success: false,
-        retry_after_seconds: null,
-        reason,
-      },
-    };
+  const key = process.env["RESEND_API_KEY"];
+  const from = buildFrom(process.env["RISK_ALERT_FROM"], "resultados", input.fromName);
+  if (!key || !from) {
+    return failure(
+      "O envio de e-mails ainda não está configurado neste ambiente.",
+      "no_email_provider",
+    );
   }
+
+  const headers: Record<string, string> = {
+    Authorization: `Bearer ${key}`,
+    "Content-Type": "application/json",
+  };
+  if (input.idempotencyKey) headers["Idempotency-Key"] = input.idempotencyKey.slice(0, 256);
+
   try {
-    const res = await sendLovableEmail(
-      {
-        to: input.to,
-        from: `triagem@${domain}`,
-        sender_domain: domain,
+    const res = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers,
+      body: JSON.stringify({
+        from,
+        to: Array.isArray(input.to) ? input.to : [input.to],
         subject: input.subject,
         html: input.html,
         text: input.text,
-        label: input.label,
-        idempotency_key: input.idempotencyKey,
-      },
-      { apiKey: apiKey(), idempotencyKey: input.idempotencyKey },
-    );
-    const raw = res as unknown as {
-      success?: boolean;
-      message_id?: string | null;
-      status?: string | number | null;
-      reason?: string | null;
+        ...(input.replyTo ? { reply_to: input.replyTo } : {}),
+        ...(input.label
+          ? { tags: [{ name: "tipo", value: input.label.replace(/[^A-Za-z0-9_-]/g, "_") }] }
+          : {}),
+      }),
+      signal: AbortSignal.timeout(SEND_TIMEOUT_MS),
+    });
+    const body = (await res.json().catch(() => ({}))) as {
+      id?: string;
+      name?: string;
+      message?: string;
     };
-    const provider: ProviderPayload = {
-      message_id: raw.message_id ?? null,
-      status: raw.status ?? null,
-      code: null,
-      success: raw.success ?? true,
-      retry_after_seconds: null,
-      reason: raw.reason ?? null,
-    };
-    return raw.success === false
-      ? { ok: false, reason: raw.reason ?? "Envio recusado pelo provedor.", code: null, provider }
-      : { ok: true, message_id: provider.message_id, provider };
-  } catch (e) {
-    if (e instanceof EmailAPIError) {
-      const code = e.code ?? String(e.status);
-      return {
-        ok: false,
-        reason: e.message,
-        code,
-        provider: {
-          message_id: null,
-          status: e.status ?? null,
-          code,
-          success: false,
-          retry_after_seconds: e.retryAfterSeconds ?? null,
-          reason: e.message,
-        },
-      };
+    if (!res.ok) {
+      const retry = Number(res.headers.get("retry-after"));
+      const f = failure(
+        body.message ?? `Recusado pelo provedor (HTTP ${res.status}).`,
+        body.name ?? String(res.status),
+        res.status,
+      );
+      if (!f.ok && Number.isFinite(retry) && retry > 0) f.provider.retry_after_seconds = retry;
+      return f;
     }
-    const reason = e instanceof Error ? e.message : "Falha desconhecida no envio.";
     return {
-      ok: false,
-      reason,
-      code: null,
+      ok: true,
+      message_id: body.id ?? null,
       provider: {
-        message_id: null,
-        status: null,
+        message_id: body.id ?? null,
+        status: res.status,
         code: null,
-        success: false,
+        success: true,
         retry_after_seconds: null,
-        reason,
+        reason: null,
       },
     };
+  } catch (e) {
+    return failure(
+      e instanceof Error && e.name === "TimeoutError"
+        ? "O provedor de e-mail demorou demais para responder."
+        : "Não foi possível falar com o provedor de e-mail.",
+      "network",
+    );
   }
 }

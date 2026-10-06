@@ -11,6 +11,8 @@ export type BuiltAssessmentEmail = {
   html: string;
   text: string;
   clinicId: string;
+  clinicName: string;
+  clinicEmail: string | null;
   contactId: string | null;
   respondentName: string;
 };
@@ -125,6 +127,8 @@ export async function buildAssessmentEmail(
     html,
     text,
     clinicId: a.clinic_id as string,
+    clinicName: (clinic?.name as string | undefined) ?? "",
+    clinicEmail: (clinic?.contact_email as string | null) ?? null,
     contactId: (a.contact_id as string | null) ?? null,
     respondentName: a.respondent_name as string,
   };

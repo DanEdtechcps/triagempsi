@@ -5,8 +5,7 @@
  * O resultado (enviado/falhou, por quê) é sempre registrado em audit_logs,
  * para a falha de entrega ser visível e não silenciosa.
  *
- * Provedor, em ordem: Resend (RESEND_API_KEY + RISK_ALERT_FROM) → e-mail
- * gerenciado legado (LOVABLE_API_KEY + domínio). Sem nenhum dos dois, registra
+ * Provedor: Resend (RESEND_API_KEY + RISK_ALERT_FROM). Sem isso registra
  * `risk_alert_failed` com `no_provider`.
  */
 import { buildRiskAlertEmail, normalizeRecipients } from "@/lib/risk-alert";
@@ -31,32 +30,11 @@ async function sendViaResend(to: string[], mail: Mail): Promise<SendOutcome | nu
     if (res.ok) return { ok: true, provider: "resend" };
     return { ok: false, provider: "resend", reason: `http_${res.status}` };
   } catch (e) {
-    return { ok: false, provider: "resend", reason: e instanceof Error ? e.name : "erro_desconhecido" };
-  }
-}
-
-async function sendViaLegacy(to: string[], mail: Mail, idem: string): Promise<SendOutcome> {
-  try {
-    const { sendRenderedEmail } = await import("@/lib/emails.server");
-    let anyOk = false;
-    let lastReason = "sem_destinatario";
-    for (const addr of to) {
-      const r = await sendRenderedEmail({
-        to: addr,
-        subject: mail.subject,
-        html: mail.html,
-        text: mail.text,
-        idempotencyKey: `${idem}:${addr}`,
-        label: "risk_alert",
-      });
-      if (r.ok) anyOk = true;
-      else lastReason = r.code ?? r.reason;
-    }
-    return anyOk
-      ? { ok: true, provider: "legacy" }
-      : { ok: false, provider: "legacy", reason: lastReason };
-  } catch (e) {
-    return { ok: false, provider: "legacy", reason: e instanceof Error ? e.name : "erro_desconhecido" };
+    return {
+      ok: false,
+      provider: "resend",
+      reason: e instanceof Error ? e.name : "erro_desconhecido",
+    };
   }
 }
 
@@ -94,7 +72,10 @@ async function collectRecipients(clinicId: string, doctorId: string | null) {
       /* usuário removido — ignora */
     }
   }
-  return { clinicName: (clinic?.name as string | undefined) ?? "", recipients: normalizeRecipients(emails) };
+  return {
+    clinicName: (clinic?.name as string | undefined) ?? "",
+    recipients: normalizeRecipients(emails),
+  };
 }
 
 export async function dispatchRiskAlert(input: {
@@ -134,9 +115,7 @@ export async function dispatchRiskAlert(input: {
     });
     const outcome =
       (await sendViaResend(recipients, mail)) ??
-      (process.env["LOVABLE_API_KEY"]
-        ? await sendViaLegacy(recipients, mail, `risk:${input.assessmentId}`)
-        : ({ ok: false, provider: "none", reason: "no_provider" } as const));
+      ({ ok: false, provider: "none", reason: "no_provider" } as const);
 
     await recordAudit({
       action: outcome.ok ? "risk_alert_sent" : "risk_alert_failed",

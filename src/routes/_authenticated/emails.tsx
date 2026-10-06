@@ -36,6 +36,7 @@ export const Route = createFileRoute("/_authenticated/emails")({
 
 const EVENT_LABEL: Record<string, string> = {
   sent: "Enviado",
+  failed: "Falhou ao enviar",
   rejected: "Recusado pelo provedor",
   bounced: "Devolvido (caixa inexistente)",
   complained: "Marcado como spam",
@@ -145,9 +146,9 @@ function EmailsPage() {
 
           {domainMissing && (
             <p className="mt-3 rounded-md border border-warning/30 bg-warning/10 p-3 text-sm text-foreground">
-              O domínio de envio ainda não está configurado — por isso nenhum e-mail é disparado e o
-              histórico aparece vazio. Após configurar o domínio, os envios e reenvios funcionam
-              imediatamente nesta tela.
+              O envio de e-mails ainda não está configurado neste ambiente — por isso nenhum e-mail
+              é disparado e o histórico aparece vazio. Assim que a chave de envio for cadastrada, os
+              envios e reenvios passam a funcionar nesta tela.
             </p>
           )}
           {status.data?.error && (

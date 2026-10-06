@@ -1,5 +1,5 @@
 /**
- * Os 13 e-mails do Supabase Auth, em português, no modelo visual do TriagemPsi.
+ * Os 13 e-mails do Supabase Auth, em português, no modelo visual do Psiqway.
  *
  * Fonte única: daqui saem (1) os arquivos em supabase/templates/ e (2) o payload que
  * `scripts/supabase-auth-emails.ts push` envia à Management API (campos
@@ -47,12 +47,12 @@ const NAO_FUI_EU =
 
 export const AUTH_EMAILS: Record<AuthEmailKey, { subject: string; spec: EmailSpec }> = {
   confirmation: {
-    subject: "Confirme seu e-mail — TriagemPsi",
+    subject: "Confirme seu e-mail — Psiqway",
     spec: {
       preheader: "Falta só um passo para ativar o seu acesso.",
       title: "Confirme seu e-mail",
       paragraphs: [
-        "Falta só um passo para ativar seu acesso ao **TriagemPsi**. Confirme que este e-mail é seu:",
+        "Falta só um passo para ativar seu acesso ao **Psiqway**. Confirme que este e-mail é seu:",
       ],
       button: { label: "Confirmar meu e-mail", href: LINK },
       notes: [
@@ -63,12 +63,12 @@ export const AUTH_EMAILS: Record<AuthEmailKey, { subject: string; spec: EmailSpe
     },
   },
   invite: {
-    subject: "Você foi convidado(a) — TriagemPsi",
+    subject: "Você foi convidado(a) — Psiqway",
     spec: {
       preheader: "Aceite o convite para criar sua senha e entrar.",
       title: "Você foi convidado(a)",
       paragraphs: [
-        "Você recebeu um convite para acessar o **TriagemPsi**. Aceite o convite para criar sua senha e entrar.",
+        "Você recebeu um convite para acessar o **Psiqway**. Aceite o convite para criar sua senha e entrar.",
       ],
       button: { label: "Aceitar convite", href: LINK },
       notes: ["O convite é pessoal: não o encaminhe a outra pessoa."],
@@ -76,18 +76,18 @@ export const AUTH_EMAILS: Record<AuthEmailKey, { subject: string; spec: EmailSpe
     },
   },
   magic_link: {
-    subject: "Seu link de acesso — TriagemPsi",
+    subject: "Seu link de acesso — Psiqway",
     spec: {
       preheader: "Entre sem digitar a senha.",
       title: "Seu link de acesso",
-      paragraphs: ["Use o botão abaixo para entrar no **TriagemPsi** sem digitar a senha."],
-      button: { label: "Entrar no TriagemPsi", href: LINK },
+      paragraphs: ["Use o botão abaixo para entrar no **Psiqway** sem digitar a senha."],
+      button: { label: "Entrar no Psiqway", href: LINK },
       notes: ["O link vale por tempo limitado e só funciona uma vez."],
       footnote: "Se você não pediu este acesso, pode ignorar este e-mail.",
     },
   },
   email_change: {
-    subject: "Confirme a troca de e-mail — TriagemPsi",
+    subject: "Confirme a troca de e-mail — Psiqway",
     spec: {
       preheader: "Confirme o novo e-mail da sua conta.",
       title: "Confirme a troca de e-mail",
@@ -99,29 +99,29 @@ export const AUTH_EMAILS: Record<AuthEmailKey, { subject: string; spec: EmailSpe
     },
   },
   recovery: {
-    subject: "Redefinir sua senha — TriagemPsi",
+    subject: "Redefinir sua senha — Psiqway",
     spec: {
       preheader: "Crie uma nova senha de acesso.",
       title: "Redefinir sua senha",
-      paragraphs: ["Recebemos um pedido para criar uma nova senha de acesso ao **TriagemPsi**."],
+      paragraphs: ["Recebemos um pedido para criar uma nova senha de acesso ao **Psiqway**."],
       button: { label: "Criar nova senha", href: LINK },
       notes: ["O link vale por 60 minutos e só pode ser usado uma vez."],
       footnote: "Se você não pediu isso, pode ignorar este e-mail: sua senha continua a mesma.",
     },
   },
   reauthentication: {
-    subject: "Código de confirmação — TriagemPsi",
+    subject: "Código de confirmação — Psiqway",
     spec: {
       preheader: "Use este código para continuar.",
       title: "Confirmação de segurança",
-      paragraphs: ["Para continuar com segurança, digite este código no **TriagemPsi**:"],
+      paragraphs: ["Para continuar com segurança, digite este código no **Psiqway**:"],
       code: "{{ .Token }}",
       notes: ["O código vale por pouco tempo e só pode ser usado uma vez."],
       footnote: "Se não foi você, ignore este e-mail e considere trocar sua senha.",
     },
   },
   password_changed_notification: {
-    subject: "Sua senha foi alterada — TriagemPsi",
+    subject: "Sua senha foi alterada — Psiqway",
     spec: {
       preheader: "Aviso de segurança sobre a sua conta.",
       title: "Sua senha foi alterada",
@@ -130,7 +130,7 @@ export const AUTH_EMAILS: Record<AuthEmailKey, { subject: string; spec: EmailSpe
     },
   },
   email_changed_notification: {
-    subject: "O e-mail da sua conta foi alterado — TriagemPsi",
+    subject: "O e-mail da sua conta foi alterado — Psiqway",
     spec: {
       preheader: "Aviso de segurança sobre a sua conta.",
       title: "O e-mail da sua conta foi alterado",
@@ -139,7 +139,7 @@ export const AUTH_EMAILS: Record<AuthEmailKey, { subject: string; spec: EmailSpe
     },
   },
   phone_changed_notification: {
-    subject: "O telefone da sua conta foi alterado — TriagemPsi",
+    subject: "O telefone da sua conta foi alterado — Psiqway",
     spec: {
       preheader: "Aviso de segurança sobre a sua conta.",
       title: "O telefone da sua conta foi alterado",
@@ -148,7 +148,7 @@ export const AUTH_EMAILS: Record<AuthEmailKey, { subject: string; spec: EmailSpe
     },
   },
   identity_linked_notification: {
-    subject: "Novo método de login vinculado — TriagemPsi",
+    subject: "Novo método de login vinculado — Psiqway",
     spec: {
       preheader: "Aviso de segurança sobre a sua conta.",
       title: "Um novo método de login foi vinculado",
@@ -157,7 +157,7 @@ export const AUTH_EMAILS: Record<AuthEmailKey, { subject: string; spec: EmailSpe
     },
   },
   identity_unlinked_notification: {
-    subject: "Método de login removido — TriagemPsi",
+    subject: "Método de login removido — Psiqway",
     spec: {
       preheader: "Aviso de segurança sobre a sua conta.",
       title: "Um método de login foi removido",
@@ -166,7 +166,7 @@ export const AUTH_EMAILS: Record<AuthEmailKey, { subject: string; spec: EmailSpe
     },
   },
   mfa_factor_enrolled_notification: {
-    subject: "Verificação em duas etapas ativada — TriagemPsi",
+    subject: "Verificação em duas etapas ativada — Psiqway",
     spec: {
       preheader: "Aviso de segurança sobre a sua conta.",
       title: "Verificação em duas etapas ativada",
@@ -177,7 +177,7 @@ export const AUTH_EMAILS: Record<AuthEmailKey, { subject: string; spec: EmailSpe
     },
   },
   mfa_factor_unenrolled_notification: {
-    subject: "Verificação em duas etapas removida — TriagemPsi",
+    subject: "Verificação em duas etapas removida — Psiqway",
     spec: {
       preheader: "Aviso de segurança sobre a sua conta.",
       title: "Um fator de verificação foi removido",
