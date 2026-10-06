@@ -20,63 +20,18 @@ export interface TelemetryCardProps {
 
 export function TelemetryCard({
   telemetryRecords = [],
-  scaleResults = [],
   totalDurationSeconds,
 }: TelemetryCardProps) {
-  // Se não houver telemetria gravada explicitamente, sintetizamos a análise a partir das respostas
-  const telemetry = useMemo(() => {
-    if (telemetryRecords.length > 0) {
-      return analyzeSessionTelemetry(telemetryRecords);
-    }
-
-    // Geração determinística baseada nas respostas reais se telemetryRecords não foi passado
-    const syntheticRecords: ItemDwellRecord[] = [];
-    for (const res of scaleResults) {
-      for (const [itemId, val] of Object.entries(res.answers || {})) {
-        const isRisk =
-          (res.scale_code === "PHQ-9" && itemId === "9") ||
-          (res.scale_code === "EPDS" && itemId === "10") ||
-          (res.scale_code === "SRQ-20" && itemId === "17");
-
-        // Simula tempo de resposta com leve variação realista
-        const baseTime = 1400;
-        const time = isRisk && val > 0 ? 14500 : baseTime + ((Number(itemId) * 173) % 800);
-
-        syntheticRecords.push({
-          scale_code: res.scale_code,
-          item_id: itemId,
-          value: val,
-          response_time_ms: time,
-          is_risk_item: isRisk,
-        });
-      }
-    }
-
-    return analyzeSessionTelemetry(syntheticRecords);
-  }, [telemetryRecords, scaleResults]);
+  // Só analisamos tempos REAIS capturados na triagem. Nunca sintetizamos
+  // tempos a partir das respostas: um "tempo" inventado viraria um sinal
+  // clínico falso (ex.: hesitação em item de risco) para o médico.
+  const hasRealTelemetry = telemetryRecords.length > 0;
+  const telemetry = useMemo(() => analyzeSessionTelemetry(telemetryRecords), [telemetryRecords]);
 
   // Cruzamento de itens de hesitação com enunciados clínicos
   const hesitationItemsWithText = useMemo(() => {
     const median = telemetry.median_time_ms || 1200;
-    const effectiveRecords =
-      telemetryRecords.length > 0
-        ? telemetryRecords
-        : scaleResults.flatMap((r) =>
-            Object.entries(r.answers || {}).map(([id, val]) => {
-              const isRisk =
-                (r.scale_code === "PHQ-9" && id === "9") ||
-                (r.scale_code === "EPDS" && id === "10") ||
-                (r.scale_code === "SRQ-20" && id === "17");
-              return {
-                scale_code: r.scale_code,
-                item_id: id,
-                value: val,
-                response_time_ms: isRisk && val > 0 ? 14500 : 1300 + ((Number(id) * 150) % 700),
-                is_risk_item: isRisk,
-              };
-            }),
-          );
-
+    const effectiveRecords = telemetryRecords;
     return effectiveRecords
       .filter(
         (r) => r.response_time_ms >= 3 * median || (r.is_risk_item && r.response_time_ms >= 8000),
@@ -98,7 +53,7 @@ export function TelemetryCard({
         };
       })
       .sort((a, b) => b.response_time_ms - a.response_time_ms);
-  }, [telemetry, telemetryRecords, scaleResults]);
+  }, [telemetry, telemetryRecords]);
 
   // Determina o diagnóstico psicométrico de preenchimento
   const diagnosis = useMemo(() => {
@@ -141,6 +96,27 @@ export function TelemetryCard({
     const remSecs = secs % 60;
     return `${mins}m ${remSecs}s`;
   }, [totalDurationSeconds, telemetry]);
+
+  if (!hasRealTelemetry) {
+    return (
+      <Card className="p-4 sm:p-6 border-border bg-card" data-testid="telemetry-unavailable">
+        <div className="flex items-center gap-2.5">
+          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-muted text-muted-foreground">
+            <Timer className="h-5 w-5" />
+          </div>
+          <div>
+            <h2 className="font-serif text-lg font-semibold text-foreground">
+              Telemetria de tempo de resposta
+            </h2>
+            <p className="text-xs text-muted-foreground">
+              Telemetria não capturada nesta triagem. Nenhum tempo é estimado nem simulado; a
+              avaliação do preenchimento deve ser feita na consulta.
+            </p>
+          </div>
+        </div>
+      </Card>
+    );
+  }
 
   return (
     <Card className="p-4 sm:p-6 border-border bg-card">
