@@ -35,7 +35,11 @@ export async function verifyTurnstileToken(input: {
       console.warn("turnstile siteverify indisponível", res.status);
       return "nao_configurado";
     }
-    const json = (await res.json()) as { success?: boolean };
+    const json = (await res.json()) as { success?: boolean; "error-codes"?: string[] };
+    if (json.success !== true) {
+      // Só os códigos do Cloudflare (ex.: invalid-input-secret, timeout-or-duplicate): sem token nem IP.
+      console.warn("turnstile recusado", (json["error-codes"] ?? []).join(","));
+    }
     return json.success === true ? "ok" : "invalida";
   } catch (e) {
     console.warn("turnstile siteverify inalcançável", e instanceof Error ? e.name : e);
