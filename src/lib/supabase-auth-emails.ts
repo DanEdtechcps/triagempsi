@@ -192,6 +192,16 @@ export function renderAuthEmail(key: AuthEmailKey): { subject: string; html: str
   return { subject, html: renderEmail(spec).html };
 }
 
+/**
+ * Limites de envio do Supabase Auth (valem com SMTP próprio; a API só aceita alterá-los assim).
+ *  - smtp_max_frequency: intervalo mínimo, em segundos, entre e-mails para o MESMO usuário.
+ *    0 = sem intervalo (qualquer um poderia disparar e-mails em rajada para a caixa de outra pessoa).
+ *    60 = o padrão do Supabase e o mesmo tempo da espera na nossa tela de reenvio.
+ *  - rate_limit_email_sent: teto de e-mails por hora no projeto inteiro. A rotina da equipe
+ *    (5 clínicas × 4 profissionais) fica muito abaixo de 60.
+ */
+export const SMTP_LIMITS = { smtp_max_frequency: 60, rate_limit_email_sent: 60 } as const;
+
 /** Avisos de segurança que passam a ser enviados (os demais ficam como estão). */
 export const NOTIFICATIONS_TO_ENABLE = [
   "mailer_notifications_password_changed_enabled",

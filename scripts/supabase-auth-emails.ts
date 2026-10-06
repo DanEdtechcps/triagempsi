@@ -14,6 +14,7 @@ import { homedir } from "node:os";
 import { join } from "node:path";
 import {
   AUTH_EMAIL_KEYS,
+  SMTP_LIMITS,
   authConfigPayload,
   renderAuthEmail,
 } from "../src/lib/supabase-auth-emails";
@@ -73,6 +74,7 @@ async function push() {
       smtp_pass: process.env.RESEND_SMTP_KEY,
       smtp_admin_email: SMTP_FROM,
       smtp_sender_name: "TriagemPsi",
+      ...SMTP_LIMITS,
     });
   }
 
