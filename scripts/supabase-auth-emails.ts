@@ -66,7 +66,8 @@ async function push() {
   writeFileSync(backupPath, JSON.stringify(backup, null, 2), { mode: 0o600 });
 
   const payload: Record<string, unknown> = authConfigPayload();
-  if (process.env.RESEND_SMTP_KEY) {
+  // SKIP_SMTP=1 carrega só os modelos de e-mail (útil se a chave do Resend precisa ser trocada antes).
+  if (process.env.RESEND_SMTP_KEY && !process.env.SKIP_SMTP) {
     Object.assign(payload, {
       smtp_host: "smtp.resend.com",
       smtp_port: "465",
