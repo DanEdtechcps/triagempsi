@@ -2,6 +2,7 @@
 /**
  * Roda os guardrails de conteúdo (src/lib/content-guardrails.ts) sobre uma pasta de
  * arquivos .md. A frente vem do cabeçalho `front:` do arquivo (psiqway | caminhos | corte800 | medfam).
+ * O status (`status:`) é metadado do front-matter; a marca RASCUNHO/TESTE não pode aparecer no corpo.
  *
  *   bun scripts/content-guardrails.ts <pasta-ou-arquivo> [...]
  *
@@ -40,7 +41,17 @@ for (const f of targets.flatMap(walk)) {
     front: meta.front,
     text: body,
     authorizedEndorsement: meta.authorized_endorsement === "true",
+    // status é metadado (front-matter), nunca texto: a marca dentro do corpo é erro.
+    requireDraftMark: false,
   });
+  if (!meta.status) {
+    console.log(`✖ ${f} [STATUS] Falta \`status:\` no front-matter.`);
+    erros++;
+  }
+  if (/RASCUNHO\s*\/\s*TESTE|em fase de teste/i.test(body)) {
+    console.log(`✖ ${f} [STATUS_NO_TEXTO] "RASCUNHO/TESTE" aparece no corpo; deixe só no front-matter.`);
+    erros++;
+  }
   for (const v of r.violations) {
     const tag = v.severity === "erro" ? "✖" : "⚠";
     console.log(`${tag} ${f} [${v.rule}] ${v.message}${v.excerpt ? ` — «${v.excerpt}»` : ""}`);
