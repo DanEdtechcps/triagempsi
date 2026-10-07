@@ -24,6 +24,7 @@ import { PainelPsicoeducacao } from "@/components/painel/PainelPsicoeducacao";
 import { DireitosDoTitular } from "@/components/painel/DireitosDoTitular";
 import { DesfechoClinico } from "@/components/painel/DesfechoClinico";
 import { TelemetryCard } from "@/components/medical/TelemetryCard";
+import { ResponseQualityCard } from "@/components/medical/ResponseQualityCard";
 import { PsychoeducationTracker } from "@/components/medical/PsychoeducationTracker";
 import { AcessoNegado } from "@/components/painel/AcessoNegado";
 import type { ItemDwellRecord } from "@/lib/clinical-engine/dwell-time";
@@ -338,6 +339,12 @@ function PainelDetalhe() {
               />
             </div>
           </Card>
+
+          <ResponseQualityCard
+            scaleResults={(a.scale_results ?? []) as never}
+            telemetryRecords={summary.telemetry_records ?? summary.item_telemetry ?? []}
+            symptoms={summary.symptoms ?? []}
+          />
 
           <TelemetryCard
             telemetryRecords={summary.telemetry_records ?? summary.item_telemetry ?? []}
