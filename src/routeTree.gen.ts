@@ -20,6 +20,7 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as SlugIndexRouteImport } from './routes/$slug.index'
 import { Route as RevisaoPreLancamentoConteudoIaRouteImport } from './routes/revisao/pre-lancamento-conteudo-ia'
+import { Route as RevisaoEstudioRouteImport } from './routes/revisao/estudio'
 import { Route as AuthenticatedSenhaRouteImport } from './routes/_authenticated/senha'
 import { Route as AuthenticatedRoadmapRouteImport } from './routes/_authenticated/roadmap'
 import { Route as AuthenticatedResumoRouteImport } from './routes/_authenticated/resumo'
@@ -103,6 +104,11 @@ const RevisaoPreLancamentoConteudoIaRoute =
     path: '/revisao/pre-lancamento-conteudo-ia',
     getParentRoute: () => rootRouteImport,
   } as any)
+const RevisaoEstudioRoute = RevisaoEstudioRouteImport.update({
+  id: '/revisao/estudio',
+  path: '/revisao/estudio',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedSenhaRoute = AuthenticatedSenhaRouteImport.update({
   id: '/senha',
   path: '/senha',
@@ -276,6 +282,7 @@ export interface FileRoutesByFullPath {
   '/resumo': typeof AuthenticatedResumoRoute
   '/roadmap': typeof AuthenticatedRoadmapRoute
   '/senha': typeof AuthenticatedSenhaRoute
+  '/revisao/estudio': typeof RevisaoEstudioRoute
   '/revisao/pre-lancamento-conteudo-ia': typeof RevisaoPreLancamentoConteudoIaRoute
   '/$slug/': typeof SlugIndexRoute
   '/painel/$id': typeof AuthenticatedPainelIdRoute
@@ -314,6 +321,7 @@ export interface FileRoutesByTo {
   '/resumo': typeof AuthenticatedResumoRoute
   '/roadmap': typeof AuthenticatedRoadmapRoute
   '/senha': typeof AuthenticatedSenhaRoute
+  '/revisao/estudio': typeof RevisaoEstudioRoute
   '/revisao/pre-lancamento-conteudo-ia': typeof RevisaoPreLancamentoConteudoIaRoute
   '/$slug': typeof SlugIndexRoute
   '/painel/$id': typeof AuthenticatedPainelIdRoute
@@ -355,6 +363,7 @@ export interface FileRoutesById {
   '/_authenticated/resumo': typeof AuthenticatedResumoRoute
   '/_authenticated/roadmap': typeof AuthenticatedRoadmapRoute
   '/_authenticated/senha': typeof AuthenticatedSenhaRoute
+  '/revisao/estudio': typeof RevisaoEstudioRoute
   '/revisao/pre-lancamento-conteudo-ia': typeof RevisaoPreLancamentoConteudoIaRoute
   '/$slug/': typeof SlugIndexRoute
   '/_authenticated/painel/$id': typeof AuthenticatedPainelIdRoute
@@ -396,6 +405,7 @@ export interface FileRouteTypes {
     | '/resumo'
     | '/roadmap'
     | '/senha'
+    | '/revisao/estudio'
     | '/revisao/pre-lancamento-conteudo-ia'
     | '/$slug/'
     | '/painel/$id'
@@ -434,6 +444,7 @@ export interface FileRouteTypes {
     | '/resumo'
     | '/roadmap'
     | '/senha'
+    | '/revisao/estudio'
     | '/revisao/pre-lancamento-conteudo-ia'
     | '/$slug'
     | '/painel/$id'
@@ -474,6 +485,7 @@ export interface FileRouteTypes {
     | '/_authenticated/resumo'
     | '/_authenticated/roadmap'
     | '/_authenticated/senha'
+    | '/revisao/estudio'
     | '/revisao/pre-lancamento-conteudo-ia'
     | '/$slug/'
     | '/_authenticated/painel/$id'
@@ -496,6 +508,7 @@ export interface RootRouteChildren {
   PrimeiroAcessoRoute: typeof PrimeiroAcessoRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   TriagemRoute: typeof TriagemRoute
+  RevisaoEstudioRoute: typeof RevisaoEstudioRoute
   RevisaoPreLancamentoConteudoIaRoute: typeof RevisaoPreLancamentoConteudoIaRoute
   ApiInternalCorte800MediaUploadRoute: typeof ApiInternalCorte800MediaUploadRoute
   ApiInternalPsychoeducationMediaUploadRoute: typeof ApiInternalPsychoeducationMediaUploadRoute
@@ -582,6 +595,13 @@ declare module '@tanstack/react-router' {
       path: '/revisao/pre-lancamento-conteudo-ia'
       fullPath: '/revisao/pre-lancamento-conteudo-ia'
       preLoaderRoute: typeof RevisaoPreLancamentoConteudoIaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/revisao/estudio': {
+      id: '/revisao/estudio'
+      path: '/revisao/estudio'
+      fullPath: '/revisao/estudio'
+      preLoaderRoute: typeof RevisaoEstudioRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/senha': {
@@ -847,6 +867,7 @@ const rootRouteChildren: RootRouteChildren = {
   PrimeiroAcessoRoute: PrimeiroAcessoRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   TriagemRoute: TriagemRoute,
+  RevisaoEstudioRoute: RevisaoEstudioRoute,
   RevisaoPreLancamentoConteudoIaRoute: RevisaoPreLancamentoConteudoIaRoute,
   ApiInternalCorte800MediaUploadRoute: ApiInternalCorte800MediaUploadRoute,
   ApiInternalPsychoeducationMediaUploadRoute:

@@ -220,3 +220,14 @@ estiver disponível, a suíte é pulada com aviso em vez de quebrar o gate.
 
 Para provisionar ou restaurar a base integral de uma só vez, utilize o script mestre mantido em:  
 👉 **[consolidated_schema.sql](file:///mnt/armazenamento/Projetos/triagem-medica/supabase/consolidated_schema.sql)**
+
+
+## Estúdio de validação (migração `20261008100000_review_studio.sql`)
+Cinco tabelas, todas com RLS ligado e **sem nenhum acesso para `anon` nem `authenticated`** (`REVOKE ALL`; só `service_role`). O acesso é por **link pessoal**: server functions validam o token (guardado só como hash SHA-256 em `review_reviewers`) e usam o `service_role`. Quem avalia **não** tem papel em `user_roles`, logo nenhum acesso a triagens.
+- `review_reviewers`: avaliador (nome, papel `decisor` ou `avaliador`, `token_hash`, ativo, revogado, último acesso).
+- `review_items`: catálogo do que se valida (`kind`: video, frase, escala, marca, pendencia, estilo; único por `kind, ref, version`; `body jsonb`, `media_url`).
+- `review_responses`: uma resposta atual por avaliador e item (`UNIQUE(item_id, reviewer_id)`; `aprovo`, `ajusto`, `nao_uso`, `prefiro`, `sem_opiniao`). **Cego até responder**, imposto no servidor.
+- `review_response_events`: histórico append-only de cada mudança.
+- `review_decisions`: decisão FINAL do decisor por item (`aprovado`, `ajustar`, `descartado`, `escolhido`), com justificativa e foto dos votos; uma atual por item (índice parcial) e histórico preservado. Gravada pela função atômica `review_record_decision` (só `service_role`).
+O catálogo pode conter trechos de obra protegida: **nunca versionar o conteúdo**; carregar com `REVIEW_CATALOG_DIR=... bun scripts/seed-review-catalog.ts [--apply]`. Criar/revogar links: `bun scripts/review-reviewer.ts create|list|revoke`.
+**Status:** migração criada e testada estaticamente (`src/lib/review-studio.test.ts`); **ainda não aplicada em produção** (aplicar só com confirmação).

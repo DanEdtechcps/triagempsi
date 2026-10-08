@@ -23,6 +23,7 @@
 | `/painel` | Autenticada | Médico / Admin | Painel Clínico: tabela de triagens, filtros de risco, badges e **TenantSwitcher** (Super Admin). |
 | `/painel/$id` | Autenticada | Médico / Admin | Prontuário detalhado: escores das 28 escalas, **TelemetryCard** (Dwell-Time), **PsychoeducationTracker**, Decision Support e exportação em PDF. |
 | `/materiais` | Autenticada | Médico / Admin | **Cockpit de Psicoeducação**: biblioteca clínica com busca em tempo real, filtros por categoria/tags, modal de leitura Markdown, impressão em PDF, cópia para WhatsApp e protocolos rápidos (C-SSRS, Prontuário, NR-01). |
+| `/revisao/estudio#t=<token>` | Pública, por **link pessoal** (`noindex`) | Avaliadores convidados (médico curador = decisor; sócios = avaliadores) | **Estúdio de validação**: veem, comparam e opinam sobre vídeos, frases ligadas à obra, escalas, marca e pendências; resposta salva por avaliador, **cego até responder**; o decisor grava a **decisão final** com justificativa e exporta a ata. Sem conta no sistema e sem acesso a dados de pacientes. Links criados com `scripts/review-reviewer.ts`; catálogo carregado com `scripts/seed-review-catalog.ts` (conteúdo só em disco). |
 | `/admin` | Autenticada | Admin | Gestão de consultórios, profissionais cadastrados e convites de equipe. |
 | `/comercial` | Autenticada | Admin Global | Gestão de planos multi-clínica, limites de triagens e faturamento. |
 | `/auditoria` | Autenticada | Admin Global | Trilha completa de auditoria LGPD (leitura de prontuários e exportações de relatórios). |

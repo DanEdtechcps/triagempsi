@@ -6,6 +6,16 @@ O formato baseia-se no [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0
 
 ---
 
+## [Não lançado] - 2026-10-08
+### 🧭 Estúdio de validação (revisão interativa do conteúdo, com decisão conjunta)
+- **Nova rota pública `/revisao/estudio#t=<token>`** (`noindex`, fora do painel): acesso por **link pessoal** por avaliador, sem conta e sem acesso a dados de pacientes. Abas Resumo, Vídeos, Frases, Escalas, Marca, Pendências, Estilo e, só para o decisor, **Decidir**. Cada avaliador decide (Aprovo, Ajusto, Não uso, Prefiro, Sem opinião) e comenta; **a opinião dos outros só aparece depois que ele grava a sua** (cego, imposto no servidor).
+- **Decisão conjunta:** o médico curador (decisor) grava a decisão final por item com justificativa e foto dos votos; histórico preservado. Botão de exportação gera ata (Markdown), planilha (CSV) e cópia completa (JSON) para guardar fora do banco.
+- **Banco:** migração `20261008100000_review_studio.sql` (5 tabelas + função atômica de decisão), RLS ligado e **nada concedido a `anon`/`authenticated`**. **Não aplicada em produção ainda.**
+- **Lógica pura testada** (`review-studio.ts`, `review-token.ts`, `review-access.ts`): consenso, cego, regra de publicação por decisão do decisor, exportação, token e recusas de acesso; teste estático da migração.
+- **Scripts locais:** `scripts/seed-review-catalog.ts` (catálogo, só em disco: contém trechos da obra) e `scripts/review-reviewer.ts` (criar, listar e revogar links). Ambos simulam por padrão; gravar exige `--apply` e a chave de serviço do ambiente.
+
+---
+
 ## [v1.33.0] - 2026-09-21
 ### 🧹 Correção de Bugs Multi-Tenant, Hardening de Função Exposta & Sincronização de Documentação
 - **Clínica duplicada (`padrao`) mesclada em `saraiva`:**
