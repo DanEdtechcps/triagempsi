@@ -9,7 +9,9 @@ import { Card } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
+import { MateriaisDoItem, Midia } from "@/components/revisao/materiais";
 import { accessDeniedMessage, isAccessDenied } from "@/lib/access-error";
+import { asFormato } from "@/lib/review-material";
 import { tokenFromHash } from "@/lib/review-token";
 import {
   CONSENSUS_LABEL,
@@ -71,7 +73,14 @@ function lerToken(): string | null {
   }
 }
 
-type Opcao = { id: string; nome: string; descricao?: string; media_url?: string };
+type Opcao = {
+  id: string;
+  nome: string;
+  descricao?: string;
+  media_url?: string;
+  /** Objeto original da opção: traz midias, quiz, flashcards e mapa quando existirem. */
+  fonte: { [key: string]: JsonValue };
+};
 
 function asStrings(v: JsonValue | undefined): string[] {
   return Array.isArray(v) ? v.filter((x): x is string => typeof x === "string") : [];
@@ -93,6 +102,7 @@ function asOpcoes(v: JsonValue | undefined): Opcao[] {
         nome: asText(o.nome) || id,
         descricao: asText(o.descricao),
         media_url: asText(o.media_url),
+        fonte: o,
       },
     ];
   });
@@ -116,29 +126,6 @@ function baixar(nome: string, conteudo: string, tipo: string) {
   URL.revokeObjectURL(url);
 }
 
-function Midia({ url, titulo, className }: { url: string; titulo: string; className?: string }) {
-  if (url.includes("drive.google.com")) {
-    return (
-      <iframe
-        src={url}
-        title={`Vídeo: ${titulo}`}
-        allow="autoplay"
-        loading="lazy"
-        className={`aspect-[9/16] w-full max-w-xs rounded-lg border-0 bg-black ${className ?? ""}`}
-      />
-    );
-  }
-  return (
-    // eslint-disable-next-line jsx-a11y/media-has-caption -- o texto falado já aparece na tela (legenda aberta); arquivos de legenda ficam para a fase de acessibilidade
-    <video
-      controls
-      preload="metadata"
-      className={`max-h-[480px] w-full max-w-xs rounded-lg bg-black ${className ?? ""}`}
-      src={url}
-    />
-  );
-}
-
 function EstudioPage() {
   const [token, setToken] = useState<string | null | undefined>(undefined);
   useEffect(() => setToken(lerToken()), []);
@@ -153,7 +140,7 @@ function EstudioPage() {
   const [soFalta, setSoFalta] = useState(false);
 
   return (
-    <main className="mx-auto max-w-4xl space-y-4 px-4 py-6">
+    <main className="mx-auto max-w-6xl space-y-4 px-4 py-6">
       <header>
         <h1 className="font-serif text-2xl font-semibold">Estúdio de validação · Psiqway</h1>
         {data && (
@@ -447,7 +434,10 @@ function CartaoItem({
         </p>
       )}
 
-      {item.media_url && <Midia url={item.media_url} titulo={item.title} />}
+      {item.media_url && (
+        <Midia url={item.media_url} titulo={item.title} formato={asFormato(item.body.formato)} />
+      )}
+      <MateriaisDoItem fonte={item.body} />
       {!item.media_url && arquivoDrive && (
         <p className="text-xs text-muted-foreground">
           Vídeo: arquivo <code>{arquivoDrive}</code> na pasta 1_VER do Drive.
@@ -500,28 +490,36 @@ function CartaoItem({
       )}
 
       {opcoes.length > 0 && (
-        <div className="grid gap-2 sm:grid-cols-3">
-          {opcoes.map((o) => (
-            <button
-              key={o.id}
-              type="button"
-              onClick={() => {
-                setChoice(o.id);
-                setDecision("prefiro");
-                enviar("prefiro", o.id);
-              }}
-              className={`rounded-lg border p-3 text-left text-sm ${choice === o.id && decision === "prefiro" ? "border-primary bg-primary/5" : ""}`}
-              aria-pressed={choice === o.id && decision === "prefiro"}
-            >
-              <span className="font-medium">
-                {o.id} · {o.nome}
-              </span>
-              {o.descricao && (
-                <span className="mt-1 block text-muted-foreground">{o.descricao}</span>
-              )}
-              {o.media_url && <Midia url={o.media_url} titulo={o.nome} className="mt-2" />}
-            </button>
-          ))}
+        <div className={`grid gap-3 ${opcoes.length === 3 ? "sm:grid-cols-3" : "sm:grid-cols-2"}`}>
+          {opcoes.map((o) => {
+            const escolhida = choice === o.id && decision === "prefiro";
+            return (
+              <div
+                key={o.id}
+                className={`flex flex-col gap-2 rounded-lg border p-3 text-sm ${escolhida ? "border-primary bg-primary/5" : ""}`}
+              >
+                <p className="font-medium">{o.id.length <= 2 ? `${o.id} · ${o.nome}` : o.nome}</p>
+                {o.descricao && <p className="text-muted-foreground">{o.descricao}</p>}
+                {o.media_url && <Midia url={o.media_url} titulo={o.nome} />}
+                <MateriaisDoItem fonte={o.fonte} />
+                <Button
+                  type="button"
+                  size="sm"
+                  variant={escolhida ? "default" : "outline"}
+                  aria-pressed={escolhida}
+                  disabled={mutation.isPending}
+                  className="mt-auto"
+                  onClick={() => {
+                    setChoice(o.id);
+                    setDecision("prefiro");
+                    enviar("prefiro", o.id);
+                  }}
+                >
+                  {escolhida ? "Sua preferida" : "Prefiro esta"}
+                </Button>
+              </div>
+            );
+          })}
         </div>
       )}
 

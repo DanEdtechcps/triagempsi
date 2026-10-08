@@ -4,7 +4,20 @@
  * tem UMA resposta atual por item. Aqui ficam os tipos e o cálculo de consenso.
  */
 
-export const REVIEW_KINDS = ["video", "frase", "escala", "marca", "pendencia", "estilo"] as const;
+export const REVIEW_KINDS = [
+  "video",
+  "frase",
+  "escala",
+  "marca",
+  "pendencia",
+  "estilo",
+  "infografico",
+  "quiz",
+  "flashcards",
+  "slides",
+  "mapa",
+  "audio",
+] as const;
 export type ReviewKind = (typeof REVIEW_KINDS)[number];
 
 export const KIND_LABEL: Record<ReviewKind, string> = {
@@ -14,6 +27,12 @@ export const KIND_LABEL: Record<ReviewKind, string> = {
   marca: "Marca",
   pendencia: "Pendências",
   estilo: "Estilo de vídeo",
+  infografico: "Infográficos",
+  quiz: "Quiz",
+  flashcards: "Flashcards",
+  slides: "Slides",
+  mapa: "Mapas mentais",
+  audio: "Áudios",
 };
 
 export const REVIEW_DECISIONS = ["aprovo", "ajusto", "nao_uso", "prefiro", "sem_opiniao"] as const;
