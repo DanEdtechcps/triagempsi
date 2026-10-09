@@ -32,4 +32,20 @@ describe("applyEdgeSecurityHeaders", () => {
 
     expect(csp).not.toContain("unsafe-eval");
   });
+
+  it("libera o Google Drive em quadros só no Estúdio de validação", () => {
+    process.env.SUPABASE_URL = "https://exemplo.supabase.co";
+    const frameSrc = (path: string) =>
+      /frame-src ([^;]*);/.exec(
+        applyEdgeSecurityHeaders(new Response("ok"), path).headers.get("Content-Security-Policy") ??
+          "",
+      )?.[1] ?? "";
+
+    expect(frameSrc("/revisao/estudio")).toContain("https://drive.google.com");
+    expect(frameSrc("/revisao/estudio")).toContain("https://challenges.cloudflare.com");
+    for (const outra of ["/", "/painel", "/revisao", "/revisao/estudio/outra", "/entrar"]) {
+      expect(frameSrc(outra)).not.toContain("drive.google.com");
+    }
+    expect(frameSrc("")).not.toContain("drive.google.com");
+  });
 });

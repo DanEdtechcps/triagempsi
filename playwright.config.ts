@@ -21,6 +21,8 @@ export default defineConfig({
     baseURL,
     trace: "off",
     launchOptions: {
+      // Antes o executablePath era calculado e nunca usado; agora PLAYWRIGHT_CHROMIUM_PATH vale de fato.
+      ...(executablePath ? { executablePath } : {}),
       args: ["--no-sandbox", "--disable-setuid-sandbox", "--disable-dev-shm-usage"],
     },
   },

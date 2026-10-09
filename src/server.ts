@@ -32,8 +32,20 @@ function supabaseHost(): string | undefined {
   }
 }
 
+// O Estúdio de validação embute arquivos do Google Drive (/preview) em iframes. A CSP geral só
+// permite quadros do Turnstile, então o Drive só é liberado nessa rota, nunca no site inteiro.
+const ESTUDIO_PATH = "/revisao/estudio";
+
+function pathnameOf(request: Request): string {
+  try {
+    return new URL(request.url).pathname;
+  } catch {
+    return "";
+  }
+}
+
 // Injeta cabeçalhos de segurança de borda (Edge Security Headers)
-export function applyEdgeSecurityHeaders(response: Response): Response {
+export function applyEdgeSecurityHeaders(response: Response, pathname = ""): Response {
   const headers = new Headers(response.headers);
   headers.set("X-Frame-Options", "SAMEORIGIN");
   headers.set("X-Content-Type-Options", "nosniff");
@@ -44,6 +56,10 @@ export function applyEdgeSecurityHeaders(response: Response): Response {
   const host = supabaseHost();
   const supabaseHttps = host ? `https://${host}` : "";
   const supabaseWss = host ? `wss://${host}` : "";
+  const frameSrc =
+    pathname === ESTUDIO_PATH
+      ? "https://challenges.cloudflare.com https://drive.google.com"
+      : "https://challenges.cloudflare.com";
   headers.set(
     "Content-Security-Policy",
     // 'unsafe-eval' removido: nada no build de producao (React 19 + Vite +
@@ -52,7 +68,7 @@ export function applyEdgeSecurityHeaders(response: Response): Response {
     // hidratacao SSR como <script> inline sem nonce hoje; migrar pra CSP
     // por nonce exigiria plumbing de nonce por requisicao no pipeline SSR
     // do Nitro/Cloudflare Worker (fora do escopo deste hardening pontual).
-    `default-src 'self'; script-src 'self' 'unsafe-inline' ${supabaseHttps} https://challenges.cloudflare.com; connect-src 'self' ${supabaseHttps} ${supabaseWss} https://challenges.cloudflare.com; frame-src https://challenges.cloudflare.com; img-src 'self' data: blob: https:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; frame-ancestors 'self';`,
+    `default-src 'self'; script-src 'self' 'unsafe-inline' ${supabaseHttps} https://challenges.cloudflare.com; connect-src 'self' ${supabaseHttps} ${supabaseWss} https://challenges.cloudflare.com; frame-src ${frameSrc}; img-src 'self' data: blob: https:; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; frame-ancestors 'self';`,
   );
 
   return new Response(response.body, {
@@ -90,18 +106,19 @@ function isH3SwallowedErrorBody(body: string): boolean {
 
 export default {
   async fetch(request: Request, env: unknown, ctx: unknown) {
+    const pathname = pathnameOf(request);
     try {
       const handler = await getServerEntry();
       const response = await handler.fetch(request, env, ctx);
       const normalized = await normalizeCatastrophicSsrResponse(response);
-      return applyEdgeSecurityHeaders(normalized);
+      return applyEdgeSecurityHeaders(normalized, pathname);
     } catch (error) {
       console.error(error);
       const errResponse = new Response(renderErrorPage(), {
         status: 500,
         headers: { "content-type": "text/html; charset=utf-8" },
       });
-      return applyEdgeSecurityHeaders(errResponse);
+      return applyEdgeSecurityHeaders(errResponse, pathname);
     }
   },
 };
