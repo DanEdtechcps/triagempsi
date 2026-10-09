@@ -24,6 +24,7 @@ import {
   responseProblem,
   visibleResponses,
   type ReviewFinalDecision,
+  type ReviewerResumo,
   type ReviewItem,
   type ReviewResponse,
 } from "./review-studio";
@@ -84,6 +85,8 @@ export type ReviewCatalog = {
   /** Só para o decisor (aba Decidir): todas as respostas. Nulo para os demais. */
   all_responses: ReviewResponse[] | null;
   decisions: ReviewFinalDecision[];
+  /** Só para o decisor (Resumo, “quem já participou”). Nulo para os demais. */
+  reviewers: ReviewerResumo[] | null;
 };
 
 const tokenInput = z.object({ token: z.string().max(200) });
@@ -109,6 +112,16 @@ async function loadAll(db: SupabaseClient) {
   };
 }
 
+async function loadReviewers(db: SupabaseClient): Promise<ReviewerResumo[]> {
+  const { data, error } = await db
+    .from("review_reviewers")
+    .select("id, name, role, last_seen_at")
+    .eq("is_active", true)
+    .is("revoked_at", null);
+  if (error) throw new Error("Falha ao carregar os avaliadores.");
+  return (data ?? []) as ReviewerResumo[];
+}
+
 /** Catálogo + respostas visíveis a este avaliador + decisões finais. POST para o token não ir na URL. */
 export const listReviewCatalog = createServerFn({ method: "POST" })
   .inputValidator((raw: unknown) => tokenInput.parse(raw))
@@ -122,6 +135,7 @@ export const listReviewCatalog = createServerFn({ method: "POST" })
       responses: visibleResponses(all.responses, me.id),
       all_responses: me.role === "decisor" ? all.responses : null,
       decisions: all.decisions,
+      reviewers: me.role === "decisor" ? await loadReviewers(db) : null,
     };
   });
 

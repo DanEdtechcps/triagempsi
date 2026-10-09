@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { expect, test, type Page } from "@playwright/test";
-import { hashReviewToken } from "../src/lib/review-token";
+import { generateReviewToken, hashReviewToken } from "../src/lib/review-token";
 
 /**
  * Estúdio de validação, ponta a ponta, contra um ambiente REAL (por padrão o de E2E_BASE_URL).
@@ -44,6 +44,7 @@ test.describe("Estúdio de validação (e2e com banco)", () => {
   let reviewerId = "";
   let itemId = "";
   let itemTitulo = "";
+  let avaliadorTemporario = "";
 
   async function entrar(page: Page) {
     await page.addInitScript((t) => {
@@ -51,6 +52,13 @@ test.describe("Estúdio de validação (e2e com banco)", () => {
     }, token ?? "");
     await page.goto("/revisao/estudio");
     await expect(page.getByText("decide a versão final")).toBeVisible();
+  }
+
+  async function abrirProjeto(page: Page, nome: string) {
+    await page
+      .getByRole("button", { name: new RegExp(`^${nome}`) })
+      .first()
+      .click();
   }
 
   async function abrirAba(page: Page, nome: string) {
@@ -74,9 +82,9 @@ test.describe("Estúdio de validação (e2e com banco)", () => {
     reviewerId = rev[0].id;
 
     const itens = await rest<{ id: string; title: string }[]>(
-      "review_items?select=id,title&kind=eq.infografico&is_active=eq.true&order=sort_order",
+      "review_items?select=id,title&kind=eq.infografico&project=eq.Psiqway&is_active=eq.true",
     );
-    expect(itens.length, "o catálogo precisa ter um infográfico").toBeGreaterThan(0);
+    expect(itens.length, "o catálogo precisa ter o infográfico do Psiqway").toBe(1);
     const [{ id, title }] = itens;
     const jaTem = await rest<unknown[]>(
       `review_responses?select=item_id&item_id=eq.${id}&reviewer_id=eq.${reviewerId}`,
@@ -91,6 +99,10 @@ test.describe("Estúdio de validação (e2e com banco)", () => {
   });
 
   test.afterAll(async () => {
+    // O avaliador temporário do teste de lote, se sobrou (apagá-lo leva as respostas dele junto).
+    if (avaliadorTemporario) {
+      await rest(`review_reviewers?id=eq.${avaliadorTemporario}`, { method: "DELETE" });
+    }
     if (!itemId || !reviewerId) return;
     // Apaga só o que este teste criou (nesta ordem: decisões, eventos, respostas).
     await rest(`review_decisions?item_id=eq.${itemId}&decided_by=eq.${reviewerId}`, {
@@ -108,7 +120,7 @@ test.describe("Estúdio de validação (e2e com banco)", () => {
     page,
   }) => {
     await page.goto("/revisao/estudio");
-    await expect(page.getByText("Abra o link pessoal que o senhor recebeu")).toBeVisible();
+    await expect(page.getByText("Falta o seu link pessoal")).toBeVisible();
     // Só o fragmento muda: é o caso que antes deixava o aviso na tela.
     await page.goto(`/revisao/estudio#t=${token}`);
     await expect(page.getByText("decide a versão final")).toBeVisible();
@@ -140,17 +152,30 @@ test.describe("Estúdio de validação (e2e com banco)", () => {
     await expect(page.getByText(/O senhor respondeu \d+ de \d+ itens/)).toBeVisible();
   });
 
-  test("o infográfico traz uma opção por projeto, cada uma com a sua imagem", async ({ page }) => {
+  test("o Resumo apresenta os quatro projetos e a identidade de cada um", async ({ page }) => {
+    await entrar(page);
+    // Os quatro projetos mais o "Geral" (escalas e pendências da plataforma).
+    await expect(page.getByRole("button", { name: "Abrir este projeto" })).toHaveCount(5);
+    for (const nome of ["Psiqway", "Caminhos", "Corte 800", "Médico de Família"]) {
+      await expect(page.getByText(nome, { exact: true }).first()).toBeVisible();
+    }
+    await abrirProjeto(page, "Psiqway");
+    await expect(page.getByRole("heading", { name: "Identidade do projeto" })).toBeVisible();
+    await expect(page.getByText("Identidade do Psiqway: confirmar")).toBeVisible();
+    await expect(page.getByText("O projeto não é")).toBeVisible();
+    await expect(page.getByText("Não traz doses nem diagnóstico diferencial.")).toBeVisible();
+  });
+
+  test("cada projeto tem o seu infográfico, com a sua imagem carregada", async ({ page }) => {
     const bloqueios: string[] = [];
     page.on("console", (m) => {
       if (/Refused to frame|frame-src/i.test(m.text())) bloqueios.push(m.text());
     });
     await entrar(page);
     await abrirAba(page, "Infográficos");
-    for (const nome of ["Psiqway", "Caminhos", "Corte 800", "Médico de Família"]) {
-      await expect(page.getByText(nome, { exact: true }).first()).toBeVisible();
-    }
-    await expect(page.getByRole("button", { name: "Prefiro esta" })).toHaveCount(4);
+    // Quatro itens, um por projeto (não são alternativas entre si).
+    await expect(page.getByRole("heading", { name: /^Infográfico:/ })).toHaveCount(4);
+    await expect(page.getByRole("button", { name: "Prefiro esta" })).toHaveCount(0);
     const molduras = page.locator("iframe[title^='Material: Infográfico']");
     await expect(molduras).toHaveCount(4);
     // Os quadros são preguiçosos: rolar até cada um e conferir que o Drive de fato carregou nele.
@@ -181,21 +206,23 @@ test.describe("Estúdio de validação (e2e com banco)", () => {
     await expect(primeira.getByRole("status")).toHaveText(/Certo|Parcial|Errado/);
   });
 
-  test("salvar uma preferência grava no banco", async ({ page }) => {
+  test("aprovar um item grava no banco", async ({ page }) => {
     await entrar(page);
+    await abrirProjeto(page, "Psiqway");
     await abrirAba(page, "Infográficos");
-    await page.getByRole("button", { name: "Prefiro esta" }).first().click();
+    await page.getByRole("button", { name: "Aprovo", exact: true }).click();
     await expect(page.getByRole("status").filter({ hasText: "Salvo." })).toBeVisible();
-    await expect.poll(respostaNoBanco).toMatchObject({ decision: "prefiro", choice: "psiqway" });
+    await expect.poll(respostaNoBanco).toMatchObject({ decision: "aprovo" });
   });
 
   test("pedir ajuste sem comentário é recusado e com comentário grava", async ({ page }) => {
     await entrar(page);
+    await abrirProjeto(page, "Psiqway");
     await abrirAba(page, "Infográficos");
     await page.getByRole("button", { name: "Ajusto", exact: true }).click();
     await page.getByRole("button", { name: "Salvar", exact: true }).click();
     await expect(page.getByText("Para pedir ajuste, escreva o que mudar")).toBeVisible();
-    expect(await respostaNoBanco()).toMatchObject({ decision: "prefiro" }); // nada mudou
+    expect(await respostaNoBanco()).toMatchObject({ decision: "aprovo" }); // nada mudou
 
     await page
       .getByLabel(`Comentário sobre ${itemTitulo}`)
@@ -207,9 +234,65 @@ test.describe("Estúdio de validação (e2e com banco)", () => {
       .toMatchObject({ decision: "ajusto", comment: "E2E: teste automático, pode ignorar." });
   });
 
+  test("aprovação em lote decide de uma vez o item em que todos concordam", async ({ page }) => {
+    // Segundo votante, temporário: sem ele não há "todos concordam".
+    const hashB = await hashReviewToken(generateReviewToken());
+    const [b] = await rest<{ id: string }[]>("review_reviewers", {
+      method: "POST",
+      headers: { Prefer: "return=representation" },
+      body: JSON.stringify({
+        name: "E2E avaliador temporário",
+        role: "avaliador",
+        token_hash: hashB,
+      }),
+    });
+    avaliadorTemporario = b.id;
+    try {
+      await rest("review_responses", {
+        method: "POST",
+        body: JSON.stringify({ item_id: itemId, reviewer_id: b.id, decision: "aprovo" }),
+      });
+      await entrar(page);
+      await abrirProjeto(page, "Psiqway");
+      await abrirAba(page, "Infográficos");
+      await page.getByRole("button", { name: "Aprovo", exact: true }).click();
+      await expect(page.getByRole("status").filter({ hasText: "Salvo." })).toBeVisible();
+
+      await abrirAba(page, "Decidir");
+      await expect(page.getByText("Consenso: 1 item em que todos concordam")).toBeVisible();
+      page.once("dialog", (d) => void d.accept());
+      await page.getByRole("button", { name: "Aprovar este" }).click();
+      await expect(
+        page.getByRole("status").filter({ hasText: "1 decisão gravada." }),
+      ).toBeVisible();
+      await expect
+        .poll(async () => {
+          const d = await rest<Decisao[]>(
+            `review_decisions?select=decision,rationale,superseded_at&item_id=eq.${itemId}&superseded_at=is.null`,
+          );
+          return d[0];
+        })
+        .toMatchObject({
+          decision: "aprovado",
+          rationale: "Consenso: os 2 que votaram concordaram.",
+        });
+    } finally {
+      // Volta ao estado anterior para os testes seguintes.
+      await rest(`review_decisions?item_id=eq.${itemId}&decided_by=eq.${reviewerId}`, {
+        method: "DELETE",
+      });
+      await rest(`review_reviewers?id=eq.${b.id}`, { method: "DELETE" });
+      avaliadorTemporario = "";
+    }
+  });
+
   test("o decisor registra a decisão final, que fica no banco", async ({ page }) => {
     await entrar(page);
+    await abrirProjeto(page, "Psiqway");
     await abrirAba(page, "Decidir");
+    await expect(
+      page.getByText(/Aqui o senhor transforma as opiniões em decisão final/),
+    ).toBeVisible();
     const cartao = page
       .locator("h3", { hasText: itemTitulo })
       .locator("xpath=ancestor::div[contains(@class,'space-y-3')][1]");
@@ -250,6 +333,7 @@ test.describe("Estúdio de validação (e2e com banco)", () => {
 
   test("depois de recarregar, a decisão final continua aparecendo", async ({ page }) => {
     await entrar(page);
+    await abrirProjeto(page, "Psiqway");
     await abrirAba(page, "Infográficos");
     await expect(page.getByText("Decisão final: Aprovado")).toBeVisible();
   });

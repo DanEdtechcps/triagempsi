@@ -98,3 +98,26 @@ beforeLoad: async () => {
 ### Redirecionamento Baseado em Papel (`src/lib/staff.ts`)
 * Usuário com registro ativo em `user_roles` (`admin`, `doctor`, `staff`) ➔ Redireciona para `/painel`.
 * Usuário sem registro em `user_roles` (Paciente) ➔ Redireciona para `/portal`.
+
+## Estúdio de validação: como evoluir sem sofrer
+
+**Estrutura.** O Estúdio reúne **quatro projetos** (Psiqway, Caminhos, Corte 800, Médico de Família) e um grupo "Geral" (escalas e pendências da plataforma). Cada projeto é um produto com público e regras próprios: os materiais de um **não são alternativas** aos de outro. Por isso o catálogo tem **um item por tipo e por projeto** e **um item de identidade por projeto** (`ref` `identidade-<projeto>`, tipo `marca`), com "para quem", "o projeto é" e "o projeto não é". Os decisores confirmam ou ajustam a identidade no próprio Estúdio; cada material é avaliado contra ela. A tela tem um seletor de projeto; "Todos os projetos" mostra um cartão por projeto, com público e andamento.
+
+**Onde editar cada coisa (um lugar só para cada)**
+| O que mudar | Onde | Precisa de deploy? |
+|---|---|---|
+| Qualquer texto que explica a tela (passos, botões, ajuda de cada aba, regras de decisão, resultados) | `src/lib/review-textos.ts` | Sim |
+| Rótulos curtos de abas e botões | `src/lib/review-studio.ts` (`KIND_LABEL`, `DECISION_LABEL`) | Sim |
+| Identidade de um projeto (para quem, é, não é) | `IDENTIDADES` em `_ferramentas/gerar_catalogo_materiais.py` (pasta de conteúdo, fora do git), depois `seed-review-catalog.ts --apply` | **Não** |
+| Materiais (infográfico, quiz etc.) de um projeto | mesmo gerador, a partir de `_notebooklm/piloto_bipolar__<projeto>/` | Não |
+Um teste (`review-projetos.test.ts`) falha se um tipo de item ou botão novo ficar sem texto de ajuda, apontando o que escrever.
+
+**Decidir sem reunião.** Cada pessoa responde quando puder. O decisor vê "Resultados" no Resumo (quem participou, onde há divergência, quantos itens esperam decisão) e, na aba Decidir, o bloco **"Consenso"**: itens em que todos os que votaram (mínimo 2) aprovaram ou escolheram a mesma opção entram numa **aprovação em lote**, com confirmação. Ajuste, rejeição, divergência ou poucos votos ficam para o decisor ler os motivos e decidir com justificativa. Com mais de um decisor, vale a última decisão e o histórico fica guardado.
+
+**Próximos passos possíveis (cada um é uma escolha dos decisores, não só técnica)**
+1. **Rodada com prazo**: data limite por rodada; passado o prazo, o que ninguém objetou segue ("silêncio é consentimento"). Exige tabela de rodadas.
+2. **Dono por tema**: um decisor responsável por tipo ou projeto, para não haver dois decidindo o mesmo item. Hoje vale a última decisão.
+3. **Fio de comentários por item** para divergências, no lugar de um comentário por pessoa.
+4. **Aviso por e-mail** quando um item fica pronto para decisão.
+
+**Teste de ponta a ponta.** `e2e/estudio-validacao.spec.ts` roda contra um ambiente real com um link de decisor, confere o que foi gravado no banco e apaga só o que criou (inclusive um avaliador temporário usado no teste de lote). Comando e variáveis estão no cabeçalho do arquivo. Pula sozinho sem credenciais e não sobrescreve resposta real.

@@ -9,10 +9,27 @@ import { Card } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  AjudaDaAba,
+  BlocoResultados,
+  CartoesDeProjeto,
+  ComoFunciona,
+  SeletorDeProjeto,
+  type LinhaDeProjeto,
+} from "@/components/revisao/ajuda";
 import { MateriaisDoItem, Midia } from "@/components/revisao/materiais";
 import { accessDeniedMessage, isAccessDenied } from "@/lib/access-error";
 import { asFormato } from "@/lib/review-material";
 import { tokenFromHash } from "@/lib/review-token";
+import {
+  DECIDIR,
+  EXPLICACAO_DA_RESPOSTA,
+  LISTA,
+  LOTE,
+  PROJETOS_TEXTO,
+  SEM_LINK,
+  TITULOS,
+} from "@/lib/review-textos";
 import {
   CONSENSUS_LABEL,
   DECISION_KINDS,
@@ -21,7 +38,12 @@ import {
   KIND_LABEL,
   REVIEW_DECISIONS,
   REVIEW_KINDS,
+  consensoParaLote,
   consensusOf,
+  participacao,
+  projetoDoItem,
+  PROJETOS_DO_ESTUDIO,
+  PROJETO_GERAL,
   decisionProblem,
   responseProblem,
   summarize,
@@ -160,9 +182,9 @@ function EstudioPage() {
 
       {token === undefined && <p className="text-sm text-muted-foreground">Carregando…</p>}
       {token === null && (
-        <Card className="p-4 text-sm">
-          Abra o link pessoal que o senhor recebeu (ele termina com <code>#t=…</code>). Se não
-          tiver, peça um novo a quem enviou este.
+        <Card className="space-y-1 p-4 text-sm">
+          <p className="font-medium">{SEM_LINK.titulo}</p>
+          <p>{SEM_LINK.texto}</p>
         </Card>
       )}
       {token && isLoading && <p className="text-sm text-muted-foreground">Carregando…</p>}
@@ -178,14 +200,14 @@ function EstudioPage() {
       )}
       {data && data.items.length > 0 && token && (
         <>
-          <p className="max-w-3xl text-sm text-muted-foreground">
-            Veja, compare e opine. Cada resposta é salva na hora, com o seu nome. A opinião dos
-            outros avaliadores só aparece depois que o senhor registra a sua, para um não
-            influenciar o outro. Tudo aqui é rascunho: nada é publicado sem a decisão final.
-          </p>
+          <ComoFunciona
+            papel={data.me.role}
+            titulo={TITULOS.comoFunciona}
+            abertoNoInicio={!data.responses.some((r) => r.reviewer_id === data.me.id)}
+          />
           <div className="flex items-center gap-2 text-sm">
             <Switch id="so-falta" checked={soFalta} onCheckedChange={setSoFalta} />
-            <label htmlFor="so-falta">Mostrar só o que falta eu responder</label>
+            <label htmlFor="so-falta">{TITULOS.soFalta}</label>
           </div>
           <Conteudo catalog={data} token={token} soFalta={soFalta} />
         </>
@@ -193,6 +215,8 @@ function EstudioPage() {
     </main>
   );
 }
+
+const TODOS = "__todos__";
 
 function Conteudo({
   catalog,
@@ -203,56 +227,179 @@ function Conteudo({
   token: string;
   soFalta: boolean;
 }) {
-  const kinds = REVIEW_KINDS.filter((k) => catalog.items.some((i) => i.kind === k));
   const decisor = catalog.me.role === "decisor";
+  const [aba, setAba] = useState("resumo");
+  const [projeto, setProjeto] = useState(TODOS);
+
+  const linhas = useMemo<LinhaDeProjeto[]>(() => {
+    const meus = new Set(
+      catalog.responses.filter((r) => r.reviewer_id === catalog.me.id).map((r) => r.item_id),
+    );
+    return [...PROJETOS_DO_ESTUDIO, PROJETO_GERAL].flatMap((nome) => {
+      const doProjeto = catalog.items.filter((i) => projetoDoItem(i.project) === nome);
+      if (doProjeto.length === 0) return [];
+      const identidade = doProjeto.find((i) => i.ref.startsWith("identidade-"));
+      return [
+        {
+          valor: nome,
+          rotulo: nome,
+          total: doProjeto.length,
+          respondidos: doProjeto.filter((i) => meus.has(i.id)).length,
+          paraQuem: identidade ? asText(identidade.body.para_quem) || undefined : undefined,
+        },
+      ];
+    });
+  }, [catalog]);
+
+  const filtrado = useMemo<ReviewCatalog>(() => {
+    if (projeto === TODOS) return catalog;
+    const ids = new Set(
+      catalog.items.filter((i) => projetoDoItem(i.project) === projeto).map((i) => i.id),
+    );
+    return {
+      ...catalog,
+      items: catalog.items.filter((i) => ids.has(i.id)),
+      responses: catalog.responses.filter((r) => ids.has(r.item_id)),
+      all_responses: catalog.all_responses?.filter((r) => ids.has(r.item_id)) ?? null,
+      decisions: catalog.decisions.filter((d) => ids.has(d.item_id)),
+    };
+  }, [catalog, projeto]);
+
+  const kinds = REVIEW_KINDS.filter((k) => filtrado.items.some((i) => i.kind === k));
+  // Ao trocar de projeto, uma aba que ele não tem some: volta para o Resumo.
+  useEffect(() => {
+    if (aba !== "resumo" && aba !== "decidir" && !(kinds as readonly string[]).includes(aba)) {
+      setAba("resumo");
+    }
+  }, [aba, kinds]);
+
+  const todas: LinhaDeProjeto[] = [
+    {
+      valor: TODOS,
+      rotulo: PROJETOS_TEXTO.todos,
+      total: catalog.items.length,
+      respondidos: linhas.reduce((n, l) => n + l.respondidos, 0),
+    },
+    ...linhas,
+  ];
+
   return (
-    <Tabs defaultValue="resumo">
-      <TabsList className="flex h-auto flex-wrap">
-        <TabsTrigger value="resumo">Resumo</TabsTrigger>
+    <div className="space-y-4">
+      <SeletorDeProjeto linhas={todas} valor={projeto} onChange={setProjeto} />
+      <Tabs value={aba} onValueChange={setAba}>
+        <TabsList className="flex h-auto flex-wrap">
+          <TabsTrigger value="resumo">Resumo</TabsTrigger>
+          {kinds.map((k) => (
+            <TabsTrigger key={k} value={k}>
+              {KIND_LABEL[k]}
+            </TabsTrigger>
+          ))}
+          {decisor && <TabsTrigger value="decidir">Decidir</TabsTrigger>}
+        </TabsList>
+        <TabsContent value="resumo">
+          <Resumo
+            catalog={filtrado}
+            token={token}
+            projeto={projeto}
+            linhas={linhas}
+            onAbrirProjeto={setProjeto}
+            onIrParaDecidir={() => setAba("decidir")}
+          />
+        </TabsContent>
         {kinds.map((k) => (
-          <TabsTrigger key={k} value={k}>
-            {KIND_LABEL[k]}
-          </TabsTrigger>
+          <TabsContent key={k} value={k}>
+            <ListaPorTipo catalog={filtrado} token={token} kind={k} soFalta={soFalta} />
+          </TabsContent>
         ))}
-        {decisor && <TabsTrigger value="decidir">Decidir</TabsTrigger>}
-      </TabsList>
-      <TabsContent value="resumo">
-        <Resumo catalog={catalog} />
-      </TabsContent>
-      {kinds.map((k) => (
-        <TabsContent key={k} value={k}>
-          <ListaPorTipo catalog={catalog} token={token} kind={k} soFalta={soFalta} />
-        </TabsContent>
-      ))}
-      {decisor && (
-        <TabsContent value="decidir">
-          <Decidir catalog={catalog} token={token} />
-        </TabsContent>
-      )}
-    </Tabs>
+        {decisor && (
+          <TabsContent value="decidir">
+            <Decidir catalog={filtrado} token={token} />
+          </TabsContent>
+        )}
+      </Tabs>
+    </div>
   );
 }
 
-function Resumo({ catalog }: { catalog: ReviewCatalog }) {
+function Resumo({
+  catalog,
+  token,
+  projeto,
+  linhas,
+  onAbrirProjeto,
+  onIrParaDecidir,
+}: {
+  catalog: ReviewCatalog;
+  token: string;
+  projeto: string;
+  linhas: LinhaDeProjeto[];
+  onAbrirProjeto: (valor: string) => void;
+  onIrParaDecidir: () => void;
+}) {
+  const respostasPorItem = useMemo(() => indexar(catalog.responses), [catalog.responses]);
+  const identidade =
+    projeto === TODOS ? undefined : catalog.items.find((i) => i.ref.startsWith("identidade-"));
   const meus = catalog.responses.filter((r) => r.reviewer_id === catalog.me.id).length;
   const base = catalog.all_responses ?? catalog.responses;
   const s = useMemo(() => summarize(catalog.items, base), [catalog.items, base]);
   const pct = catalog.items.length ? Math.round((100 * meus) / catalog.items.length) : 0;
+  const participantes = useMemo(
+    () => participacao(catalog.reviewers ?? [], catalog.all_responses ?? []),
+    [catalog.reviewers, catalog.all_responses],
+  );
+  const aguardando = useMemo(() => {
+    const comVoto = new Set((catalog.all_responses ?? []).map((r) => r.item_id));
+    const decididos = new Set(catalog.decisions.map((d) => d.item_id));
+    return catalog.items.filter((i) => comVoto.has(i.id) && !decididos.has(i.id)).length;
+  }, [catalog.items, catalog.all_responses, catalog.decisions]);
   return (
     <div className="space-y-4">
+      {projeto === TODOS && <CartoesDeProjeto linhas={linhas} onAbrir={onAbrirProjeto} />}
+      {projeto !== TODOS && (
+        <section className="space-y-2">
+          <h2 className="text-base font-semibold">{PROJETOS_TEXTO.identidadeTitulo}</h2>
+          {identidade ? (
+            <>
+              <p className="max-w-3xl text-sm text-muted-foreground">
+                {PROJETOS_TEXTO.identidadeAjuda}
+              </p>
+              <CartaoItem
+                item={identidade}
+                token={token}
+                me={catalog.me}
+                responses={respostasPorItem.get(identidade.id) ?? []}
+                decision={catalog.decisions.find((d) => d.item_id === identidade.id)}
+              />
+            </>
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              {projeto === PROJETO_GERAL
+                ? PROJETOS_TEXTO.geralDescricao
+                : PROJETOS_TEXTO.semIdentidade}
+            </p>
+          )}
+        </section>
+      )}
       <Card className="p-4">
-        <p className="text-sm font-medium">
-          O senhor respondeu {meus} de {catalog.items.length} itens ({pct}%)
-        </p>
+        <p className="text-sm font-medium">{TITULOS.progresso(meus, catalog.items.length, pct)}</p>
         <div className="mt-2 h-2 w-full rounded bg-muted">
           <div className="h-2 rounded bg-primary" style={{ width: `${pct}%` }} />
         </div>
         <p className="mt-2 text-xs text-muted-foreground">
           {catalog.decisions.length} itens já têm decisão final.
         </p>
+        {meus === 0 && <p className="mt-2 text-sm">{TITULOS.comecar}</p>}
       </Card>
       {catalog.all_responses && (
         <>
+          <BlocoResultados
+            participantes={participantes}
+            totalItens={catalog.items.length}
+            aguardando={aguardando}
+            divergentes={s.divergentes}
+            onIrParaDecidir={onIrParaDecidir}
+          />
+          <p className="text-sm font-medium">Por tipo de material</p>
           <div className="grid gap-3 sm:grid-cols-2">
             {s.byKind.map((k) => (
               <Card key={k.kind} className="p-4">
@@ -272,20 +419,6 @@ function Resumo({ catalog }: { catalog: ReviewCatalog }) {
               </Card>
             ))}
           </div>
-          {s.divergentes.length > 0 && (
-            <Card className="p-4">
-              <p className="mb-2 flex items-center gap-2 font-medium">
-                <Users className="h-4 w-4" aria-hidden="true" /> Onde os avaliadores divergem
-              </p>
-              <ul className="list-inside list-disc text-sm">
-                {s.divergentes.slice(0, 30).map((i) => (
-                  <li key={i.id}>
-                    {KIND_LABEL[i.kind]}: {i.title}
-                  </li>
-                ))}
-              </ul>
-            </Card>
-          )}
         </>
       )}
     </div>
@@ -327,10 +460,16 @@ function ListaPorTipo({
   }, [visiveis]);
 
   if (visiveis.length === 0) {
-    return <p className="text-sm text-muted-foreground">Nada pendente aqui. Obrigado!</p>;
+    return (
+      <div>
+        <AjudaDaAba kind={kind} />
+        <p className="text-sm text-muted-foreground">{LISTA.nadaPendente}</p>
+      </div>
+    );
   }
   return (
     <div className="space-y-6">
+      <AjudaDaAba kind={kind} />
       {grupos.map(([secao, lista]) => (
         <section key={secao || "geral"} className="space-y-3">
           {secao && <h2 className="text-base font-semibold">{secao}</h2>}
@@ -415,6 +554,9 @@ function CartaoItem({
   const pergunta = asText(item.body.pergunta);
   const contexto = asText(item.body.contexto);
   const arquivoDrive = asText(item.body.arquivo_drive);
+  const paraQuem = asText(item.body.para_quem);
+  const eh = asStrings(item.body.e);
+  const naoEh = asStrings(item.body.nao_e);
 
   return (
     <Card className="space-y-3 p-4">
@@ -466,6 +608,35 @@ function CartaoItem({
       {pergunta && <p className="text-sm font-medium">{pergunta}</p>}
       {contexto && <p className="text-sm text-muted-foreground">{contexto}</p>}
 
+      {paraQuem && (
+        <p className="text-sm">
+          <span className="font-medium">{PROJETOS_TEXTO.paraQuem}:</span> {paraQuem}
+        </p>
+      )}
+      {(eh.length > 0 || naoEh.length > 0) && (
+        <div className="grid gap-3 text-sm sm:grid-cols-2">
+          {eh.length > 0 && (
+            <div>
+              <p className="font-medium">{PROJETOS_TEXTO.e}</p>
+              <ul className="list-inside list-disc">
+                {eh.map((t) => (
+                  <li key={t}>{t}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+          {naoEh.length > 0 && (
+            <div>
+              <p className="font-medium">{PROJETOS_TEXTO.naoE}</p>
+              <ul className="list-inside list-disc">
+                {naoEh.map((t) => (
+                  <li key={t}>{t}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+        </div>
+      )}
       {(tem.length > 0 || naoTem.length > 0) && (
         <div className="grid gap-3 text-sm sm:grid-cols-2">
           {tem.length > 0 && (
@@ -538,6 +709,7 @@ function CartaoItem({
             size="sm"
             variant={decision === d ? "default" : "outline"}
             aria-pressed={decision === d}
+            title={EXPLICACAO_DA_RESPOSTA[d]}
             disabled={mutation.isPending}
             onClick={() => {
               setDecision(d);
@@ -608,6 +780,47 @@ function Decidir({ catalog, token }: { catalog: ReviewCatalog; token: string }) 
   const lista = soPendentes ? comVotos.filter((i) => !decisaoPorItem.has(i.id)) : comVotos;
   const exportar = useServerFn(exportReviewData);
   const [exportando, setExportando] = useState(false);
+  const queryClient = useQueryClient();
+  const gravarDecisao = useServerFn(saveReviewDecision);
+  const [mensagemLote, setMensagemLote] = useState<string | null>(null);
+  const [gravandoLote, setGravandoLote] = useState(false);
+
+  const emConsenso = useMemo(
+    () =>
+      lista.flatMap((item) => {
+        if (decisaoPorItem.has(item.id)) return [];
+        const c = consensoParaLote(porItem.get(item.id) ?? []);
+        return c ? [{ item, c }] : [];
+      }),
+    [lista, decisaoPorItem, porItem],
+  );
+  const idsEmConsenso = new Set(emConsenso.map((x) => x.item.id));
+  const restantes = lista.filter((i) => !idsEmConsenso.has(i.id));
+
+  async function decidirLote() {
+    if (!window.confirm(LOTE.confirmar(emConsenso.length))) return;
+    setGravandoLote(true);
+    try {
+      for (const [k, { item, c }] of emConsenso.entries()) {
+        setMensagemLote(LOTE.andamento(k, emConsenso.length));
+        await gravarDecisao({
+          data: {
+            token,
+            item_id: item.id,
+            decision: c.decision,
+            choice: c.choice,
+            rationale: LOTE.justificativa(c.votos),
+          },
+        });
+      }
+      setMensagemLote(LOTE.pronto(emConsenso.length));
+    } catch {
+      setMensagemLote(LOTE.falha);
+    } finally {
+      setGravandoLote(false);
+      void queryClient.invalidateQueries({ queryKey: ["review-catalog", token] });
+    }
+  }
 
   async function baixarTudo() {
     setExportando(true);
@@ -624,10 +837,14 @@ function Decidir({ catalog, token }: { catalog: ReviewCatalog; token: string }) 
 
   return (
     <div className="space-y-4">
+      <div className="space-y-1 rounded-lg border-l-4 border-primary bg-muted/40 p-3 text-sm">
+        <p className="font-medium">Decidir</p>
+        <p>{DECIDIR.explicacao}</p>
+      </div>
       <Card className="flex flex-wrap items-center justify-between gap-3 p-4">
         <div className="flex items-center gap-2 text-sm">
           <Switch id="so-pend" checked={soPendentes} onCheckedChange={setSoPendentes} />
-          <label htmlFor="so-pend">Só o que tem votos e ainda não decidi</label>
+          <label htmlFor="so-pend">{DECIDIR.soComVotos}</label>
         </div>
         <Button
           type="button"
@@ -637,13 +854,46 @@ function Decidir({ catalog, token }: { catalog: ReviewCatalog; token: string }) 
           onClick={baixarTudo}
         >
           <Download className="mr-2 h-4 w-4" aria-hidden="true" />
-          Baixar ata, planilha e cópia
+          {DECIDIR.baixar}
         </Button>
+        <p className="w-full text-xs text-muted-foreground">{DECIDIR.baixarAjuda}</p>
       </Card>
-      {lista.length === 0 && (
-        <p className="text-sm text-muted-foreground">Nenhum item para decidir agora.</p>
+      {lista.length === 0 && <p className="text-sm text-muted-foreground">{DECIDIR.vazio}</p>}
+      {emConsenso.length > 0 && (
+        <Card className="space-y-3 border-emerald-300 p-4">
+          <p className="font-medium">{LOTE.titulo(emConsenso.length)}</p>
+          <p className="text-sm text-muted-foreground">{LOTE.explicacao}</p>
+          <details className="text-sm">
+            <summary className="cursor-pointer">Ver quais são</summary>
+            <ul className="mt-2 list-inside list-disc">
+              {emConsenso.map(({ item }) => (
+                <li key={item.id}>
+                  {projetoDoItem(item.project)} · {KIND_LABEL[item.kind]}: {item.title}
+                </li>
+              ))}
+            </ul>
+          </details>
+          <div className="flex flex-wrap items-center gap-3">
+            <Button type="button" size="sm" disabled={gravandoLote} onClick={decidirLote}>
+              {LOTE.botao(emConsenso.length)}
+            </Button>
+            {mensagemLote && (
+              <span className="text-sm text-muted-foreground" role="status">
+                {mensagemLote}
+              </span>
+            )}
+          </div>
+        </Card>
       )}
-      {lista.map((item) => (
+      {emConsenso.length === 0 && mensagemLote && (
+        <p className="text-sm text-muted-foreground" role="status">
+          {mensagemLote}
+        </p>
+      )}
+      {emConsenso.length > 0 && restantes.length > 0 && (
+        <p className="text-sm font-medium">{LOTE.demais}</p>
+      )}
+      {restantes.map((item) => (
         <CartaoDecisao
           key={item.id}
           item={item}
@@ -698,7 +948,9 @@ function CartaoDecisao({
       <div className="flex flex-wrap items-start justify-between gap-2">
         <div>
           <h3 className="font-medium">{item.title}</h3>
-          <p className="text-xs text-muted-foreground">{KIND_LABEL[item.kind]}</p>
+          <p className="text-xs text-muted-foreground">
+            {projetoDoItem(item.project)} · {KIND_LABEL[item.kind]}
+          </p>
         </div>
         <Badge className={STATUS_TONE[consenso.status]} variant="secondary">
           {CONSENSUS_LABEL[consenso.status]}

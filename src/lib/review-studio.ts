@@ -35,6 +35,23 @@ export const KIND_LABEL: Record<ReviewKind, string> = {
   audio: "Áudios",
 };
 
+/**
+ * Os projetos do Estúdio. Cada um é um produto com público, identidade e regras próprios: os
+ * materiais de um projeto não são alternativas aos de outro. Tudo que não for de um deles é “Geral”.
+ */
+export const PROJETOS_DO_ESTUDIO = [
+  "Psiqway",
+  "Caminhos",
+  "Corte 800",
+  "Médico de Família",
+] as const;
+export const PROJETO_GERAL = "Geral";
+
+export function projetoDoItem(project: string | null | undefined): string {
+  const p = (project ?? "").trim();
+  return (PROJETOS_DO_ESTUDIO as readonly string[]).includes(p) ? p : PROJETO_GERAL;
+}
+
 export const REVIEW_DECISIONS = ["aprovo", "ajusto", "nao_uso", "prefiro", "sem_opiniao"] as const;
 export type ReviewDecision = (typeof REVIEW_DECISIONS)[number];
 
@@ -217,6 +234,31 @@ export const DECISION_KIND_LABEL: Record<DecisionKind, string> = {
 
 export type ReviewerRole = "decisor" | "avaliador";
 
+/** Quem tem link ativo (só o decisor recebe esta lista). */
+export type ReviewerResumo = {
+  id: string;
+  name: string;
+  role: ReviewerRole;
+  last_seen_at: string | null;
+};
+
+export type Participante = ReviewerResumo & { respondidos: number };
+
+/**
+ * Quem já participou e quanto: uma linha por pessoa com link ativo, inclusive quem ainda não
+ * respondeu nada. Mais ativos primeiro; empate por nome.
+ */
+export function participacao(
+  reviewers: ReviewerResumo[],
+  responses: ReviewResponse[],
+): Participante[] {
+  const porPessoa = new Map<string, number>();
+  for (const r of responses) porPessoa.set(r.reviewer_id, (porPessoa.get(r.reviewer_id) ?? 0) + 1);
+  return reviewers
+    .map((r) => ({ ...r, respondidos: porPessoa.get(r.id) ?? 0 }))
+    .sort((a, b) => b.respondidos - a.respondidos || a.name.localeCompare(b.name, "pt-BR"));
+}
+
 /** Decisão FINAL de um item, gravada pelo decisor com a foto dos votos daquele momento. */
 export type ReviewFinalDecision = {
   item_id: string;
@@ -398,4 +440,27 @@ export function buildExport(
         .join("; ")}.`,
     );
   return { csv: linhas.join("\n"), ata: ata.join("\n") };
+}
+
+/** Mínimo de pessoas que precisam ter votado para um item entrar na aprovação em lote. */
+export const MIN_VOTOS_PARA_LOTE = 2;
+
+export type DecisaoEmLote = {
+  decision: "aprovado" | "escolhido";
+  choice: string | null;
+  votos: number;
+};
+
+/**
+ * Item em consenso total (todos aprovaram, ou todos preferiram a mesma opção) e com votos
+ * suficientes: pode ser decidido de uma vez, sem discussão. Qualquer ajuste, rejeição ou
+ * divergência deixa o item de fora: esses precisam do olhar do decisor.
+ */
+export function consensoParaLote(responses: ReviewResponse[]): DecisaoEmLote | null {
+  const c = consensusOf(responses);
+  if (c.reviewers < MIN_VOTOS_PARA_LOTE) return null;
+  if (c.status === "aprovado") return { decision: "aprovado", choice: null, votos: c.reviewers };
+  if (c.status === "escolhido" && c.choice)
+    return { decision: "escolhido", choice: c.choice, votos: c.reviewers };
+  return null;
 }

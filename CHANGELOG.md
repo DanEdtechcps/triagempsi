@@ -12,6 +12,10 @@ O formato baseia-se no [Keep a Changelog](https://keepachangelog.com/pt-BR/1.0.0
 - **Decisão conjunta:** o médico curador (decisor) grava a decisão final por item com justificativa e foto dos votos; histórico preservado. Botão de exportação gera ata (Markdown), planilha (CSV) e cópia completa (JSON) para guardar fora do banco.
 - **Banco:** migração `20261008100000_review_studio.sql` (5 tabelas + função atômica de decisão), RLS ligado e **nada concedido a `anon`/`authenticated`**. Aplicada em produção em 2026-10-08. Migração `20261008200000_review_kinds_materiais.sql` amplia os tipos de item (infográfico, quiz, flashcards, slides, mapa, áudio); a interface para eles vem depois.
 - **Lógica pura testada** (`review-studio.ts`, `review-token.ts`, `review-access.ts`): consenso, cego, regra de publicação por decisão do decisor, exportação, token e recusas de acesso; teste estático da migração.
+- **Estúdio por projeto:** seletor de projeto (Psiqway, Caminhos, Corte 800, Médico de Família e Geral), cartão de cada projeto no Resumo e **identidade do projeto** (para quem, é, não é) confirmável pelos decisores. Materiais passam a ser **um item por tipo e por projeto**, não alternativas entre projetos.
+- **Textos num só arquivo** (`src/lib/review-textos.ts`): "Como funciona", ajuda de cada aba, legenda dos botões, regras de decisão, resultados. Mais didáticos e fáceis de editar; teste avisa se faltar texto.
+- **Resultados e decisão sem reunião:** bloco "Resultados" no Resumo do decisor (quem participou, divergências, itens esperando decisão) e **aprovação em lote** do que está em consenso total (mínimo 2 votos) na aba Decidir.
+- **Correções:** o link pessoal colado numa aba já aberta no Estúdio agora é lido (antes ficava o aviso); a CSP libera `drive.google.com` em quadros só em `/revisao/estudio`.
 - **Scripts locais:** `scripts/seed-review-catalog.ts` (catálogo, só em disco: contém trechos da obra) e `scripts/review-reviewer.ts` (criar, listar e revogar links). Ambos simulam por padrão; gravar exige `--apply` e a chave de serviço do ambiente.
 
 ---
