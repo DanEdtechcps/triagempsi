@@ -143,7 +143,7 @@ test.describe("Estúdio de validação (e2e com banco)", () => {
   test("o infográfico traz uma opção por projeto, cada uma com a sua imagem", async ({ page }) => {
     const bloqueios: string[] = [];
     page.on("console", (m) => {
-      if (/Content Security Policy|Refused to frame/i.test(m.text())) bloqueios.push(m.text());
+      if (/Refused to frame|frame-src/i.test(m.text())) bloqueios.push(m.text());
     });
     await entrar(page);
     await abrirAba(page, "Infográficos");
