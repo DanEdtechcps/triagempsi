@@ -128,7 +128,14 @@ function baixar(nome: string, conteudo: string, tipo: string) {
 
 function EstudioPage() {
   const [token, setToken] = useState<string | null | undefined>(undefined);
-  useEffect(() => setToken(lerToken()), []);
+  useEffect(() => {
+    const ler = () => setToken(lerToken());
+    ler();
+    // Colar o link completo numa aba que já está em /revisao/estudio só muda o fragmento (#t=...):
+    // o navegador não recarrega a página, então é preciso reler o token quando ele muda.
+    window.addEventListener("hashchange", ler);
+    return () => window.removeEventListener("hashchange", ler);
+  }, []);
   const fetchCatalog = useServerFn(listReviewCatalog);
   const { data, isLoading, error } = useQuery({
     queryKey: ["review-catalog", token],
